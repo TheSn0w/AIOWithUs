@@ -1,0 +1,1209 @@
+package net.botwithus;
+
+import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.api.game.hud.inventories.Bank;
+import net.botwithus.api.game.hud.inventories.Equipment;
+import net.botwithus.api.game.hud.inventories.LootInventory;
+import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.Distance;
+import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.hud.interfaces.Component;
+import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
+import net.botwithus.rs3.game.minimenu.MiniMenu;
+import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
+import net.botwithus.rs3.game.movement.Movement;
+import net.botwithus.rs3.game.movement.NavPath;
+import net.botwithus.rs3.game.movement.TraverseEvent;
+import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
+import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
+import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.queries.results.ResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.scene.entities.item.GroundItem;
+import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
+import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.script.ScriptConsole;
+import net.botwithus.rs3.util.RandomGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static net.botwithus.rs3.game.Client.getLocalPlayer;
+
+public class Combat {
+    public static boolean DeathGrasp;
+    public static boolean handleArchGlacor;
+    public static boolean usePOD;
+    public static boolean InvokeDeath;
+    public static boolean VolleyofSouls;
+    public static boolean SpecialAttack;
+    public static boolean SoulSplit;
+    public static boolean useWeaponPoison;
+    public static boolean scriptureofWen;
+    public static boolean scriptureofJas;
+    public static boolean animateDead;
+    public static boolean usequickPrayers;
+    public static boolean useScrimshaws;
+    public static boolean DeflectMagic;
+    public static boolean DeflectMissiles;
+    public static boolean DeflectMelee;
+    public static boolean KeepArmyup;
+    public static int prayerPointsThreshold = 5000;
+    public static int healthPointsThreshold = 50;
+    public static SnowsScript skeletonScript;
+    private static Random random = new Random();
+    public static String targetName = "";
+    public static final List<String> targetNames = new ArrayList<>();
+    Banking banking = new Banking();
+
+    public static final List<String> selectedFoodNames = new ArrayList<>();
+
+    public static String FoodName = "";
+
+    public static String getFoodName() {
+        return FoodName;
+    }
+
+    public static void setFoodName(String foodName) {
+        FoodName = foodName;
+    }
+
+    public static List<String> getSelectedFoodNames() {
+        return selectedFoodNames;
+    }
+
+    public static void addFoodName(String name) {
+        if (!selectedFoodNames.contains(name)) {
+            selectedFoodNames.add(name);
+        }
+    }
+
+    private static List<String> combatList = new ArrayList<>();
+
+    public static void removeFoodName(String name) {
+        selectedFoodNames.remove(name);
+    }
+
+    public Combat(SnowsScript script) {
+        skeletonScript = script;
+    }
+
+    public static void addTargetName(String targetName) {
+        ScriptConsole.println("[Combat] Adding target name: " + targetName);
+        String lowerCaseName = targetName.toLowerCase();
+        synchronized (targetNames) {
+            if (!targetNames.contains(lowerCaseName)) {
+                targetNames.add(lowerCaseName);
+            }
+        }
+    }
+
+    public static void addTarget(String target) {
+        if (!combatList.contains(target)) {
+            combatList.add(target);
+        }
+    }
+
+    public static void removeTargetName(String targetName) {
+        synchronized (targetNames) {
+            targetNames.remove(targetName.toLowerCase());
+        }
+    }
+
+    public static List<String> getTargetNames() {
+        synchronized (targetNames) {
+            return new ArrayList<>(targetNames);
+        }
+    }
+
+    private Pattern generateRegexPattern(List<String> names) {
+        return Pattern.compile(
+                names.stream()
+                        .map(Pattern::quote)
+                        .reduce((name1, name2) -> name1 + "|" + name2)
+                        .orElse(""),
+                Pattern.CASE_INSENSITIVE
+        );
+    }
+
+
+    public long attackTarget(LocalPlayer player) {
+        if (player == null) {
+            return logAndDelay("[attackTarget] Local player not found.", 1500, 3000);
+        }
+        if (skeletonScript.useLoot) {
+            processLooting();
+        }
+        if (SoulSplit) {
+            Execution.delay(manageSoulSplit(player));
+        }
+        if (usequickPrayers)
+            manageQuickPrayers(player);
+
+        if (shouldBank(player) && !usePOD) {
+            return bankAndDelay(player);
+        }
+        if (scriptureofJas || scriptureofWen || animateDead || useScrimshaws) {
+            if (scriptureofJas) {
+                manageScriptureOfJas();
+            }
+            if (scriptureofWen) {
+                manageScriptureOfWen();
+            }
+            if (animateDead) {
+                manageAnimateDead(player);
+            }
+            if (useScrimshaws) {
+                manageScrimshaws(player);
+            }
+        }
+
+        if (isHealthLow(player)) {
+            eatFood(player);
+            return logAndDelay("[attackTarget] Health is low.", 1000, 3000);
+        }
+
+        if (player.hasTarget()) {
+            if (DeathGrasp) {
+                essenceOfFinality();
+            }
+            if (InvokeDeath) {
+                Deathmark();
+            }
+            if (VolleyofSouls) {
+                volleyOfSouls();
+            }
+            if (SpecialAttack) {
+                DeathEssence();
+            }
+            if (KeepArmyup) {
+                KeepArmyup();
+            }
+            return random.nextLong(1000, 1500);
+        }
+
+
+        Npc monster = findTarget(player);
+        if (monster == null) {
+            return logAndDelay("[Combat] No valid NPC target found.", 1000, 3000);
+        }
+
+        return attackMonster(player, monster);
+    }
+
+    private boolean shouldBank(LocalPlayer player) {
+        long overloadCheck = drinkOverloads(player);
+        long prayerCheck = usePrayerOrRestorePots(player);
+        long aggroCheck = useAggression(player);
+        long weaponPoisonCheck = useWeaponPoison(player);
+        return useWeaponPoison && weaponPoisonCheck == 1L || skeletonScript.useOverloads && overloadCheck == 1L || skeletonScript.usePrayerPots && prayerCheck == 1L || skeletonScript.useAggroPots && aggroCheck == 1L;
+    }
+
+    private long bankAndDelay(LocalPlayer player) {
+        if (VarManager.getVarbitValue(16779) == 1) {
+            ActionBar.useAbility("Soul Split");
+        }
+        skeletonScript.setLastSkillingLocation(player.getCoordinate());
+        ActionBar.useAbility("War's Retreat Teleport");
+        SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+        return logAndDelay("[Combat] Banking.", 1500, 3000);
+    }
+
+
+    private Npc findTarget(LocalPlayer player) {
+        List<String> targetNames = getTargetNames();
+        if (targetNames.isEmpty()) {
+            return null;
+        }
+
+        Pattern monsterPattern = generateRegexPattern(targetNames);
+
+        return NpcQuery.newQuery()
+                .name(monsterPattern)
+                .isReachable()
+                .health(100, 1_000_000)
+                .option("Attack")
+                .results()
+                .nearestTo(player.getCoordinate());
+    }
+
+    private long attackMonster(LocalPlayer player, Npc monster) {
+        boolean attack = monster.interact("Attack");
+        if (attack) {
+            return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 750, 1250);
+        } else {
+            return logAndDelay("[Combat] Failed to attack " + monster.getName(), 1500, 3000);
+        }
+    }
+
+    private long logAndDelay(String message, int minDelay, int maxDelay) {
+        ScriptConsole.println(message);
+        long delay = random.nextLong(minDelay, maxDelay);
+        Execution.delay(delay);
+        return delay;
+    }
+
+    public long BankforFood(LocalPlayer player) {
+        ScriptConsole.println("[BankforFood] Method started.");
+
+        Banking.Bank nearestBank = banking.findNearestBank(player.getCoordinate());
+
+        if (nearestBank != null) {
+            if (!nearestBank.getArea().contains(player.getCoordinate())) {
+                banking.navigateToNearestBank(player, nearestBank);
+            } else {
+                ScriptConsole.println("[BankforFood] Already in the bank area.");
+            }
+
+            banking.interactWithBank(nearestBank);
+            Execution.delayUntil(15000, Bank::isOpen);
+            ScriptConsole.println("[BankforFood] Interacting with bank.");
+
+            if (Bank.isOpen()) {
+                ScriptConsole.println("[BankforFood] Bank is open.");
+                withdrawFood();
+                returnToSkillingLocation(player);
+            } else {
+                ScriptConsole.println("[BankforFood] Bank is not open.");
+            }
+        } else {
+            ScriptConsole.println("[BankforFood] No nearest bank found.");
+        }
+
+        ScriptConsole.println("[BankforFood] Method ended.");
+        return 0;
+    }
+
+
+    private void withdrawFood() {
+        ScriptConsole.println("Interface is open.");
+        Execution.delay(RandomGenerator.nextInt(600, 1000)); // Short delay
+
+        if (selectedFoodNames.isEmpty()) {
+            ScriptConsole.println("No food names specified.");
+            return;
+        }
+
+        for (String foodName : selectedFoodNames) {
+            Bank.withdrawAll(foodName);
+        }
+    }
+
+    private void returnToSkillingLocation(LocalPlayer player) {
+        ScriptConsole.println("Returning to last skilling location: " + skeletonScript.getLastSkillingLocation());
+        Movement.traverse(NavPath.resolve(skeletonScript.getLastSkillingLocation().getRandomWalkableCoordinate())); // Navigate back
+        SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
+        Execution.delay(random.nextLong(1500, 3000));
+    }
+
+    public static List<String> targetItemNames = new ArrayList<>();
+    public static String selectedItem = "";
+
+    public static List<String> getTargetItemNames() {
+        return targetItemNames;
+    }
+
+    public static String getSelectedItem() {
+        return selectedItem;
+    }
+
+    public static void setSelectedItem(String selectedItem) {
+        Combat.selectedItem = selectedItem;
+    }
+
+    public void LootEverything() {
+        if (Interfaces.isOpen(1622)) {
+            LootAll();
+        } else {
+            lootInterface();
+            Execution.delayUntil(10000, () -> Interfaces.isOpen(1622));
+        }
+    }
+
+    public void LootAll() {
+        EntityResultSet<GroundItem> groundItems = GroundItemQuery.newQuery().results();
+        if (groundItems.isEmpty()) {
+            return;
+        }
+
+        Execution.delay(RandomGenerator.nextInt(1500, 2000));
+        ComponentQuery lootAllQuery = ComponentQuery.newQuery(1622);
+        List<Component> components = lootAllQuery.componentIndex(22).results().stream().toList();
+
+        if (!components.isEmpty() && components.get(0).interact(1)) {
+            ScriptConsole.println("Successfully interacted with Loot All.");
+            Execution.delay(RandomGenerator.nextInt(806, 1259));
+        }
+    }
+
+    public void lootInterface() {
+        EntityResultSet<GroundItem> groundItems = GroundItemQuery.newQuery().results();
+        if (groundItems.isEmpty()) {
+            return;
+        }
+
+        if (!groundItems.isEmpty() && !Backpack.isFull()) {
+            GroundItem groundItem = groundItems.nearest();
+            if (groundItem != null) {
+                groundItem.interact("Take");
+                Execution.delayUntil(RandomGenerator.nextInt(5000, 5500), () -> getLocalPlayer().isMoving());
+
+                if (getLocalPlayer().isMoving() && groundItem.getCoordinate() != null && Distance.between(getLocalPlayer().getCoordinate(), groundItem.getCoordinate()) > 10) {
+                    ScriptConsole.println("Used Surge: " + ActionBar.useAbility("Surge"));
+                    Execution.delay(RandomGenerator.nextInt(200, 250));
+                }
+
+                if (groundItem.getCoordinate() != null) {
+                    Execution.delayUntil(RandomGenerator.nextInt(100, 200), () -> Distance.between(getLocalPlayer().getCoordinate(), groundItem.getCoordinate()) <= 10);
+                }
+
+                if (groundItem.interact("Take")) {
+                    ScriptConsole.println("Taking " + groundItem.getName() + "...");
+                    Execution.delay(RandomGenerator.nextInt(600, 700));
+                }
+
+                boolean interfaceOpened = Execution.delayUntil(15000, () -> Interfaces.isOpen(1622));
+                if (!interfaceOpened) {
+                    ScriptConsole.println("Interface 1622 did not open. Attempting to interact with ground item again.");
+                    if (groundItem.interact("Take")) {
+                        ScriptConsole.println("Attempting to take " + groundItem.getName() + " again...");
+                        Execution.delay(RandomGenerator.nextInt(250, 300));
+                    }
+                }
+                LootAll();
+            }
+        }
+    }
+    private void manageScriptureOfJas() {
+        if (getLocalPlayer() != null) {
+            if (getLocalPlayer().inCombat()) {
+                Execution.delay(activateScriptureOfJas());
+            } else {
+                Execution.delay(deactivateScriptureOfJas());
+            }
+        }
+    }
+
+    private long activateScriptureOfJas() {
+        if (VarManager.getVarbitValue(30605) == 0 && VarManager.getVarbitValue(30604) >= 60) {
+            ScriptConsole.println("Activated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            return random.nextLong(1500, 3000);
+        }
+        return 0L;
+    }
+
+    private long deactivateScriptureOfJas() {
+        if (VarManager.getVarbitValue(30605) == 1) {
+            ScriptConsole.println("Deactivated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            return random.nextLong(1500, 3000);
+        }
+        return 0L;
+    }
+
+    private void manageScriptureOfWen() {
+        if (getLocalPlayer() != null) {
+            if (getLocalPlayer().inCombat()) {
+                Execution.delay(activateScriptureOfWen());
+            } else {
+                Execution.delay(deactivateScriptureOfWen());
+            }
+        }
+    }
+
+    private long activateScriptureOfWen() {
+        if (VarManager.getVarbitValue(30605) == 0 && VarManager.getVarbitValue(30604) >= 60) {
+            ScriptConsole.println("Activated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            return random.nextLong(1500, 3000);
+        }
+        return 0L;
+    }
+
+    private long deactivateScriptureOfWen() {
+        if (VarManager.getVarbitValue(30605) == 1) {
+            ScriptConsole.println("Deactivated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            return random.nextLong(1500, 3000);
+        }
+        return 0L;
+    }
+
+    public void processLooting() {
+        if (Backpack.isFull()) {
+            ScriptConsole.println("Backpack is full. Cannot loot more items.");
+            return;
+        }
+
+        if (Interfaces.isOpen(1622)) {
+            lootFromInventory();
+        } else {
+            lootFromGround();
+        }
+    }
+
+    private Pattern generateLootPattern(List<String> names) {
+        return Pattern.compile(
+                names.stream()
+                        .map(Pattern::quote)
+                        .reduce((name1, name2) -> name1 + "|" + name2)
+                        .orElse(""),
+                Pattern.CASE_INSENSITIVE
+        );
+    }
+
+    private boolean canLoot() {
+        return !targetItemNames.isEmpty();
+    }
+
+    public void lootFromInventory() {
+        if (!canLoot()) {
+            ScriptConsole.println("[LootFromInventory] No target items specified for looting.");
+            return;
+        }
+
+        Pattern lootPattern = generateLootPattern(targetItemNames);
+        List<Item> inventoryItems = LootInventory.getItems();
+
+        for (Item item : inventoryItems) {
+            if (item.getName() == null) {
+                continue;
+            }
+
+            Matcher matcher = lootPattern.matcher(item.getName());
+            if (matcher.find()) {
+                LootInventory.take(item.getName());
+                ScriptConsole.println("[LootFromInventory] Successfully looted item: " + item.getName());
+            }
+        }
+    }
+
+    public void lootFromGround() {
+        if (targetItemNames.isEmpty()) {
+            ScriptConsole.println("[LootFromGround] No target items specified for looting.");
+            return;
+        }
+
+        if (LootInventory.isOpen()) {
+            ScriptConsole.println("[LootFromGround] Loot interface is open, skipping ground looting.");
+            return;
+        }
+
+        Pattern lootPattern = generateLootPattern(targetItemNames);
+        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+
+        for (GroundItem groundItem : groundItems) {
+            if (groundItem.getName() == null) {
+                continue;
+            }
+
+            Matcher matcher = lootPattern.matcher(groundItem.getName());
+            if (matcher.find()) {
+                groundItem.interact("Take");
+                ScriptConsole.println("[lootFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                Execution.delay(5000);
+            }
+        }
+    }
+
+    public static void setPrayerPointsThreshold(int threshold) {
+        prayerPointsThreshold = threshold;
+    }
+
+    public static void setHealthThreshold(int healthThreshold) {
+        healthPointsThreshold = healthThreshold;
+    }
+    public static int getPrayerPointsThreshold() {
+        return prayerPointsThreshold;
+    }
+
+    public static int getHealthPointsThreshold() {
+        return healthPointsThreshold;
+    }
+
+    static long manageSoulSplit(LocalPlayer player) {
+        if (player == null) {
+            return 0;
+        }
+        if (!ActionBar.containsAbility("Soul Split")) {
+            return 0;
+        }
+
+        boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
+
+        if (player.inCombat()) {
+            if (!isSoulSplitActive && player.getPrayerPoints() > 1) {
+                boolean success = ActionBar.useAbility("Soul Split");
+                if (success) {
+                    ScriptConsole.println("Activating Soul Split.");
+                    return random.nextLong(600, 1500);
+                } else {
+                    ScriptConsole.println("Failed to activate Soul Split.");
+                    return 0;
+                }
+            }
+        } else {
+            if (isSoulSplitActive) {
+                boolean success = ActionBar.useAbility("Soul Split");
+                if (success) {
+                    ScriptConsole.println("Deactivating Soul Split.");
+                    return random.nextLong(600, 1500);
+                } else {
+                    ScriptConsole.println("Failed to deactivate Soul Split.");
+                    return 0;
+                }
+            }
+        }
+
+        return 0L;
+    }
+
+    public static int NecrosisStacksThreshold = 12;
+
+    static void essenceOfFinality() {
+        if (getLocalPlayer().getAdrenaline() >= 250
+                && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty()
+                && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && getLocalPlayer().inCombat() && getLocalPlayer().getFollowing() != null
+                && getLocalPlayer().hasTarget()
+                && ActionBar.getCooldownPrecise("Essence of Finality") == 0) {
+            int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
+            if (currentNecrosisStacks >= NecrosisStacksThreshold) {
+                boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
+                if (abilityUsed) {
+                    ScriptConsole.println("[Combat] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
+                    Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty());
+                } else {
+                    ScriptConsole.println("Attempted to use Death Grasp, but ability use failed.");
+                }
+            }
+        }
+    }
+
+    static void DeathEssence() {
+        if (getLocalPlayer() != null) {
+
+            if (getLocalPlayer().getAdrenaline() >= 350 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && getLocalPlayer().getFollowing() != null && getLocalPlayer().getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && getLocalPlayer().hasTarget()) {
+                ScriptConsole.println("[Combat] Used Death Essence: " + ActionBar.useAbility("Weapon Special Attack"));
+                Execution.delay(RandomGenerator.nextInt(600, 1500));
+            }
+        }
+    }
+
+    public static int VolleyOfSoulsThreshold = 5;
+
+    static void volleyOfSouls() {
+        if (getLocalPlayer() != null && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && getLocalPlayer().inCombat() && getLocalPlayer().getFollowing() != null && getLocalPlayer().hasTarget()) {
+            int currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035); // Assuming this var tracks the relevant mechanic
+            boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
+            if (abilityUsed) {
+                ScriptConsole.println("Used Volley of Souls with " + currentResidualSouls + " residual souls.");
+                Execution.delayUntil(RandomGenerator.nextInt(2400, 3000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold);
+            } else {
+                ScriptConsole.println("Attempted to use Volley of Souls, but ability use failed.");
+            }
+        }
+    }
+
+
+    static void Deathmark() {
+        if (VarManager.getVarbitValue(53247) == 0 && getLocalPlayer().getFollowing() != null && getLocalPlayer().getFollowing().getCurrentHealth() >= 500 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && getLocalPlayer().hasTarget()) {
+            ScriptConsole.println("Used Invoke Death: " + ActionBar.useAbility("Invoke Death"));
+            Execution.delay(RandomGenerator.nextInt(600, 1500));
+        }
+    }
+
+    static void KeepArmyup() {
+        if (VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0) {
+            ScriptConsole.println("Cast Conjure army: " + ActionBar.useAbility("Conjure Undead Army"));
+            Execution.delay(RandomGenerator.nextInt(600, 1500));
+        }
+    }
+    static void manageAnimateDead(LocalPlayer player) {
+        if (player.inCombat()) {
+            if (VarManager.getVarbitValue(49447) <= 1) {
+                ScriptConsole.println("Cast Animate Dead: " + ActionBar.useAbility("Animate Dead"));
+                Execution.delay(RandomGenerator.nextInt(600, 1500));
+            }
+        }
+    }
+
+    static long useAggression(LocalPlayer player) {
+        if (!skeletonScript.useAggroPots || player == null || !player.inCombat() || player.getAnimationId() == 18000 || VarManager.getVarbitValue(33448) != 0) {  // Check if aggression potions are enabled
+            return random.nextLong(300, 750);
+        }
+
+        ResultSet<Item> results = InventoryItemQuery.newQuery(93)
+                .name("Aggression", String::contains)
+                .option("Drink")
+                .results();
+
+        if (results.isEmpty()) {
+            ScriptConsole.println("[Aggression Potions] No aggression flasks found in the inventory.");
+            return 1L;
+        }
+
+        Item aggressionFlask = results.first();
+        if (aggressionFlask != null) {
+            boolean success = Backpack.interact(aggressionFlask.getName(), "Drink");
+            if (success) {
+                ScriptConsole.println("[Aggression Potions] Using aggression potion: " + aggressionFlask.getName());
+                long delay = random.nextLong(1500, 3000);
+                Execution.delay(delay);
+                return delay;
+            } else {
+                ScriptConsole.println("[Aggression Potions] Failed to use aggression potion: " + aggressionFlask.getName());
+                return 0;
+            }
+        }
+
+        return 0;
+    }
+
+
+    static long usePrayerOrRestorePots(LocalPlayer player) {
+        if (!skeletonScript.usePrayerPots || player == null || !player.inCombat() || player.getAnimationId() == 18000 || player.getPrayerPoints() > prayerPointsThreshold) {  // Check if there's a local player
+            return random.nextLong(300, 750);
+        }
+
+        ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();
+
+        Item prayerOrRestorePot = items.stream()
+                .filter(item -> item.getName() != null &&
+                        (item.getName().toLowerCase().contains("prayer") ||
+                                item.getName().toLowerCase().contains("restore")))
+                .findFirst()
+                .orElse(null);
+
+        if (prayerOrRestorePot == null) {
+            ScriptConsole.println("[Prayer Potions]  No prayer or restore potions found in the backpack.");
+            return 1L;
+        }
+
+        ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
+        boolean success = Backpack.interact(prayerOrRestorePot.getName(), "Drink");
+        if (success) {
+            ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
+            long delay = random.nextLong(1500, 3000);
+            Execution.delay(delay);
+            return delay;
+        } else {
+            ScriptConsole.println("[Prayer Potions]  Failed to interact with " + prayerOrRestorePot.getName());
+            return 0;
+        }
+    }
+
+    static long drinkOverloads(LocalPlayer player) {
+        if (!skeletonScript.useOverloads) {
+            return random.nextLong(300, 750);
+        }
+
+        if (player == null || !player.inCombat() || VarManager.getVarbitValue(48834) != 0 || player.getAnimationId() == 18000) {  // Ensure there's a valid player and conditions are right
+            return 0L;
+        }
+
+        Pattern overloadPattern = Pattern.compile("overload", Pattern.CASE_INSENSITIVE);
+
+
+        Item overloadPot = InventoryItemQuery.newQuery()
+                .results()
+                .stream()
+                .filter(item -> item.getName() != null && overloadPattern.matcher(item.getName()).find())
+                .findFirst()
+                .orElse(null);
+
+        if (overloadPot == null) {
+            ScriptConsole.println("[Overload] No overload potion found in the Backpack.");
+            return 1L;
+        }
+
+
+        boolean success = Backpack.interact(overloadPot.getName(), "Drink");
+        if (success) {
+            ScriptConsole.println("[Overload] Successfully drank " + overloadPot.getName());
+            long delay = random.nextLong(1500, 3000);
+            Execution.delay(delay);
+            return delay;
+        } else {
+            ScriptConsole.println("[Overload] Failed to interact with overload potion.");
+            return 0L;
+        }
+    }
+    static long useWeaponPoison(LocalPlayer player) {
+        if (!useWeaponPoison) {
+            return random.nextLong(300, 750);
+        }
+        if (player == null || player.getAnimationId() == 18068 || VarManager.getVarbitValue(2102) > 3) {  // Ensure there's a valid player and conditions are right
+            return 0L;
+        }
+
+        Pattern poisonPattern = Pattern.compile("weapon poison\\+*?", Pattern.CASE_INSENSITIVE);
+
+        Item weaponPoisonItem = InventoryItemQuery.newQuery()
+                .results()
+                .stream()
+                .filter(item -> item.getName() != null && poisonPattern.matcher(item.getName()).find())
+                .findFirst()
+                .orElse(null);
+
+        if (weaponPoisonItem == null) {
+            ScriptConsole.println("[Weapon Poison] No weapon poison found in the Backpack.");
+            return 1L;
+        }
+
+        boolean success = Backpack.interact(weaponPoisonItem.getName(), "Apply");
+        if (success) {
+            ScriptConsole.println("[Weapon Poison] Successfully applied " + weaponPoisonItem.getName());
+            long delay = random.nextLong(1500, 3000);
+            Execution.delay(delay);
+            return delay;
+        } else {
+            ScriptConsole.println("[Weapon Poison] Failed to apply weapon poison.");
+            return 0L;
+        }
+    }
+    private void manageScrimshaws(LocalPlayer player) {
+        Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
+        Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
+
+        if (Scrimshaw != null) {
+            if (player.inCombat()) {
+                Execution.delay(activateScrimshaws());
+            } else {
+                Execution.delay(deactivateScrimshaws());
+            }
+        } else {
+            ScriptConsole.println("Pocket slot does not contain a scrimshaw.");
+        }
+    }
+
+    private long activateScrimshaws() {
+        Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
+        Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
+        if (Scrimshaw != null && VarManager.getInvVarbit(Scrimshaw.getInventoryType().getId(), Scrimshaw.getSlot(), 17232) == 0) {
+            ScriptConsole.println("Activating Scrimshaws.");
+            Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate");
+            return RandomGenerator.nextInt(1500, 3000);
+        }
+        return 0L;
+    }
+
+    private long deactivateScrimshaws() {
+        Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
+        Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
+        if (Scrimshaw != null && VarManager.getInvVarbit(Scrimshaw.getInventoryType().getId(), Scrimshaw.getSlot(), 17232) == 1) {
+            ScriptConsole.println("Deactivating Scrimshaws.");
+            Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate");
+            return RandomGenerator.nextInt(1500, 3000);
+        }
+        return 0L;
+    }
+    private boolean isQuickPrayersActive() {
+        int[] varbitIds = {
+                // Curses
+                16761, 16762, 16763, 16786, 16764, 16765, 16787, 16788, 16765, 16766,
+                16767, 16768, 16769, 16770, 16771, 16772, 16781, 16773, 16782, 16774,
+                16775, 16776, 16777, 16778, 16779, 16780, 16784, 16783, 29065, 29066,
+                29067, 29068, 29069, 49330, 29071, 34866, 34867, 34868, 53275, 53276,
+                53277, 53278, 53279, 53280, 53281,
+                // Normal
+                16739, 16740, 16741, 16742, 16743, 16744, 16745, 16746, 16747, 16748,
+                16749, 16750, 16751, 16752, 16753, 16754, 16755, 16756, 16757, 16758,
+                16759, 16760, 53271, 53272, 53273, 53274
+        };
+
+        for (int varbitId : varbitIds) {
+            if (VarManager.getVarbitValue(varbitId) == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean quickPrayersActive = false;
+
+    public void manageQuickPrayers(LocalPlayer player) {
+
+        if (player.inCombat() && !quickPrayersActive) {
+            updateQuickPrayersActivation(player);
+        } else if (!player.inCombat() && quickPrayersActive) {
+            updateQuickPrayersActivation(player);
+        }
+    }
+
+    private void updateQuickPrayersActivation(LocalPlayer player) {
+        boolean isCurrentlyActive = isQuickPrayersActive();
+        boolean shouldBeActive = shouldActivateQuickPrayers(player);
+
+        if (shouldBeActive && !isCurrentlyActive) {
+            activateQuickPrayers();
+        } else if (!shouldBeActive && isCurrentlyActive) {
+            deactivateQuickPrayers();
+        }
+    }
+
+    private void activateQuickPrayers() {
+        if (!quickPrayersActive) {
+            ScriptConsole.println("Activating Quick Prayers.");
+            if (ActionBar.useAbility("Quick-prayers 1")) {
+                ScriptConsole.println("Quick Prayers activated successfully.");
+                quickPrayersActive = true;
+            } else {
+                ScriptConsole.println("Failed to activate Quick Prayers.");
+            }
+        }
+    }
+
+    private void deactivateQuickPrayers() {
+        if (quickPrayersActive) {
+            ScriptConsole.println("Deactivating Quick Prayers.");
+            if (ActionBar.useAbility("Quick-prayers 1")) {
+                ScriptConsole.println("Quick Prayers deactivated.");
+                quickPrayersActive = false;
+            } else {
+                ScriptConsole.println("Failed to deactivate Quick Prayers.");
+            }
+        }
+    }
+
+    private boolean shouldActivateQuickPrayers(LocalPlayer player) {
+        return player.inCombat();
+    }
+
+
+    public static void eatFood(LocalPlayer player) {
+        boolean isPlayerEating = player.getAnimationId() == 18001;
+        double healthPercentage = calculateHealthPercentage(player);
+        boolean isHealthAboveThreshold = healthPercentage > healthPointsThreshold;
+
+
+        if (isPlayerEating || isHealthAboveThreshold) {
+            return;
+        }
+
+        Execution.delay(healHealth(player));
+
+    }
+
+    public static double calculateHealthPercentage(LocalPlayer player) {
+        double currentHealth = player.getCurrentHealth();
+        double maximumHealth = player.getMaximumHealth();
+
+        if (maximumHealth == 0) {
+            throw new ArithmeticException("Maximum health cannot be zero.");
+        }
+
+        return (currentHealth / maximumHealth) * 100;
+    }
+
+    private static long healHealth(LocalPlayer player) {
+        ResultSet<Item> foodItems = InventoryItemQuery.newQuery(93).option("Eat").results();
+        Item food = foodItems.isEmpty() ? null : foodItems.first();
+
+        if (food == null) {
+            if (skeletonScript.BankforFood) {
+                ScriptConsole.println("[EatFood] No food found. Banking for food.");
+                skeletonScript.setLastSkillingLocation(player.getCoordinate());
+                SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+                return random.nextLong(1500, 3000);
+            } else {
+                ScriptConsole.println("[EatFood] No food found and banking for food is disabled.");
+                return 0;
+            }
+        }
+
+        boolean eatSuccess = Backpack.interact(food.getName(), "Eat");
+
+        if (eatSuccess) {
+            ScriptConsole.println("[EatFood] Successfully ate " + food.getName());
+            Execution.delay(RandomGenerator.nextInt(250, 450));
+        } else {
+            ScriptConsole.println("[EatFood] Failed to eat.");
+        }
+        return 0;
+    }
+
+    static boolean isHealthLow(LocalPlayer player) {
+        double healthPercentage = calculateHealthPercentage(player);
+        return healthPercentage < healthPointsThreshold;
+    }
+
+    private int currentStep = 1;  // This controls which part of the switch statement to execute
+
+    void handlePOD() {
+        switch (currentStep) {
+            case 1:
+                if (travelToPOD()) {
+                    ScriptConsole.println("Arrived at POD. Proceeding to interaction.");
+                    currentStep = 2;
+                } else {
+                    ScriptConsole.println("Traveling to POD...");
+                }
+                break;
+            case 2:
+                if (interactWithKags()) {
+                    ScriptConsole.println("Interacted with Kags. Proceeding to the next step.");
+                    currentStep = 3;
+                }
+                break;
+            case 3:
+                if (interactWithFirstDoor()) {
+                    ScriptConsole.println("Interacted with the first door. Proceeding to the next step.");
+                    currentStep = 4;
+                }
+                break;
+            case 4:
+                if (interactWithOtherDoor()) {
+                    ScriptConsole.println("Interacted with the other door. Proceeding to the next step.");
+                    currentStep = 5;
+                }
+                break;
+            case 5:
+                if (movePlayerEast()) {
+                    ScriptConsole.println("Moved player east. Proceeding to the next step.");
+                    currentStep = 6;
+                }
+                break;
+            case 6:
+                attackTarget(getLocalPlayer());
+                if (shouldBank(getLocalPlayer())) {
+                    currentStep = 7;
+                }
+                break;
+            case 7:
+                if (BankingforPoD(getLocalPlayer())) {
+                    currentStep = 1;
+                }
+                break;
+
+            default:
+                ScriptConsole.println("Invalid step. Please check the process flow.");
+                break;
+        }
+    }
+
+    private boolean travelToPOD() {
+        NavPath path = NavPath.resolve(new Coordinate(3122, 2632, 0));
+        return Movement.traverse(path) == TraverseEvent.State.FINISHED;
+    }
+
+    private boolean interactWithKags() {
+        EntityResultSet<Npc> kags = NpcQuery.newQuery().name("Portmaster Kags").option("Travel").results();
+        if (!kags.isEmpty()) {
+            Npc nearestKags = kags.nearest();
+            if (nearestKags != null && nearestKags.interact("Travel")) {
+                Execution.delayUntil((5000), () -> Interfaces.isOpen(1188));
+                if (Interfaces.isOpen(1188)) {
+                    MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 77856776);
+                    Execution.delay(RandomGenerator.nextInt(5000, 8000));
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean interactWithFirstDoor() {
+        EntityResultSet<SceneObject> door = SceneObjectQuery.newQuery().name("Door").option("Open").results();
+        if (!door.isEmpty()) {
+            SceneObject nearestDoor = door.nearest();
+            if (nearestDoor != null && nearestDoor.interact("Enter dungeon")) {
+                Execution.delay(RandomGenerator.nextInt(5000, 8000));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean interactWithOtherDoor() {
+        EntityResultSet<SceneObject> otherDoor = SceneObjectQuery.newQuery().name("Barrier").option("Pass through").results();
+        if (!otherDoor.isEmpty()) {
+            SceneObject nearestOtherDoor = otherDoor.nearest();
+            if (nearestOtherDoor != null && nearestOtherDoor.interact("Pass through")) {
+                Execution.delay(RandomGenerator.nextInt(5000, 8000));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean movePlayerEast() {
+        if (getLocalPlayer() != null) {
+            Coordinate targetCoordinate = getLocalPlayer().getCoordinate();
+            Movement.walkTo(targetCoordinate.getX() + 7, targetCoordinate.getY(), true);
+        }
+        return true;
+    }
+    private boolean BankingforPoD(LocalPlayer player) {
+        if (VarManager.getVarbitValue(16779) == 1) {
+            ActionBar.useAbility("Soul Split");
+        }
+        ActionBar.useAbility("War's Retreat Teleport");
+        Execution.delay(RandomGenerator.nextInt(6000, 8000));
+
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
+        if (!results.isEmpty()) {
+            SceneObject chest = results.nearest();
+            if (chest != null) {
+                chest.interact("Load Last Preset from");
+                Execution.delay(RandomGenerator.nextInt(6000, 8000));
+            }
+        }
+        return true;
+    }
+    long handleArchGlacor() {
+        switch (currentStep) {
+            case 1:
+                if (travelToArchGlacor(getLocalPlayer())) {
+                    currentStep = 2;
+                }
+                break;
+            case 2:
+                attackTarget(getLocalPlayer());
+                Execution.delay(printRemainingTime());
+                Component timerComponent = getTimerComponent();
+                if (shouldBank(getLocalPlayer()) || isTimerZero(timerComponent) || Backpack.isFull()) {
+                    currentStep = 3;
+                }
+                break;
+            case 3:
+                if (BankingforArch(getLocalPlayer())) {
+                    currentStep = 1;
+                }
+                break;
+            default:
+                break;
+        }
+        return 0;
+    }
+
+    private boolean BankingforArch(LocalPlayer player) {
+        ActionBar.useAbility("Max Guild Teleport");
+        Execution.delay(RandomGenerator.nextInt(6000, 8000));
+
+        EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Bank").results();
+        if (!results.isEmpty()) {
+            Npc banker = results.nearest();
+            if (banker != null) {
+                banker.interact("Load Last Preset from");
+                Execution.delay(RandomGenerator.nextInt(3000, 4000));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean travelToArchGlacor(LocalPlayer player) {
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(121369).option("Enter").results();
+        EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
+        if (!results.isEmpty()) {
+            SceneObject portal = results.nearest();
+            if (portal != null) {
+                portal.interact("Enter");
+                return true;
+            }
+        }
+
+        while (Aqueduct.isEmpty()) {
+            Execution.delay(1000);  // Delay to prevent rapid, unnecessary CPU usage
+            Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
+        }
+
+        // 4) Interact with aqueduct, delay until interface is open 1591
+        SceneObject nearestAqueduct = Aqueduct.nearest();
+        nearestAqueduct.interact("Enter");
+        Execution.delayUntil((15400), () -> Interfaces.isOpen(1591));
+
+        // 5) If interface is open, minimenu.interact
+        if (Interfaces.isOpen(1591)) {
+            MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 104267836);
+            Execution.delay(random.nextLong(2500, 3500));
+        } else {
+            return false;
+        }
+
+        // 6) Movement.walk to +11 and -4
+        Movement.walkTo(player.getCoordinate().getX() + 11, player.getCoordinate().getY() -4 , true);
+
+        return true;
+    }
+
+    private Component getTimerComponent() {
+        return ComponentQuery.newQuery(861).componentIndex(8).results().first();
+    }
+
+    public static boolean isTimerZero(Component timerComponent) {
+        String timerText = timerComponent.getText();
+        return "00:00".equals(timerText);
+    }
+    public long printRemainingTime() {
+        Component timerComponent = getTimerComponent();
+        String remainingTime = timerComponent.getText();
+        ScriptConsole.println("Remaining time: " + remainingTime);
+        return random.nextLong(1500, 3000);
+    }
+    public static boolean enableRadiusTracking = false;
+    public static Coordinate centerCoordinate = new Coordinate(0, 0, 0);
+    public static int radius = 10;
+
+    public static boolean isWithinRadius(LocalPlayer player) {
+        if (player == null) return false;
+        return Distance.between(player.getCoordinate(), centerCoordinate) <= radius;
+    }
+
+    public static long ensureWithinRadius(LocalPlayer player) {
+        if (!isWithinRadius(player)) {
+            Movement.walkTo(centerCoordinate.getX(), centerCoordinate.getY(), true);
+            Execution.delayUntil(15000, () -> isWithinRadius(player));
+            ScriptConsole.println("[Radius Tracking] Moved player back to center.");
+        }
+        return random.nextLong(1500, 3000);
+    }
+
+    public static void setCenterCoordinate(Coordinate newCenter) {
+        centerCoordinate = newCenter;
+        ScriptConsole.println("[Radius Tracking] Center coordinate set to: " + newCenter);
+    }
+
+    public static void setRadius(int newRadius) {
+        radius = newRadius;
+        ScriptConsole.println("[Radius Tracking] Radius set to: " + newRadius);
+    }
+    public void handleBossAnimation(LocalPlayer player, Npc boss) {
+        if (boss == null) {
+            return;
+        }
+
+        int animationId = boss.getAnimationId();
+
+        if (VarManager.getVarbitValue(16767) == 0) {
+            if (animationId == 35832) {
+                ActionBar.useAbility("Deflect Ranged");
+            } else {
+                ActionBar.useAbility("Deflect Necromancy");
+            }
+        }
+
+        switch (animationId) {
+            case 35831:
+                break;
+            case 35832:
+                break;
+            case 35833:
+                break;
+            case 35834:
+                break;
+            case 35835:
+                break;
+            default:
+                // handle unknown animation
+                break;
+        }
+    }
+}
