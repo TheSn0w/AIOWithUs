@@ -93,33 +93,38 @@ public class Archeology {
             return random.nextLong(1500, 3000);
         }
 
-        String targetName = selectedArchNames.stream()
-                .filter(name -> name != null && !name.isEmpty())
-                .findFirst()
-                .orElse(null);
+        String closestName = null;
+        double closestDistance = Double.MAX_VALUE;
 
-        boolean isNearPlayer = SceneObjectQuery.newQuery()
-                .name(targetName)
-                .results()
-                .nearest() != null;
+        for (String name : selectedArchNames) {
+            if (name != null && !name.isEmpty()) {
+                SceneObject nearestObject = SceneObjectQuery.newQuery()
+                        .name(name)
+                        .results()
+                        .nearest();
 
-        if (MaterialCache) {
-            if (!isNearPlayer) {
-                return handleExcavation(targetName);
-            } else {
-                return MaterialCaches(player, selectedArchNames);
+                if (nearestObject != null) {
+                    double distance = player.getCoordinate().distanceTo(nearestObject.getCoordinate());
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestName = name;
+                    }
+                }
             }
         }
 
-        if (targetName == null) {
+        if (closestName == null) {
             return random.nextLong(1500, 3000);
         }
 
-
-        if (isNearPlayer) {
-            return doSomeArch(player, selectedArchNames);
+        if (MaterialCache) {
+            return MaterialCaches(player, selectedArchNames);
         } else {
-            return handleExcavation(targetName);
+            if (closestDistance <= 25.0D) {
+                return doSomeArch(player, selectedArchNames);
+            } else {
+                return handleExcavation(closestName);
+            }
         }
     }
 

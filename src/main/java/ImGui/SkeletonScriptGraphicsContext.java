@@ -19,9 +19,12 @@ import net.botwithus.Divination;
 import net.botwithus.Misc.Summoning;
 
 
+import java.awt.*;
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.List;
 
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
@@ -139,7 +142,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     );
     List<String> predefinedCacheNames = List.of(
             "Material cache (third Age iron)",
-            "Material cache (zarosian insignia)",
+            "Material cache (Zarosian insignia)",
             "Material cache (samite silk)",
             "Material cache (imperial steel)",
             "Material cache (white oak)",
@@ -267,6 +270,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     public static boolean OrangeThemeSelected = true;
     public static boolean YellowThemeSelected = false;
 
+
     private void setDefaultTheme() {
         if (GreenThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
@@ -300,16 +304,17 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.HeaderActive,  0, 0, 0, 200);
             setStyleColor(ImGuiCol.Header,  0, 0, 0, 100);
             setStyleColor(ImGuiCol.FrameBgHovered, 100, 50, 180, 250);
+            setStyleColor(ImGuiCol.TableHeaderBg,  100, 50, 180, 250);
         } else if
         (BlueThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 70, 130, 180, 200);
-            setStyleColor(ImGuiCol.ButtonHovered, 100, 149, 237, 250);
+            setStyleColor(ImGuiCol.ButtonHovered, 70, 130, 180, 255);
             setStyleColor(ImGuiCol.Text, 240, 248, 255, 255);
             setStyleColor(ImGuiCol.Separator, 70, 130, 180, 255);
             setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 240, 248, 255, 200);
+            setStyleColor(ImGuiCol.CheckMark, 70, 130, 180, 255);
             setStyleColor(ImGuiCol.ResizeGripHovered, 100, 149, 237, 200);
             setStyleColor(ImGuiCol.ResizeGripActive, 70, 130, 180, 255);
             setStyleColor(ImGuiCol.ResizeGrip, 70, 130, 180, 255);
@@ -321,12 +326,17 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.ScrollbarGrab, 70, 130, 180, 255);
             setStyleColor(ImGuiCol.ScrollbarGrabHovered, 100, 149, 237, 200);
             setStyleColor(ImGuiCol.ScrollbarGrabActive, 100, 149, 237, 200);
-            setStyleColor(ImGuiCol.MenuBarBg, 70, 130, 180, 100);
-            setStyleColor(ImGuiCol.TabActive, 70, 130, 180, 100);
+            setStyleColor(ImGuiCol.MenuBarBg,  70, 130, 180, 255);
+            setStyleColor(ImGuiCol.TabActive,  240, 248, 255, 200);
             setStyleColor(ImGuiCol.Tab, 70, 130, 180, 100);
-            setStyleColor(ImGuiCol.TabHovered, 70, 130, 180, 100);
+            setStyleColor(ImGuiCol.TabHovered,  240, 248, 255, 200);
             setStyleColor(ImGuiCol.TabUnfocused, 70, 130, 180, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 70, 130, 180, 100);
+            setStyleColor(ImGuiCol.TabUnfocusedActive, 70, 130, 180, 255);
+            setStyleColor(ImGuiCol.HeaderHovered,  70, 130, 180, 200);
+            setStyleColor(ImGuiCol.HeaderActive,  70, 130, 180, 255);
+            setStyleColor(ImGuiCol.Header,  0, 0, 0, 255);
+            setStyleColor(ImGuiCol.FrameBgHovered, 70, 130, 180, 255);
+            setStyleColor(ImGuiCol.TableHeaderBg, 70, 130, 180, 255);
         } else if (RedThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 178, 34, 34, 200);
@@ -355,10 +365,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.TabUnfocusedActive, 178, 34, 34, 100);
             setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 0, 0, 0, 220);
-            setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
-            setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
-            setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 230);
+            setStyleColor(ImGuiCol.HeaderHovered, 220, 20, 60, 250);
+            setStyleColor(ImGuiCol.HeaderActive, 220, 20, 60, 250);
+            setStyleColor(ImGuiCol.Header, 220, 20, 60, 250);
+            setStyleColor(ImGuiCol.FrameBgHovered, 220, 20, 60, 150);
+            setStyleColor(ImGuiCol.TableHeaderBg, 220, 20, 60, 250);
         } else if (OrangeThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 255, 140, 0, 200);
@@ -387,10 +398,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.TabUnfocusedActive, 255, 140, 0, 100);
             setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 0, 0, 0, 220);
-            setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
-            setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
-            setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 230);
+            setStyleColor(ImGuiCol.HeaderHovered, 255, 165, 0, 250);
+            setStyleColor(ImGuiCol.HeaderActive, 255, 165, 0, 250);
+            setStyleColor(ImGuiCol.Header, 255, 165, 0, 250);
+            setStyleColor(ImGuiCol.FrameBgHovered, 255, 165, 0, 250);
+            setStyleColor(ImGuiCol.TableHeaderBg, 255, 165, 0, 250);
         } else if (YellowThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 255, 223, 0, 200);
@@ -423,11 +435,12 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
             setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
             setStyleColor(ImGuiCol.FrameBgHovered, 139, 139, 0, 150);
+            setStyleColor(ImGuiCol.TableHeaderBg,   255, 255, 0, 200);
         } else {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.ButtonHovered, 91, 102, 91, 250);
-            setStyleColor(ImGuiCol.Text, 255, 255, 255, 230);
+            setStyleColor(ImGuiCol.ButtonHovered, 91, 102, 91, 250); // Change the checkmark color to red
+            setStyleColor(ImGuiCol.Text, 208, 217, 209, 255); // checkbox and input text backgorund
             setStyleColor(ImGuiCol.Separator, 39, 92, 46, 255);
             setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
@@ -451,10 +464,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.TabUnfocusedActive, 39, 92, 46, 100);
             setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
-            setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
-            setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 230);
+            setStyleColor(ImGuiCol.HeaderHovered, 91, 102, 91, 250);
+            setStyleColor(ImGuiCol.HeaderActive, 32, 77, 30, 100);
+            setStyleColor(ImGuiCol.Header, 32, 77, 30, 100);
+            setStyleColor(ImGuiCol.FrameBgHovered, 91, 102, 91, 250);
+            setStyleColor(ImGuiCol.TableHeaderBg,  39, 92, 46, 255);
         }
     }
 
@@ -495,9 +509,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 float centeredX2 = (windowW - buttonW2) / 2;
                 if (ScriptisOn) {
                     ImGui.SetCursorPosX(centeredX1);
-                    setStyleColor(ImGuiCol.Button, 39, 92, 46, 255);
-                    setStyleColor(ImGuiCol.Border, 29, 242, 57, 255);
-                    setStyleColor(ImGuiCol.BorderShadow, 240, 132, 57, 255);
                     ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 32, 15);
                     if (ImGui.Button("Stop Script")) {
                         botState = BotState.IDLE;
@@ -505,7 +516,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         ScriptisOn = false;
                     }
                     ImGui.PopStyleVar(1);
-                    ImGui.PopStyleColor(3);
                 } else {
                     ImGui.SetCursorPosX(centeredX1);
                     setStyleColor(ImGuiCol.Button, 120, 11, 20, 255);
@@ -726,6 +736,59 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.Text(text);
                             ImGui.Spacing(5, 5);
                         }
+                        ImGui.SetCursorPosY(220);
+
+                        String[] newLines = {
+                                "Welcome to the AIO Script",
+                                "Please select a skill to start",
+                                "if you like the script please",
+                                "consider leaving a review",
+                                "if you have any bugs or issues",
+                                "please report them on the forum",
+                                "please note, these are just the barebones of some scripts",
+                                "that can be found on the marketplace",
+                        };
+
+                        for (String line : newLines) {
+                            float windowWidth = 400;
+                            float textWidth = ImGui.CalcTextSize(line).getX();
+                            float centeredX = (windowWidth - textWidth) / 2;
+                            ImGui.SetCursorPosX(centeredX);
+                            ImGui.Text(line);
+                        }
+
+// Add the Discord support button
+                        String discordLink = "https://discordapp.com/channels/973830420858810378/1192140405689548891";
+                        float buttonWidth1 = ImGui.CalcTextSize("Discord Support").getX();
+                        float centeredButtonX1 = (362 - buttonWidth1) / 3;
+                        ImGui.SetCursorPosX(centeredButtonX1);
+                        if (ImGui.Button("Discord Support")) {
+                            try {
+                                Desktop.getDesktop().browse(new URI(discordLink));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click here to join the Discord server for support");
+                        }
+
+                        ImGui.SameLine();
+
+                        String reviewLink = "https://discord.com/channels/973830420858810378/1116465231141544038";
+                        float buttonWidth2 = ImGui.CalcTextSize("Write a Review").getX();
+                        float centeredButtonX2 = centeredButtonX1 + buttonWidth1 + 20;
+                        ImGui.SetCursorPosX(centeredButtonX2);
+                        if (ImGui.Button("Write a Review")) {
+                            try {
+                                Desktop.getDesktop().browse(new URI(reviewLink));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click here to write a review on Discord");
+                        }
                     }
                     if (isThievingActive) {
                         ImGui.SeparatorText("Thieving Options");
@@ -735,7 +798,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "Currently does 5-42 @ Bakery Stall",
                                     "Currently does 42-99 @ Crux Druid",
                                     "Crystal Mask Support + Lightform",
-                                    "Will Bank to Load Last Preset for food"
+                                    "Will Bank to Load Last Preset for food",
+                                    "if you like this script, consider looking at Pzoots Thiever",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -757,7 +821,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             String[] texts = {
                                     "Uses `Load Last Preset from` Bank chest",
                                     "Uses Portable Well",
-                                    "You dont need a Portable Well if Making Bombs"
+                                    "You dont need a Portable Well if Making Bombs",
+                                    "if you like this script, consider looking at HerbloreWithUs",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -912,7 +977,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 String[] texts = {
                                         "Load Last Preset from Bank chest",
                                         "Set your item before starting",
-                                        "will only work with gems and Enchanted gems"
+                                        "will only work with gems and Enchanted gems",
+                                        "if you like this script, consider looking at SmithWithUs",
                                 };
 
                                 ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1208,7 +1274,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "have required quests complete, it follows wiki guide",
                                     "if using familiar, have pouches/restore potions in preset",
                                     "will bank at prif if out of pouches/restore potions",
-                                    "will use Load Last Preset from, make sure preset is set"
+                                    "will use Load Last Preset from, make sure preset is set",
+                                    "if you like this script, consider looking at DivWithUs",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1268,7 +1335,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "if soul altar, start next to it",
                                     "you have to choose a ring choice",
                                     "meaning you need passing bracelet for this to work",
-                                    "unless your doing soul altar"
+                                    "unless your doing soul altar",
+                                    "if you like this script, consider looking at RCWithUs",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1342,7 +1410,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "Have Arch Journal in Inventory",
                                     "will not destroy pylons/fragements",
                                     "will not hand in tomes",
-                                    "it will not withdraw xp boosts from bank"
+                                    "it will not withdraw xp boosts from bank",
+                                    "if you like this script, consider looking at ArchWithUs",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1395,60 +1464,40 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                         }
                         ImGui.SetItemWidth(362.0F);
-
-                        if (ImGui.Combo("##cacheCombo", cacheItemIndex, Caches)) {
-                            int selectedIndex = cacheItemIndex.get();
-                            if (selectedIndex > 0 && selectedIndex < Caches.length) {
-                                String selectedName = Caches[selectedIndex];
-                                Archeology.addName(selectedName);
-                                MaterialCache = true;
-                                ScriptConsole.println("Predefined material cache added: " + selectedName);
-                                cacheItemIndex.set(0);
-                            } else {
-                                ScriptConsole.println("Please select a valid cache.");
+                        if (MaterialCache) {
+                            if (ImGui.Combo("##cacheCombo", cacheItemIndex, Caches)) {
+                                int selectedIndex = cacheItemIndex.get();
+                                if (selectedIndex > 0 && selectedIndex < Caches.length) {
+                                    String selectedName = Caches[selectedIndex];
+                                    Archeology.addName(selectedName);
+                                    MaterialCache = true;
+                                    ScriptConsole.println("Predefined material cache added: " + selectedName);
+                                    cacheItemIndex.set(0);
+                                } else {
+                                    ScriptConsole.println("Please select a valid cache.");
+                                }
                             }
                         }
 
-                        if (ImGui.BeginChild("Selected Excavation", 362, 43, true, 0)) {
-                            ImGui.SetCursorPosX(10.0f);
-                            ImGui.SetCursorPosY(10.0f);
+                        if (ImGui.BeginTable("Selected Excavation", 2, ImGuiWindowFlag.None.getValue())) {
+                            ImGui.TableNextRow();
+                            ImGui.TableSetupColumn("Excavation Name", 0);
+                            ImGui.TableSetupColumn("Remove", 1);
+                            ImGui.TableHeadersRow();
 
                             List<String> selectedNames = new ArrayList<>(Archeology.getSelectedNames());
-                            float itemSpacing = 10.0f;
-                            float lineSpacing = 10.0f;
-                            float buttonHeight = 20.0f;
-                            float windowWidth = 380.0f;
-
-                            float cursorPosX = 10.0f;
-                            float cursorPosY = 10.0f;
-
                             for (String name : selectedNames) {
-                                Vector2f textSize = ImGui.CalcTextSize(name);
-                                float buttonWidth = textSize.getX();
-
-                                if (cursorPosX + buttonWidth > windowWidth) {
-                                    cursorPosX = 10.0f;
-                                    cursorPosY += buttonHeight + lineSpacing;
-                                }
-
-                                ImGui.SetCursorPosX(cursorPosX);
-                                ImGui.SetCursorPosY(cursorPosY);
-
-                                ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, 0.5f, 0.5f);
-                                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 1.0f, 1.0f);
-
-                                if (ImGui.Button(name)) {
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.Text(name);
+                                ImGui.TableNextColumn();
+                                if (ImGui.Button("Remove##" + name)) {
                                     Archeology.removeName(name);
                                     MaterialCache = false;
                                     ScriptConsole.println("Excavation name removed: " + name);
                                 }
-
-                                ImGui.PopStyleVar(2);
-
-                                cursorPosX += buttonWidth + itemSpacing;
                             }
-                            ImGui.PopStyleColor(2);
-                            ImGui.EndChild();
+                            ImGui.EndTable();
                         }
                         if (useGote) {
                             ImGui.SetItemWidth(200.0F);
@@ -1876,7 +1925,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "will interact with Rockertunity",
                                     "have ores on action bar for faster dropping",
                                     "use nearest bank will use the closest bank when backpack full",
-                                    "will empty ore box"
+                                    "will empty ore box",
+                                    "if you like this script, consider looking at MineWithUs",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1974,7 +2024,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "start anywhere, will move to the closest spot",
                                     "have fish on action bar for faster dropping",
                                     "use nearest bank will use the closest bank when backpack full",
-                                    "will only load last preset, so make sure you have items on preset"
+                                    "will only load last preset, so make sure you have items on preset",
+                                    "if you like this script, consider looking at FishWithUs",
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1991,61 +2042,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.PopStyleColor(1);
                         }
                         ImGui.SeparatorText("Fishing Options");
-                        if (ImGui.Button("Add Fishing Location")) {
-                            String locationInput = Fishing.getFishingLocation();
-                            if (locationInput != null && !locationInput.trim().isEmpty()) {
-                                Fishing.addFishingLocation(locationInput);
-                                ScriptConsole.println("Fishing location added: " + locationInput);
-                                Fishing.setFishingLocation("");
-                            } else {
-                                ScriptConsole.println("Invalid fishing location.");
-                            }
-                        }
-                        ImGui.SameLine();
-                        ImGui.SetItemWidth(214.0F);
-                        String locationInput = ImGui.InputText("##Fishing Location", Fishing.getFishingLocation());
-                        Fishing.setFishingLocation(locationInput);
-
-                        if (ImGui.BeginChild("Selected Fishing Locations", 365, 43, true, 0)) {
-                            ImGui.SetCursorPosX(10.0f);
-                            ImGui.SetCursorPosY(10.0f);
-
-                            List<String> selectedLocations = new ArrayList<>(Fishing.getSelectedFishingLocations());
-                            float itemSpacing = 10.0f;
-                            float lineSpacing = 10.0f;
-                            float buttonHeight = 20.0f;
-                            float windowWidth = 365.0f;
-
-                            float cursorPosX = 10.0f;
-                            float cursorPosY = 10.0f;
-
-                            for (String location : selectedLocations) {
-                                Vector2f textSize = ImGui.CalcTextSize(location);
-                                float buttonWidth = textSize.getX();
-
-                                if (cursorPosX + buttonWidth > windowWidth) {
-                                    cursorPosX = 10.0f;
-                                    cursorPosY += buttonHeight + lineSpacing;
-                                }
-
-                                ImGui.SetCursorPosX(cursorPosX);
-                                ImGui.SetCursorPosY(cursorPosY);
-
-                                ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, 0.5f, 0.5f);
-                                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 1.0f, 1.0f);
-
-                                if (ImGui.Button(location)) {
-                                    Fishing.removeFishingLocation(location);
-                                    ScriptConsole.println("Fishing location removed: " + location);
-                                }
-
-                                ImGui.PopStyleVar(2);
-
-                                cursorPosX += buttonWidth + itemSpacing;
-                            }
-                            ImGui.EndChild();
-                        }
-
                         if (ImGui.Button("Add Fishing Action")) {
                             String actionInput = Fishing.getFishingAction();
                             if (actionInput != null && !actionInput.trim().isEmpty()) {
@@ -2056,6 +2052,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 ScriptConsole.println("Invalid fishing action.");
                             }
                         }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("I.E Lure, or Net");
+                        }
                         ImGui.SameLine();
 
                         ImGui.SetItemWidth(227.0F);
@@ -2063,47 +2062,55 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         String actionInput = ImGui.InputText("##Fishing Action", Fishing.getFishingAction());
                         ImGui.PopStyleVar(1);
                         Fishing.setFishingAction(actionInput);
+                        if (ImGui.Button("Add Fishing Location")) {
+                            String locationInput = Fishing.getFishingLocation();
+                            if (locationInput != null && !locationInput.trim().isEmpty()) {
+                                Fishing.addFishingLocation(locationInput);
+                                ScriptConsole.println("Fishing location added: " + locationInput);
+                                Fishing.setFishingLocation("");
+                            } else {
+                                ScriptConsole.println("Invalid fishing location.");
+                            }
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("I.E Fishing spot, or Fishing ID");
+                        }
+                        ImGui.SameLine();
+                        ImGui.SetItemWidth(214.0F);
+                        String locationInput = ImGui.InputText("##Fishing Location", Fishing.getFishingLocation());
+                        Fishing.setFishingLocation(locationInput);
 
-                        /*ImGui.Text("Selected Fishing Actions:");*/
-                        if (ImGui.BeginChild("Selected Fishing Actions", 365, 43, true, 0)) {
-                            ImGui.SetCursorPosX(10.0f);
-                            ImGui.SetCursorPosY(10.0f);
+                        if (ImGui.BeginTable("Selected Fishing", 3, ImGuiWindowFlag.None.getValue())) {
+                            ImGui.TableNextRow();
+                            ImGui.TableSetupColumn("Fishing Action", 0);
+                            ImGui.TableSetupColumn("Fishing Location", 1);
+                            ImGui.TableSetupColumn("Action", 2);
+                            ImGui.TableHeadersRow();
 
                             List<String> selectedActions = new ArrayList<>(Fishing.getSelectedFishingActions());
-                            float itemSpacing = 10.0f;
-                            float lineSpacing = 10.0f;
-                            float buttonHeight = 20.0f;
-                            float windowWidth = 365.0f;
+                            List<String> selectedLocations = new ArrayList<>(Fishing.getSelectedFishingLocations());
 
-                            float cursorPosX = 10.0f;
-                            float cursorPosY = 10.0f;
-
-                            for (String action : selectedActions) {
-                                Vector2f textSize = ImGui.CalcTextSize(action);
-                                float buttonWidth = textSize.getX();
-
-                                if (cursorPosX + buttonWidth > windowWidth) {
-                                    cursorPosX = 10.0f;
-                                    cursorPosY += buttonHeight + lineSpacing;
+                            for (int i = 0; i < Math.max(selectedActions.size(), selectedLocations.size()); i++) {
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.Text(i < selectedActions.size() ? selectedActions.get(i) : "");
+                                ImGui.TableNextColumn();
+                                ImGui.Text(i < selectedLocations.size() ? selectedLocations.get(i) : "");
+                                ImGui.TableNextColumn();
+                                if (i < selectedActions.size() && ImGui.Button("Remove Action##" + selectedActions.get(i))) {
+                                    Fishing.removeFishingAction(selectedActions.get(i));
+                                    ScriptConsole.println("Fishing action removed: " + selectedActions.get(i));
                                 }
-
-                                ImGui.SetCursorPosX(cursorPosX);
-                                ImGui.SetCursorPosY(cursorPosY);
-
-                                ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, 0.5f, 0.5f);
-                                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 1.0f, 1.0f);
-
-                                if (ImGui.Button(action)) {
-                                    Fishing.removeFishingAction(action);
-                                    ScriptConsole.println("Fishing action removed: " + action);
+                                if (i < selectedLocations.size() && ImGui.Button("Remove Location##" + selectedLocations.get(i))) {
+                                    Fishing.removeFishingLocation(selectedLocations.get(i));
+                                    ScriptConsole.println("Fishing location removed: " + selectedLocations.get(i));
                                 }
-
-                                ImGui.PopStyleVar(2);
-
-                                cursorPosX += buttonWidth + itemSpacing;
                             }
-                            ImGui.EndChild();
+                            ImGui.EndTable();
                         }
+
+                        /*ImGui.Text("Selected Fishing Actions:");*/
+
                         ImGui.SeparatorText("Fish Caught Count");
                         for (Map.Entry<String, Integer> entry : fishCaughtCount.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
@@ -2219,43 +2226,24 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                         }
 
-                        if (ImGui.BeginChild("Selected Trees", 365, 43, true, 0)) {
-                            ImGui.SetCursorPosX(10.0f);
-                            ImGui.SetCursorPosY(10.0f);
+                        if (ImGui.BeginTable("Selected Trees", 2, ImGuiWindowFlag.None.getValue())) {
+                            ImGui.TableNextRow();
+                            ImGui.TableSetupColumn("Tree Name", 0);
+                            ImGui.TableSetupColumn("Remove", 1);
+                            ImGui.TableHeadersRow();
 
                             List<String> selectedTrees = new ArrayList<>(getSelectedTreeNames());
-                            float itemSpacing = 10.0f;
-                            float lineSpacing = 10.0f;
-                            float buttonHeight = 20.0f;
-                            float windowWidth = 365.0f;
-
-                            float cursorPosX = 10.0f;
-                            float cursorPosY = 10.0f;
-
                             for (String tree : selectedTrees) {
-                                Vector2f textSize = ImGui.CalcTextSize(tree);
-                                float buttonWidth = textSize.getX();
-
-                                if (cursorPosX + buttonWidth > windowWidth) {
-                                    cursorPosX = 10.0f;
-                                    cursorPosY += buttonHeight + lineSpacing;
-                                }
-
-                                ImGui.SetCursorPosX(cursorPosX);
-                                ImGui.SetCursorPosY(cursorPosY);
-
-                                ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, 0.5f, 0.5f);
-                                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 1.0f, 1.0f);
-
-                                if (ImGui.Button(tree)) {
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.Text(tree);
+                                ImGui.TableNextColumn();
+                                if (ImGui.Button("Remove##" + tree)) {
                                     removeTreeName(tree);
                                     ScriptConsole.println("Tree removed: " + tree);
                                 }
-
-                                ImGui.PopStyleVar(2);
-                                cursorPosX += buttonWidth + itemSpacing;
                             }
-                            ImGui.EndChild();
+                            ImGui.EndTable();
                         }
                         int totalLogsCut = 0;
                         for (int count : logCount.values()) {
@@ -2286,7 +2274,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     if (isRunecraftingActive) {
                         botState = String.valueOf(Runecrafting.getScriptstate());
                     } else {
-                        botState = String.valueOf(script.getBotState());
+                        botState = String.valueOf(getBotState());
                     }
 
                     if (botState.equals("SKILLING")) {
@@ -2334,17 +2322,17 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     ImGui.PopStyleColor(2);
 
                     float windowWidth = 577.0f;
-                    float textWidth = ImGui.CalcTextSize("Script state: " + botState).getX();
+                    float textWidth = ImGui.CalcTextSize("" + botState).getX();
                     float centeredX = (windowWidth - textWidth) / 2;
 
                     ImGui.SetCursorPosX(0);
                     ImGui.SetCursorPosY(10);
                     ImGui.SetCursorPosX(centeredX);
-                    ImGui.Text("Script state: " + botState);
+                    ImGui.Text("" + botState);
                     ImGui.PopStyleColor(1);
 
                     long elapsedTime = ScriptisOn ? Duration.between(startTime, Instant.now()).getSeconds() + totalElapsedTime : totalElapsedTime;
-                    String elapsedTimeText = String.format("Runtime: %02d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, elapsedTime % 60);
+                    String elapsedTimeText = String.format("%02d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, elapsedTime % 60);
                     textWidth = ImGui.CalcTextSize(elapsedTimeText).getX();
                     centeredX = (windowWidth - textWidth) / 2;
                     ImGui.PopStyleColor(1);
