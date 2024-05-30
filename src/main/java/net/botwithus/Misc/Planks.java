@@ -1,9 +1,6 @@
 package net.botwithus.Misc;
 
-import net.botwithus.SnowsScript;
-import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
-import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
@@ -14,7 +11,6 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
-import java.util.function.Supplier;
 
 import static net.botwithus.Variables.Variables.*;
 

@@ -55,6 +55,6 @@ public class GemCutter {
                 }
             }
         }
-        return 0;
+        return random.nextLong(750,1250);
     }
 }

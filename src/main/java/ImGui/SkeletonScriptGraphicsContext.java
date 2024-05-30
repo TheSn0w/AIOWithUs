@@ -433,7 +433,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Woodcutting at any spot using any option`");
                     }
-                    isCookingActive = ImGui.Checkbox("Cooking", isCookingActive);
+                    Variables.isCookingActive = ImGui.Checkbox("Cooking", Variables.isCookingActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Use at `Range/Portable Range AIO too!`");
                     }
@@ -534,15 +534,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
                         }
                         makeBombs = ImGui.Checkbox("Make Bombs", makeBombs);
-                    } else {
+                    } else if (cookingselected){
                         isCookingActive = ImGui.Checkbox("Cooking", isCookingActive);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Use at `Range/Portable Range`");
-                        }
                         makeWines = ImGui.Checkbox("Make Wines", makeWines);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Have Grapes and Jug of Water Saved as Preset`");
-                        }
                     }
                 }
                 ImGui.EndChild();
@@ -884,6 +878,44 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             int portersMadePerHourInt = (int) portersMadePerHour;
 
                             ImGui.Text("Porters Made Per Hour: " + portersMadePerHourInt);
+                        }
+                        if (isdivinechargeActive) {
+                            ImGui.SeparatorText("Divine Charges Count");
+                            for (Map.Entry<String, Integer> entry : divineCharges.entrySet()) {
+                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                            }
+
+                            int totalDivineCharges = 0;
+                            for (int count : divineCharges.values()) {
+                                totalDivineCharges += count;
+                            }
+
+                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                            double divineChargesPerHour = totalDivineCharges / elapsedHours;
+                            int divineChargesPerHourInt = (int) divineChargesPerHour;
+
+                            ImGui.Text("Divine Charges Per Hour: " + divineChargesPerHourInt);
+                        }
+                        if (isGemCutterActive) {
+                            ImGui.SeparatorText("Gem Counts");
+                            for (Map.Entry<String, Integer> entry : SnowsScript.Gems.entrySet()) {
+                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                            }
+
+                            int totalGems = 0;
+                            for (int count : SnowsScript.Gems.values()) {
+                                totalGems += count;
+                            }
+
+                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                            double gemsPerHour = totalGems / elapsedHours;
+                            int gemsPerHourInt = (int) gemsPerHour;
+
+                            ImGui.Text("Gems Per Hour: " + gemsPerHourInt);
                         }
                         if (isPlanksActive) {
                             if (tooltipsEnabled) {
@@ -1960,7 +1992,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
 
                         long endTime = System.currentTimeMillis();
-                        long startTime = Variables.startTime.toEpochMilli();
+                        long startTime = SnowsScript.startTime.toEpochMilli();
                         double hoursElapsed = (endTime - startTime) / 1000.0 / 60.0 / 60.0;
                         double averageFishPerHour = totalFishCooked / hoursElapsed;
                         ImGui.Text("Average fish cooked per hour: " + (int) averageFishPerHour);
@@ -2069,7 +2101,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
 
                         long endTime = System.currentTimeMillis();
-                        long startTime = Variables.startTime.toEpochMilli();
+                        long startTime = SnowsScript.startTime.toEpochMilli();
                         double hoursElapsed = (endTime - startTime) / 1000.0 / 60.0 / 60.0;
 
                         double averageLogsPerHour = totalLogsCut / hoursElapsed;

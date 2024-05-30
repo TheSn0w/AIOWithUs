@@ -1,9 +1,5 @@
 package net.botwithus.Variables;
 
-import net.botwithus.Cooking;
-import net.botwithus.Misc.CaveNightshade;
-import net.botwithus.Misc.PorterMaker;
-import net.botwithus.Runecrafting;
 import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Coordinate;
@@ -11,6 +7,7 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
 import static net.botwithus.SnowsScript.BotState.IDLE;
@@ -19,7 +16,6 @@ public class Variables {
     public static boolean pickCaveNightshade = false;
     public static boolean isAgilityActive = false;
     public static boolean isPlanksActive = false;
-    public static Cooking cooking;
     public static boolean isCorruptedOreActive = false;
     public static boolean interactWithLootAll = false;
     public static boolean useLoot = false;
@@ -45,7 +41,7 @@ public class Variables {
     public static boolean isGemCutterActive = false;
     public static boolean isSmeltingActive = false;
     public static SnowsScript.BotState botState = IDLE;
-    public static Instant startTime;
+    public static final Map<BooleanSupplier, Runnable> skillingTasks = new HashMap<>();
     public static Coordinate lastSkillingLocation;
     public static Instant scriptStartTime;
     public static long runStartTime;

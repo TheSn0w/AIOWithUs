@@ -1,9 +1,7 @@
 package net.botwithus
 
-import net.botwithus.Variables.Variables
 import net.botwithus.api.game.hud.inventories.Backpack
 import net.botwithus.api.game.hud.inventories.Bank
-import net.botwithus.rs3.events.impl.ChatMessageEvent
 import net.botwithus.rs3.game.Client
 import net.botwithus.rs3.game.hud.interfaces.Interfaces
 import net.botwithus.rs3.game.minimenu.MiniMenu
@@ -23,19 +21,6 @@ class Cooking {
     private val randomDelay = random.nextLong(1500, 3000)
     private val player = Client.getLocalPlayer()
 
-    fun updateChatMessageEvent(event: ChatMessageEvent) {
-        val message = event.message
-        if (Variables.isCookingActive) {
-            if (message.contains("You successfully cook")) {
-                val fishType = message.substring(message.lastIndexOf("cook") + 5).trim { it <= ' ' }
-                val count = Variables.fishCookedCount.getOrDefault(fishType, 0)
-                Variables.fishCookedCount[fishType] = count + 1
-            }
-            if (message.contains("Your extreme cooking potion is about to wear off.")) {
-                cookingPotion()
-            }
-        }
-    }
 
 
     fun handleCooking(): Long {

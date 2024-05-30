@@ -26,6 +26,7 @@ import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.script.config.ScriptConfig;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
@@ -57,12 +58,15 @@ public class SnowsScript extends LoopingScript {
         SKILLING,
         BANKING,
     }
-    private final Map<BooleanSupplier, Runnable> skillingTasks = new HashMap<>();
+    public static long runStartTime;
+    public static Instant startTime;
 
 
     public SnowsScript(String s, ScriptConfig scriptConfig, ScriptDefinition scriptDefinition) {
         super(s, scriptConfig, scriptDefinition);
         this.sgc = new SkeletonScriptGraphicsContext(getConsole(), this);
+        startTime = Instant.now();
+        runStartTime = System.currentTimeMillis();
         this.loadConfiguration();
 
         skillingTasks.put(() -> Variables.isHerbloreActive, Runnables::handleHerblore);
@@ -103,9 +107,6 @@ public class SnowsScript extends LoopingScript {
                 if (nearestBank) {
                     Execution.delay(useTheNearestBank(player));
                 }
-                /*if (BankforFood) {
-                    Execution.delay(Combat.BankforFood(player));
-                }*/
                 if (isArcheologyActive)
                     Execution.delay(Archeology.BankforArcheology(player, selectedArchNames));
             }
@@ -134,6 +135,10 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
     }
+    public static Map<String, Integer> Gems = new HashMap<>();
+    public static Map<String, Integer> divineCharges = new HashMap<>();
+
+
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
@@ -142,6 +147,17 @@ public class SnowsScript extends LoopingScript {
         }
         if (event.getInventoryId() != 93) {
             return;
+        }
+        if (isdivinechargeActive) {
+            String itemName = event.getNewItem().getName();
+            if ("Divine charge".equals(itemName)) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int newDivineCharges = newCount - oldCount;
+                    divineCharges.put(itemName, newDivineCharges);
+                }
+            }
         }
         if (isArcheologyActive) {
             String itemName = event.getNewItem().getName();
@@ -241,6 +257,13 @@ public class SnowsScript extends LoopingScript {
             return;
         }
         String message = event.getMessage();
+        if (isGemCutterActive) {
+            if (message.startsWith("You cut the")) {
+                String gemName = message.substring(11, message.length() - 1);
+                int count = Gems.getOrDefault(gemName, 0);
+                Gems.put(gemName, count + 1);
+            }
+        }
         if (isportermakerActive) {
             if (message.contains("You create: 1")) {
                 String itemType = message.substring(message.indexOf("1") + 2).trim();
@@ -274,6 +297,7 @@ public class SnowsScript extends LoopingScript {
                 fishCookedCount.put(fishType, count + 1);
             }
             if (message.contains("Your extreme cooking potion is about to wear off.")) {
+                Cooking cooking = new Cooking();
                 cooking.cookingPotion();
             }
         }

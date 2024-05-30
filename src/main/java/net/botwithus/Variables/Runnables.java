@@ -2,13 +2,9 @@ package net.botwithus.Variables;
 
 import net.botwithus.*;
 import net.botwithus.Misc.*;
-import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Client;
-import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
-import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.Collections;
@@ -106,8 +102,10 @@ public class Runnables {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
             if (makeWines) {
+                Cooking cooking = new Cooking();
                 Execution.delay(cooking.useGrapesOnJugOfWater());
             } else {
+                Cooking cooking = new Cooking();
                 Execution.delay(cooking.handleCooking());
             }
         }
