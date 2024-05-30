@@ -36,22 +36,6 @@ public class Dissasembler {
         this.script = script;
     }
 
-    public void onInventoryUpdate(InventoryUpdateEvent event) {
-        if (event.getInventoryId() != 93) {
-            return;
-        }
-        if (isDissasemblerActive) {
-            if (botState == SnowsScript.BotState.SKILLING) {
-                TaskScheduler activeTask = getActiveTask();
-                if (activeTask != null && Objects.requireNonNull(event.getNewItem().getName()).contains(activeTask.getItemToDisassemble())) {
-                    itemsDestroyed++;
-                    activeTask.incrementAmountDisassembled();
-                }
-            }
-        }
-    }
-
-
     public static long Dissasemble(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1250, 2500);

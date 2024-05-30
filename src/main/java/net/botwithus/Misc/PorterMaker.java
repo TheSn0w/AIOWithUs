@@ -28,17 +28,6 @@ public class PorterMaker {
         this.script = script;
     }
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isportermakerActive) {
-            if (message.contains("You create: 1")) {
-                String itemType = message.substring(message.indexOf("1") + 2).trim();
-                itemType = itemType.replace(".", ""); // Remove the period
-                int count = portersMade.getOrDefault(itemType, 0);
-                portersMade.put(itemType, count + 1);
-            }
-        }
-    }
 
 
     public long makePorters() {

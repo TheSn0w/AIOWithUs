@@ -1275,12 +1275,12 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
 
                         ImGui.SeparatorText("Materials Excavated Count");
-                        for (Map.Entry<String, Integer> entry : materialsExcavated.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : Variables.materialsExcavated.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalMaterialsExcavated = 0;
-                        for (int count : materialsExcavated.values()) {
+                        for (int count : Variables.materialsExcavated.values()) {
                             totalMaterialsExcavated += count;
                         }
 
@@ -1291,6 +1291,21 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         int materialsExcavatedPerHourInt = (int) materialsExcavatedPerHour;
 
                         ImGui.Text("Materials Excavated Per Hour: " + materialsExcavatedPerHourInt);
+
+                        ImGui.SeparatorText("Material Types Count");
+                        for (Map.Entry<String, Integer> entry : materialTypes.entrySet()) {
+                            ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                        }
+
+                        int totalMaterialTypes = 0;
+                        for (int count : materialTypes.values()) {
+                            totalMaterialTypes += count;
+                        }
+
+                        double materialTypesPerHour = totalMaterialTypes / elapsedHours;
+                        int materialTypesPerHourInt = (int) materialTypesPerHour;
+
+                        ImGui.Text("Material Types Per Hour: " + materialTypesPerHourInt);
                     }
 
 

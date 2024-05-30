@@ -5,6 +5,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
+import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -46,29 +47,6 @@ public class Archeology {
         this.initializeCoordinateMap();
     }
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isArcheologyActive) {
-            if (message.contains("You transport the following item to your material storage:")) {
-                String[] parts = message.split("storage: ");
-                if (parts.length > 1) {
-                    String materialType = parts[1].trim();
-                    materialType = materialType.replace(".", "");
-                    int count = materialsExcavated.getOrDefault(materialType, 0);
-                    materialsExcavated.put(materialType, count + 1);
-                }
-            }
-            if (message.contains("You find some")) {
-                String[] parts = message.split("some ");
-                if (parts.length > 1) {
-                    String materialType = parts[1].trim();
-                    materialType = materialType.replace(".", "");
-                    int count = materialsExcavated.getOrDefault(materialType, 0);
-                    materialsExcavated.put(materialType, count + 1);
-                }
-            }
-        }
-    }
 
     private void initializeCoordinateMap() {
         coordinateMap.put("Administratum debris", new Coordinate(2448, 7569, 0));

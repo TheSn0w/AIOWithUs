@@ -119,7 +119,7 @@ public class SnowsScript extends LoopingScript {
         caveNightshade = new CaveNightshade(this);
         Variables.startTime = Instant.now();
         Variables.runStartTime = System.currentTimeMillis();
-        EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessage);
+        EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
 
     }
@@ -255,24 +255,238 @@ public class SnowsScript extends LoopingScript {
         }
     }
 
-    public void onChatMessage(ChatMessageEvent event) {
-        caveNightshade.updateChatMessageEvent(event);
-        porterMaker.updateChatMessageEvent(event);
-        herblore.updateChatMessageEvent(event);
-        runecrafting.updateChatMessageEvent(event);
-        cooking.updateChatMessageEvent(event);
-        woodcutting.updateChatMessageEvent(event);
-        fishing.updateChatMessageEvent(event);
-        archeology.updateChatMessageEvent(event);
-        divination.updateChatMessageEvent(event);
+
+    private void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isArcheologyActive) {
+            String itemName = event.getNewItem().getName();
+            int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+            int newCount = event.getNewItem().getStackSize();
+            if (newCount > oldCount) {
+                int quantity = newCount - oldCount;
+                int count = materialTypes.getOrDefault(itemName, 0);
+                materialTypes.put(itemName, count + quantity);
+            }
+        }
+        if (isCorruptedOreActive) {
+            String itemName = event.getNewItem().getName();
+            if ("Corrupted ore".equals(itemName)) {
+                int oldCount = event.getOldItem().getStackSize();
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount < oldCount) {
+                    int count = corruptedOre.getOrDefault(itemName, 0);
+                    corruptedOre.put(itemName, count + 1);
+                }
+            }
+        }
+
+        if (isCombatActive) {
+            String itemName = event.getNewItem().getName();
+            if (itemName.endsWith(" charm")) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+
+                    Map<String, Integer> charmMap;
+                    switch (itemName) {
+                        case "Blue charm":
+                            charmMap = BlueCharms;
+                            break;
+                        case "Crimson charm":
+                            charmMap = CrimsonCharms;
+                            break;
+                        case "Green charm":
+                            charmMap = GreenCharms;
+                            break;
+                        case "Gold charm":
+                            charmMap = GoldCharms;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    int currentCount = charmMap.getOrDefault(itemName, 0);
+                    charmMap.put(itemName, currentCount + quantity);
+                }
+            }
+        }
+        if (isRunecraftingActive) {
+            String itemName = event.getNewItem().getName();
+            List<String> runeNames = Arrays.asList("Miasma rune", "Flesh rune", "Spirit rune", "Bone rune");
+
+            if (runeNames.contains(itemName)) {
+                int newCount = event.getNewItem().getStackSize();
+                int currentCount = runeCount.getOrDefault(itemName, 0);
+                int totalRuneCount = currentCount + newCount;
+
+                runeCount.put(itemName, totalRuneCount);
+                ScriptConsole.println("Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
+                Runecrafting.currentState = TELEPORTINGTOBANK;
+            }
+        }
+        if (isDivinationActive) {
+            String itemName = event.getNewItem().getName();
+            if (itemName.contains("energy")) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+
+                    int currentCount = Variables.energy.getOrDefault(itemName, 0);
+
+                    energy.put(itemName, currentCount + quantity);
+                }
+            }
+        }
+        if (isDissasemblerActive) {
+            if (botState == BotState.SKILLING) {
+                TaskScheduler activeTask = getActiveTask();
+                if (activeTask != null && Objects.requireNonNull(event.getNewItem().getName()).contains(activeTask.getItemToDisassemble())) {
+                    itemsDestroyed++;
+                    activeTask.incrementAmountDisassembled();
+                }
+            }
+        }
     }
-    public void onInventoryUpdate(InventoryUpdateEvent event) {
-        CorruptedOre.onInventoryUpdate(event);
-        runecrafting.onInventoryUpdate(event);
-        divination.onInventoryUpdate(event);
-        mining.onInventoryUpdate(event);
-        combat.onInventoryUpdate(event);
-        dissasembler.onInventoryUpdate(event);    }
+
+
+    void onChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isportermakerActive) {
+            if (message.contains("You create: 1")) {
+                String itemType = message.substring(message.indexOf("1") + 2).trim();
+                itemType = itemType.replace(".", "");
+                int count = portersMade.getOrDefault(itemType, 0);
+                portersMade.put(itemType, count + 1);
+            }
+        }
+        if (isHerbloreActive) {
+            if (message.contains("You mix the ingredients")) {
+                String potionType = "Potions Made";
+                int count = Potions.getOrDefault(potionType, 0);
+                Potions.put(potionType, count + 1);
+            }
+        }
+        if (isRunecraftingActive) {
+            if (message.contains("The charger cannot hold any more essence.")) {
+                Execution.delay(runecrafting.handleCharging());
+            }
+            if (message.contains("You do no have any essence to deposit")) {
+                Execution.delay(runecrafting.handleEdgevillebanking());
+            }
+            if (message.contains("The altar is already charged to its maximum capacity")) {
+                runecrafting.handleSoulAltar();
+            }
+        }
+        if (isCookingActive) {
+            if (message.contains("You successfully cook")) {
+                String fishType = message.substring(message.lastIndexOf("cook") + 5).trim();
+                int count = fishCookedCount.getOrDefault(fishType, 0);
+                fishCookedCount.put(fishType, count + 1);
+            }
+            if (message.contains("Your extreme cooking potion is about to wear off.")) {
+                cooking.cookingPotion();
+            }
+        }
+
+        if (isWoodcuttingActive) {
+            if (message.contains("You get some")) {
+                String logType = message.substring(message.lastIndexOf("some") + 5).trim();
+                logType = logType.replace(".", "");
+                int count = logCount.getOrDefault(logType, 0);
+                logCount.put(logType, count + 1);
+            }
+            if (message.toLowerCase().contains("bird's nest")) {
+                int count = nestCount.getOrDefault("Bird's nest", 0);
+                nestCount.put("Bird's nest", count + 1);
+            }
+            if (message.contains("You transport the following item to your bank:")) {
+                String logType = message.substring(message.lastIndexOf("bank:") + 6).trim();
+                logType = logType.replace(".", "");
+                int count = logCount.getOrDefault(logType, 0);
+                logCount.put(logType, count + 1);
+            }
+            if (message.contains("As you cut from the tree, the log:")) {
+                String logType = message.substring(message.lastIndexOf("log:") + 7).trim();
+                logType = logType.replace(".", "");
+                int count = logCount.getOrDefault(logType, 0);
+                logCount.put(logType, count + 1);
+            }
+            if (message.contains("Crystallise takes your resource and converts it into XP.")) {
+                String key = "Resources";
+                int count = logCount.getOrDefault(key, 0);
+                logCount.put(key, count + 1);
+            }
+        }
+
+        if (isFishingActive) {
+            if (message.contains("You catch a")) {
+                String[] words = message.split(" ");
+                int startIndex = 0;
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].equals("a")) {
+                        startIndex = i + 1;
+                        break;
+                    }
+                }
+                String fishType = String.join(" ", Arrays.copyOfRange(words, startIndex, words.length));
+                fishType = fishType.split("Already cooked")[0].trim();
+                fishType = fishType.replace(".", "");
+                int count = fishCaughtCount.getOrDefault(fishType, 0);
+                fishCaughtCount.put(fishType, count + 1);
+            }
+            if (message.contains("You catch some")) {
+                String[] words = message.split(" ");
+                int startIndex = 0;
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].equals("some")) {
+                        startIndex = i + 1;
+                        break;
+                    }
+                }
+                String fishType = String.join(" ", Arrays.copyOfRange(words, startIndex, words.length));
+                fishType = fishType.split("Already cooked")[0].trim();
+                fishType = fishType.replace(".", "");
+                int count = fishCaughtCount.getOrDefault(fishType, 0);
+                fishCaughtCount.put(fishType, count + 1);
+            }
+        }
+        if (isArcheologyActive) {
+            if (message.contains("You transport the following item to your material storage:")) {
+                String[] parts = message.split("storage: ");
+                if (parts.length > 1) {
+                    String materialType = parts[1].trim();
+                    materialType = materialType.replace(".", "");
+                    int count = materialsExcavated.getOrDefault(materialType, 0);
+                    materialsExcavated.put(materialType, count + 1);
+                }
+            }
+            if (message.contains("You find some")) {
+                String[] parts = message.split("some ");
+                if (parts.length > 1) {
+                    String materialType = parts[1].trim();
+                    materialType = materialType.replace(".", "");
+                    int count = materialsExcavated.getOrDefault(materialType, 0);
+                    materialsExcavated.put(materialType, count + 1);
+                }
+            }
+        }
+        if (isDivinationActive) {
+            if (message.contains("You capture the chronicle fragment and place it in your inventory")) {
+                String chronicleType = "Chronicle fragment";
+                int count = chroniclesCaughtCount.getOrDefault(chronicleType, 0);
+                chroniclesCaughtCount.put(chronicleType, count + 1);
+            }
+            if (message.contains("Your divination outfit")) {
+                String chronicleType = "Chronicle fragment";
+                int count = chroniclesCaughtCount.getOrDefault(chronicleType, 0);
+                chroniclesCaughtCount.put(chronicleType, count + 2);
+            }
+        }
+    }
 
     public static class ComponentTextRetriever {
         public String getComponentText() {

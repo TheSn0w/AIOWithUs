@@ -21,24 +21,6 @@ public class CorruptedOre {
     SnowsScript script;
     private static Random random = new Random();
 
-    public void onInventoryUpdate(InventoryUpdateEvent event) {
-        if (event.getInventoryId() != 93) {
-            return;
-        }
-        if (isCorruptedOreActive) {
-            String itemName = event.getNewItem().getName();
-            if ("Corrupted ore".equals(itemName)) {
-                int oldCount = event.getOldItem().getStackSize();
-                int newCount = event.getNewItem().getStackSize();
-                if (newCount < oldCount) {
-                    int count = Variables.corruptedOre.getOrDefault(itemName, 0);
-                    corruptedOre.put(itemName, count + 1);
-                }
-            }
-        }
-    }
-
-
     public CorruptedOre(SnowsScript script) {
         this.script = script;
     }
