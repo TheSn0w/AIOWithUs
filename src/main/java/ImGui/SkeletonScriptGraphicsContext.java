@@ -662,6 +662,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         interactWithLootAll = ImGui.Checkbox("Loot All", interactWithLootAll);
                         usePOD = ImGui.Checkbox("Use POD", usePOD);
                         handleArchGlacor = ImGui.Checkbox("Arch Glacor", handleArchGlacor);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("start at portal and needs max guild teleport`");
+                        }
                     } else if (fishingSelected) {
                         isFishingActive = ImGui.Checkbox("Fishing", isFishingActive);
                         if (ImGui.IsItemHovered()) {
@@ -1569,6 +1572,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "Arch glacor, will use MAX GUILD and then",
                                     "go to arch glacor and farm",
                                     "if using arch glacor, only have 1st mechanic selected",
+                                    "make sure to set your target arch archglacor",
                                     "radius, will set a radius around the player and stay inside",
                                     "rest is self explanatory"
                             };

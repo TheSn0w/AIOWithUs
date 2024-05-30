@@ -1054,27 +1054,30 @@ public class Combat {
     }
 
     private static boolean travelToArchGlacor(LocalPlayer player) {
-        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(121369).option("Enter").results();
-        EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Arch-Glacor portal").option("Enter").results();
         if (!results.isEmpty()) {
             SceneObject portal = results.nearest();
             if (portal != null) {
                 portal.interact("Enter");
-                return true;
+                Execution.delayUntil(random.nextLong(15000, 20000), () -> {
+                    EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
+                    return !Aqueduct.isEmpty();
+                });
             }
         }
 
+        EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
         while (Aqueduct.isEmpty()) {
             Execution.delay(1000);  // Delay to prevent rapid, unnecessary CPU usage
             Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
         }
 
-        // 4) Interact with aqueduct, delay until interface is open 1591
+        // Interact with aqueduct, delay until interface is open 1591
         SceneObject nearestAqueduct = Aqueduct.nearest();
         nearestAqueduct.interact("Enter");
-        Execution.delayUntil((15400), () -> Interfaces.isOpen(1591));
+        Execution.delayUntil(random.nextLong(10000, 15000), () -> Interfaces.isOpen(1591));
 
-        // 5) If interface is open, minimenu.interact
+        // If interface is open, minimenu.interact
         if (Interfaces.isOpen(1591)) {
             MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 104267836);
             Execution.delay(random.nextLong(2500, 3500));
@@ -1082,7 +1085,7 @@ public class Combat {
             return false;
         }
 
-        // 6) Movement.walk to +11 and -4
+        // Movement.walk to +11 and -4
         Movement.walkTo(player.getCoordinate().getX() + 11, player.getCoordinate().getY() -4 , true);
 
         return true;
