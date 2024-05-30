@@ -1,8 +1,10 @@
 package net.botwithus;
 
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -28,16 +30,13 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
+import static net.botwithus.Variables.Variables.*;
 
 public class Archeology {
-    private static Random random = new Random();
+    public static Random random = new Random();
     public SnowsScript skeletonScript;
     final Map<String, Supplier<Long>> methodMap;
     final Map<String, Coordinate> coordinateMap;
-    public static boolean archaeologistsTea = false;
-    public static boolean hiSpecMonocle = false;
-    public static boolean materialManual = false;
-    public static boolean useGote = false;
 
 
     public Archeology(SnowsScript script) {
@@ -45,6 +44,30 @@ public class Archeology {
         this.coordinateMap = new HashMap<>();
         this.methodMap = new HashMap<>();
         this.initializeCoordinateMap();
+    }
+
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isArcheologyActive) {
+            if (message.contains("You transport the following item to your material storage:")) {
+                String[] parts = message.split("storage: ");
+                if (parts.length > 1) {
+                    String materialType = parts[1].trim();
+                    materialType = materialType.replace(".", "");
+                    int count = materialsExcavated.getOrDefault(materialType, 0);
+                    materialsExcavated.put(materialType, count + 1);
+                }
+            }
+            if (message.contains("You find some")) {
+                String[] parts = message.split("some ");
+                if (parts.length > 1) {
+                    String materialType = parts[1].trim();
+                    materialType = materialType.replace(".", "");
+                    int count = materialsExcavated.getOrDefault(materialType, 0);
+                    materialsExcavated.put(materialType, count + 1);
+                }
+            }
+        }
     }
 
     private void initializeCoordinateMap() {
@@ -100,7 +123,7 @@ public class Archeology {
                 .results()
                 .nearest() != null;
 
-        if (skeletonScript.MaterialCache) {
+        if (Variables.MaterialCache) {
             if (!isNearPlayer) {
                 return handleExcavation(targetName);
             } else {

@@ -1,8 +1,10 @@
 package ImGui;
 
 import net.botwithus.*;
+import net.botwithus.Misc.CaveNightshade;
 import net.botwithus.Misc.Dissasembler;
 import net.botwithus.Misc.PorterMaker;
+import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
@@ -24,11 +26,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
+import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.Dissasembler.*;
 import static net.botwithus.Runecrafting.*;
 import static net.botwithus.SnowsScript.*;
-import static net.botwithus.SnowsScript.scriptStartTime;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Woodcutting.*;
 
 public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
@@ -185,7 +190,10 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             "Mithril rock",
             "Iron rock",
             "Tin rock",
-            "Copper rock"
+            "Copper rock",
+            "Soft clay rock",
+            "Crystal-flecked sandstone",
+            "Prifddinas gem rock"
     );
 
     List<String> TreeList = List.of(
@@ -364,18 +372,18 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 ImGui.PopStyleVar(1);
                 ImGui.Separator();
 
-                boolean agilitySelected = script.agility;
-                boolean divinationSelected = script.isDivinationActive;
-                boolean thievingSelected = script.isThievingActive;
-                boolean archeologySelected = script.isArcheologyActive;
-                boolean combatSelected = script.isCombatActive;
-                boolean fishingSelected = script.isFishingActive;
-                boolean miningSelected = script.isMiningActive;
-                boolean woodcuttingSelected = script.isWoodcuttingActive;
-                boolean cookingselected = script.isCookingActive;
-                boolean rcselected = script.isRunecraftingActive;
+                boolean agilitySelected = agility;
+                boolean divinationSelected = isDivinationActive;
+                boolean thievingSelected = isThievingActive;
+                boolean archeologySelected = isArcheologyActive;
+                boolean combatSelected = isCombatActive;
+                boolean fishingSelected = isFishingActive;
+                boolean miningSelected = isMiningActive;
+                boolean woodcuttingSelected = isWoodcuttingActive;
+                boolean cookingselected = isCookingActive;
+                boolean rcselected = isRunecraftingActive;
                 boolean miscselected = isMiscActive;
-                boolean herbloreselcted = script.isHerbloreActive;
+                boolean herbloreselcted = isHerbloreActive;
 
 // Check if any checkbox is selected
                 boolean anySelected =
@@ -394,85 +402,121 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
 
                 if (!anySelected) {
-                    script.agility = ImGui.Checkbox("Agility AIO", script.agility);
-                    script.isDivinationActive = ImGui.Checkbox("Divination AIO", script.isDivinationActive);
-                    script.isThievingActive = ImGui.Checkbox("Thieving AIO", script.isThievingActive);
-                    script.isArcheologyActive = ImGui.Checkbox("Archaeology", script.isArcheologyActive);
-                    script.isFishingActive = ImGui.Checkbox("Fishing", script.isFishingActive);
-                    script.isMiningActive = ImGui.Checkbox("Mining", script.isMiningActive);
-                    script.isWoodcuttingActive = ImGui.Checkbox("Woodcutting", script.isWoodcuttingActive);
-                    script.isCookingActive = ImGui.Checkbox("Cooking", script.isCookingActive);
-                    script.isCombatActive = ImGui.Checkbox("Combat", script.isCombatActive);
-                    script.isRunecraftingActive = ImGui.Checkbox("Runecrafting", script.isRunecraftingActive);
-                    script.isHerbloreActive = ImGui.Checkbox("Herblore", script.isHerbloreActive);
+                    Variables.agility = ImGui.Checkbox("Agility AIO", Variables.agility);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("1-35 Agility Only`");
+                    }
+                    Variables.isDivinationActive = ImGui.Checkbox("Divination AIO", Variables.isDivinationActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Divination AIO`");
+                    }
+                    Variables.isThievingActive = ImGui.Checkbox("Thieving AIO", Variables.isThievingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Thieving AIO`");
+                    }
+                    Variables.isArcheologyActive = ImGui.Checkbox("Archaeology", Variables.isArcheologyActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Archaeology with Material Caches Etc..`");
+                    }
+                    Variables.isFishingActive = ImGui.Checkbox("Fishing", Variables.isFishingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Fishing at any spot using any option`");
+                    }
+                    Variables.isMiningActive = ImGui.Checkbox("Mining", Variables.isMiningActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Mining at any spot using any option`");
+                    }
+                    Variables.isWoodcuttingActive = ImGui.Checkbox("Woodcutting", Variables.isWoodcuttingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Woodcutting at any spot using any option`");
+                    }
+                    isCookingActive = ImGui.Checkbox("Cooking", isCookingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Use at `Range/Portable Range AIO too!`");
+                    }
+                    Variables.isCombatActive = ImGui.Checkbox("Combat", Variables.isCombatActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("AIO Fighter`");
+                    }
+                    isRunecraftingActive = ImGui.Checkbox("Runecrafting", isRunecraftingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Does necrotic runes`");
+                    }
+                    isHerbloreActive = ImGui.Checkbox("Herblore", isHerbloreActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
+                    }
                     isMiscActive = ImGui.Checkbox("Misc", isMiscActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("random smaller stuff`");
+                    }
                 } else {
                     if (agilitySelected) {
-                        script.agility = ImGui.Checkbox("Agility AIO", script.agility);
+                        agility = ImGui.Checkbox("Agility AIO", agility);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("1-35 Agility Only`");
                         }
                     } else if (divinationSelected) {
-                        script.isDivinationActive = ImGui.Checkbox("Divination AIO", script.isDivinationActive);
+                        isDivinationActive = ImGui.Checkbox("Divination AIO", isDivinationActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Divination AIO`");
                         }
-                        Divination.offerChronicles = ImGui.Checkbox("Offer Chronicles", Divination.offerChronicles);
-                        Divination.useDivineoMatic = ImGui.Checkbox("Use Divine-o-matic", Divination.useDivineoMatic);
-                        Divination.useFamiliarSummoning = ImGui.Checkbox("Use Familiar", Divination.useFamiliarSummoning);
-                        Divination.harvestChronicles = ImGui.Checkbox("Harvest Chronicles", Divination.harvestChronicles);
+                        offerChronicles = ImGui.Checkbox("Offer Chronicles", offerChronicles);
+                        useDivineoMatic = ImGui.Checkbox("Use Divine-o-matic", useDivineoMatic);
+                        useFamiliarSummoning = ImGui.Checkbox("Use Familiar", useFamiliarSummoning);
+                        harvestChronicles = ImGui.Checkbox("Harvest Chronicles", harvestChronicles);
                     } else if (thievingSelected) {
-                        script.isThievingActive = ImGui.Checkbox("Thieving AIO", script.isThievingActive);
+                        isThievingActive = ImGui.Checkbox("Thieving AIO", isThievingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Thieving AIO`");
                         }
                     } else if (archeologySelected) {
-                        script.isArcheologyActive = ImGui.Checkbox("Archeology", script.isArcheologyActive);
+                        isArcheologyActive = ImGui.Checkbox("Archeology", isArcheologyActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Archaeology with Material Caches Etc..`");
                         }
-                        script.MaterialCache = ImGui.Checkbox("Material Cache", script.MaterialCache);
-                        Archeology.materialManual = ImGui.Checkbox("Material Manual", Archeology.materialManual);
-                        Archeology.archaeologistsTea = ImGui.Checkbox("Archaeologists Tea", Archeology.archaeologistsTea);
-                        Archeology.hiSpecMonocle = ImGui.Checkbox("Hi-Spec Monocle", Archeology.hiSpecMonocle);
-                        Archeology.useGote = ImGui.Checkbox("Use Gote", Archeology.useGote);
+                        MaterialCache = ImGui.Checkbox("Material Cache", MaterialCache);
+                        materialManual = ImGui.Checkbox("Material Manual", materialManual);
+                        archaeologistsTea = ImGui.Checkbox("Archaeologists Tea", archaeologistsTea);
+                        hiSpecMonocle = ImGui.Checkbox("Hi-Spec Monocle", hiSpecMonocle);
+                        useGote = ImGui.Checkbox("Use Gote", useGote);
                     } else if (combatSelected) {
                         /*attackOsseous = ImGui.Checkbox("Attack Osseous", attackOsseous);*/
-                        script.isCombatActive = ImGui.Checkbox("Combat", script.isCombatActive);
+                        isCombatActive = ImGui.Checkbox("Combat", isCombatActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("AIO Fighter`");
                         }
-                        script.BankforFood = ImGui.Checkbox("Bank for food", script.BankforFood);
-                        script.nearestBank = ImGui.Checkbox("Use Nearest Bank", script.nearestBank);
-                        script.useLoot = ImGui.Checkbox("Loot", script.useLoot);
-                        script.interactWithLootAll = ImGui.Checkbox("Loot All", script.interactWithLootAll);
-                        Combat.usePOD = ImGui.Checkbox("Use POD", Combat.usePOD);
-                        Combat.handleArchGlacor = ImGui.Checkbox("Arch Glacor", Combat.handleArchGlacor);
+                        BankforFood = ImGui.Checkbox("Bank for food", BankforFood);
+                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
+                        useLoot = ImGui.Checkbox("Loot", useLoot);
+                        interactWithLootAll = ImGui.Checkbox("Loot All", interactWithLootAll);
+                        usePOD = ImGui.Checkbox("Use POD", usePOD);
+                        handleArchGlacor = ImGui.Checkbox("Arch Glacor", handleArchGlacor);
                     } else if (fishingSelected) {
-                        script.isFishingActive = ImGui.Checkbox("Fishing", script.isFishingActive);
+                        isFishingActive = ImGui.Checkbox("Fishing", isFishingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Fishing at any spot using any option`");
                         }
-                        script.AnimationCheck = ImGui.Checkbox("Animation Check", script.AnimationCheck);
-                        script.nearestBank = ImGui.Checkbox("Use Nearest Bank", script.nearestBank);
+                        AnimationCheck = ImGui.Checkbox("Animation Check", AnimationCheck);
+                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
                     } else if (miningSelected) {
-                        script.isMiningActive = ImGui.Checkbox("Mining", script.isMiningActive);
+                        isMiningActive = ImGui.Checkbox("Mining", isMiningActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Mining at any spot using any option`");
                         }
-                        script.nearestBank = ImGui.Checkbox("Use Nearest Bank", script.nearestBank);
+                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
                     } else if (woodcuttingSelected) {
-                        script.isWoodcuttingActive = ImGui.Checkbox("Woodcutting", script.isWoodcuttingActive);
+                        isWoodcuttingActive = ImGui.Checkbox("Woodcutting", isWoodcuttingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Woodcutting at any spot using any option`");
                         }
-                        script.nearestBank = ImGui.Checkbox("Use Nearest Bank", script.nearestBank);
-                        Woodcutting.acadiaTree = ImGui.Checkbox("Acadia Tree", Woodcutting.acadiaTree);
-                        Woodcutting.acadiaVIP = ImGui.Checkbox("Acadia VIP", Woodcutting.acadiaVIP);
-                        Woodcutting.crystallise = ImGui.Checkbox("Crystallise", Woodcutting.crystallise);
-                        Woodcutting.crystalliseMahogany = ImGui.Checkbox("Crystallise Mahogany", Woodcutting.crystalliseMahogany);
+                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
+                        acadiaTree = ImGui.Checkbox("Acadia Tree", acadiaTree);
+                        acadiaVIP = ImGui.Checkbox("Acadia VIP", acadiaVIP);
+                        crystallise = ImGui.Checkbox("Crystallise", crystallise);
+                        crystalliseMahogany = ImGui.Checkbox("Crystallise Mahogany", crystalliseMahogany);
                     } else if (rcselected) {
-                        script.isRunecraftingActive = ImGui.Checkbox("Runecrafting", script.isRunecraftingActive);
+                        isRunecraftingActive = ImGui.Checkbox("Runecrafting", isRunecraftingActive);
                         HandleBoneAltar = ImGui.Checkbox("Bone Altar", HandleBoneAltar);
                         HandleFleshAltar = ImGui.Checkbox("Flesh Altar", HandleFleshAltar);
                         HandleMiasmaAltar = ImGui.Checkbox("Miasma Altar", HandleMiasmaAltar);
@@ -482,17 +526,17 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         isMiscActive = ImGui.Checkbox("Misc", isMiscActive);
                         isDissasemblerActive = ImGui.Checkbox("Disassembler", isDissasemblerActive);
                     } else if (herbloreselcted) {
-                        script.isHerbloreActive = ImGui.Checkbox("Herblore", script.isHerbloreActive);
+                        isHerbloreActive = ImGui.Checkbox("Herblore", isHerbloreActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
                         }
-                        Herblore.makeBombs = ImGui.Checkbox("Make Bombs", Herblore.makeBombs);
+                        makeBombs = ImGui.Checkbox("Make Bombs", makeBombs);
                     } else {
-                        script.isCookingActive = ImGui.Checkbox("Cooking", script.isCookingActive);
+                        isCookingActive = ImGui.Checkbox("Cooking", isCookingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Use at `Range/Portable Range`");
                         }
-                        script.makeWines = ImGui.Checkbox("Make Wines", script.makeWines);
+                        makeWines = ImGui.Checkbox("Make Wines", makeWines);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Have Grapes and Jug of Water Saved as Preset`");
                         }
@@ -521,7 +565,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.Spacing(5, 5);
                         }
                     }
-                    if (script.isThievingActive) {
+                    if (isThievingActive) {
                         ImGui.SeparatorText("Thieving Options");
                         if (tooltipsEnabled) {
                             String[] texts = {
@@ -546,7 +590,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.PopStyleColor(1);
                         }
                     }
-                    if (script.isHerbloreActive) {
+                    if (isHerbloreActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "Uses `Load Last Preset from` Bank chest",
@@ -568,16 +612,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.PopStyleColor(1);
                         }
                         ImGui.SeparatorText("Potions Made Count");
-                        for (Map.Entry<String, Integer> entry : script.Potions.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : Potions.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalPotionsMade = 0;
-                        for (int count : script.Potions.values()) {
+                        for (int count : Potions.values()) {
                             totalPotionsMade += count;
                         }
 
-                        long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                         double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                         double potionsMadePerHour = totalPotionsMade / elapsedHours;
@@ -592,84 +636,115 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
                         ImGui.SeparatorText("Miscellaneous Options");
 
-                        boolean NoneSelected = PorterMaker.isportermakerActive || script.isPlanksActive || script.isCorruptedOreActive || Summoning.isSummoningActive || script.isGemCutterActive || PorterMaker.isdivinechargeActive || script.isSmeltingActive;
+                        boolean NoneSelected = isportermakerActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive || pickCaveNightshade;
 
-                        if (!NoneSelected || PorterMaker.isportermakerActive) {
+                        if (!NoneSelected || isportermakerActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            PorterMaker.isportermakerActive = ImGui.Checkbox("Porter Maker", PorterMaker.isportermakerActive);
+                            isportermakerActive = ImGui.Checkbox("Porter Maker", isportermakerActive);
                             if (!NoneSelected) {
                                 ImGui.SameLine();
                             }
                         }
 
-                        if (!NoneSelected || script.isPlanksActive) {
+                        if (!NoneSelected || isPlanksActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            script.isPlanksActive = ImGui.Checkbox("Planks", script.isPlanksActive);
+                            isPlanksActive = ImGui.Checkbox("Planks", isPlanksActive);
                             if (!NoneSelected) {
                                 ImGui.SameLine();
                             }
                         }
 
-                        if (!NoneSelected || script.isCorruptedOreActive) {
+                        if (!NoneSelected || isCorruptedOreActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            script.isCorruptedOreActive = ImGui.Checkbox("Corrupted Ore", script.isCorruptedOreActive);
+                            isCorruptedOreActive = ImGui.Checkbox("Corrupted Ore", isCorruptedOreActive);
 
                         }
 
-                        if (!NoneSelected || Summoning.isSummoningActive) {
+                        if (!NoneSelected || isSummoningActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            Summoning.isSummoningActive = ImGui.Checkbox("Summoning", Summoning.isSummoningActive);
+                            isSummoningActive = ImGui.Checkbox("Summoning", isSummoningActive);
                             if (!NoneSelected) {
                                 ImGui.SameLine();
                             }
                         }
 
-                        if (!NoneSelected || script.isGemCutterActive) {
+                        if (!NoneSelected || isGemCutterActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            script.isGemCutterActive = ImGui.Checkbox("Gem Cutter", script.isGemCutterActive);
+                            isGemCutterActive = ImGui.Checkbox("Gem Cutter", isGemCutterActive);
                             if (!NoneSelected) {
                                 ImGui.SameLine();
                             }
                         }
 
-                        if (!NoneSelected || PorterMaker.isdivinechargeActive) {
+                        if (!NoneSelected || isdivinechargeActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            PorterMaker.isdivinechargeActive = ImGui.Checkbox("Divine Charge", PorterMaker.isdivinechargeActive);
+                            isdivinechargeActive = ImGui.Checkbox("Divine Charge", isdivinechargeActive);
                         }
 
-                        if (!NoneSelected || script.isSmeltingActive) {
+                        if (!NoneSelected || isSmeltingActive) {
                             if (!NoneSelected) {
                                 ImGui.SetCursorPosX(spacing);
                             } else {
                                 ImGui.SetCursorPosX(spacing);
                             }
-                            script.isSmeltingActive = ImGui.Checkbox("Smelting", script.isSmeltingActive);
+                            isSmeltingActive = ImGui.Checkbox("Smelting", isSmeltingActive);
+                            if (!NoneSelected) {
+                                ImGui.SameLine();
+                            }
                         }
-                        if (script.isSmeltingActive) {
+                        if (!NoneSelected || pickCaveNightshade) {
+                            if (!NoneSelected) {
+                                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                            } else {
+                                ImGui.SetCursorPosX(spacing);
+                            }
+                            pickCaveNightshade = ImGui.Checkbox("Cave Nightshade", pickCaveNightshade);
+                        }
+                        if (pickCaveNightshade) {
+                            ImGui.SeparatorText("Cave Nightshade Picked Count");
+                            for (Map.Entry<String, Integer> entry : NightshadePicked.entrySet()) {
+                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                            }
+
+                            int totalNightshadePicked = 0;
+                            for (int count : NightshadePicked.values()) {
+                                totalNightshadePicked += count;
+                            }
+
+                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                            double nightshadePickedPerHour = totalNightshadePicked / elapsedHours;
+                            int nightshadePickedPerHourInt = (int) nightshadePickedPerHour;
+
+                            ImGui.Text("Cave Nightshade Picked Per Hour: " + nightshadePickedPerHourInt);
+                        }
+
+                        if (isSmeltingActive) {
                             ImGui.SeparatorText("Smelting Options");
                             if (tooltipsEnabled) {
                                 String[] texts = {
@@ -695,7 +770,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
 
 
-                        if (Summoning.isSummoningActive) {
+                        if (isSummoningActive) {
                             if (tooltipsEnabled) {
                                 String[] texts = {
                                         "Will use buy sell method at taverly summoning shop",
@@ -721,13 +796,13 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                             ImGui.SeparatorText("Summoning Options");
                             ImGui.SetCursorPosX(spacing);
-                            Summoning.useSpiritStone = ImGui.Checkbox("Spirit Stone", Summoning.useSpiritStone);
+                            useSpiritStone = ImGui.Checkbox("Spirit Stone", useSpiritStone);
                             ImGui.SameLine();
                             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            Summoning.usePrifddinas = ImGui.Checkbox("Prifddinas", Summoning.usePrifddinas);
+                            usePrifddinas = ImGui.Checkbox("Prifddinas", usePrifddinas);
 
 
-                            if (Summoning.useSpiritStone) {
+                            if (useSpiritStone) {
                                 ImGui.SetItemWidth(150.0F);
                                 if (ImGui.Combo("Spirit Stones", spiritStone_current_idx, spiritStone.toArray(new String[0]))) {
                                     int selectedIndex = spiritStone_current_idx.get();
@@ -764,7 +839,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 }
                             }
                         }
-                        if (PorterMaker.isportermakerActive) {
+                        if (isportermakerActive) {
                             if (tooltipsEnabled) {
                                 String[] texts = {
                                         "Will only work with Sign of the Porter VII",
@@ -787,16 +862,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 ImGui.PopStyleColor(1);
                             }
                             ImGui.SeparatorText("Porters Made Count");
-                            for (Map.Entry<String, Integer> entry : script.portersMade.entrySet()) {
+                            for (Map.Entry<String, Integer> entry : portersMade.entrySet()) {
                                 ImGui.Text(entry.getKey() + ": " + entry.getValue());
                             }
 
                             int totalPortersMade = 0;
-                            for (int count : script.portersMade.values()) {
+                            for (int count : portersMade.values()) {
                                 totalPortersMade += count;
                             }
 
-                            long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                             double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                             double portersMadePerHour = totalPortersMade / elapsedHours;
@@ -804,7 +879,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                             ImGui.Text("Porters Made Per Hour: " + portersMadePerHourInt);
                         }
-                        if (script.isPlanksActive) {
+                        if (isPlanksActive) {
                             if (tooltipsEnabled) {
                                 String[] texts = {
                                         "Have Preset Ready Saved",
@@ -834,7 +909,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
                             makeRefinedPlanks = ImGui.Checkbox("Refined Planks", makeRefinedPlanks);
                         }
-                        if (script.isCorruptedOreActive) {
+                        if (isCorruptedOreActive) {
                             if (tooltipsEnabled) {
                                 String[] texts = {
                                         "Have Corrupted Ore in Backpack and be at Prif Furnace",
@@ -854,16 +929,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 ImGui.PopStyleColor(1);
                             }
                             ImGui.SeparatorText("Corrupted Ore Count");
-                            for (Map.Entry<String, Integer> entry : script.corruptedOre.entrySet()) {
+                            for (Map.Entry<String, Integer> entry : corruptedOre.entrySet()) {
                                 ImGui.Text(entry.getKey() + ": " + entry.getValue());
                             }
 
                             int totalCorruptedOre = 0;
-                            for (int count : script.corruptedOre.values()) {
+                            for (int count : corruptedOre.values()) {
                                 totalCorruptedOre += count;
                             }
 
-                            long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                             double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                             double corruptedOrePerHour = totalCorruptedOre / elapsedHours;
@@ -894,14 +969,14 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.PopStyleColor(1);
                         }
                         ImGui.SeparatorText("Dissasembler/High Alcher Options");
-                        Dissasembler.useDisassemble = ImGui.Checkbox("Disassemble", Dissasembler.useDisassemble);
+                        useDisassemble = ImGui.Checkbox("Disassemble", useDisassemble);
                         ImGui.SameLine();
-                        Dissasembler.useAlchamise = ImGui.Checkbox("High Alch", Dissasembler.useAlchamise);
+                        useAlchamise = ImGui.Checkbox("High Alch", useAlchamise);
                         ImGui.Separator();
-                        Dissasembler.setItemName(ImGui.InputText("Item name", Dissasembler.getItemName(), 100, ImGuiWindowFlag.None.getValue()));
-                        Dissasembler.itemMenuSize = ImGui.InputInt("Item amount: ", Dissasembler.itemMenuSize, 1, 100, ImGuiWindowFlag.None.getValue());
+                        setItemName(ImGui.InputText("Item name", getItemName(), 100, ImGuiWindowFlag.None.getValue()));
+                        itemMenuSize = ImGui.InputInt("Item amount: ", itemMenuSize, 1, 100, ImGuiWindowFlag.None.getValue());
                         if (ImGui.Button("Add to queue")) {
-                            Dissasembler.addTask(new TaskScheduler(Dissasembler.itemMenuSize, Dissasembler.getItemName()));
+                            addTask(new TaskScheduler(itemMenuSize, getItemName()));
                         }
                         ImGui.Separator();
                         if (ImGui.BeginTable("Tasks", 3, ImGuiWindowFlag.None.getValue())) {
@@ -910,7 +985,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.TableSetupColumn("Item amount", 1);
                             ImGui.TableSetupColumn("Delete task", 2);
                             ImGui.TableHeadersRow();
-                            for (Iterator<TaskScheduler> iterator = Dissasembler.tasks.iterator(); iterator.hasNext(); ) {
+                            for (Iterator<TaskScheduler> iterator = tasks.iterator(); iterator.hasNext(); ) {
                                 TaskScheduler task = iterator.next();
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
@@ -926,7 +1001,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                     }
 
-                    if (script.isDivinationActive) {
+                    if (isDivinationActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "1-99 AIO, will move from spot to spot automatically",
@@ -950,16 +1025,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.PopStyleColor(1);
                         }
                         ImGui.SeparatorText("Chronicles Captured Count");
-                        for (Map.Entry<String, Integer> entry : script.chroniclesCaughtCount.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : chroniclesCaughtCount.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalChroniclesCaptured = 0;
-                        for (int count : script.chroniclesCaughtCount.values()) {
+                        for (int count : chroniclesCaughtCount.values()) {
                             totalChroniclesCaptured += count;
                         }
 
-                        long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                         double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                         double chroniclesCapturedPerHour = totalChroniclesCaptured / elapsedHours;
@@ -967,22 +1042,22 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.Text("Chronicles Captured Per Hour: " + chroniclesCapturedPerHourInt);
 
-                        ImGui.SeparatorText("Incandescent Energy Gathered Count");
-                        for (Map.Entry<String, Integer> entry : script.energy.entrySet()) {
+                        ImGui.SeparatorText("Energy Gathered Count");
+                        for (Map.Entry<String, Integer> entry : energy.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalEnergyGathered = 0;
-                        for (int count : script.energy.values()) {
+                        for (int count : energy.values()) {
                             totalEnergyGathered += count;
                         }
 
                         double energyGatheredPerHour = totalEnergyGathered / elapsedHours;
                         int energyGatheredPerHourInt = (int) energyGatheredPerHour;
 
-                        ImGui.Text("Incandescent Energy Gathered Per Hour: " + energyGatheredPerHourInt);
+                        ImGui.Text("Energy Gathered Per Hour: " + energyGatheredPerHourInt);
                     }
-                    if (script.isRunecraftingActive) {
+                    if (isRunecraftingActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "Select your option and it will run",
@@ -990,7 +1065,10 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                     "have all stuff on action bar",
                                     "Have restore potions in preset if using familiar",
                                     "Soul altar will only work with protean essence",
-                                    "if soul altar, start next to it"
+                                    "if soul altar, start next to it",
+                                    "you have to choose a ring choice",
+                                    "meaning you need passing bracelet for this to work",
+                                    "unless your doing soul altar"
                             };
 
                             ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1057,7 +1135,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     }
 
 
-                    if (script.isArcheologyActive) {
+                    if (isArcheologyActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "Some areas are not supported by Traversal",
@@ -1123,7 +1201,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             if (selectedIndex > 0 && selectedIndex < Caches.length) {
                                 String selectedName = Caches[selectedIndex];
                                 Archeology.addName(selectedName);
-                                script.MaterialCache = true;
+                                MaterialCache = true;
                                 ScriptConsole.println("Predefined material cache added: " + selectedName);
                                 cacheItemIndex.set(0);
                             } else {
@@ -1161,7 +1239,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                                 if (ImGui.Button(name)) {
                                     Archeology.removeName(name);
-                                    script.MaterialCache = false;
+                                    MaterialCache = false;
                                     ScriptConsole.println("Excavation name removed: " + name);
                                 }
 
@@ -1172,7 +1250,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.PopStyleColor(2);
                             ImGui.EndChild();
                         }
-                        if (Archeology.useGote) {
+                        if (useGote) {
                             ImGui.SetItemWidth(200.0F);
                             if (ImGui.Combo("Type of Porter", currentPorterType, porterTypes)) {
                                 int selectedIndex = currentPorterType.get();
@@ -1197,16 +1275,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
 
                         ImGui.SeparatorText("Materials Excavated Count");
-                        for (Map.Entry<String, Integer> entry : script.materialsExcavated.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : materialsExcavated.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalMaterialsExcavated = 0;
-                        for (int count : script.materialsExcavated.values()) {
+                        for (int count : materialsExcavated.values()) {
                             totalMaterialsExcavated += count;
                         }
 
-                        long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                         double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                         double materialsExcavatedPerHour = totalMaterialsExcavated / elapsedHours;
@@ -1216,7 +1294,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     }
 
 
-                    if (script.isCombatActive) {
+                    if (isCombatActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "Bank for food - will use bank and withdraw any",
@@ -1248,11 +1326,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
 
                         ImGui.SeparatorText("Charms Obtained Count");
-                        List<Map<String, Integer>> allCharms = Arrays.asList(script.BlueCharms, script.CrimsonCharms, script.GreenCharms, script.GoldCharms);
+                        List<Map<String, Integer>> allCharms = Arrays.asList(BlueCharms, CrimsonCharms, GreenCharms, GoldCharms);
 
                         for (Map<String, Integer> charmMap : allCharms) {
                             for (Map.Entry<String, Integer> entry : charmMap.entrySet()) {
-                                long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                                 double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                                 double charmsObtainedPerHour = entry.getValue() / elapsedHours;
@@ -1294,75 +1372,75 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
 
                         ImGui.SetCursorPosX(spacing);
-                        script.usePrayerPots = ImGui.Checkbox("Prayer Pots", script.usePrayerPots);
+                        usePrayerPots = ImGui.Checkbox("Prayer Pots", usePrayerPots);
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        script.useOverloads = ImGui.Checkbox("Overloads", script.useOverloads);
+                        useOverloads = ImGui.Checkbox("Overloads", useOverloads);
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        script.useAggroPots = ImGui.Checkbox("Aggro Pots", script.useAggroPots);
+                        useAggroPots = ImGui.Checkbox("Aggro Pots", useAggroPots);
 
                         ImGui.SetCursorPosX(spacing);
-                        Combat.useWeaponPoison = ImGui.Checkbox("Wep Poison", Combat.useWeaponPoison);
+                        useWeaponPoison = ImGui.Checkbox("Wep Poison", useWeaponPoison);
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        Combat.scriptureofJas = ImGui.Checkbox("Jas Book", Combat.scriptureofJas);
+                        scriptureofJas = ImGui.Checkbox("Jas Book", scriptureofJas);
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        Combat.scriptureofWen = ImGui.Checkbox("Wen Book", Combat.scriptureofWen);
+                        scriptureofWen = ImGui.Checkbox("Wen Book", scriptureofWen);
 
                         ImGui.SetCursorPosX(spacing);
-                        Combat.DeathGrasp = ImGui.Checkbox("EOF", Combat.DeathGrasp);
+                        DeathGrasp = ImGui.Checkbox("EOF", DeathGrasp);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Do not have Finger of Death in Revo bar.");
                         }
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        Combat.SpecialAttack = ImGui.Checkbox("OmniGuard", Combat.SpecialAttack);
+                        SpecialAttack = ImGui.Checkbox("OmniGuard", SpecialAttack);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Have on Action Bar");
                         }
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        Combat.VolleyofSouls = ImGui.Checkbox("Volley of Souls", Combat.VolleyofSouls);
+                        VolleyofSouls = ImGui.Checkbox("Volley of Souls", VolleyofSouls);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Do not have Volley on Revo bar.");
                         }
                         ImGui.SetCursorPosX(spacing);
-                        Combat.InvokeDeath = ImGui.Checkbox("Invoke Death", Combat.InvokeDeath);
+                        InvokeDeath = ImGui.Checkbox("Invoke Death", InvokeDeath);
 
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        Combat.SoulSplit = ImGui.Checkbox("Soul Split", Combat.SoulSplit);
+                        SoulSplit = ImGui.Checkbox("Soul Split", SoulSplit);
 
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        Combat.KeepArmyup = ImGui.Checkbox("Army 24/7", Combat.KeepArmyup);
+                        KeepArmyup = ImGui.Checkbox("Army 24/7", KeepArmyup);
 
                         ImGui.SetCursorPosX(spacing);
-                        Combat.animateDead = ImGui.Checkbox("Animate Dead", Combat.animateDead);
+                        animateDead = ImGui.Checkbox("Animate Dead", animateDead);
 
                         ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        Combat.usequickPrayers = ImGui.Checkbox("Quick Prayers", Combat.usequickPrayers);
+                        usequickPrayers = ImGui.Checkbox("Quick Prayers", usequickPrayers);
 
                         ImGui.SameLine();
                         ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        Combat.useScrimshaws = ImGui.Checkbox("Scrimshaws", Combat.useScrimshaws);
+                        useScrimshaws = ImGui.Checkbox("Scrimshaws", useScrimshaws);
 
                         ImGui.SetCursorPosX(spacing);
-                        Combat.enableRadiusTracking = ImGui.Checkbox("Enable Radius", Combat.enableRadiusTracking);
+                        enableRadiusTracking = ImGui.Checkbox("Enable Radius", enableRadiusTracking);
 
-                        if (Combat.VolleyofSouls) {
+                        if (VolleyofSouls) {
                             ImGui.SetCursorPosX(spacing);
                             ImGui.SetItemWidth(85.0F);
                             Combat.VolleyOfSoulsThreshold = ImGui.InputInt("       Volley Stacks", Combat.VolleyOfSoulsThreshold);
@@ -1375,7 +1453,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 Combat.VolleyOfSoulsThreshold = 5;
                             }
                         }
-                        if (Combat.DeathGrasp) {
+                        if (DeathGrasp) {
                             ImGui.SetItemWidth(85.0F);
                             Combat.NecrosisStacksThreshold = ImGui.InputInt("     Necrosis Stacks", Combat.NecrosisStacksThreshold);
                             if (ImGui.IsItemHovered()) {
@@ -1387,7 +1465,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 Combat.NecrosisStacksThreshold = 12;
                             }
                         }
-                        if (Combat.enableRadiusTracking) {
+                        if (enableRadiusTracking) {
                             ImGui.SetItemWidth(85.0F);
                             int newRadius = ImGui.InputInt("Radius (tiles)", radius);
                             if (newRadius < 0) {
@@ -1405,17 +1483,17 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                         }
                         ImGui.SeparatorText("Target Options");
-                        if (ImGui.Button("Add Target") && !Combat.targetName.isEmpty()) {
-                            Combat.addTargetName(Combat.targetName);
-                            Combat.addTarget(Combat.targetName);
-                            Combat.targetName = "";
+                        if (ImGui.Button("Add Target") && !targetName.isEmpty()) {
+                            addTargetName(targetName);
+                            addTarget(targetName);
+                            targetName = "";
                         }
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Enter the name of the target to attack. Case-insensitive, partial names allowed.");
                         }
                         ImGui.SameLine();
                         ImGui.SetItemWidth(273.0F);
-                        Combat.targetName = ImGui.InputText("##Targetname", Combat.targetName);
+                        targetName = ImGui.InputText("##Targetname", targetName);
 
                         List<String> comboItemsList = new ArrayList<>(CombatList);
                         comboItemsList.add(0, "                          Select Enemy to Attack");
@@ -1429,7 +1507,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                             if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                                 String selectedName = comboItems[selectedIndex];
-                                Combat.addTargetName(selectedName);
+                                addTargetName(selectedName);
                                 ScriptConsole.println("Predefined Enemy added: " + selectedName);
                                 selectedItemIndex.set(0);
                             } else {
@@ -1440,7 +1518,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         if (ImGui.BeginChild("Targets List", 360, 50, true, 0)) {
                             int count = 0;
-                            for (String targetName : new ArrayList<>(Combat.getTargetNames())) {
+                            for (String targetName : new ArrayList<>(getTargetNames())) {
                                 if (count > 0 && count % 5 == 0) {
                                     ImGui.Text("");
                                 } else if (count > 0) {
@@ -1448,7 +1526,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 }
 
                                 if (ImGui.Button(targetName)) {
-                                    Combat.removeTargetName(targetName);
+                                    removeTargetName(targetName);
                                     break;
                                 }
 
@@ -1461,7 +1539,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.EndChild();
                     }
-                    if (script.isCombatActive && script.useLoot) {
+                    if (isCombatActive && useLoot) {
                         ImGui.SeparatorText("Loot Options");
 
                         if (ImGui.Button("Add Item") && !Combat.getSelectedItem().isEmpty()) {
@@ -1520,11 +1598,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.EndChild();
                     }
-                    if (script.isCombatActive && script.BankforFood) {
+                    if (isCombatActive && BankforFood) {
                         ImGui.SeparatorText("Food Options");
-                        if (ImGui.Button("Add Food") && !Combat.getFoodName().isEmpty()) {
-                            Combat.addFoodName(Combat.getFoodName());
-                            Combat.setFoodName("");
+                        if (ImGui.Button("Add Food") && !getFoodName().isEmpty()) {
+                            addFoodName(getFoodName());
+                            setFoodName("");
                         }
 
                         if (ImGui.IsItemHovered()) {
@@ -1532,7 +1610,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                         ImGui.SameLine();
                         ImGui.SetItemWidth(272.0F);
-                        Combat.setFoodName(ImGui.InputText("##Foodname", Combat.getFoodName()));
+                        setFoodName(ImGui.InputText("##Foodname", getFoodName()));
 
                         List<String> comboItemsList = new ArrayList<>(FoodList);
                         comboItemsList.add(0, "                          Select Food to Add");
@@ -1546,7 +1624,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                             if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                                 String selectedName = comboItems[selectedIndex];
-                                Combat.addFoodName(selectedName);
+                                addFoodName(selectedName);
                                 ScriptConsole.println("Predefined Food added: " + selectedName);
                                 selectedItemIndex.set(0);
                             } else {
@@ -1556,7 +1634,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         if (ImGui.BeginChild("Food List", 355, 50, true, 0)) {
                             int count = 0;
-                            for (String foodName : new ArrayList<>(Combat.getSelectedFoodNames())) {
+                            for (String foodName : new ArrayList<>(getSelectedFoodNames())) {
                                 if (count > 0 && count % 5 == 0) {
                                     ImGui.Text("");
                                 } else if (count > 0) {
@@ -1564,7 +1642,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 }
 
                                 if (ImGui.Button(foodName)) {
-                                    Combat.removeFoodName(foodName);
+                                    removeFoodName(foodName);
                                     break;
                                 }
 
@@ -1578,7 +1656,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         ImGui.EndChild();
                     }
 
-                    if (script.isMiningActive) {
+                    if (isMiningActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "start anywhere, will move to the closest rock",
@@ -1603,13 +1681,13 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                         ImGui.SeparatorText("Mining Options");
                         if (ImGui.Button("Add Rock Name")) {
-                            Mining.addRockName(Mining.getRockName());
-                            ScriptConsole.println("Rock name added: " + Mining.getRockName());
-                            Mining.setRockName("");
+                            addRockName(getRockName());
+                            ScriptConsole.println("Rock name added: " + getRockName());
+                            setRockName("");
                         }
                         ImGui.SameLine();
                         ImGui.SetItemWidth(245.0F);
-                        Mining.Rock = ImGui.InputText("##Rock Name", Mining.getRockName());
+                        Rock = ImGui.InputText("##Rock Name", getRockName());
 
                         List<String> comboItemsList = new ArrayList<>(MiningList);
                         comboItemsList.add(0, "                          Select Rock to Mine");
@@ -1623,7 +1701,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                             if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                                 String selectedName = comboItems[selectedIndex];
-                                Mining.addRockName(selectedName);
+                                addRockName(selectedName);
                                 ScriptConsole.println("Predefined Rock added: " + selectedName);
                                 selectedItemIndex.set(0);
                             } else {
@@ -1631,11 +1709,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                         }
 
-                        if (ImGui.BeginChild("Selected Rock Names", 365, 230, true, 0)) {
+                        if (ImGui.BeginChild("Selected Rock Names", 365, 43, true, 0)) {
                             ImGui.SetCursorPosX(10.0f);
                             ImGui.SetCursorPosY(10.0f);
 
-                            List<String> selectedRocks = new ArrayList<>(Mining.getSelectedRockNames());
+                            List<String> selectedRocks = new ArrayList<>(getSelectedRockNames());
                             float itemSpacing = 10.0f;
                             float lineSpacing = 10.0f;
                             float buttonHeight = 20.0f;
@@ -1660,7 +1738,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 1.0f, 1.0f);
 
                                 if (ImGui.Button(rock)) {
-                                    Mining.removeRockName(rock);
+                                    removeRockName(rock);
                                     ScriptConsole.println("Rock name removed: " + rock);
                                 }
 
@@ -1669,9 +1747,15 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                             ImGui.EndChild();
                         }
+                        ImGui.SeparatorText("Ores Mined Count");
+                        for (Map.Entry<String, Integer> entry : Variables.types.entrySet()) {
+                            String itemName = entry.getKey();
+                            int itemCount = entry.getValue();
+                            ImGui.Text(itemName + ": " + itemCount);
+                        }
                     }
 
-                    if (script.isFishingActive) {
+                    if (isFishingActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "start anywhere, will move to the closest spot",
@@ -1808,16 +1892,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.EndChild();
                         }
                         ImGui.SeparatorText("Fish Caught Count");
-                        for (Map.Entry<String, Integer> entry : script.fishCaughtCount.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : fishCaughtCount.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalFishCaught = 0;
-                        for (int count : script.fishCaughtCount.values()) {
+                        for (int count : fishCaughtCount.values()) {
                             totalFishCaught += count;
                         }
 
-                        long elapsedTime = Duration.between(script.startTime, Instant.now()).toMillis();
+                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                         double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
                         double fishCaughtPerHour = totalFishCaught / elapsedHours;
@@ -1825,7 +1909,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.Text("Fish Caught Per Hour: " + fishCaughtPerHourInt);
                     }
-                    if (script.isCookingActive) {
+                    if (isCookingActive) {
                         if (tooltipsEnabled) {
                             float windowWidth = 400;
                             String[] texts = {
@@ -1852,21 +1936,21 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         ImGui.SeparatorText("Cooking Options");
 
                         int totalFishCooked = 0;
-                        for (int count : script.fishCookedCount.values()) {
+                        for (int count : fishCookedCount.values()) {
                             totalFishCooked += count;
                         }
 
                         long endTime = System.currentTimeMillis();
-                        long startTime = script.startTime.toEpochMilli();
+                        long startTime = Variables.startTime.toEpochMilli();
                         double hoursElapsed = (endTime - startTime) / 1000.0 / 60.0 / 60.0;
                         double averageFishPerHour = totalFishCooked / hoursElapsed;
                         ImGui.Text("Average fish cooked per hour: " + (int) averageFishPerHour);
 
-                        for (Map.Entry<String, Integer> entry : script.fishCookedCount.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : fishCookedCount.entrySet()) {
                             ImGui.Text("Cooked: " + entry.getKey() + " - " + entry.getValue());
                         }
                     }
-                    if (script.isWoodcuttingActive) {
+                    if (isWoodcuttingActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "start anywhere, will move to the closest tree",
@@ -1895,13 +1979,13 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                         ImGui.SeparatorText("Woodcutting Options");
                         if (ImGui.Button("Add Tree Name")) {
-                            Woodcutting.addTreeName(Woodcutting.getTreeName());
-                            ScriptConsole.println("Tree added: " + Woodcutting.getTreeName());
-                            Woodcutting.setTreeName("");
+                            addTreeName(getTreeName());
+                            ScriptConsole.println("Tree added: " + getTreeName());
+                            setTreeName("");
                         }
                         ImGui.SameLine();
                         ImGui.SetItemWidth(249.0F);
-                        Woodcutting.Tree = ImGui.InputText("##Tree Name", Woodcutting.getTreeName());
+                        Tree = ImGui.InputText("##Tree Name", getTreeName());
                         List<String> comboItemsList = new ArrayList<>(TreeList);
                         comboItemsList.add(0, "                          Select Tree to Cut");
                         String[] comboItems = comboItemsList.toArray(new String[0]);
@@ -1914,7 +1998,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                             if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                                 String selectedName = comboItems[selectedIndex];
-                                Woodcutting.addTreeName(selectedName);
+                                addTreeName(selectedName);
                                 ScriptConsole.println("Predefined Tree added: " + selectedName);
                                 selectedItemIndex.set(0);
                             } else {
@@ -1922,11 +2006,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             }
                         }
 
-                        if (ImGui.BeginChild("Selected Trees", 365, 75, true, 0)) {
+                        if (ImGui.BeginChild("Selected Trees", 365, 43, true, 0)) {
                             ImGui.SetCursorPosX(10.0f);
                             ImGui.SetCursorPosY(10.0f);
 
-                            List<String> selectedTrees = new ArrayList<>(Woodcutting.getSelectedTreeNames());
+                            List<String> selectedTrees = new ArrayList<>(getSelectedTreeNames());
                             float itemSpacing = 10.0f;
                             float lineSpacing = 10.0f;
                             float buttonHeight = 20.0f;
@@ -1951,7 +2035,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 1.0f, 1.0f);
 
                                 if (ImGui.Button(tree)) {
-                                    Woodcutting.removeTreeName(tree);
+                                    removeTreeName(tree);
                                     ScriptConsole.println("Tree removed: " + tree);
                                 }
 
@@ -1961,19 +2045,19 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.EndChild();
                         }
                         int totalLogsCut = 0;
-                        for (int count : script.logCount.values()) {
+                        for (int count : logCount.values()) {
                             totalLogsCut += count;
                         }
 
                         long endTime = System.currentTimeMillis();
-                        long startTime = script.startTime.toEpochMilli();
+                        long startTime = Variables.startTime.toEpochMilli();
                         double hoursElapsed = (endTime - startTime) / 1000.0 / 60.0 / 60.0;
 
                         double averageLogsPerHour = totalLogsCut / hoursElapsed;
 
                         ImGui.SeparatorText("Logs Chopped Count");
 
-                        for (Map.Entry<String, Integer> entry : script.logCount.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : logCount.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
                         ImGui.Text("Average logs cut per hour: " + (int) averageLogsPerHour);
@@ -1986,7 +2070,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 if (ImGui.BeginChild("Child1", 580, 60, true, 0)) {
 
                     String botState;
-                    if (script.isRunecraftingActive) {
+                    if (isRunecraftingActive) {
                         botState = String.valueOf(Runecrafting.getScriptstate());
                     } else {
                         botState = String.valueOf(script.getBotState());

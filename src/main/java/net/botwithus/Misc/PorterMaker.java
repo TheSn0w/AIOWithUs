@@ -3,6 +3,7 @@ package net.botwithus.Misc;
 import net.botwithus.SnowsScript;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
@@ -15,15 +16,28 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
+import static net.botwithus.Variables.Variables.isportermakerActive;
+import static net.botwithus.Variables.Variables.portersMade;
+
 
 public class PorterMaker {
     SnowsScript script;
     private static Random random = new Random();
-    public static boolean isportermakerActive;
-    public static boolean isdivinechargeActive;
 
     public PorterMaker(SnowsScript script) {
         this.script = script;
+    }
+
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isportermakerActive) {
+            if (message.contains("You create: 1")) {
+                String itemType = message.substring(message.indexOf("1") + 2).trim();
+                itemType = itemType.replace(".", ""); // Remove the period
+                int count = portersMade.getOrDefault(itemType, 0);
+                portersMade.put(itemType, count + 1);
+            }
+        }
     }
 
 

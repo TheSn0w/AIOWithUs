@@ -25,12 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import static net.botwithus.Variables.Variables.useSpiritStone;
+
 public class Summoning {
     SnowsScript script;
     private static Random random = new Random();
-    public static boolean isSummoningActive;
-    public static boolean useSpiritStone;
-    public static boolean usePrifddinas;
 
     public Summoning(SnowsScript script) {
         this.script = script;

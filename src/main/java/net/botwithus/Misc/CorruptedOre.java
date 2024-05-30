@@ -2,6 +2,8 @@ package net.botwithus.Misc;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.SnowsScript;
+import net.botwithus.Variables.Variables;
+import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
@@ -12,9 +14,30 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
+import static net.botwithus.Variables.Variables.corruptedOre;
+import static net.botwithus.Variables.Variables.isCorruptedOreActive;
+
 public class CorruptedOre {
     SnowsScript script;
     private static Random random = new Random();
+
+    public void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isCorruptedOreActive) {
+            String itemName = event.getNewItem().getName();
+            if ("Corrupted ore".equals(itemName)) {
+                int oldCount = event.getOldItem().getStackSize();
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount < oldCount) {
+                    int count = Variables.corruptedOre.getOrDefault(itemName, 0);
+                    corruptedOre.put(itemName, count + 1);
+                }
+            }
+        }
+    }
+
 
     public CorruptedOre(SnowsScript script) {
         this.script = script;

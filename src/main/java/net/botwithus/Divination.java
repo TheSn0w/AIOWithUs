@@ -1,8 +1,11 @@
 package net.botwithus;
 
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.EquipmentInventory;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
+import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -28,13 +31,46 @@ import net.botwithus.rs3.script.ScriptConsole;
 import java.util.*;
 
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTING;
+import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
+import static net.botwithus.Variables.Variables.*;
 
 public class Divination {
     private static Random random = new Random();
-    public static boolean offerChronicles = false;
-    public static boolean useDivineoMatic = false;
-    public static boolean useFamiliarSummoning = false;
-    public static boolean harvestChronicles = false;
+
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isDivinationActive) {
+            if (message.contains("You capture the chronicle fragment and place it in your inventory")) {
+                String chronicleType = "Chronicle fragment";
+                int count = chroniclesCaughtCount.getOrDefault(chronicleType, 0);
+                chroniclesCaughtCount.put(chronicleType, count + 1);
+            }
+            if (message.contains("Your divination outfit")) {
+                String chronicleType = "Chronicle fragment";
+                int count = chroniclesCaughtCount.getOrDefault(chronicleType, 0);
+                chroniclesCaughtCount.put(chronicleType, count + 2);
+            }
+        }
+    }
+    void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isDivinationActive) {
+            String itemName = event.getNewItem().getName();
+            if (itemName.contains("energy")) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+
+                    int currentCount = Variables.energy.getOrDefault(itemName, 0);
+
+                    energy.put(itemName, currentCount + quantity);
+                }
+            }
+        }
+    }
 
     public static long handleDivination(LocalPlayer player) {
         int divinationLevel = Skills.DIVINATION.getActualLevel();

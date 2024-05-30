@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -16,13 +17,52 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Variables.Variables.*;
+
 public class Fishing {
     private Random random = new Random();
     public SnowsScript skeletonScript;
+
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isFishingActive) {
+            if (message.contains("You catch a")) {
+                String[] words = message.split(" ");
+                int startIndex = 0;
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].equals("a")) {
+                        startIndex = i + 1;
+                        break;
+                    }
+                }
+                String fishType = String.join(" ", Arrays.copyOfRange(words, startIndex, words.length));
+                fishType = fishType.split("Already cooked")[0].trim();
+                fishType = fishType.replace(".", "");
+                int count = fishCaughtCount.getOrDefault(fishType, 0);
+                fishCaughtCount.put(fishType, count + 1);
+            }
+            if (message.contains("You catch some")) {
+                String[] words = message.split(" ");
+                int startIndex = 0;
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].equals("some")) {
+                        startIndex = i + 1;
+                        break;
+                    }
+                }
+                String fishType = String.join(" ", Arrays.copyOfRange(words, startIndex, words.length));
+                fishType = fishType.split("Already cooked")[0].trim();
+                fishType = fishType.replace(".", "");
+                int count = fishCaughtCount.getOrDefault(fishType, 0);
+                fishCaughtCount.put(fishType, count + 1);
+            }
+        }
+    }
 
     private boolean isNumeric(String str) {
         try {
@@ -44,7 +84,7 @@ public class Fishing {
         }
 
 
-        if (player.isMoving() || (skeletonScript.AnimationCheck && player.getAnimationId() == -1)) {
+        if (player.isMoving() || (AnimationCheck && player.getAnimationId() == -1)) {
             return random.nextLong(1500, 3000);
         }
 
@@ -59,7 +99,7 @@ public class Fishing {
 
     long handleFullBackpack(LocalPlayer player) {
         EntityResultSet<SceneObject> DepositBox = SceneObjectQuery.newQuery().name("Deposit box").results();
-        if (skeletonScript.nearestBank) {
+        if (nearestBank) {
             if (DepositBox.nearest() != null) {
                 ScriptConsole.println("[Fishing] Depositing all fish...");
                 boolean success = false;

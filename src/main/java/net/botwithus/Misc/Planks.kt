@@ -1,6 +1,7 @@
 package net.botwithus.Misc
 
 import net.botwithus.SnowsScript
+import net.botwithus.Variables.Variables.*
 import net.botwithus.api.game.hud.inventories.Backpack
 import net.botwithus.rs3.game.Client
 import net.botwithus.rs3.game.hud.interfaces.Interfaces
@@ -26,13 +27,13 @@ class Planks {
             ScriptConsole.println("Selecting 'Construct'")
             return randomDelay
         }
-        if (SnowsScript.makePlanks) {
+        if (makePlanks) {
             return handlePlanks()
         }
-        if (SnowsScript.makeRefinedPlanks) {
+        if (makeRefinedPlanks) {
             return handleRefinedPlanks()
         }
-        if (SnowsScript.makeFrames) {
+        if (makeFrames) {
             return handleFrames()
         }
         return randomDelay

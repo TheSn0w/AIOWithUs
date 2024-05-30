@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
@@ -24,39 +25,49 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.*;
 
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.logCount;
+
 public class Woodcutting {
     private final Random random = new Random();
-    public static boolean acadiaTree = false;
-
-    public static String Tree = "";
-    public static final List<String> selectedTreeNames = new ArrayList<>();
-
-    public static String getTreeName() {
-        return Tree;
-    }
-
-    public static List<String> getSelectedTreeNames() {
-        return selectedTreeNames;
-    }
-
-    public static void addTreeName(String name) {
-        if (!selectedTreeNames.contains(name)) {
-            selectedTreeNames.add(name);
-        }
-    }
-
-    public static void removeTreeName(String name) {
-        selectedTreeNames.remove(name);
-    }
-
-    public static void setTreeName(String TreeName) {
-        Tree = TreeName;
-    }
-
     private final SnowsScript skeletonScript;
 
     public Woodcutting(SnowsScript script) {
         this.skeletonScript = script;
+    }
+
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isWoodcuttingActive) {
+            if (message.contains("You get some")) {
+                String logType = message.substring(message.lastIndexOf("some") + 5).trim();
+                logType = logType.replace(".", ""); // Remove the period
+                int count = logCount.getOrDefault(logType, 0);
+                logCount.put(logType, count + 1);
+            }
+            if (message.toLowerCase().contains("bird's nest")) {
+                int count = nestCount.getOrDefault("Bird's nest", 0);
+                nestCount.put("Bird's nest", count + 1);
+            }
+            if (message.contains("You transport the following item to your bank:")) {
+                String logType = message.substring(message.lastIndexOf("bank:") + 6).trim();
+                logType = logType.replace(".", ""); // Remove the period
+                int count = logCount.getOrDefault(logType, 0);
+                logCount.put(logType, count + 1);
+            }
+            if (message.contains("As you cut from the tree, the log:")) {
+                String logType = message.substring(message.lastIndexOf("log:") + 7).trim();
+                logType = logType.replace(".", ""); // Remove the period
+                int count = logCount.getOrDefault(logType, 0);
+                logCount.put(logType, count + 1);
+            }
+            if (message.contains("Crystallise takes your resource and converts it into XP.")) {
+                String key = "Resources"; // The key for the logCount map
+                int count = logCount.getOrDefault(key, 0);
+                logCount.put(key, count + 1);
+            }
+        }
     }
 
     int currentTreeIndex = 0;
@@ -82,8 +93,8 @@ public class Woodcutting {
 
     long handleSkillingWoodcutting(LocalPlayer player, List<String> selectedTreeNames) {
         if (Backpack.isFull()) {
-            if (skeletonScript.nearestBank) {
-                skeletonScript.setLastSkillingLocation(player.getCoordinate());
+            if (nearestBank) {
+                setLastSkillingLocation(player.getCoordinate());
                 SnowsScript.setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             }

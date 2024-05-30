@@ -3,6 +3,7 @@ package net.botwithus.Misc;
 import net.botwithus.SnowsScript;
 import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Client;
@@ -20,43 +21,36 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import static net.botwithus.SnowsScript.BotState.IDLE;
-import static net.botwithus.SnowsScript.botState;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.energy;
 
 public class Dissasembler {
     public SnowsScript script;
     private static Random random = new Random();
-    public static boolean isDissasemblerActive;
-    public static List<TaskScheduler> tasks = new ArrayList<>();
-    public static int itemMenuSize = 1; // Add this line
-    public static int itemsDestroyed = 0;
-    public static boolean useAlchamise = false;
-    public static boolean useDisassemble = false;
-
-    public static TaskScheduler getActiveTask() {
-        if (!tasks.isEmpty()) {
-            return tasks.get(0); // Return the first task in the list
-        }
-        return null; // Return null if the list is empty
-    }
-
-    public static void addTask(TaskScheduler task) {
-        tasks.add(task);
-    }
 
     public Dissasembler(SnowsScript script) {
         this.script = script;
     }
-    public static String Item = "";
 
-    public static String getItemName() {
-        return Item;
+    public void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isDissasemblerActive) {
+            if (botState == SnowsScript.BotState.SKILLING) {
+                TaskScheduler activeTask = getActiveTask();
+                if (activeTask != null && Objects.requireNonNull(event.getNewItem().getName()).contains(activeTask.getItemToDisassemble())) {
+                    itemsDestroyed++;
+                    activeTask.incrementAmountDisassembled();
+                }
+            }
+        }
     }
-    public static void setItemName(String ItemName) {
-        Item = ItemName;
-    }
+
 
     public static long Dissasemble(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {
@@ -101,7 +95,7 @@ public class Dissasembler {
         return random.nextLong(750, 1250);
     }
     public static void shutdown() {
-        SnowsScript.botState = IDLE;
+        SnowsScript.setBotState(IDLE);
         LoginManager.setAutoLogin(false);
         MiniMenu.interact(14, 1, -1, 93913156);
     }

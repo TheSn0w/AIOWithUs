@@ -1,9 +1,11 @@
 package net.botwithus;
 
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.LootInventory;
+import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -34,106 +36,58 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Combat {
-    public static boolean DeathGrasp;
-    public static boolean handleArchGlacor;
-    public static boolean usePOD;
-    public static boolean InvokeDeath;
-    public static boolean VolleyofSouls;
-    public static boolean SpecialAttack;
-    public static boolean SoulSplit;
-    public static boolean useWeaponPoison;
-    public static boolean scriptureofWen;
-    public static boolean scriptureofJas;
-    public static boolean animateDead;
-    public static boolean usequickPrayers;
-    public static boolean useScrimshaws;
-    public static boolean DeflectMagic;
-    public static boolean DeflectMissiles;
-    public static boolean DeflectMelee;
-    public static boolean KeepArmyup;
-    public static int prayerPointsThreshold = 5000;
-    public static int healthPointsThreshold = 50;
-    public static SnowsScript skeletonScript;
-    private static Random random = new Random();
-    public static String targetName = "";
-    public static final List<String> targetNames = new ArrayList<>();
-    Banking banking = new Banking();
-
-    public static final List<String> selectedFoodNames = new ArrayList<>();
-
-    public static String FoodName = "";
-
-    public static String getFoodName() {
-        return FoodName;
-    }
-
-    public static void setFoodName(String foodName) {
-        FoodName = foodName;
-    }
-
-    public static List<String> getSelectedFoodNames() {
-        return selectedFoodNames;
-    }
-
-    public static void addFoodName(String name) {
-        if (!selectedFoodNames.contains(name)) {
-            selectedFoodNames.add(name);
-        }
-    }
-
-    private static List<String> combatList = new ArrayList<>();
-
-    public static void removeFoodName(String name) {
-        selectedFoodNames.remove(name);
-    }
-
     public Combat(SnowsScript script) {
         skeletonScript = script;
     }
+    public static SnowsScript skeletonScript;
+    private static Random random = new Random();
+    Banking banking = new Banking();
 
-    public static void addTargetName(String targetName) {
-        ScriptConsole.println("[Combat] Adding target name: " + targetName);
-        String lowerCaseName = targetName.toLowerCase();
-        synchronized (targetNames) {
-            if (!targetNames.contains(lowerCaseName)) {
-                targetNames.add(lowerCaseName);
+    void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isCombatActive) {
+            String itemName = event.getNewItem().getName();
+            if (itemName.endsWith(" charm")) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+
+                    Map<String, Integer> charmMap;
+                    switch (itemName) {
+                        case "Blue charm":
+                            charmMap = BlueCharms;
+                            break;
+                        case "Crimson charm":
+                            charmMap = CrimsonCharms;
+                            break;
+                        case "Green charm":
+                            charmMap = GreenCharms;
+                            break;
+                        case "Gold charm":
+                            charmMap = GoldCharms;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    int currentCount = charmMap.getOrDefault(itemName, 0);
+                    charmMap.put(itemName, currentCount + quantity);
+                }
             }
         }
-    }
-
-    public static void addTarget(String target) {
-        if (!combatList.contains(target)) {
-            combatList.add(target);
-        }
-    }
-
-    public static void removeTargetName(String targetName) {
-        synchronized (targetNames) {
-            targetNames.remove(targetName.toLowerCase());
-        }
-    }
-
-    public static List<String> getTargetNames() {
-        synchronized (targetNames) {
-            return new ArrayList<>(targetNames);
-        }
-    }
-
-    private Pattern generateRegexPattern(List<String> names) {
-        return Pattern.compile(
-                names.stream()
-                        .map(Pattern::quote)
-                        .reduce((name1, name2) -> name1 + "|" + name2)
-                        .orElse(""),
-                Pattern.CASE_INSENSITIVE
-        );
     }
 
 
@@ -141,7 +95,7 @@ public class Combat {
         if (player == null) {
             return logAndDelay("[attackTarget] Local player not found.", 1500, 3000);
         }
-        if (skeletonScript.useLoot) {
+        if (Variables.useLoot) {
             processLooting();
         }
         if (SoulSplit) {
@@ -206,14 +160,14 @@ public class Combat {
         long prayerCheck = usePrayerOrRestorePots(player);
         long aggroCheck = useAggression(player);
         long weaponPoisonCheck = useWeaponPoison(player);
-        return useWeaponPoison && weaponPoisonCheck == 1L || skeletonScript.useOverloads && overloadCheck == 1L || skeletonScript.usePrayerPots && prayerCheck == 1L || skeletonScript.useAggroPots && aggroCheck == 1L;
+        return useWeaponPoison && weaponPoisonCheck == 1L || useOverloads && overloadCheck == 1L || usePrayerPots && prayerCheck == 1L || useAggroPots && aggroCheck == 1L;
     }
 
     private long bankAndDelay(LocalPlayer player) {
         if (VarManager.getVarbitValue(16779) == 1) {
             ActionBar.useAbility("Soul Split");
         }
-        skeletonScript.setLastSkillingLocation(player.getCoordinate());
+        setLastSkillingLocation(player.getCoordinate());
         ActionBar.useAbility("War's Retreat Teleport");
         SnowsScript.setBotState(SnowsScript.BotState.BANKING);
         return logAndDelay("[Combat] Banking.", 1500, 3000);
@@ -635,7 +589,7 @@ public class Combat {
     }
 
     static long useAggression(LocalPlayer player) {
-        if (!skeletonScript.useAggroPots || player == null || !player.inCombat() || player.getAnimationId() == 18000 || VarManager.getVarbitValue(33448) != 0) {  // Check if aggression potions are enabled
+        if (!useAggroPots || player == null || !player.inCombat() || player.getAnimationId() == 18000 || VarManager.getVarbitValue(33448) != 0) {  // Check if aggression potions are enabled
             return random.nextLong(300, 750);
         }
 
@@ -668,7 +622,7 @@ public class Combat {
 
 
     static long usePrayerOrRestorePots(LocalPlayer player) {
-        if (!skeletonScript.usePrayerPots || player == null || !player.inCombat() || player.getAnimationId() == 18000 || player.getPrayerPoints() > prayerPointsThreshold) {  // Check if there's a local player
+        if (!usePrayerPots || player == null || !player.inCombat() || player.getAnimationId() == 18000 || player.getPrayerPoints() > prayerPointsThreshold) {  // Check if there's a local player
             return random.nextLong(300, 750);
         }
 
@@ -700,7 +654,7 @@ public class Combat {
     }
 
     static long drinkOverloads(LocalPlayer player) {
-        if (!skeletonScript.useOverloads) {
+        if (!useOverloads) {
             return random.nextLong(300, 750);
         }
 
@@ -907,9 +861,9 @@ public class Combat {
         Item food = foodItems.isEmpty() ? null : foodItems.first();
 
         if (food == null) {
-            if (skeletonScript.BankforFood) {
+            if (BankforFood) {
                 ScriptConsole.println("[EatFood] No food found. Banking for food.");
-                skeletonScript.setLastSkillingLocation(player.getCoordinate());
+                setLastSkillingLocation(player.getCoordinate());
                 SnowsScript.setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             } else {

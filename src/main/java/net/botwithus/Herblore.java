@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
@@ -11,13 +12,26 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.portersMade;
+
 public class Herblore {
     public SnowsScript skeletonScript; // Store a reference to SkeletonScript
     public Herblore(SnowsScript script) {
         this.skeletonScript = script;
     }
-    public static boolean makeBombs = false;
     private static final Random random = new Random();
+
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isHerbloreActive) {
+            if (message.contains("You mix the ingredients")) {
+                String potionType = "Potions Made";
+                int count = Potions.getOrDefault(potionType, 0);
+                Potions.put(potionType, count + 1);
+            }
+        }
+    }
 
     public long handleHerblore(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {

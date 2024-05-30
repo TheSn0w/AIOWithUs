@@ -1,6 +1,9 @@
 package net.botwithus;
 
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.events.impl.ChatMessageEvent;
+import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
@@ -27,12 +30,15 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Runecrafting.ScriptState.*;
+import static net.botwithus.Variables.Variables.*;
 
 public class Runecrafting {
     public Runecrafting(SnowsScript script) {
@@ -64,27 +70,44 @@ public class Runecrafting {
             123, 124, 134, 138, 139, 140, 252, 257, 258};
 
 
-    public static boolean HandleMiasmaAltar = false;
-    public static boolean HandleBoneAltar = false;
-    public static boolean HandleSpiritAltar = false;
-    public static boolean HandleFleshAltar = false;
-    public static boolean ManageFamiliar = false;
-    public static boolean Powerburst = false;
-    public static boolean notWearingRing = false;
-    public static boolean WearingRing = false;
-    public static boolean RingofDueling = false;
-    public static boolean useWorldhop = false;
-    public static boolean soulAltar = false;
-    public static boolean useGraceoftheElves = false;
-
-    public static int getLoopCounter() {
-        return loopCounter;
+    public static Runecrafting.ScriptState getScriptstate() {
+        return currentState;
     }
 
-    private static int loopCounter = 0;
+    public void updateChatMessageEvent(ChatMessageEvent event) {
+        String message = event.getMessage();
+        if (isRunecraftingActive) {
+            if (message.contains("The charger cannot hold any more essence.")) {
+                Execution.delay(handleCharging());
+            }
+            if (message.contains("You do no have any essence to deposit")) {
+                Execution.delay(handleEdgevillebanking());
+            }
+            if (message.contains("The altar is already charged to its maximum capacity")) {
+                handleSoulAltar();
+            }
+        }
+    }
+    void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isRunecraftingActive) {
+            String itemName = event.getNewItem().getName();
+            List<String> runeNames = Arrays.asList("Miasma rune", "Flesh rune", "Spirit rune", "Bone rune");
 
-    public static ScriptState getScriptstate() {
-        return currentState;
+            if (runeNames.contains(itemName)) {
+                int newCount = event.getNewItem().getStackSize();
+
+                int currentCount = Variables.runeCount.getOrDefault(itemName, 0);
+
+                int totalRuneCount = currentCount + newCount;
+
+                runeCount.put(itemName, totalRuneCount);
+                ScriptConsole.println("Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
+                Runecrafting.currentState = TELEPORTINGTOBANK;
+            }
+        }
     }
 
     public enum ScriptState {

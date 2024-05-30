@@ -1,6 +1,8 @@
 package net.botwithus;
 
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -22,12 +24,12 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.function.Supplier;
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.Variables.Variables.*;
 
 public class Mining {
     private Random random = new Random();
     public SnowsScript skeletonScript;
-    Map<String, Supplier<Long>> methodMap;
-    Map<String, Coordinate> coordinateMap;
 
     public Mining(SnowsScript script) {
         this.skeletonScript = script;
@@ -35,6 +37,8 @@ public class Mining {
         this.methodMap = new HashMap<>();
         this.initializeCoordinateMap();
     }
+    Map<String, Supplier<Long>> methodMap;
+    Map<String, Coordinate> coordinateMap;
 
     private void initializeCoordinateMap() {
         coordinateMap = new HashMap<>();
@@ -47,31 +51,24 @@ public class Mining {
         coordinateMap.put("Iron rock", new Coordinate(3180, 3368, 0));
 
     }
+    void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (event.getInventoryId() != 93) {
+            return;
+        }
+        if (isMiningActive) {
+            String itemName = event.getNewItem().getName(); // Assume adding items only
+            int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+            int newCount = event.getNewItem().getStackSize();
+            if (newCount > oldCount) {
+                int quantity = newCount - oldCount;
 
-    public static String Rock = "";
-    public static List<String> selectedRockNames = new ArrayList<>();
+                int count = types.getOrDefault(itemName, 0);
 
-    public static String getRockName() {
-        return Rock;
-    }
-
-    public static List<String> getSelectedRockNames() {
-        return selectedRockNames;
-    }
-
-    public static void addRockName(String name) {
-        if (!selectedRockNames.contains(name)) {
-            selectedRockNames.add(name);
+                types.put(itemName, count + quantity);
+            }
         }
     }
 
-    public static void removeRockName(String name) {
-        selectedRockNames.remove(name);
-    }
-
-    public static void setRockName(String RockName) {
-        Rock = RockName;
-    }
 
     public boolean isNearPlayer(LocalPlayer player, List<String> selectedRockNames) {
         if (selectedRockNames == null || selectedRockNames.isEmpty()) {
@@ -126,7 +123,7 @@ public class Mining {
 
     private long handleBackpack(LocalPlayer player) {
         if (Backpack.isFull()) { // Check if the backpack is full
-            if (skeletonScript.nearestBank) { // If banking is enabled
+            if (nearestBank) { // If banking is enabled
                 if (!Backpack.containsItemByCategory(4448)) { // If there's no ore box
                     sendToBank(player); // Send to the bank
                     return random.nextLong(1500, 3000); // Delay for early exit
@@ -174,7 +171,7 @@ public class Mining {
 
 
     private void sendToBank(LocalPlayer player) {
-        skeletonScript.setLastSkillingLocation(player.getCoordinate());
+        setLastSkillingLocation(player.getCoordinate());
         Execution.delay(random.nextLong(1500, 3000));
         SnowsScript.setBotState(SnowsScript.BotState.BANKING);
         ScriptConsole.println("[Mining] Sending to bank.");
