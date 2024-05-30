@@ -65,6 +65,7 @@ public class SnowsScript extends LoopingScript {
     CaveNightshade caveNightshade;
     Dissasembler dissasembler;
 
+
     public static void setBotState(BotState state) {
         botState = state; // Method to set botState
     }

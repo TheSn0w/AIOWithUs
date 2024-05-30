@@ -636,7 +636,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
                         ImGui.SeparatorText("Miscellaneous Options");
 
-                        boolean NoneSelected = isportermakerActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive || pickCaveNightshade;
+                        boolean NoneSelected = isportermakerActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
                         if (!NoneSelected || isportermakerActive) {
                             if (!NoneSelected) {
@@ -2147,8 +2147,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 }
 
                 ImGui.End();
-                ImGui.PopStyleVar(50);
-                ImGui.PopStyleColor(50);
             }
         }
     }
