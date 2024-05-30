@@ -46,11 +46,11 @@ public class Runecrafting {
     }
 
     public SnowsScript skeletonScript; // Store a reference to SkeletonScript
-    private long lastMovedOrAnimatedTime = System.currentTimeMillis();
+    private static long lastMovedOrAnimatedTime = System.currentTimeMillis();
     public static ScriptState currentState = IDLE;
     private static Random random = new Random();
     private static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
-    Player player = Client.getLocalPlayer();
+    static Player player = Client.getLocalPlayer();
 
     public static Map<String, Integer> getRuneQuantities() {
         return runeQuantities;
@@ -122,7 +122,7 @@ public class Runecrafting {
         currentState = newState;
     }
 
-    public void handleRunecrafting(LocalPlayer player) {
+    public static void handleRunecrafting(LocalPlayer player) {
 
         boolean playerIsIdle = !player.isMoving() && player.getAnimationId() == -1;
         if (playerIsIdle && System.currentTimeMillis() - lastMovedOrAnimatedTime > 20000) {
@@ -234,7 +234,7 @@ public class Runecrafting {
             }
         }
     }
-    private void useGote() {
+    private static void useGote() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
 
         Coordinate fishingHub = new Coordinate(2135, 7107, 0);
@@ -248,7 +248,7 @@ public class Runecrafting {
         }
     }
 
-    private void interactwithBoat() {
+    private static void interactwithBoat() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
         if (!bankChests.isEmpty()) {
             if (bankChests.nearest().interact("Load Last Preset from")) {
@@ -271,7 +271,7 @@ public class Runecrafting {
         }
     }
 
-    private void castleWars() {
+    private static void castleWars() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
         Coordinate WarsBank = new Coordinate(2446, 3085, 0);
 
@@ -284,7 +284,7 @@ public class Runecrafting {
         }
     }
 
-    private void interactwithBankChest() {
+    private static void interactwithBankChest() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
         if (!bankChests.isEmpty()) {
             if (bankChests.nearest().interact("Load Last Preset from")) {
@@ -307,7 +307,7 @@ public class Runecrafting {
         }
     }
 
-    public void checkAndPerformActions() {
+    public static void checkAndPerformActions() {
         if (shouldInteractWithAltar()) {
             performAltarInteractions();
         } else {
@@ -315,11 +315,11 @@ public class Runecrafting {
         }
     }
 
-    private boolean shouldInteractWithAltar() {
+    private static boolean shouldInteractWithAltar() {
         return !isFamiliarSummoned() || VarManager.getVarbitValue(6055) <= 5;
     }
 
-    private void performAltarInteractions() {
+    private static void performAltarInteractions() {
         ScriptConsole.println("Conditions met for interacting with Altar of War.");
         Execution.delay(interactWithAltarOfWar((LocalPlayer) player));
         summonFamiliar();
@@ -369,18 +369,18 @@ public class Runecrafting {
         }
     }
 
-    public void performLogout() {
+    public static void performLogout() {
         if (initiateLogoutSequence()) {
             waitForLogout();
         }
     }
 
-    private boolean initiateLogoutSequence() {
+    private static boolean initiateLogoutSequence() {
         MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, 7, 93782016);
         return Interfaces.isOpen(1433);
     }
 
-    private void waitForLogout() {
+    private static void waitForLogout() {
         Component logoutButton = findLogoutButton();
         if (logoutButton != null && logoutButton.interact(1)) {
             ScriptConsole.println("Logout initiated.");
@@ -389,11 +389,11 @@ public class Runecrafting {
         }
     }
 
-    private Component findLogoutButton() {
+    private static Component findLogoutButton() {
         return ComponentQuery.newQuery(1433).componentIndex(71).results().first();
     }
 
-    private void logLogoutFailure() {
+    private static void logLogoutFailure() {
         if (Interfaces.isOpen(1433)) {
             ScriptConsole.println("Could not find or interact with the logout button.");
         } else {
@@ -401,7 +401,7 @@ public class Runecrafting {
         }
     }
 
-    private void interactWithRing() {
+    private static void interactWithRing() {
         if (notWearingRing && Backpack.isFull()) {
             ActionBar.useItem("Passing bracelet", "Rub");
             Execution.delay(RandomGenerator.nextInt(600, 800));
@@ -431,7 +431,7 @@ public class Runecrafting {
         }
     }
 
-    private void interactWithDarkPortal() {
+    private static void interactWithDarkPortal() {
         Execution.delay(RandomGenerator.nextInt(600, 800));
         SceneObject Portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
 
@@ -476,7 +476,7 @@ public class Runecrafting {
         });
     }
 
-    private void handleMiasmaAltar() {
+    private static void handleMiasmaAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127383).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
             ScriptConsole.println("Player animation is -1 and not moving");
@@ -523,7 +523,7 @@ public class Runecrafting {
     }
 
 
-    private void handleBoneAltar() {
+    private static void handleBoneAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127381).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
             ScriptConsole.println("Player animation is -1 and not moving");
@@ -550,7 +550,7 @@ public class Runecrafting {
         }
     }
 
-    private void handleSpiritAltar() {
+    private static void handleSpiritAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127380).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
             ScriptConsole.println("Player animation is -1 and not moving");
@@ -579,7 +579,7 @@ public class Runecrafting {
     }
 
 
-    private void handleFleshAltar() {
+    private static void handleFleshAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127382).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
             ScriptConsole.println("Player animation is -1 and not moving");
@@ -615,18 +615,18 @@ public class Runecrafting {
     }
 
 
-    private boolean isFamiliarSummoned() {
+    private static boolean isFamiliarSummoned() {
         Component familiarComponent = ComponentQuery.newQuery(284).spriteId(26095).results().first();
         return familiarComponent != null;
     }
 
-    private void summonFamiliar() {
+    private static void summonFamiliar() {
         if (VarManager.getVarbitValue(6055) > 5) {
             ScriptConsole.println("Familiar is already summoned.");
         } else {
             ActionBar.useItem("Abyssal titan pouch", "Summon");
             ScriptConsole.println("Summoned Abyssal Titan.");
-            Execution.delayUntil(10000, this::isFamiliarSummoned);
+            Execution.delayUntil(10000, Runecrafting::isFamiliarSummoned);
         }
 
         lastMovedOrAnimatedTime = System.currentTimeMillis();
@@ -668,7 +668,7 @@ public class Runecrafting {
         }
     }
 
-    private void Powerburst() {
+    private static void Powerburst() {
         if (!canUsePotion()) {
             ScriptConsole.println("Powerburst of sorcery is on cooldown.");
             return;
@@ -689,12 +689,12 @@ public class Runecrafting {
         }
     }
 
-    public boolean canUsePotion() {
+    public static boolean canUsePotion() {
         Component powerburstCooldown = ComponentQuery.newQuery(291).item(48960).results().first();
         return powerburstCooldown == null;
     }
 
-    private boolean Surge() {
+    private static boolean Surge() {
         if (ActionBar.getCooldown("Surge") <= 0) {
             if (Math.random() <= 0.96) {
                 int delayBeforeCasting = RandomGenerator.nextInt(500, 1000);
@@ -723,7 +723,7 @@ public class Runecrafting {
         return 0;
     }
 
-    public void handleSoulAltar() {
+    public static void handleSoulAltar() {
         EntityResultSet<SceneObject> Soulaltar = SceneObjectQuery.newQuery().name("Soul altar").option("Craft-rune").results();
         if (Soulaltar.isEmpty()) {
             Soulaltar.nearest().interact("Craft-rune");
@@ -734,7 +734,7 @@ public class Runecrafting {
         }
     }
 
-    public long handleCharging() {
+    public static long handleCharging() {
         EntityResultSet<SceneObject> Charger = SceneObjectQuery.newQuery().name("Charger").results();
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1500, 3000);
@@ -748,7 +748,7 @@ public class Runecrafting {
         return 0;
     }
 
-    public long handleEdgevillebanking() {
+    public static long handleEdgevillebanking() {
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1500, 3000);
         }

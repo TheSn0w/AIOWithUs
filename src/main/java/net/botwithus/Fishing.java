@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
 public class Fishing {
-    private Random random = new Random();
+    private static Random random = new Random();
     public SnowsScript skeletonScript;
 
     public void updateChatMessageEvent(ChatMessageEvent event) {
@@ -64,7 +65,7 @@ public class Fishing {
         }
     }
 
-    private boolean isNumeric(String str) {
+    private static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);
             return true;
@@ -76,9 +77,9 @@ public class Fishing {
     public Fishing(SnowsScript script) {
         this.skeletonScript = script;
     }
-    private Coordinate lastFishingSpotCoord = null;
+    private static Coordinate lastFishingSpotCoord = null;
 
-    long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
+    public static long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
         if (Backpack.isFull()) {
             return handleFullBackpack(player);
         }
@@ -97,7 +98,7 @@ public class Fishing {
         return random.nextLong(3500, 5000);
     }
 
-    long handleFullBackpack(LocalPlayer player) {
+    static long handleFullBackpack(LocalPlayer player) {
         EntityResultSet<SceneObject> DepositBox = SceneObjectQuery.newQuery().name("Deposit box").results();
         if (nearestBank) {
             if (DepositBox.nearest() != null) {
@@ -117,7 +118,7 @@ public class Fishing {
                     return random.nextLong(1500, 3000);
                 }
             } else {
-                skeletonScript.setLastSkillingLocation(player.getCoordinate());
+                setLastSkillingLocation(player.getCoordinate());
                 SnowsScript.setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             }
@@ -127,7 +128,7 @@ public class Fishing {
         return random.nextLong(1500, 3000);
     }
 
-    void dropAllFish() {
+    static void dropAllFish() {
         ScriptConsole.println("[Fishing] Backpack is full. Dropping all fish...");
 
         ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
@@ -139,7 +140,7 @@ public class Fishing {
         }
     }
 
-    void dropItem(Item item) {
+    static void dropItem(Item item) {
         String itemName = item.getName();
         int category = item.getConfigType().getCategory();
 
@@ -158,7 +159,7 @@ public class Fishing {
         }
     }
 
-    Npc findNearestFishingSpot(String fishingLocation, String fishingAction) {
+    static Npc findNearestFishingSpot(String fishingLocation, String fishingAction) {
         Pattern actionPattern = Pattern.compile(".*" + Pattern.quote(fishingAction) + ".*", Pattern.CASE_INSENSITIVE);
 
         if (isNumeric(fishingLocation)) {
@@ -178,7 +179,7 @@ public class Fishing {
         }
     }
 
-    long interactWithFishingSpot(LocalPlayer player, Npc nearestFishingSpot, String fishingAction) {
+    static long interactWithFishingSpot(LocalPlayer player, Npc nearestFishingSpot, String fishingAction) {
         Coordinate currentFishingSpotCoord = nearestFishingSpot.getCoordinate();
 
 
@@ -200,7 +201,7 @@ public class Fishing {
         return random.nextLong(2500, 5000);
     }
 
-    private boolean playerIsIdleForMoreThan5Seconds(LocalPlayer player) {
+    private static boolean playerIsIdleForMoreThan5Seconds(LocalPlayer player) {
         long animationStart = System.currentTimeMillis();
         while (System.currentTimeMillis() - animationStart < 5000) {
             if (player.getAnimationId() != -1) {

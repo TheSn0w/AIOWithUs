@@ -43,6 +43,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     private long totalElapsedTime = 0;
     private boolean tooltipsEnabled = false;
     public String saveSettingsFeedbackMessage = "";
+    boolean autoScrollToBottom = false;
+
+
     public SkeletonScriptGraphicsContext(ScriptConsole scriptConsole, SnowsScript script) {
         super(scriptConsole);
         this.script = script;
@@ -316,17 +319,17 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
         float childWidth = columnWidth - 10;
 
         if (ImGui.Begin("AIO Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue() | ImGuiWindowFlag.NoTitleBar.getValue())) {
-            ImGui.SetWindowSize((float) 610, (float) 430);
+            ImGui.SetWindowSize((float) 610, (float) 510);
             ImGui.Columns(2, "Column", false);
             ImGui.SetColumnWidth(0, columnWidth);
-            float windowHeight = 335;
+            float windowHeight = 415;
 
 
             if (ImGui.BeginChild("Column1", childWidth, windowHeight, true, 0)) {
 
                 float buttonW1 = 145;
                 float buttonW2 = 145;
-                float windowW = 170;
+                float windowW = 180;
                 float centeredX1 = (windowW - buttonW1) / 2;
                 float centeredX2 = (windowW - buttonW2) / 2;
                 if (ScriptisOn) {
@@ -486,7 +489,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("AIO Fighter`");
                         }
-                        BankforFood = ImGui.Checkbox("Bank for food", BankforFood);
+                        /*BankforFood = ImGui.Checkbox("Bank for food", BankforFood);*/
                         nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
                         useLoot = ImGui.Checkbox("Loot", useLoot);
                         interactWithLootAll = ImGui.Checkbox("Loot All", interactWithLootAll);
@@ -545,6 +548,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 ImGui.EndChild();
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
+                    if (autoScrollToBottom) {
+                        ImGui.SetScrollHereY(1.0f);
+                    }
                     if (!anySelected) {
                         String[] snowTexts = {
                                 " SSSS         N   N       OOO       W      W",
@@ -1312,8 +1318,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     if (isCombatActive) {
                         if (tooltipsEnabled) {
                             String[] texts = {
-                                    "Bank for food - will use bank and withdraw any",
-                                    "fish and return to combat",
                                     "use nearest bank - will use a predefined",
                                     "bank and load last preset",
                                     "loot - will use loot interface to loot items",
@@ -2120,6 +2124,16 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                     if (ImGui.Button("Enable Tooltips")) {
                         tooltipsEnabled = !tooltipsEnabled;
+                    }
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Enable or disable tooltips in the Options tab");
+                    }
+                    ImGui.SameLine(); // This will place the next button on the same line
+                    if (ImGui.Button("Scroll")) {
+                        autoScrollToBottom = !autoScrollToBottom;
+                    }
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Auto scroll to bottom");
                     }
 
                     ImGui.PopStyleVar(2);

@@ -22,7 +22,7 @@ public class Agility {
 
     public static final Coordinate RESTART = new Coordinate(2487, 3437, 0);
 
-    private void interactWithSceneObject(LocalPlayer player, Coordinate location, String objectName, String interaction, Coordinate successLocation) {
+    private static void interactWithSceneObject(LocalPlayer player, Coordinate location, String objectName, String interaction, Coordinate successLocation) {
         if (player.getCoordinate().equals(location)) {
             SceneObject nearestObject = SceneObjectQuery.newQuery().name(objectName).results().nearest();
             if (nearestObject != null) {
@@ -35,7 +35,7 @@ public class Agility {
         }
     }
 
-    public long handleSkillingAgility(LocalPlayer player) {
+    public static long handleSkillingAgility(LocalPlayer player) {
         int agilityLevel = Skills.AGILITY.getActualLevel();
 
         if (agilityLevel >= 1 && agilityLevel <= 34) {

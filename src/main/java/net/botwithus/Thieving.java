@@ -30,15 +30,15 @@ import java.util.Random;
 public class Thieving {
     private static final Random random = new Random();
     public static SnowsScript skeletonScript; // Store a reference to SkeletonScript
-    private int failedAttempts = 0;
+    private static int failedAttempts = 0;
 
     public Thieving(SnowsScript script) {
         skeletonScript = script; // Initialize with the correct instance
     }
 
-    final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0); // Set the BakeryStall coordinate
+    static final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0); // Set the BakeryStall coordinate
 
-    public long interactWithBakeryStall(LocalPlayer player) {
+    public static long interactWithBakeryStall(LocalPlayer player) {
         if (!Backpack.isFull() && !player.inCombat()) {
             SceneObject bakeryStall = SceneObjectQuery.newQuery().id(66692).results().nearest();
 
@@ -90,7 +90,7 @@ public class Thieving {
     }
 
 
-    public long handleThieving(LocalPlayer player) {
+    public static long handleThieving(LocalPlayer player) {
         if (Backpack.isFull()) {
             SnowsScript.setBotState(SnowsScript.BotState.BANKING);
             return random.nextLong(1500, 3000);
@@ -200,13 +200,13 @@ public class Thieving {
         return animationStartTime;
     }
 
-    private void LightFormActivation() {
+    private static void LightFormActivation() {
         if (VarManager.getVarbitValue(29066) == 0) {
             activateLightForm();
         }
     }
 
-    private void activateLightForm() {
+    private static void activateLightForm() {
         ActionBar.useAbility("Light Form");
         ScriptConsole.println("Light Form activated.");
         Execution.delay(RandomGenerator.nextInt(1000, 2000));
@@ -256,7 +256,7 @@ public class Thieving {
         }
         return 0;
     }
-    public long bankForfood() {
+    public static long bankForfood() {
         SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").option("Bank").results().nearest();
         if (bankChest != null) {
             boolean bankInteractionSuccess = bankChest.interact("Load Last Preset from");

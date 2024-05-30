@@ -52,25 +52,6 @@ public class Divination {
             }
         }
     }
-    void onInventoryUpdate(InventoryUpdateEvent event) {
-        if (event.getInventoryId() != 93) {
-            return;
-        }
-        if (isDivinationActive) {
-            String itemName = event.getNewItem().getName();
-            if (itemName.contains("energy")) {
-                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-                int newCount = event.getNewItem().getStackSize();
-                if (newCount > oldCount) {
-                    int quantity = newCount - oldCount;
-
-                    int currentCount = Variables.energy.getOrDefault(itemName, 0);
-
-                    energy.put(itemName, currentCount + quantity);
-                }
-            }
-        }
-    }
 
     public static long handleDivination(LocalPlayer player) {
         int divinationLevel = Skills.DIVINATION.getActualLevel();

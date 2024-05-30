@@ -24,7 +24,7 @@ public class Smelter {
         this.script = script;
     }
 
-    public long handleSmelter(LocalPlayer player) {
+    public static long handleSmelter(LocalPlayer player) {
         EntityResultSet<SceneObject> furnace = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
         if (Interfaces.isOpen(1251) || player.isMoving()) {
             return random.nextLong(700, 980);

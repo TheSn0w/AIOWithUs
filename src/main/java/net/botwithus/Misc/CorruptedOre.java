@@ -24,7 +24,7 @@ public class CorruptedOre {
     public CorruptedOre(SnowsScript script) {
         this.script = script;
     }
-    public long mineCorruptedOre() {
+    public static long mineCorruptedOre() {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1250, 2500);

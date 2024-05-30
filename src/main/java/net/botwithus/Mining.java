@@ -28,7 +28,7 @@ import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
 public class Mining {
-    private Random random = new Random();
+    private static Random random = new Random();
     public SnowsScript skeletonScript;
 
     public Mining(SnowsScript script) {
@@ -38,7 +38,7 @@ public class Mining {
         this.initializeCoordinateMap();
     }
     Map<String, Supplier<Long>> methodMap;
-    Map<String, Coordinate> coordinateMap;
+    static Map<String, Coordinate> coordinateMap;
 
     private void initializeCoordinateMap() {
         coordinateMap = new HashMap<>();
@@ -70,7 +70,7 @@ public class Mining {
     }
 
 
-    public boolean isNearPlayer(LocalPlayer player, List<String> selectedRockNames) {
+    public static boolean isNearPlayer(LocalPlayer player, List<String> selectedRockNames) {
         if (selectedRockNames == null || selectedRockNames.isEmpty()) {
             return false;
         }
@@ -92,7 +92,7 @@ public class Mining {
         return distance <= 15.0;
     }
 
-    public long handleMining(LocalPlayer player, List<String> selectedRockNames) {
+    public static long handleMining(LocalPlayer player, List<String> selectedRockNames) {
         if (isNearPlayer(player, selectedRockNames)) {
             return handleSkillingMining(player, selectedRockNames);
         } else {
@@ -100,7 +100,7 @@ public class Mining {
         }
     }
 
-    public long handleTraversal(LocalPlayer player, List<String> selectedRockNames) {
+    public static long handleTraversal(LocalPlayer player, List<String> selectedRockNames) {
         if (selectedRockNames == null || selectedRockNames.isEmpty()) {
             ScriptConsole.println("[Traversal] No rock names provided.");
             return random.nextLong(1500, 3000);
@@ -121,7 +121,7 @@ public class Mining {
         return random.nextLong(1500, 3000);
     }
 
-    private long handleBackpack(LocalPlayer player) {
+    private static long handleBackpack(LocalPlayer player) {
         if (Backpack.isFull()) { // Check if the backpack is full
             if (nearestBank) { // If banking is enabled
                 if (!Backpack.containsItemByCategory(4448)) { // If there's no ore box
@@ -149,7 +149,7 @@ public class Mining {
     }
 
     // Fill the ore box if it exists
-    private long fillOreBox() {
+    private static long fillOreBox() {
         Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first(); // Query for the ore box
 
         if (oreBox != null) {
@@ -170,14 +170,14 @@ public class Mining {
     }
 
 
-    private void sendToBank(LocalPlayer player) {
+    private static void sendToBank(LocalPlayer player) {
         setLastSkillingLocation(player.getCoordinate());
         Execution.delay(random.nextLong(1500, 3000));
         SnowsScript.setBotState(SnowsScript.BotState.BANKING);
         ScriptConsole.println("[Mining] Sending to bank.");
     }
 
-    private void dropAllOres() {
+    private static void dropAllOres() {
         ScriptConsole.println("[Mining] Backpack is full. Dropping all ores...");
 
         ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
@@ -204,7 +204,7 @@ public class Mining {
         }
     }
 
-    public long handleSkillingMining(LocalPlayer player, List<String> selectedRockNames) {
+    public static long handleSkillingMining(LocalPlayer player, List<String> selectedRockNames) {
         long backpackDelay = handleBackpack(player);
         if (backpackDelay > 0) {
             return backpackDelay;
@@ -223,7 +223,7 @@ public class Mining {
         return handleMiningInteractions(player, selectedRockNames);
     }
 
-    private long handleHeadbars(LocalPlayer player, List<String> selectedRockNames) {
+    private static long handleHeadbars(LocalPlayer player, List<String> selectedRockNames) {
         Optional<Headbar> bar = player.getHeadbars().stream()
                 .filter(headbar -> headbar.getId() == 5 && headbar.getWidth() < RandomGenerator.nextInt(140, 180))
                 .findAny();
@@ -241,7 +241,7 @@ public class Mining {
         return 0;
     }
 
-    private long interactWithSelectedRocks(LocalPlayer player, List<String> selectedRockNames) {
+    private static long interactWithSelectedRocks(LocalPlayer player, List<String> selectedRockNames) {
         for (String rockName : selectedRockNames) {
             SceneObject nearestRock = SceneObjectQuery.newQuery().name(rockName).results().nearest();
 
@@ -255,7 +255,7 @@ public class Mining {
         return random.nextLong(1500, 3000);
     }
 
-    private long interactWithSpotAnimations(List<String> selectedRockNames, EntityResultSet<SpotAnimation> animations) {
+    private static long interactWithSpotAnimations(List<String> selectedRockNames, EntityResultSet<SpotAnimation> animations) {
         SpotAnimation currentAnimation = animations.first();
         for (String rockName : selectedRockNames) {
             SceneObject matchingRock = SceneObjectQuery.newQuery().name(rockName)
@@ -276,7 +276,7 @@ public class Mining {
         return random.nextLong(1500, 3000);
     }
 
-    private long handleMiningInteractions(LocalPlayer player, List<String> selectedRockNames) {
+    private static long handleMiningInteractions(LocalPlayer player, List<String> selectedRockNames) {
         if (player.getAnimationId() == -1) {
             return interactWithSelectedRocks(player, selectedRockNames);
         }

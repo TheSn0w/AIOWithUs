@@ -28,11 +28,11 @@ import java.util.*;
 
 public class CaveNightshade {
 
-    private final Random random;
-    private NightShadeState nightShadeState = NightShadeState.TRAVERSING;
+    private static Random random = new Random();
+    private static NightShadeState nightShadeState = NightShadeState.TRAVERSING;
 
     public CaveNightshade(SnowsScript mainScript) {
-        this.random = new Random();
+        random = new Random();
     }
 
     public enum NightShadeState {
@@ -43,7 +43,7 @@ public class CaveNightshade {
 
     public static final Map<String, Integer> NightshadePicked = new HashMap<>();
 
-    private final List<Coordinate> nightshadeCoordinates = Arrays.asList(
+    private static final List<Coordinate> nightshadeCoordinates = Arrays.asList(
             new Coordinate(2532, 9461, 0),
             new Coordinate(2530, 9462, 0),
             new Coordinate(2533, 9464, 0),
@@ -53,7 +53,7 @@ public class CaveNightshade {
             new Coordinate(2528, 9465, 0)
     );
 
-    public void runNightShadeLoop() {
+    public static void runNightShadeLoop() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player == null || Client.getGameState() != Client.GameState.LOGGED_IN || SnowsScript.getBotState() == SnowsScript.BotState.IDLE) {
             Execution.delay(random.nextLong(3000, 7000));
@@ -62,7 +62,7 @@ public class CaveNightshade {
         handleNightShadeState();
     }
 
-    private void handleNightShadeState() {
+    private static void handleNightShadeState() {
         LocalPlayer player = Client.getLocalPlayer();
         switch (nightShadeState) {
             case TRAVERSING -> {
@@ -77,7 +77,7 @@ public class CaveNightshade {
         }
     }
 
-    private long handleTraversals(LocalPlayer player) {
+    private static long handleTraversals(LocalPlayer player) {
         EntityResultSet<SceneObject> nightshade = SceneObjectQuery.newQuery().name("Cave nightshade").option("Pick").results();
         EntityResultSet<SceneObject> caveEntrance = SceneObjectQuery.newQuery().name("Cave entrance").option("Enter").results();
         Coordinate destination = new Coordinate(2524, 3070, 0);
@@ -97,7 +97,7 @@ public class CaveNightshade {
         return random.nextLong(1500, 3000);
     }
 
-    private long handlePicking(LocalPlayer player) {
+    private static long handlePicking(LocalPlayer player) {
         ComponentQuery porterQuery = ComponentQuery.newQuery(284).spriteId(51490);
         if (porterQuery.results().isEmpty()) {
             ScriptConsole.println("No porter found in equipment.");
@@ -140,7 +140,7 @@ public class CaveNightshade {
         return random.nextLong(2000, 4000);
     }
 
-    private long makePorter() {
+    private static long makePorter() {
         if (Backpack.getQuantity("Memory shard") <= 50) {
             ScriptConsole.println("Not enough memory shards to make a porter.");
             return handleBanking();
@@ -167,30 +167,30 @@ public class CaveNightshade {
         return random.nextLong(1500, 2000);
     }
 
-    private void openMemoryShardInterface() {
+    private static void openMemoryShardInterface() {
         Backpack.interact("Memory shard", "Open");
         ScriptConsole.println("Opening memory shard interface.");
         Execution.delayUntil(5000, () -> Interfaces.isOpen(1370));
     }
 
-    private void interactWithPorter() {
+    private static void interactWithPorter() {
         ScriptConsole.println("Var value is incorrect. Interacting with Porter.");
         MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, 25, 89849878);
         Execution.delay(random.nextLong(650, 800));
     }
 
-    private void interactWithDialogue() {
+    private static void interactWithDialogue() {
         ScriptConsole.println("Interacting with dialogue.");
         MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
         Execution.delayUntil(15000, () -> Backpack.contains("Sign of the porter VII"));
     }
 
-    private void wearPorter() {
+    private static void wearPorter() {
         ScriptConsole.println("Sign of the porter VII is in inventory. Wearing it.");
         Backpack.interact("Sign of the porter VII", "Wear");
         Execution.delay(random.nextLong(650, 800));
     }
-    private long handleBanking() {
+    private static long handleBanking() {
         EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Banker").option("Bank").results();
         if (banker.isEmpty()) {
             ScriptConsole.println("No banker found, teleporting to Max Guild.");

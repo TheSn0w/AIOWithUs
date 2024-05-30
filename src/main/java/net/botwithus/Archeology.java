@@ -31,18 +31,20 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
+import static net.botwithus.SnowsScript.getLastSkillingLocation;
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
 public class Archeology {
     public static Random random = new Random();
     public SnowsScript skeletonScript;
     final Map<String, Supplier<Long>> methodMap;
-    final Map<String, Coordinate> coordinateMap;
+    static Map<String, Coordinate> coordinateMap = Map.of();
 
 
     public Archeology(SnowsScript script) {
         this.skeletonScript = script;
-        this.coordinateMap = new HashMap<>();
+        coordinateMap = new HashMap<>();
         this.methodMap = new HashMap<>();
         this.initializeCoordinateMap();
     }
@@ -83,9 +85,9 @@ public class Archeology {
         Rock1 = Rock1Name;
     }
 
-    private Coordinate lastSpotAnimationCoordinate = null;
+    private static Coordinate lastSpotAnimationCoordinate = null;
 
-    public long findSpotAnimationAndAct(LocalPlayer player, List<String> selectedArchNames) {
+    public static long findSpotAnimationAndAct(LocalPlayer player, List<String> selectedArchNames) {
         if (selectedArchNames == null || selectedArchNames.isEmpty()) {
             ScriptConsole.println("[Archaeology] No Excavation names provided.");
             return random.nextLong(1500, 3000);
@@ -101,7 +103,7 @@ public class Archeology {
                 .results()
                 .nearest() != null;
 
-        if (Variables.MaterialCache) {
+        if (MaterialCache) {
             if (!isNearPlayer) {
                 return handleExcavation(targetName);
             } else {
@@ -121,7 +123,7 @@ public class Archeology {
         }
     }
 
-    public long doSomeArch(LocalPlayer player, List<String> selectedArchNames) {
+    public static long doSomeArch(LocalPlayer player, List<String> selectedArchNames) {
         if (Backpack.isFull()) {
             return backpackIsFull(player);
         }
@@ -204,7 +206,7 @@ public class Archeology {
 
         return defaultDelay;
     }
-    private void useArchaeologistsTea() { // 47027 must be material + 1
+    private static void useArchaeologistsTea() { // 47027 must be material + 1
         if (VarManager.getVarbitValue(47028) == 0) {
             if (Backpack.contains("Archaeologist's tea")) {
                 Backpack.interact("Archaeologist's tea", "Drink");
@@ -212,7 +214,7 @@ public class Archeology {
             }
         }
     }
-    private void useHiSpecMonocle() {
+    private static void useHiSpecMonocle() {
         if (VarManager.getVarbitValue(47026) == 0) {
             if (Backpack.contains("Hi-spec monocle")) {
                 Backpack.interact("Hi-spec monocle", "Wear");
@@ -220,7 +222,7 @@ public class Archeology {
             }
         }
     }
-    private void useMaterialManual() {
+    private static void useMaterialManual() {
         if (VarManager.getVarbitValue(47025) == 0) {
             if (Backpack.contains("Material manual")) {
                 Backpack.interact("Material manual", "Read");
@@ -229,7 +231,7 @@ public class Archeology {
         }
     }
 
-    private long interactWithDefaultObjects(List<String> selectedArchNames, long checkInterval) {
+    private static long interactWithDefaultObjects(List<String> selectedArchNames, long checkInterval) {
         for (String excavationName : selectedArchNames) {
             SceneObject nearestSceneObject = SceneObjectQuery.newQuery()
                     .name(excavationName)
@@ -247,15 +249,15 @@ public class Archeology {
         return checkInterval;
     }
 
-    public long MaterialCaches(LocalPlayer player, List<String> selectedArchNames) {
+    public static long MaterialCaches(LocalPlayer player, List<String> selectedArchNames) {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(115427).option("Use").results();
         if (Backpack.isFull()) {
             if (!results.isEmpty()) {
                 ScriptConsole.println("[Archaeology] Backpack is full, using Bank.");
-                skeletonScript.setLastSkillingLocation(player.getCoordinate());
+                setLastSkillingLocation(player.getCoordinate());
                 handleBankInteraction(player, selectedArchNames);
             } else {
-                skeletonScript.setLastSkillingLocation(player.getCoordinate());
+                setLastSkillingLocation(player.getCoordinate());
                 SnowsScript.setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             }
@@ -283,9 +285,9 @@ public class Archeology {
     }
 
 
-    public long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
+    public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
         Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
-        skeletonScript.setLastSkillingLocation(player.getCoordinate());
+        setLastSkillingLocation(player.getCoordinate());
 
         ScriptConsole.println("[Archaeology] Teleporting to bank.");
         if (Movement.traverse(NavPath.resolve(bankChestCoordinate)) == TraverseEvent.State.FINISHED) {
@@ -324,7 +326,7 @@ public class Archeology {
             Execution.delayUntil(360000, () -> !Backpack.isFull());
 
             ScriptConsole.println("[Archaeology] Returning to last location");
-            Movement.traverse(NavPath.resolve(skeletonScript.getLastSkillingLocation().getRandomWalkableCoordinate()));
+            Movement.traverse(NavPath.resolve(getLastSkillingLocation().getRandomWalkableCoordinate()));
             SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
             return random.nextLong(1500, 3000);
         } else {
@@ -334,7 +336,7 @@ public class Archeology {
     }
 
 
-    private long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
+    private static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
         interactWithBankChest();
         ScriptConsole.println("[Archaeology] Waiting for bank to open.");
         waitForBankToOpen();
@@ -363,7 +365,7 @@ public class Archeology {
         return random.nextLong(750, 1250);
     }
 
-    private void interactWithBankChest() {
+    private static void interactWithBankChest() {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                 .name("Bank chest")
                 .option("Use")
@@ -390,31 +392,31 @@ public class Archeology {
         }
     }
 
-    private void waitForBankToOpen() {
+    private static void waitForBankToOpen() {
         boolean bankOpened = Execution.delayUntil(30000, () -> Interfaces.isOpen(517));
         if (!bankOpened) {
             ScriptConsole.println("[Error] Bank did not open within 30 seconds.");
         }
     }
 
-    private ResultSet<Item> findSoilBoxInInventory() {
+    private static ResultSet<Item> findSoilBoxInInventory() {
         return InventoryItemQuery.newQuery(93).name("Archaeological soil box").results();
     }
 
-    private void delayRandomly() {
+    private static void delayRandomly() {
         Execution.delay(RandomGenerator.nextInt(1500, 3000));
     }
 
-    private void depositAllExceptSelectedItems() {
+    private static void depositAllExceptSelectedItems() {
         int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753};
         Bank.depositAllExcept(itemIdsToKeep);
     }
 
-    private void logItemsDeposited() {
+    private static void logItemsDeposited() {
         ScriptConsole.println("[Archaeology] Deposited all items except selected.");
     }
 
-    private void interactWithSoilBoxIfPresent(ResultSet<Item> soilBox) {
+    private static void interactWithSoilBoxIfPresent(ResultSet<Item> soilBox) {
         if (soilBox != null && !soilBox.isEmpty()) {
             int slotIndex = soilBox.first().getSlot();
             if (slotIndex >= 0) {
@@ -432,7 +434,7 @@ public class Archeology {
         }
     }
 
-    private void handleGoteCharges() {
+    private static void handleGoteCharges() {
         int charges = VarManager.getInvVarbit(94, 2, 30214);
         ScriptConsole.println("Charges remaining: " + charges);
         if (charges < 250) {
@@ -453,7 +455,7 @@ public class Archeology {
         }
     }
 
-    private int getQuantityFromOption(String option) {
+    private static int getQuantityFromOption(String option) {
         return switch (option) {
             case "ALL" -> 1;
             case "1" -> 2;
@@ -464,7 +466,7 @@ public class Archeology {
         };
     }
 
-    private void returnToLastLocation(LocalPlayer player, List<String> selectedArchNames) {
+    private static void returnToLastLocation(LocalPlayer player, List<String> selectedArchNames) {
         ScriptConsole.println("[Archaeology] Returning to last location");
 
         if (shouldTraverseToHellfire(selectedArchNames)) {
@@ -476,7 +478,7 @@ public class Archeology {
             traverseToLastSkillingLocation();
         }
     }
-    private boolean shouldTraverseToKharidEt(List<String> selectedArchNames) {
+    private static boolean shouldTraverseToKharidEt(List<String> selectedArchNames) {
         return selectedArchNames.contains("Legionary remains")
                 || selectedArchNames.contains("Castra debris")
                 || selectedArchNames.contains("Administratum debris")
@@ -484,14 +486,14 @@ public class Archeology {
 
     }
 
-    private boolean shouldTraverseToHellfire(List<String> selectedArchNames) {
+    private static boolean shouldTraverseToHellfire(List<String> selectedArchNames) {
         return selectedArchNames.contains("Sacrificial altar")
                 || selectedArchNames.contains("Dis dungeon debris")
                 || selectedArchNames.contains("Cultist footlocker")
                 || selectedArchNames.contains("Lodge bar storage")
                 || selectedArchNames.contains("Lodge art storage");
     }
-    private void traverseToKharidEt(List<String> selectedArchNames) {
+    private static void traverseToKharidEt(List<String> selectedArchNames) {
         Coordinate hellfire = new Coordinate(3374, 3181, 0);
         ScriptConsole.println("[Archaeology] Traversing to Fort Entrance.");
 
@@ -518,7 +520,7 @@ public class Archeology {
         }
     }
 
-    private void traverseToHellfireLift(List<String> selectedArchNames) {
+    private static void traverseToHellfireLift(List<String> selectedArchNames) {
         Coordinate hellfire = new Coordinate(3263, 3504, 0);
         ScriptConsole.println("[Archaeology] Traversing to Hellfire Lift.");
 
@@ -545,7 +547,7 @@ public class Archeology {
         }
     }
 
-    private void interactWithDialogOption(List<String> selectedArchNames) {
+    private static void interactWithDialogOption(List<String> selectedArchNames) {
         if ((selectedArchNames.contains("Sacrificial altar") || selectedArchNames.contains("Dis dungeon debris") || selectedArchNames.contains("Cultist footlocker"))) {
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
             ScriptConsole.println("[Archaeology] Selecting: Dungeon of Disorder.");
@@ -563,8 +565,8 @@ public class Archeology {
             traverseToLastSkillingLocation();
         }
     }
-    private void traverseToLastSkillingLocation() {
-        if (Movement.traverse(NavPath.resolve(skeletonScript.getLastSkillingLocation())) == TraverseEvent.State.FINISHED) {
+    private static void traverseToLastSkillingLocation() {
+        if (Movement.traverse(NavPath.resolve(getLastSkillingLocation())) == TraverseEvent.State.FINISHED) {
             ScriptConsole.println("[Archaeology] Finished traversing to last location.");
             SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
         } else {
@@ -579,11 +581,11 @@ public class Archeology {
     }*/
 
 
-    private long randomDelay() {
+    private static long randomDelay() {
         return random.nextLong(1500, 3000);
     }
 
-    public long handleExcavation(String targetName) {
+    public static long handleExcavation(String targetName) {
         Coordinate targetCoordinate = coordinateMap.get(targetName);
 
         if (targetCoordinate == null) {
@@ -613,7 +615,7 @@ public class Archeology {
         return random.nextLong(1500, 3000);
     }
 
-    public long backpackIsFull(LocalPlayer player) {
+    public static long backpackIsFull(LocalPlayer player) {
         if (Backpack.contains("Archaeological soil box")) {
             Backpack.interact("Archaeological soil box", "Fill");
             ScriptConsole.println("[Archeology] Filling soil box.");

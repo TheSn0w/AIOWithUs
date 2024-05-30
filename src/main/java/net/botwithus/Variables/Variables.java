@@ -127,7 +127,7 @@ public class Variables {
     public static final Coordinate ArdougneSouth = new Coordinate(2655, 3283, 0);
     public static final Coordinate ArdougneNorth = new Coordinate(2616, 3332, 0);
     public static final Coordinate Yanille = new Coordinate(2613, 3094, 0);
-    public  static final Coordinate Ooglog = new Coordinate(2556, 2840, 0);
+    public static final Coordinate Ooglog = new Coordinate(2556, 2840, 0);
     public static final Coordinate CityOfUm = new Coordinate(1149, 1804, 1);
     public static final Coordinate prifWest = new Coordinate(2153, 3340, 1);
     public static final Coordinate PrifddinasCenter = new Coordinate(2205, 3368, 1);
@@ -137,6 +137,7 @@ public class Variables {
     public static final Coordinate Edgeville = new Coordinate(3096, 3496, 0);
     public static final Coordinate KharidEt = new Coordinate(3356, 3197, 0);
     public static final Coordinate VIP = new Coordinate(3182, 2742, 0);
+    public static final Coordinate STORMGUARD = new Coordinate(2675, 3404, 0);
     public static boolean makePlanks = false;
     public static boolean makeRefinedPlanks = false;
     public static boolean makeFrames = false;

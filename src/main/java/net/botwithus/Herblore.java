@@ -33,7 +33,7 @@ public class Herblore {
         }
     }
 
-    public long handleHerblore(LocalPlayer player) {
+    public static long handleHerblore(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {
             return random.nextInt(600, 800);
         }

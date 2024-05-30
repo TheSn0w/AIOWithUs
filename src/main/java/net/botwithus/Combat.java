@@ -41,6 +41,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.botwithus.SnowsScript.findNearestBank;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -51,7 +52,6 @@ public class Combat {
     }
     public static SnowsScript skeletonScript;
     private static Random random = new Random();
-    Banking banking = new Banking();
 
     void onInventoryUpdate(InventoryUpdateEvent event) {
         if (event.getInventoryId() != 93) {
@@ -91,7 +91,7 @@ public class Combat {
     }
 
 
-    public long attackTarget(LocalPlayer player) {
+    public static long attackTarget(LocalPlayer player) {
         if (player == null) {
             return logAndDelay("[attackTarget] Local player not found.", 1500, 3000);
         }
@@ -155,7 +155,7 @@ public class Combat {
         return attackMonster(player, monster);
     }
 
-    private boolean shouldBank(LocalPlayer player) {
+    private static boolean shouldBank(LocalPlayer player) {
         long overloadCheck = drinkOverloads(player);
         long prayerCheck = usePrayerOrRestorePots(player);
         long aggroCheck = useAggression(player);
@@ -163,7 +163,7 @@ public class Combat {
         return useWeaponPoison && weaponPoisonCheck == 1L || useOverloads && overloadCheck == 1L || usePrayerPots && prayerCheck == 1L || useAggroPots && aggroCheck == 1L;
     }
 
-    private long bankAndDelay(LocalPlayer player) {
+    private static long bankAndDelay(LocalPlayer player) {
         if (VarManager.getVarbitValue(16779) == 1) {
             ActionBar.useAbility("Soul Split");
         }
@@ -174,7 +174,7 @@ public class Combat {
     }
 
 
-    private Npc findTarget(LocalPlayer player) {
+    private static Npc findTarget(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             return null;
@@ -191,7 +191,7 @@ public class Combat {
                 .nearestTo(player.getCoordinate());
     }
 
-    private long attackMonster(LocalPlayer player, Npc monster) {
+    private static long attackMonster(LocalPlayer player, Npc monster) {
         boolean attack = monster.interact("Attack");
         if (attack) {
             return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 750, 1250);
@@ -200,17 +200,17 @@ public class Combat {
         }
     }
 
-    private long logAndDelay(String message, int minDelay, int maxDelay) {
+    private static long logAndDelay(String message, int minDelay, int maxDelay) {
         ScriptConsole.println(message);
         long delay = random.nextLong(minDelay, maxDelay);
         Execution.delay(delay);
         return delay;
     }
 
-    public long BankforFood(LocalPlayer player) {
+    /*public static long BankforFood(LocalPlayer player) {
         ScriptConsole.println("[BankforFood] Method started.");
 
-        Banking.Bank nearestBank = banking.findNearestBank(player.getCoordinate());
+        Coordinate nearestBank = findNearestBank(player.getCoordinate());
 
         if (nearestBank != null) {
             if (!nearestBank.getArea().contains(player.getCoordinate())) {
@@ -236,10 +236,10 @@ public class Combat {
 
         ScriptConsole.println("[BankforFood] Method ended.");
         return 0;
-    }
+    }*/
 
 
-    private void withdrawFood() {
+    private static void withdrawFood() {
         ScriptConsole.println("Interface is open.");
         Execution.delay(RandomGenerator.nextInt(600, 1000)); // Short delay
 
@@ -253,7 +253,7 @@ public class Combat {
         }
     }
 
-    private void returnToSkillingLocation(LocalPlayer player) {
+    private static void returnToSkillingLocation(LocalPlayer player) {
         ScriptConsole.println("Returning to last skilling location: " + skeletonScript.getLastSkillingLocation());
         Movement.traverse(NavPath.resolve(skeletonScript.getLastSkillingLocation().getRandomWalkableCoordinate())); // Navigate back
         SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
@@ -275,7 +275,7 @@ public class Combat {
         Combat.selectedItem = selectedItem;
     }
 
-    public void LootEverything() {
+    public static void LootEverything() {
         if (Interfaces.isOpen(1622)) {
             LootAll();
         } else {
@@ -284,7 +284,7 @@ public class Combat {
         }
     }
 
-    public void LootAll() {
+    public static void LootAll() {
         EntityResultSet<GroundItem> groundItems = GroundItemQuery.newQuery().results();
         if (groundItems.isEmpty()) {
             return;
@@ -300,7 +300,7 @@ public class Combat {
         }
     }
 
-    public void lootInterface() {
+    public static void lootInterface() {
         EntityResultSet<GroundItem> groundItems = GroundItemQuery.newQuery().results();
         if (groundItems.isEmpty()) {
             return;
@@ -338,7 +338,7 @@ public class Combat {
             }
         }
     }
-    private void manageScriptureOfJas() {
+    private static void manageScriptureOfJas() {
         if (getLocalPlayer() != null) {
             if (getLocalPlayer().inCombat()) {
                 Execution.delay(activateScriptureOfJas());
@@ -348,7 +348,7 @@ public class Combat {
         }
     }
 
-    private long activateScriptureOfJas() {
+    private static long activateScriptureOfJas() {
         if (VarManager.getVarbitValue(30605) == 0 && VarManager.getVarbitValue(30604) >= 60) {
             ScriptConsole.println("Activated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
@@ -356,7 +356,7 @@ public class Combat {
         return 0L;
     }
 
-    private long deactivateScriptureOfJas() {
+    private static long deactivateScriptureOfJas() {
         if (VarManager.getVarbitValue(30605) == 1) {
             ScriptConsole.println("Deactivated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
@@ -364,7 +364,7 @@ public class Combat {
         return 0L;
     }
 
-    private void manageScriptureOfWen() {
+    private static void manageScriptureOfWen() {
         if (getLocalPlayer() != null) {
             if (getLocalPlayer().inCombat()) {
                 Execution.delay(activateScriptureOfWen());
@@ -374,7 +374,7 @@ public class Combat {
         }
     }
 
-    private long activateScriptureOfWen() {
+    private static long activateScriptureOfWen() {
         if (VarManager.getVarbitValue(30605) == 0 && VarManager.getVarbitValue(30604) >= 60) {
             ScriptConsole.println("Activated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
@@ -382,7 +382,7 @@ public class Combat {
         return 0L;
     }
 
-    private long deactivateScriptureOfWen() {
+    private static long deactivateScriptureOfWen() {
         if (VarManager.getVarbitValue(30605) == 1) {
             ScriptConsole.println("Deactivated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
@@ -390,7 +390,7 @@ public class Combat {
         return 0L;
     }
 
-    public void processLooting() {
+    public static void processLooting() {
         if (Backpack.isFull()) {
             ScriptConsole.println("Backpack is full. Cannot loot more items.");
             return;
@@ -403,7 +403,7 @@ public class Combat {
         }
     }
 
-    private Pattern generateLootPattern(List<String> names) {
+    private static Pattern generateLootPattern(List<String> names) {
         return Pattern.compile(
                 names.stream()
                         .map(Pattern::quote)
@@ -413,11 +413,11 @@ public class Combat {
         );
     }
 
-    private boolean canLoot() {
+    private static boolean canLoot() {
         return !targetItemNames.isEmpty();
     }
 
-    public void lootFromInventory() {
+    public static void lootFromInventory() {
         if (!canLoot()) {
             ScriptConsole.println("[LootFromInventory] No target items specified for looting.");
             return;
@@ -439,7 +439,7 @@ public class Combat {
         }
     }
 
-    public void lootFromGround() {
+    public static void lootFromGround() {
         if (targetItemNames.isEmpty()) {
             ScriptConsole.println("[LootFromGround] No target items specified for looting.");
             return;
@@ -722,7 +722,7 @@ public class Combat {
             return 0L;
         }
     }
-    private void manageScrimshaws(LocalPlayer player) {
+    private static void manageScrimshaws(LocalPlayer player) {
         Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
         Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
 
@@ -737,7 +737,7 @@ public class Combat {
         }
     }
 
-    private long activateScrimshaws() {
+    private static long activateScrimshaws() {
         Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
         Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
         if (Scrimshaw != null && VarManager.getInvVarbit(Scrimshaw.getInventoryType().getId(), Scrimshaw.getSlot(), 17232) == 0) {
@@ -748,7 +748,7 @@ public class Combat {
         return 0L;
     }
 
-    private long deactivateScrimshaws() {
+    private static long deactivateScrimshaws() {
         Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
         Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
         if (Scrimshaw != null && VarManager.getInvVarbit(Scrimshaw.getInventoryType().getId(), Scrimshaw.getSlot(), 17232) == 1) {
@@ -758,7 +758,7 @@ public class Combat {
         }
         return 0L;
     }
-    private boolean isQuickPrayersActive() {
+    private static boolean isQuickPrayersActive() {
         int[] varbitIds = {
                 // Curses
                 16761, 16762, 16763, 16786, 16764, 16765, 16787, 16788, 16765, 16766,
@@ -780,9 +780,9 @@ public class Combat {
         return false;
     }
 
-    private boolean quickPrayersActive = false;
+    private static boolean quickPrayersActive = false;
 
-    public void manageQuickPrayers(LocalPlayer player) {
+    public static void manageQuickPrayers(LocalPlayer player) {
 
         if (player.inCombat() && !quickPrayersActive) {
             updateQuickPrayersActivation(player);
@@ -791,7 +791,7 @@ public class Combat {
         }
     }
 
-    private void updateQuickPrayersActivation(LocalPlayer player) {
+    private static void updateQuickPrayersActivation(LocalPlayer player) {
         boolean isCurrentlyActive = isQuickPrayersActive();
         boolean shouldBeActive = shouldActivateQuickPrayers(player);
 
@@ -802,7 +802,7 @@ public class Combat {
         }
     }
 
-    private void activateQuickPrayers() {
+    private static void activateQuickPrayers() {
         if (!quickPrayersActive) {
             ScriptConsole.println("Activating Quick Prayers.");
             if (ActionBar.useAbility("Quick-prayers 1")) {
@@ -814,7 +814,7 @@ public class Combat {
         }
     }
 
-    private void deactivateQuickPrayers() {
+    private static void deactivateQuickPrayers() {
         if (quickPrayersActive) {
             ScriptConsole.println("Deactivating Quick Prayers.");
             if (ActionBar.useAbility("Quick-prayers 1")) {
@@ -826,7 +826,7 @@ public class Combat {
         }
     }
 
-    private boolean shouldActivateQuickPrayers(LocalPlayer player) {
+    private static boolean shouldActivateQuickPrayers(LocalPlayer player) {
         return player.inCombat();
     }
 
@@ -888,9 +888,9 @@ public class Combat {
         return healthPercentage < healthPointsThreshold;
     }
 
-    private int currentStep = 1;  // This controls which part of the switch statement to execute
+    private static int currentStep = 1;  // This controls which part of the switch statement to execute
 
-    void handlePOD() {
+    public static void handlePOD() {
         switch (currentStep) {
             case 1:
                 if (travelToPOD()) {
@@ -942,12 +942,12 @@ public class Combat {
         }
     }
 
-    private boolean travelToPOD() {
+    private static boolean travelToPOD() {
         NavPath path = NavPath.resolve(new Coordinate(3122, 2632, 0));
         return Movement.traverse(path) == TraverseEvent.State.FINISHED;
     }
 
-    private boolean interactWithKags() {
+    private static boolean interactWithKags() {
         EntityResultSet<Npc> kags = NpcQuery.newQuery().name("Portmaster Kags").option("Travel").results();
         if (!kags.isEmpty()) {
             Npc nearestKags = kags.nearest();
@@ -963,7 +963,7 @@ public class Combat {
         return false;
     }
 
-    private boolean interactWithFirstDoor() {
+    private static boolean interactWithFirstDoor() {
         EntityResultSet<SceneObject> door = SceneObjectQuery.newQuery().name("Door").option("Open").results();
         if (!door.isEmpty()) {
             SceneObject nearestDoor = door.nearest();
@@ -975,7 +975,7 @@ public class Combat {
         return false;
     }
 
-    private boolean interactWithOtherDoor() {
+    private static boolean interactWithOtherDoor() {
         EntityResultSet<SceneObject> otherDoor = SceneObjectQuery.newQuery().name("Barrier").option("Pass through").results();
         if (!otherDoor.isEmpty()) {
             SceneObject nearestOtherDoor = otherDoor.nearest();
@@ -987,14 +987,14 @@ public class Combat {
         return false;
     }
 
-    private boolean movePlayerEast() {
+    private static boolean movePlayerEast() {
         if (getLocalPlayer() != null) {
             Coordinate targetCoordinate = getLocalPlayer().getCoordinate();
             Movement.walkTo(targetCoordinate.getX() + 7, targetCoordinate.getY(), true);
         }
         return true;
     }
-    private boolean BankingforPoD(LocalPlayer player) {
+    private static boolean BankingforPoD(LocalPlayer player) {
         if (VarManager.getVarbitValue(16779) == 1) {
             ActionBar.useAbility("Soul Split");
         }
@@ -1011,7 +1011,7 @@ public class Combat {
         }
         return true;
     }
-    long handleArchGlacor() {
+    public static long handleArchGlacor() {
         switch (currentStep) {
             case 1:
                 if (travelToArchGlacor(getLocalPlayer())) {
@@ -1037,7 +1037,7 @@ public class Combat {
         return 0;
     }
 
-    private boolean BankingforArch(LocalPlayer player) {
+    private static boolean BankingforArch(LocalPlayer player) {
         ActionBar.useAbility("Max Guild Teleport");
         Execution.delay(RandomGenerator.nextInt(6000, 8000));
 
@@ -1053,7 +1053,7 @@ public class Combat {
         return false;
     }
 
-    private boolean travelToArchGlacor(LocalPlayer player) {
+    private static boolean travelToArchGlacor(LocalPlayer player) {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(121369).option("Enter").results();
         EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
         if (!results.isEmpty()) {
@@ -1088,7 +1088,7 @@ public class Combat {
         return true;
     }
 
-    private Component getTimerComponent() {
+    private static Component getTimerComponent() {
         return ComponentQuery.newQuery(861).componentIndex(8).results().first();
     }
 
@@ -1096,7 +1096,7 @@ public class Combat {
         String timerText = timerComponent.getText();
         return "00:00".equals(timerText);
     }
-    public long printRemainingTime() {
+    public static long printRemainingTime() {
         Component timerComponent = getTimerComponent();
         String remainingTime = timerComponent.getText();
         ScriptConsole.println("Remaining time: " + remainingTime);

@@ -26,7 +26,7 @@ public class GemCutter {
         this.script = script;
     }
 
-    public long cutGems() {
+    public static long cutGems() {
         ResultSet<Item> craftingItems = InventoryItemQuery.newQuery(93).option("Craft").results();
         Item craftitems = craftingItems.isEmpty() ? null : craftingItems.first();
         if (Interfaces.isOpen(1251)) {

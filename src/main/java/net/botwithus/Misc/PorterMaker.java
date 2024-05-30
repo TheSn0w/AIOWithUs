@@ -30,7 +30,7 @@ public class PorterMaker {
 
 
 
-    public long makePorters() {
+    public static long makePorters() {
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1250, 2500);
         }
@@ -57,7 +57,7 @@ public class PorterMaker {
         }
         return random.nextLong(750, 1050);
     }
-    public long divineCharges() {
+    public static long divineCharges() {
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1250, 2500);
         }

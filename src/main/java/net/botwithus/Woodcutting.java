@@ -30,7 +30,7 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.logCount;
 
 public class Woodcutting {
-    private final Random random = new Random();
+    private static final Random random = new Random();
     private final SnowsScript skeletonScript;
 
     public Woodcutting(SnowsScript script) {
@@ -70,28 +70,28 @@ public class Woodcutting {
         }
     }
 
-    int currentTreeIndex = 0;
-    List<Coordinate> treeCoordinates = Arrays.asList(
+    static int currentTreeIndex = 0;
+    static List<Coordinate> treeCoordinates = Arrays.asList(
             new Coordinate(3183, 2722, 0),
             new Coordinate(3183, 2716, 0),
             new Coordinate(3189, 2722, 0)
     );
-    List<Coordinate> vipTreeCoordinates = Arrays.asList(
+    static List<Coordinate> vipTreeCoordinates = Arrays.asList(
             new Coordinate(3180, 2753, 0),
             new Coordinate(3180, 2747, 0)
     );
-    List<Coordinate> mahoganyCoordinates = Arrays.asList(
+    static List<Coordinate> mahoganyCoordinates = Arrays.asList(
             new Coordinate(2819, 3079, 0)
     );
 
     public static boolean acadiaVIP = false;
     public static boolean crystallise = false;
-    private Coordinate currentTreeCoordinate = null; // Add this line
-    private long lastCrystalliseCast = 0;
+    private static Coordinate currentTreeCoordinate = null; // Add this line
+    private static long lastCrystalliseCast = 0;
     public static boolean crystalliseMahogany = false;
 
 
-    long handleSkillingWoodcutting(LocalPlayer player, List<String> selectedTreeNames) {
+    public static long handleSkillingWoodcutting(LocalPlayer player, List<String> selectedTreeNames) {
         if (Backpack.isFull()) {
             if (nearestBank) {
                 setLastSkillingLocation(player.getCoordinate());
@@ -205,9 +205,9 @@ public class Woodcutting {
         return random.nextLong(750, 1000);
     }
     private static final int TREE_OBJECT_ID = 109007; // Acadia in VIP
-    Player player = Client.getLocalPlayer();
+    static Player player = Client.getLocalPlayer();
 
-    public long handleCrystallise() {
+    public static long handleCrystallise() {
         EntityResultSet<SpotAnimation> animations = SpotAnimationQuery.newQuery().ids(5802).results();
         if (animations.isEmpty()) {
 
@@ -229,7 +229,7 @@ public class Woodcutting {
         return random.nextLong(750, 1250);
     }
 
-    public long handleit() {
+    public static long handleit() {
         EntityResultSet<SpotAnimation> animations = SpotAnimationQuery.newQuery().ids(5802).results();
         if (animations.isEmpty()) {
             Execution.delay(handleAcadiaCrystallise((LocalPlayer) player));
@@ -239,7 +239,7 @@ public class Woodcutting {
         return 0;
     }
 
-    public long handleAcadiaCrystallise(LocalPlayer player) {
+    public static long handleAcadiaCrystallise(LocalPlayer player) {
         EntityResultSet<SceneObject> acadiaTree = SceneObjectQuery.newQuery().name("Acadia tree").option("Cut down").results();
         if (!acadiaTree.isEmpty()) {
             SceneObject nearestTree = acadiaTree.nearest();
@@ -257,9 +257,9 @@ public class Woodcutting {
         return handleCrystallise();
     }
 
-    private long nextCrystalliseDelay = random.nextInt(21000, 22500);
+    private static long nextCrystalliseDelay = random.nextInt(21000, 22500);
 
-    public long handleCrystalliseMahogany() {
+    public static long handleCrystalliseMahogany() {
         if (System.currentTimeMillis() - lastCrystalliseCast >= nextCrystalliseDelay) {
             if (ActionBar.containsAbility("Crystallise")) {
                 MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, 109510839);

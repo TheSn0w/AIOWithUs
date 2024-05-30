@@ -18,19 +18,14 @@ import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 import static net.botwithus.SnowsScript.BotState.IDLE;
 import static net.botwithus.Variables.Variables.*;
-import static net.botwithus.Variables.Variables.energy;
 
 public class Dissasembler {
     public SnowsScript script;
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public Dissasembler(SnowsScript script) {
         this.script = script;
@@ -47,7 +42,6 @@ public class Dissasembler {
                         ScriptConsole.println("Backpack contains the item: " + itemName);
                         Item item = Backpack.getItem(itemName);
                         if (item != null && ActionBar.containsAbility("Disassemble")) {
-                            ScriptConsole.println("Item is not null and ActionBar contains 'Disassemble' ability, interacting with MiniMenu...");
                             Component disassemble = ComponentQuery.newQuery(1430, 1670, 1671, 1672, 1673).spriteId(12510).option("Customise-keybind").results().first();
                             if (disassemble != null) {
                                 ScriptConsole.println("Used disassemble spell: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, disassemble.getInterfaceIndex() << 16 | disassemble.getComponentIndex()));
@@ -95,7 +89,6 @@ public class Dissasembler {
                         ScriptConsole.println("Backpack contains the item: " + itemName);
                         Item item = Backpack.getItem(itemName);
                         if (item != null && ActionBar.containsAbility("High Level Alchemy")) {
-                            ScriptConsole.println("Item is not null and ActionBar contains 'High Level Alchemy' ability, interacting with MiniMenu...");
                             Component Alchemy = ComponentQuery.newQuery(1430, 1670, 1671, 1672, 1673).spriteId(14379).option("Customise-keybind").results().first();
                             if (Alchemy != null) {
                                 ScriptConsole.println("Selected High Level Alchemy: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, Alchemy.getInterfaceIndex() << 16 | Alchemy.getComponentIndex()));
@@ -108,7 +101,7 @@ public class Dissasembler {
                                 if (task.getAmountDisassembled() >= itemMenuSize) {
                                     tasks.remove(task);
                                 }
-                                return random.nextLong(1500, 3000);
+                                return random.nextLong(2250, 3000);
                             }
                         } else {
                             ScriptConsole.println("Item is null or ActionBar does not contain 'High Level Alchemy' ability.");
@@ -123,6 +116,6 @@ public class Dissasembler {
         }
         ScriptConsole.println("Returning from Dissasemble method...");
         shutdown();
-        return random.nextLong(1250, 2500);
+        return random.nextLong(1750, 2500);
     }
 }

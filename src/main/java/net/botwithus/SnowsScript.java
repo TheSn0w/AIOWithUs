@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import ImGui.SkeletonScriptGraphicsContext;
+import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
@@ -18,22 +19,18 @@ import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
-import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.script.config.ScriptConfig;
-import net.botwithus.Misc.*;
 
-import java.time.Instant;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
-import static com.sun.nio.sctp.AssociationChangeNotification.AssocChangeEvent.RESTART;
 import static net.botwithus.Archeology.addName;
 import static net.botwithus.Archeology.selectedArchNames;
 import static net.botwithus.Combat.*;
@@ -45,25 +42,6 @@ import static net.botwithus.Variables.Variables.*;
 
 public class SnowsScript extends LoopingScript {
 
-    Smelter Smelter;
-    Divination divination;
-    Banking Banking;
-    Mining mining;
-    Woodcutting woodcutting;
-    Fishing fishing;
-    Herblore herblore;
-    Combat combat;
-    Thieving thieving;
-    Archeology archeology;
-    Cooking cooking;
-    Runecrafting runecrafting;
-    GemCutter GemCutter;
-    Planks planks;
-    CorruptedOre CorruptedOre;
-    PorterMaker porterMaker;
-    Agility agility;
-    CaveNightshade caveNightshade;
-    Dissasembler dissasembler;
 
 
     public static void setBotState(BotState state) {
@@ -79,50 +57,29 @@ public class SnowsScript extends LoopingScript {
         SKILLING,
         BANKING,
     }
+    private final Map<BooleanSupplier, Runnable> skillingTasks = new HashMap<>();
+
 
     public SnowsScript(String s, ScriptConfig scriptConfig, ScriptDefinition scriptDefinition) {
         super(s, scriptConfig, scriptDefinition);
         this.sgc = new SkeletonScriptGraphicsContext(getConsole(), this);
-        this.divination = new Divination();
-        Variables.isDivinationActive = false;
-        this.mining = new Mining(this);
-        isMiningActive = false;
-        this.woodcutting = new Woodcutting(this);
-        Variables.isWoodcuttingActive = false;
-        this.fishing = new Fishing(this);
-        Variables.isFishingActive = false;
-        this.combat = new Combat(this);
-        Variables.isCombatActive = false;
-        Variables.BankforFood = false;
-        this.archeology = new Archeology(this);
-        Variables.isArcheologyActive = false;
-        this.thieving = new Thieving(this);
-        Variables.isThievingActive = false;
-        this.herblore = new Herblore(this);
-        isHerbloreActive = false;
-        this.planks = new Planks();
-        Variables.isPlanksActive = false;
-        Variables.cooking = new Cooking();
-        Variables.isCookingActive = false;
-        isMiscActive = false;
-        this.porterMaker = new PorterMaker(this);
-        this.CorruptedOre = new CorruptedOre(this);
-        this.Banking = new Banking();
-        this.GemCutter = new GemCutter(this);
-        isRunecraftingActive = false;
-        this.Smelter = new Smelter(this);
-        Variables.isGemCutterActive = false;
-        this.runecrafting = new Runecrafting(this);
-        Variables.isAgilityActive = false;
-        this.agility = new Agility(this);
         this.loadConfiguration();
-        caveNightshade = new CaveNightshade(this);
-        Variables.startTime = Instant.now();
-        Variables.runStartTime = System.currentTimeMillis();
-        EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
-        EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
 
+        skillingTasks.put(() -> Variables.isHerbloreActive, Runnables::handleHerblore);
+        skillingTasks.put(() -> Variables.isRunecraftingActive, Runnables::handleRunecrafting);
+        skillingTasks.put(() -> Variables.isMiningActive, Runnables::handleMining);
+        skillingTasks.put(() -> Variables.isThievingActive, Runnables::handleThieving);
+        skillingTasks.put(() -> Variables.isWoodcuttingActive, Runnables::handleWoodcutting);
+        skillingTasks.put(() -> Variables.isAgilityActive, Runnables::handleSkillingAgility);
+        skillingTasks.put(() -> Variables.isDivinationActive, Runnables::handleDivination);
+        skillingTasks.put(() -> Variables.isFishingActive, Runnables::handleFishing);
+        skillingTasks.put(() -> Variables.isCombatActive, Runnables::handleCombat);
+        skillingTasks.put(() -> Variables.isCookingActive, Runnables::handleCooking);
+        skillingTasks.put(() -> Variables.isArcheologyActive, Runnables::handleArcheology);
+        skillingTasks.put(() -> Variables.isMiscActive, Runnables::handleMisc);
     }
+
+
 
     public void onLoop() {
         LocalPlayer player = Client.getLocalPlayer();
@@ -130,133 +87,59 @@ public class SnowsScript extends LoopingScript {
         if (player == null || Client.getGameState() != Client.GameState.LOGGED_IN) {
             return;
         }
-        List<String> selectedRockNames = getSelectedRockNames();
-        List<String> selectedTreeNames = getSelectedTreeNames();
-        List<String> selectedFishingLocations = Fishing.getSelectedFishingLocations();
-        List<String> selectedFishingActions = Fishing.getSelectedFishingActions();
-        List<String> selectedArchNames = Archeology.getSelectedNames();
 
         switch (botState) {
-            case IDLE -> {
-                Execution.delay(random.nextLong(1500, 3000));
-            }
-            case SKILLING -> {
-                if (isHerbloreActive) {
-                    Execution.delay(herblore.handleHerblore(player));
+            case IDLE -> Execution.delay(random.nextLong(1500, 3000));
+            case SKILLING -> skillingTasks.forEach((condition, task) -> {
+                if (condition.getAsBoolean()) {
+                    task.run();
                 }
-                if (isRunecraftingActive && !soulAltar) {
-                    runecrafting.handleRunecrafting(player);
-                }
-                if (isRunecraftingActive && soulAltar) {
-                    Execution.delay(runecrafting.handleEdgevillebanking());
-                }
-                if (isMiningActive) {
-                    Execution.delay(mining.handleMining(player, selectedRockNames));
-                }
-                if (isThievingActive) {
-                    Execution.delay(thieving.handleThieving(player));
-                }
-                if (isWoodcuttingActive) {
-                    Execution.delay(woodcutting.handleSkillingWoodcutting(player, selectedTreeNames));
-                    if (Woodcutting.crystallise) {
-                        Execution.delay(woodcutting.handleit());
-                    }
-                    if (Woodcutting.crystalliseMahogany) {
-                        Execution.delay(woodcutting.handleCrystalliseMahogany());
-                    }
-                }
-                if (Variables.agility) {
-                    Execution.delay(agility.handleSkillingAgility(player));
-                }
-                if (isDivinationActive) {
-                    Execution.delay(Divination.handleDivination(player));
-                }
-                if (isFishingActive) {
-                    if (!selectedFishingLocations.isEmpty() && !selectedFishingActions.isEmpty()) {
-                        Execution.delay(fishing.handleFishing(player, selectedFishingLocations.get(0), selectedFishingActions.get(0)));
-                    }
-                }
-                if (isCombatActive) {
-                    if (Combat.enableRadiusTracking) {
-                        Execution.delay(Combat.ensureWithinRadius(player));
-                    }
-                    if (usePOD) {
-                        combat.handlePOD();
-                    }
-                    if (!usePOD && !handleArchGlacor) {
-                        Execution.delay(combat.attackTarget(player));
-                    }
-                    if (handleArchGlacor) {
-                        Execution.delay(combat.handleArchGlacor());
-                    }
-                    if (interactWithLootAll) {
-                        combat.LootEverything();
-                    }
-                }
-                if (isCookingActive && !makeWines) {
-                    Execution.delay(cooking.handleCooking());
-                }
-                if (isCookingActive && makeWines) {
-                    Execution.delay(cooking.useGrapesOnJugOfWater());
-                }
-                if (isArcheologyActive)
-                    Execution.delay(archeology.findSpotAnimationAndAct(player, selectedArchNames));
-                if (isMiscActive) {
-                    if (isportermakerActive) {
-                        Execution.delay(porterMaker.makePorters());
-                    }
-                    if (isdivinechargeActive) {
-                        Execution.delay(porterMaker.divineCharges());
-                    }
-                    if (isPlanksActive) {
-                        Execution.delay(planks.handlePlankMaking());
-                    }
-                    if (isCorruptedOreActive) {
-                        Execution.delay(CorruptedOre.mineCorruptedOre());
-                    }
-                    if (isSummoningActive && usePrifddinas) {
-                        Execution.delay(Summoning.makePouches(player));
-                    } else if (isSummoningActive) {
-                        Execution.delay(Summoning.interactWithObolisk(player));
-                    }
-                    if (isDissasemblerActive) {
-                        if (useDisassemble) {
-                            Execution.delay(Dissasembler.Dissasemble(player));
-                        }
-                        if (useAlchamise) {
-                            Execution.delay(Dissasembler.castHighLevelAlchemy(player));
-                        }
-                    }
-                    if (isGemCutterActive) {
-                        Execution.delay(GemCutter.cutGems());
-                    }
-                    if (isSmeltingActive) {
-                        Execution.delay(Smelter.handleSmelter(player));
-                    }
-                    if (Variables.pickCaveNightshade) {
-                        caveNightshade.runNightShadeLoop();
-                    }
-                }
-            }
+            });
 
             case BANKING -> {
                 if (isThievingActive) {
-                    Execution.delay(thieving.bankForfood());
+                    Execution.delay(Thieving.bankForfood());
                 }
                 if (nearestBank) {
                     Execution.delay(useTheNearestBank(player));
                 }
-                if (BankforFood) {
-                    Execution.delay(combat.BankforFood(player));
-                }
+                /*if (BankforFood) {
+                    Execution.delay(Combat.BankforFood(player));
+                }*/
                 if (isArcheologyActive)
-                    Execution.delay(archeology.BankforArcheology(player, selectedArchNames));
+                    Execution.delay(Archeology.BankforArcheology(player, selectedArchNames));
             }
         }
     }
 
+    @Override
+    public void onActivation() {
+        subscribeToEvents();
+        super.initialize();
+    }
+
+    @Override
+    public void onDeactivation() {
+        saveConfiguration();
+        unsubscribeFromEvents();
+        super.onDeactivation();
+    }
+
+    private void subscribeToEvents() {
+        EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
+        EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
+    }
+
+    private void unsubscribeFromEvents() {
+        EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
+        EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
+    }
+
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
+        if (!isActive()) {
+            return;
+        }
         if (event.getInventoryId() != 93) {
             return;
         }
@@ -354,6 +237,9 @@ public class SnowsScript extends LoopingScript {
 
 
     void onChatMessageEvent(ChatMessageEvent event) {
+        if (!isActive()) {
+            return;
+        }
         String message = event.getMessage();
         if (isportermakerActive) {
             if (message.contains("You create: 1")) {
@@ -372,13 +258,13 @@ public class SnowsScript extends LoopingScript {
         }
         if (isRunecraftingActive) {
             if (message.contains("The charger cannot hold any more essence.")) {
-                Execution.delay(runecrafting.handleCharging());
+                Execution.delay(Runecrafting.handleCharging());
             }
             if (message.contains("You do no have any essence to deposit")) {
-                Execution.delay(runecrafting.handleEdgevillebanking());
+                Execution.delay(Runecrafting.handleEdgevillebanking());
             }
             if (message.contains("The altar is already charged to its maximum capacity")) {
-                runecrafting.handleSoulAltar();
+                Runecrafting.handleSoulAltar();
             }
         }
         if (isCookingActive) {
@@ -544,7 +430,7 @@ public class SnowsScript extends LoopingScript {
         if (nearestBank != null) {
             double distanceToBank = Distance.between(player.getCoordinate(), nearestBank);
 
-            String bankType = (nearestBank == WarsRetreat || nearestBank == Anachronia || nearestBank == PrifddinasEast || nearestBank == CityOfUm || nearestBank == SmithingGuild || nearestBank == KharidEt || nearestBank == Lumbridge || nearestBank == VIP || nearestBank == prifWest) ? "Bank chest" :
+            String bankType = (nearestBank == STORMGUARD|| nearestBank == WarsRetreat || nearestBank == Anachronia || nearestBank == PrifddinasEast || nearestBank == CityOfUm || nearestBank == SmithingGuild || nearestBank == KharidEt || nearestBank == Lumbridge || nearestBank == VIP || nearestBank == prifWest) ? "Bank chest" :
                     (nearestBank == Edgeville || nearestBank == Draynor) ? "Counter" :
                             "Bank booth";
             List<SceneObject> bankBooths = SceneObjectQuery.newQuery().name(bankType).results().stream()
@@ -573,7 +459,7 @@ public class SnowsScript extends LoopingScript {
         int textValue = getTextValue();
 
         List<Coordinate> bankCoordinates = Arrays.asList(
-                WarsRetreat, SmithingGuild, prifWest, VIP, AlKharid, Edgeville, Burthorpe, KharidEt, Catherby, Anachronia, CityOfUm, PrifddinasCenter, PrifddinasEast, Yanille, Ooglog, ArdougneSouth, ArdougneNorth, Seers, Taverly, FaladorWest, FaladorEast, Lumbridge, Draynor, GrandExchange, VarrockEast, VarrockWest, Canafis
+                WarsRetreat, STORMGUARD, SmithingGuild, prifWest, VIP, AlKharid, Edgeville, Burthorpe, KharidEt, Catherby, Anachronia, CityOfUm, PrifddinasCenter, PrifddinasEast, Yanille, Ooglog, ArdougneSouth, ArdougneNorth, Seers, Taverly, FaladorWest, FaladorEast, Lumbridge, Draynor, GrandExchange, VarrockEast, VarrockWest, Canafis
         );
 
         if (textValue >= 60) {
