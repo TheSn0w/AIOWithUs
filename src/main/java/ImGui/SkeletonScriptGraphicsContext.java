@@ -910,7 +910,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             makeFrames = ImGui.Checkbox("Frames", makeFrames);
                             ImGui.SameLine();
                             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            makePlanks = ImGui.Checkbox("Planks", makePlanks);
+                            makePlanks = ImGui.Checkbox("make planks", makePlanks);
                             ImGui.SameLine();
                             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
                             makeRefinedPlanks = ImGui.Checkbox("Refined Planks", makeRefinedPlanks);
