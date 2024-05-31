@@ -125,19 +125,54 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
 
                 if (!anySelected) {
-                    createCenteredButton("Agility AIO", () -> Variables.agility = !Variables.agility, Variables.agility);
+                    createCenteredButton("Agility", () -> Variables.agility = !Variables.agility, Variables.agility);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("1-35 Agility Only`");
+                    }
                     createCenteredButton("Divination AIO", () -> isDivinationActive = !isDivinationActive, isDivinationActive);
-                    createCenteredButton("Thieving AIO", () -> Variables.isThievingActive = !Variables.isThievingActive, Variables.isThievingActive);
-                    createCenteredButton("Archaeology AIO", () -> Variables.isArcheologyActive = !Variables.isArcheologyActive, Variables.isArcheologyActive);
-                    createCenteredButton("Fishing AIO", () -> Variables.isFishingActive = !Variables.isFishingActive, Variables.isFishingActive);
-                    createCenteredButton("Mining AIO", () -> Variables.isMiningActive = !Variables.isMiningActive, Variables.isMiningActive);
-                    createCenteredButton("Woodcutting AIO", () -> Variables.isWoodcuttingActive = !Variables.isWoodcuttingActive, Variables.isWoodcuttingActive);
-                    createCenteredButton("Cooking AIO", () -> Variables.isCookingActive = !Variables.isCookingActive, Variables.isCookingActive);
-                    createCenteredButton("Combat AIO", () -> Variables.isCombatActive = !Variables.isCombatActive, Variables.isCombatActive);
-                    createCenteredButton("Runecrafting AIO", () -> Variables.isRunecraftingActive = !Variables.isRunecraftingActive, Variables.isRunecraftingActive);
-                    createCenteredButton("Herblore AIO", () -> Variables.isHerbloreActive = !Variables.isHerbloreActive, Variables.isHerbloreActive);
-
-                    createCenteredButton("Misc AIO", () -> Variables.isMiscActive = !Variables.isMiscActive, Variables.isMiscActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Divination AIO 1-99");
+                    }
+                    createCenteredButton("Thieving", () -> Variables.isThievingActive = !Variables.isThievingActive, Variables.isThievingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Thieving - Read Tooltip");
+                    }
+                    createCenteredButton("Archaeology", () -> Variables.isArcheologyActive = !Variables.isArcheologyActive, Variables.isArcheologyActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Archaeology with Material Caches Etc..");
+                    }
+                    createCenteredButton("Fishing", () -> Variables.isFishingActive = !Variables.isFishingActive, Variables.isFishingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Fishing at any spot");
+                    }
+                    createCenteredButton("Mining", () -> Variables.isMiningActive = !Variables.isMiningActive, Variables.isMiningActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Mining at any spot");
+                    }
+                    createCenteredButton("Woodcutting", () -> Variables.isWoodcuttingActive = !Variables.isWoodcuttingActive, Variables.isWoodcuttingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Woodcutting at any spot Except Fort Forthry");
+                    }
+                    createCenteredButton("Cooking", () -> Variables.isCookingActive = !Variables.isCookingActive, Variables.isCookingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Cooking AIO with Fish, Recommended at Fort Forthry");
+                    }
+                    createCenteredButton("Combat", () -> Variables.isCombatActive = !Variables.isCombatActive, Variables.isCombatActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("AIO Fighter");
+                    }
+                    createCenteredButton("Runecrafting", () -> Variables.isRunecraftingActive = !Variables.isRunecraftingActive, Variables.isRunecraftingActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Runecrafting made easy doing Necrotic Runes");
+                    }
+                    createCenteredButton("Herblore", () -> Variables.isHerbloreActive = !Variables.isHerbloreActive, Variables.isHerbloreActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
+                    }
+                    createCenteredButton("Misc", () -> Variables.isMiscActive = !Variables.isMiscActive, Variables.isMiscActive);
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Miscellaneous Options");
+                    }
                 } else {
                     if (agilitySelected) {
                         createCenteredButton("Agility AIO", () -> agility = !agility, agility);
@@ -147,40 +182,75 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     } else if (divinationSelected) {
                         createCenteredButton("Divination AIO", () -> isDivinationActive = !isDivinationActive, isDivinationActive);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Divination AIO`");
+                            ImGui.SetTooltip("Divination AIO 1-99");
                         }
                         createCenteredButton("Offer Chronicles", () -> offerChronicles = !offerChronicles, offerChronicles);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Enable offering chronicles at the rift, will hand in at 15");
+                        }
                         createCenteredButton("Use Divine-o-matic", () -> useDivineoMatic = !useDivineoMatic, useDivineoMatic);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Enable withdrawing and depositing charges into the Divine-o-matic, make sure to have empty charges in Backpack");
+                        }
                         createCenteredButton("Use Familiar", () -> useFamiliarSummoning = !useFamiliarSummoning, useFamiliarSummoning);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will upkeep familiar, Have pouch and Restore Potions in Backpack, will bank at prif if out of pouches/restore pots");
+                        }
                         createCenteredButton("Harvest Chronicles", () -> harvestChronicles = !harvestChronicles, harvestChronicles);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will harvest chronicles");
+                        }
                     } else if (thievingSelected) {
                         createCenteredButton("Thieving AIO", () -> isThievingActive = !isThievingActive, isThievingActive);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Thieving AIO`");
+                            ImGui.SetTooltip("Thieving - Read Tooltip");
                         }
                     } else if (archeologySelected) {
                         createCenteredButton("Archeology", () -> isArcheologyActive = !isArcheologyActive, isArcheologyActive);
-
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Archaeology with Material Caches Etc..`");
+                            ImGui.SetTooltip("Archaeology with Material Caches Etc..");
                         }
                         createCenteredButton("Material Cache", () -> MaterialCache = !MaterialCache, MaterialCache);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will do Material Cache");
+                        }
                         createCenteredButton("Material Manual", () -> materialManual = !materialManual, materialManual);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will do Upkeep Material Manual");
+                        }
                         createCenteredButton("Archaeologists Tea", () -> archaeologistsTea = !archaeologistsTea, archaeologistsTea);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Upkeep Archaeologists Tea");
+                        }
                         createCenteredButton("Hi-Spec Monocle", () -> hiSpecMonocle = !hiSpecMonocle, hiSpecMonocle);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Upkeep Hi-Spec Monocle");
+                        }
                         createCenteredButton("Use Gote", () -> useGote = !useGote, useGote);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Upkeep Grace of the Elves");
+                        }
                     } else if (combatSelected) {
-                        /*attackOsseous = ImGui.Checkbox("Attack Osseous", attackOsseous);*/
                         createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, isCombatActive);
-
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("AIO Fighter`");
                         }
-                        /*BankforFood = ImGui.Checkbox("Bank for food", BankforFood);*/
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Nearest Bank");
+                        }
                         createCenteredButton("Loot", () -> useLoot = !useLoot, useLoot);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Loot Items");
+                        }
                         createCenteredButton("Loot All", () -> interactWithLootAll = !interactWithLootAll, interactWithLootAll);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Loot All Items");
+                        }
                         createCenteredButton("Use POD", () -> usePOD = !usePOD, usePOD);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Player owned dungeons, first room only");
+                        }
                         createCenteredButton("Arch Glacor", () -> handleArchGlacor = !handleArchGlacor, handleArchGlacor);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("start at portal and needs max guild teleport`");
@@ -191,33 +261,69 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             ImGui.SetTooltip("Fishing at any spot using any option`");
                         }
                         createCenteredButton("Animation Check", () -> AnimationCheck = !AnimationCheck, AnimationCheck);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Enable when fishing tune/lobsters/swordfish/sharks`");
+                        }
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Nearest Bank");
+                        }
                     } else if (miningSelected) {
                         createCenteredButton("Mining", () -> isMiningActive = !isMiningActive, isMiningActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Mining at any spot using any option`");
                         }
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Nearest Bank");
+                        }
                     } else if (woodcuttingSelected) {
                         createCenteredButton("Woodcutting", () -> isWoodcuttingActive = !isWoodcuttingActive, isWoodcuttingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Woodcutting at any spot using any option`");
                         }
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Nearest Bank");
+                        }
                         createCenteredButton("Acadia Tree", () -> acadiaTree = !acadiaTree, acadiaTree);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will cut Acadia Trees OUTSIDE of VIP area");
+                        }
                         createCenteredButton("Acadia VIP", () -> acadiaVIP = !acadiaVIP, acadiaVIP);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will cut Acadia Trees INSIDE of VIP area");
+                        }
                         createCenteredButton("Crystallise", () -> crystallise = !crystallise, crystallise);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Crystallise Acadia Trees, enable this and Acadia option");
+                        }
                         createCenteredButton("Crystallise Mahogany", () -> crystalliseMahogany = !crystalliseMahogany, crystalliseMahogany);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Crystallise Mahogany Trees");
+                        }
                     } else if (rcselected) {
                         createCenteredButton("Runecrafting", () -> isRunecraftingActive = !isRunecraftingActive, isRunecraftingActive);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Runecrafting made easy doing Necrotic Runes`");
+                        }
                         createCenteredButton("Bone Altar", () -> HandleBoneAltar = !HandleBoneAltar, HandleBoneAltar);
                         createCenteredButton("Flesh Altar", () -> HandleFleshAltar = !HandleFleshAltar, HandleFleshAltar);
                         createCenteredButton("Miasma Altar", () -> HandleMiasmaAltar = !HandleMiasmaAltar, HandleMiasmaAltar);
                         createCenteredButton("Spirit Altar", () -> HandleSpiritAltar = !HandleSpiritAltar, HandleSpiritAltar);
                         createCenteredButton("Soul Altar", () -> soulAltar = !soulAltar, soulAltar);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will do Soul Altar with Protean Essence");
+                        }
                     } else if (miscselected) {
                         createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, isMiscActive);
-                        createCenteredButton("Disassembler", () -> isDissasemblerActive = !isDissasemblerActive, isDissasemblerActive);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Miscellaneous Options");
+                        }
+                        createCenteredButton("Magic", () -> isDissasemblerActive = !isDissasemblerActive, isDissasemblerActive);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Disassemble/High Alchemy Items");
+                        }
                         createCenteredButton("Violet Theme", () -> {
                             if (!PurpleThemeSelected) {
                                 PurpleThemeSelected = true;
@@ -288,16 +394,26 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
                         }
                         createCenteredButton("Make Bombs", () -> makeBombs = !makeBombs, makeBombs);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will make Bombs");
+                        }
                     } else if (cookingselected){
                         createCenteredButton("Cooking", () -> isCookingActive = !isCookingActive, isCookingActive);
-                        createCenteredButton("Make Wines", () -> makeWines = !makeWines, makeWines);                    }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Cooking AIO with Fish, Recommended at Fort Forthry");
+                        }
+                        createCenteredButton("Make Wines", () -> makeWines = !makeWines, makeWines);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will make Wines");
+                        }
+                    }
                 }
                 ImGui.EndChild();
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
                     if (showLogs) {
                         if (ImGui.Button("Scroll to Bottom")) {
-                            scrollToBottom = true;
+                            scrollToBottom = !scrollToBottom;
                         }
                         ImGui.SameLine();
                         ImGui.SeparatorText("Console Logs");
