@@ -30,18 +30,21 @@ import java.util.*;
 import static net.botwithus.CustomLogger.log;
 
 public class CaveNightshade {
-
     private static Random random = new Random();
     private static NightShadeState nightShadeState = NightShadeState.TRAVERSING;
 
-    public CaveNightshade(SnowsScript mainScript) {
-        random = new Random();
+    public CaveNightshade(SnowsScript script) {
+        this.random = new Random();
     }
 
     public enum NightShadeState {
         TRAVERSING,
         PICKING,
         MAKEPORTER,
+    }
+
+    public static NightShadeState getNightShadeState() {
+        return nightShadeState;
     }
 
     public static final Map<String, Integer> NightshadePicked = new HashMap<>();

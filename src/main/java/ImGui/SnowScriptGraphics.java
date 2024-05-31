@@ -23,6 +23,7 @@ import static ImGui.Theme.*;
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
+import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Runecrafting.*;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -2013,6 +2014,15 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     ImGui.SetCursorPosY(12);
                     ImGui.SetCursorPosX(10);
 
+                    String botState;
+                    if (isRunecraftingActive) {
+                        botState = String.valueOf(getCurrentState());
+                    } else if (pickCaveNightshade) {
+                        botState = String.valueOf(getNightShadeState());
+                    } else {
+                        botState = String.valueOf(getBotState());
+                    }
+
                     ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 20, 10);
                     ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 5);
                     ImGui.PushStyleColor(ImGuiCol.Button,0, 0, 0, 0);
@@ -2175,6 +2185,38 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         }
         ImGui.PopStyleVar(2);
         ImGui.PopStyleColor(3);
+    }
+    private void listBotstate() {
+
+
+        String botState;
+        if (isRunecraftingActive) {
+            botState = String.valueOf(getCurrentState());
+        } else {
+            botState = String.valueOf(getBotState());
+        }
+
+        if (botState.equals("SKILLING")) {
+            setStyleColor(ImGuiCol.Text, 0, 255, 0, 255); // RGBA: Green
+        } else if (botState.equals("BANKING")) {
+            setStyleColor(ImGuiCol.Text, 255, 0, 0, 255); // RGBA: Red
+        } else {
+            setStyleColor(ImGuiCol.Text, 255, 255, 255, 255); // RGBA: White
+        }
+
+        if (Runecrafting.currentState == ScriptState.IDLE) {
+            setStyleColor(ImGuiCol.Text, 255, 165, 0, 255); // RGBA: Orange
+        } else if (Runecrafting.currentState == ScriptState.BANKING) {
+            setStyleColor(ImGuiCol.Text, 255, 0, 0, 255); // RGBA: Red
+        } else if (Runecrafting.currentState == ScriptState.TELEPORTING || Runecrafting.currentState == ScriptState.INTERACTINGWITHPORTAL) {
+            setStyleColor(ImGuiCol.Text, 128, 0, 128, 255); // RGBA: Purple
+        } else if (Runecrafting.currentState == ScriptState.CRAFTING) {
+            setStyleColor(ImGuiCol.Text, 0, 255, 0, 255); // RGBA: Green
+        } else if (Runecrafting.currentState == ScriptState.TELEPORTINGTOBANK) {
+            setStyleColor(ImGuiCol.Text, 128, 0, 128, 255); // RGBA: Purple
+        } else {
+            setStyleColor(ImGuiCol.Text, 255, 255, 255, 255);
+        }
     }
 
     @Override
