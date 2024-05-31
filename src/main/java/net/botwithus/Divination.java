@@ -53,6 +53,9 @@ public class Divination {
             log("[Error] No valid wisp name for level: " + divinationLevel);
             return navigateTo(player, wispCoordinates);
         }
+        if (player.isMoving()) {
+            return random.nextLong(1500, 3000);
+        }
         if (useFamiliarSummoning) {
             checkAndPerformActions(player);
         }
@@ -74,7 +77,7 @@ public class Divination {
             return handleFullBackpack();
         }
 
-        if (player.getAnimationId() == 21228 || player.getAnimationId() == 31055 || player.isMoving()) {
+        if (player.getAnimationId() == 21228 || player.getAnimationId() == 31055) {
             return random.nextLong(1500, 3000);
         }
 

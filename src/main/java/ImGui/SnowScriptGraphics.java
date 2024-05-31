@@ -435,7 +435,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             }
                             if (scrollToBottom) {
                                 ImGui.SetScrollHereY(1.0f);
-                                scrollToBottom = false;
                             }
                             ImGui.EndChild();  // End the child region
                         }
