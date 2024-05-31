@@ -42,6 +42,7 @@ public class Variables {
     public static boolean makeWines = false;
     public static boolean isRunecraftingActive = false;
     public static boolean isGemCutterActive = false;
+    public static boolean isSiftSoilActive = false;
     public static boolean isSmeltingActive = false;
     public static SnowsScript.BotState botState = IDLE;
     public static final Map<BooleanSupplier, Runnable> skillingTasks = new HashMap<>();

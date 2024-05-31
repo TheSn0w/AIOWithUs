@@ -160,6 +160,9 @@ public class Runnables {
                 if (Variables.pickCaveNightshade) {
                     CaveNightshade.runNightShadeLoop();
                 }
+                if (isSiftSoilActive) {
+                    Execution.delay(SiftSoil.handleSoil(player));
+                }
             }
         }
     }

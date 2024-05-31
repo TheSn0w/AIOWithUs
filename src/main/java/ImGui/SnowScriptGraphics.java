@@ -671,7 +671,21 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 } else {
                                     ImGui.SetCursorPosX(spacing);
                                 }
-                                pickCaveNightshade = ImGui.Checkbox("Cave Nightshade", pickCaveNightshade);
+                                pickCaveNightshade = ImGui.Checkbox("Nightshade", pickCaveNightshade);
+                                if (ImGui.IsItemHovered()) {
+                                    ImGui.SetTooltip("Will pick Cave Nightshade");
+                                }
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
+                            if (!NoneSelected || isSiftSoilActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isSiftSoilActive = ImGui.Checkbox("Sift Soil", isSiftSoilActive);
                             }
                             if (pickCaveNightshade) {
                                 ImGui.SeparatorText("Cave Nightshade Picked Count");
