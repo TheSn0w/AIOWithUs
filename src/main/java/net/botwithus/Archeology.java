@@ -119,8 +119,6 @@ public class Archeology {
                     ScriptConsole.println("[Debug] Interaction with Equipment failed.");
                 }
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
-            } else {
-                ScriptConsole.println("[Debug] Porters have 250 or more charges.");
             }
         } else {
             ScriptConsole.println("[Debug] No 'Sign of the porter VII' found in the Backpack.");
