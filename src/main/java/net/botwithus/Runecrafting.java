@@ -44,7 +44,6 @@ public class Runecrafting {
 
     public SnowsScript skeletonScript;
     private static long lastMovedOrAnimatedTime = System.currentTimeMillis();
-    public static ScriptState currentState = IDLE;
     private static Random random = new Random();
     private static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
     static Player player = Client.getLocalPlayer();
@@ -66,10 +65,15 @@ public class Runecrafting {
             102, 103, 104, 105, 106, 116, 117, 118, 119, 121,
             123, 124, 134, 138, 139, 140, 252, 257, 258};
 
-
-    public static Runecrafting.ScriptState getScriptstate() {
+    public static void setCurrentState(ScriptState newState) {
+        currentState = newState;
+    }
+    public static ScriptState getCurrentState() {
         return currentState;
     }
+    public static ScriptState currentState = IDLE;
+
+
 
     public enum ScriptState {
         IDLE,
@@ -78,9 +82,6 @@ public class Runecrafting {
         INTERACTINGWITHPORTAL,
         CRAFTING,
         TELEPORTINGTOBANK, ScriptState,
-    }
-    public static void setCurrentState(ScriptState newState) {
-        currentState = newState;
     }
 
     public static void handleRunecrafting(LocalPlayer player) {

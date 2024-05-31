@@ -75,11 +75,11 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 ImGui.SetCursorPosX(0);
                 if (ImGui.Button(buttonText)) {
                     if (ScriptisOn) {
-                        botState = BotState.IDLE;
+                        setBotState(BotState.IDLE);
                         totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
                         ScriptisOn = false;
                     } else {
-                        botState = BotState.SKILLING;
+                        setBotState(BotState.SKILLING);
                         startTime = Instant.now();
                         ScriptisOn = true;
                     }
@@ -439,7 +439,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             if (scrollToBottom) {
                                 ImGui.SetScrollHereY(1.0f);
                             }
-                            ImGui.EndChild();  // End the child region
+                            ImGui.EndChild();
                         }
                     } else {
                         if (!anySelected) {
@@ -482,7 +482,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 ImGui.Text(line);
                             }
 
-// Add the Discord support button
                             String discordLink = "https://discordapp.com/channels/973830420858810378/1192140405689548891";
                             float buttonWidth1 = ImGui.CalcTextSize("Discord Support").getX();
                             float centeredButtonX1 = (362 - buttonWidth1) / 3;
@@ -501,7 +500,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             ImGui.SameLine();
 
                             String reviewLink = "https://discord.com/channels/973830420858810378/1116465231141544038";
-                            float buttonWidth2 = ImGui.CalcTextSize("Write a Review").getX();
                             float centeredButtonX2 = centeredButtonX1 + buttonWidth1 + 20;
                             ImGui.SetCursorPosX(centeredButtonX2);
                             if (ImGui.Button("Write a Review")) {
@@ -893,7 +891,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
 
                                     for (String text : texts) {
-                                        float windowWidth = 400; // Set the window width
+                                        float windowWidth = 400;
                                         float textWidth = ImGui.CalcTextSize(text).getX();
                                         float centeredStartPos = (windowWidth - textWidth) / 2;
 
@@ -2012,75 +2010,45 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 int combinedFlags = noScrollbarFlag | noScrollWithMouseFlag;
 
                 if (ImGui.BeginChild("Child1", 580, 60, true, combinedFlags)) {
-
-
-                    String botState;
-                    if (isRunecraftingActive) {
-                        botState = String.valueOf(Runecrafting.getScriptstate());
-                    } else {
-                        botState = String.valueOf(getBotState());
-                    }
-
-                    if (botState.equals("SKILLING")) {
-                        setStyleColor(ImGuiCol.Text, 0, 255, 0, 255); // RGBA: Green
-                    } else if (botState.equals("BANKING")) {
-                        setStyleColor(ImGuiCol.Text, 255, 0, 0, 255); // RGBA: Red
-                    } else {
-                        setStyleColor(ImGuiCol.Text, 255, 255, 255, 255); // RGBA: White
-                    }
-
-                    if (Runecrafting.currentState == ScriptState.IDLE) {
-                        setStyleColor(ImGuiCol.Text, 255, 165, 0, 255); // RGBA: Orange
-                    } else if (Runecrafting.currentState == ScriptState.BANKING) {
-                        setStyleColor(ImGuiCol.Text, 255, 0, 0, 255); // RGBA: Red
-                    } else if (Runecrafting.currentState == ScriptState.TELEPORTING || Runecrafting.currentState == ScriptState.INTERACTINGWITHPORTAL) {
-                        setStyleColor(ImGuiCol.Text, 128, 0, 128, 255); // RGBA: Purple
-                    } else if (Runecrafting.currentState == ScriptState.CRAFTING) {
-                        setStyleColor(ImGuiCol.Text, 0, 255, 0, 255); // RGBA: Green
-                    } else if (Runecrafting.currentState == ScriptState.TELEPORTINGTOBANK) {
-                        setStyleColor(ImGuiCol.Text, 128, 0, 128, 255); // RGBA: Purple
-                    } else {
-                        setStyleColor(ImGuiCol.Text, 255, 255, 255, 255);
-                    }
                     ImGui.SetCursorPosY(12);
                     ImGui.SetCursorPosX(10);
 
-                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 20, 10); // Increase height padding
+                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 20, 10);
                     ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 5);
                     ImGui.PushStyleColor(ImGuiCol.Button,0, 0, 0, 0);
                     ImGui.PushStyleColor(ImGuiCol.Text, 1, 1, 1, 1);
                     ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0, 0, 0, 0);
 
 
-                    float buttonWidth = 580.0f - 2 * 20; // Width of BeginChild minus padding on both sides
+                    float buttonWidth = 580.0f - 2 * 20;
 
-                    ImGui.SetItemWidth(buttonWidth); // Set the button width
+                    ImGui.SetItemWidth(buttonWidth);
 
-                    ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0); // Set the border color to transparent
-                    ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0); // Set the border color to transparent
+                    ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0);
+                    ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0);
 
 
 
-                    if (ImGui.Button("Enable Tooltips")) { // Set the button size
+                    if (ImGui.Button("Enable Tooltips")) {
                         tooltipsEnabled = !tooltipsEnabled;
                     }
 
-                    ImGui.PopStyleColor(2); // Reset the border color to the default value
+                    ImGui.PopStyleColor(2);
 
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Enable or disable tooltips in the Options tab");
                     }
 
-                    ImGui.SameLine(); // This will place the next button on the same line
+                    ImGui.SameLine();
 
-                    ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0); // Set the border color to transparent
-                    ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0); // Set the border color to transparent
+                    ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0);
+                    ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0);
 
-                    if (ImGui.Button("Logs")) { // Set the button size
+                    if (ImGui.Button("Logs")) {
                         showLogs = !showLogs;
                     }
 
-                    ImGui.PopStyleColor(2); // Reset the border color to the default value
+                    ImGui.PopStyleColor(2);
 
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Show Console Logs");
@@ -2175,7 +2143,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         return "None";
     }
     private void createCenteredButton(String buttonText, Runnable onClick, boolean isClicked) {
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0.0f); // Control the frame rounding
+        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0.0f);
 
         if (isClicked) {
             if (PurpleThemeSelected) {
@@ -2207,19 +2175,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         }
         ImGui.PopStyleVar(2);
         ImGui.PopStyleColor(3);
-    }
-
-
-
-
-    private String formatNumberForDisplay(double number) {
-        if (number < 1000.0) {
-            return String.format("%.0f", number);
-        } else if (number < 1000000.0) {
-            return String.format("%.1fk", number / 1000.0);
-        } else {
-            return number < 1.0E9 ? String.format("%.1fM", number / 1000000.0) : String.format("%.1fB", number / 1.0E9);
-        }
     }
 
     @Override

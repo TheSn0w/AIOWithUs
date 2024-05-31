@@ -1,27 +1,20 @@
 package net.botwithus.Misc;
 
 import net.botwithus.SnowsScript;
-import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
-import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
-import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
-import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
-import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.SelectableAction;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.BotState.IDLE;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 

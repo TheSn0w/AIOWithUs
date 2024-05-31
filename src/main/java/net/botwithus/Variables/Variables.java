@@ -47,8 +47,6 @@ public class Variables {
     public static SnowsScript.BotState botState = IDLE;
     public static final Map<BooleanSupplier, Runnable> skillingTasks = new HashMap<>();
     public static Coordinate lastSkillingLocation;
-    public static Instant scriptStartTime;
-    public static long runStartTime;
     public static Random random = new Random();
     public static boolean archaeologistsTea = false;
     public static boolean hiSpecMonocle = false;
@@ -67,9 +65,6 @@ public class Variables {
     public static boolean animateDead = false;
     public static boolean usequickPrayers = false;
     public static boolean useScrimshaws = false;
-    public static boolean DeflectMagic = false;
-    public static boolean DeflectMissiles = false;
-    public static boolean DeflectMelee = false;
     public static boolean KeepArmyup = false;
     public static int prayerPointsThreshold = 5000;
     public static int healthPointsThreshold = 50;
@@ -177,9 +172,9 @@ public class Variables {
 
     public static TaskScheduler getActiveTask() {
         if (!tasks.isEmpty()) {
-            return tasks.get(0); // Return the first task in the list
+            return tasks.get(0);
         }
-        return null; // Return null if the list is empty
+        return null;
     }
 
     public static final NativeInteger spiritStone_current_idx = new NativeInteger(0);

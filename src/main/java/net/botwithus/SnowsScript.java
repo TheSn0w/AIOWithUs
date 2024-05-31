@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import static ImGui.Theme.*;
 import static net.botwithus.Combat.*;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Runecrafting.ScriptState.IDLE;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.TaskScheduler.shutdown;
@@ -39,24 +40,25 @@ import static net.botwithus.Variables.Variables.*;
 
 
 public class SnowsScript extends LoopingScript {
-
-
+    private static BotState botState = BotState.IDLE;
+    public static long runStartTime;
+    public static Instant startTime;
 
     public static void setBotState(BotState state) {
-        botState = state; // Method to set botState
+        botState = state;
+    }
+    public static BotState getBotState() {
+        return botState;
     }
 
-    public static BotState getBotState() {
-        return botState; // Method to get botState
-    }
+
 
     public enum BotState {
         IDLE,
         SKILLING,
         BANKING,
     }
-    public static long runStartTime;
-    public static Instant startTime;
+
 
 
     public SnowsScript(String s, ScriptConfig scriptConfig, ScriptDefinition scriptDefinition) {

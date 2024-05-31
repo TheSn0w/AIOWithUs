@@ -1,7 +1,6 @@
 package net.botwithus.Misc;
 
 import net.botwithus.SnowsScript;
-import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
@@ -15,7 +14,6 @@ import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 

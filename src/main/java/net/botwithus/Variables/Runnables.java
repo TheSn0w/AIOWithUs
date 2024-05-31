@@ -123,7 +123,6 @@ public class Runnables {
 
     public static void handleMisc() {
         LocalPlayer player = Client.getLocalPlayer();
-        int randomDelay = RandomGenerator.nextInt(100, 200); // Example random delay
 
         if (player != null) {
             if (isMiscActive) {
