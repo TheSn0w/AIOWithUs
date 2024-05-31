@@ -349,11 +349,14 @@ public class bank {
 
     public static boolean depositAllExcept(int... ids) {
         var idSet = Arrays.stream(ids).boxed().collect(Collectors.toSet());
-        var items = ComponentQuery.newQuery(517).results().stream().filter(
-                        i -> !idSet.contains(i.getItemId()) && (i.getOptions().contains("Deposit-All") || i.getOptions().contains("Deposit-1")))
+        var query = ComponentQuery.newQuery(517);
+        var items = query.results().stream()
+                .filter(i -> !idSet.contains(i.getItemId()))
                 .map(Component::getItemId)
                 .collect(Collectors.toSet());
-        return !items.stream().map(i -> depositAll(ComponentQuery.newQuery(517).item(i))).toList().contains(false);
+        return items.stream()
+                .map(i -> depositAll(query.item(i)))
+                .allMatch(Boolean::booleanValue);
     }
 
     public static boolean depositAllExcept(Pattern... patterns) {

@@ -5,6 +5,8 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.bank;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
@@ -16,6 +18,7 @@ import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -30,12 +33,15 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
 import static net.botwithus.Runecrafting.player;
 import static net.botwithus.SnowsScript.getLastSkillingLocation;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.inventory.bank.depositAll;
+import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Archeology {
     public static Random random = new Random();
@@ -112,7 +118,7 @@ public class Archeology {
             if (Backpack.contains("Sign of the porter VII") && VarManager.getInvVarbit(94, 2, 30214) < 250) {
                 ScriptConsole.println("[Archaeology] Porters have less than 250 charges. Charging.");
                 ScriptConsole.println("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
-                boolean interactionResult = Equipment.interact(Equipment.Slot.NECK, "Charge all porters");
+                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                 if (interactionResult) {
                     ScriptConsole.println("[Debug] Interaction with Equipment was successful.");
                 } else {
@@ -396,7 +402,7 @@ public class Archeology {
 
     private static void depositAllExceptSelectedItems() {
         int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753};
-        Bank.depositAllExcept(itemIdsToKeep);
+        bank.depositAllExcept(itemIdsToKeep);
     }
 
     private static void logItemsDeposited() {
