@@ -29,42 +29,6 @@ public class Fishing {
     private static Random random = new Random();
     public SnowsScript skeletonScript;
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isFishingActive) {
-            if (message.contains("You catch a")) {
-                String[] words = message.split(" ");
-                int startIndex = 0;
-                for (int i = 0; i < words.length; i++) {
-                    if (words[i].equals("a")) {
-                        startIndex = i + 1;
-                        break;
-                    }
-                }
-                String fishType = String.join(" ", Arrays.copyOfRange(words, startIndex, words.length));
-                fishType = fishType.split("Already cooked")[0].trim();
-                fishType = fishType.replace(".", "");
-                int count = fishCaughtCount.getOrDefault(fishType, 0);
-                fishCaughtCount.put(fishType, count + 1);
-            }
-            if (message.contains("You catch some")) {
-                String[] words = message.split(" ");
-                int startIndex = 0;
-                for (int i = 0; i < words.length; i++) {
-                    if (words[i].equals("some")) {
-                        startIndex = i + 1;
-                        break;
-                    }
-                }
-                String fishType = String.join(" ", Arrays.copyOfRange(words, startIndex, words.length));
-                fishType = fishType.split("Already cooked")[0].trim();
-                fishType = fishType.replace(".", "");
-                int count = fishCaughtCount.getOrDefault(fishType, 0);
-                fishCaughtCount.put(fishType, count + 1);
-            }
-        }
-    }
-
     private static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);

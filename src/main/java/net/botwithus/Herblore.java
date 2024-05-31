@@ -22,17 +22,6 @@ public class Herblore {
     }
     private static final Random random = new Random();
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isHerbloreActive) {
-            if (message.contains("You mix the ingredients")) {
-                String potionType = "Potions Made";
-                int count = Potions.getOrDefault(potionType, 0);
-                Potions.put(potionType, count + 1);
-            }
-        }
-    }
-
     public static long handleHerblore(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {
             return random.nextInt(600, 800);

@@ -88,27 +88,6 @@ public class Runecrafting {
             }
         }
     }
-    void onInventoryUpdate(InventoryUpdateEvent event) {
-        if (event.getInventoryId() != 93) {
-            return;
-        }
-        if (isRunecraftingActive) {
-            String itemName = event.getNewItem().getName();
-            List<String> runeNames = Arrays.asList("Miasma rune", "Flesh rune", "Spirit rune", "Bone rune");
-
-            if (runeNames.contains(itemName)) {
-                int newCount = event.getNewItem().getStackSize();
-
-                int currentCount = Variables.runeCount.getOrDefault(itemName, 0);
-
-                int totalRuneCount = currentCount + newCount;
-
-                runeCount.put(itemName, totalRuneCount);
-                ScriptConsole.println("Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
-                Runecrafting.currentState = TELEPORTINGTOBANK;
-            }
-        }
-    }
 
     public enum ScriptState {
         IDLE,

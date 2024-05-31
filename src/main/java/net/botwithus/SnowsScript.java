@@ -28,7 +28,6 @@ import net.botwithus.rs3.script.config.ScriptConfig;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
@@ -223,7 +222,7 @@ public class SnowsScript extends LoopingScript {
 
                 runeCount.put(itemName, totalRuneCount);
                 ScriptConsole.println("Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
-                Runecrafting.currentState = TELEPORTINGTOBANK;
+                Runecrafting.setCurrentState(TELEPORTINGTOBANK);
             }
         }
         if (isDivinationActive) {

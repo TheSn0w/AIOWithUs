@@ -51,23 +51,6 @@ public class Mining {
         coordinateMap.put("Iron rock", new Coordinate(3180, 3368, 0));
 
     }
-    void onInventoryUpdate(InventoryUpdateEvent event) {
-        if (event.getInventoryId() != 93) {
-            return;
-        }
-        if (isMiningActive) {
-            String itemName = event.getNewItem().getName(); // Assume adding items only
-            int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-            int newCount = event.getNewItem().getStackSize();
-            if (newCount > oldCount) {
-                int quantity = newCount - oldCount;
-
-                int count = types.getOrDefault(itemName, 0);
-
-                types.put(itemName, count + quantity);
-            }
-        }
-    }
 
 
     public static boolean isNearPlayer(LocalPlayer player, List<String> selectedRockNames) {

@@ -53,44 +53,6 @@ public class Combat {
     public static SnowsScript skeletonScript;
     private static Random random = new Random();
 
-    void onInventoryUpdate(InventoryUpdateEvent event) {
-        if (event.getInventoryId() != 93) {
-            return;
-        }
-        if (isCombatActive) {
-            String itemName = event.getNewItem().getName();
-            if (itemName.endsWith(" charm")) {
-                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-                int newCount = event.getNewItem().getStackSize();
-                if (newCount > oldCount) {
-                    int quantity = newCount - oldCount;
-
-                    Map<String, Integer> charmMap;
-                    switch (itemName) {
-                        case "Blue charm":
-                            charmMap = BlueCharms;
-                            break;
-                        case "Crimson charm":
-                            charmMap = CrimsonCharms;
-                            break;
-                        case "Green charm":
-                            charmMap = GreenCharms;
-                            break;
-                        case "Gold charm":
-                            charmMap = GoldCharms;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    int currentCount = charmMap.getOrDefault(itemName, 0);
-                    charmMap.put(itemName, currentCount + quantity);
-                }
-            }
-        }
-    }
-
-
     public static long attackTarget(LocalPlayer player) {
         if (player == null) {
             return logAndDelay("[attackTarget] Local player not found.", 1500, 3000);

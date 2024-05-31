@@ -37,22 +37,6 @@ import static net.botwithus.Variables.Variables.*;
 public class Divination {
     private static Random random = new Random();
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isDivinationActive) {
-            if (message.contains("You capture the chronicle fragment and place it in your inventory")) {
-                String chronicleType = "Chronicle fragment";
-                int count = chroniclesCaughtCount.getOrDefault(chronicleType, 0);
-                chroniclesCaughtCount.put(chronicleType, count + 1);
-            }
-            if (message.contains("Your divination outfit")) {
-                String chronicleType = "Chronicle fragment";
-                int count = chroniclesCaughtCount.getOrDefault(chronicleType, 0);
-                chroniclesCaughtCount.put(chronicleType, count + 2);
-            }
-        }
-    }
-
     public static long handleDivination(LocalPlayer player) {
         int divinationLevel = Skills.DIVINATION.getActualLevel();
         String wispName = getWispName(divinationLevel);
