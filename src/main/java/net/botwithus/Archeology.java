@@ -616,7 +616,7 @@ public class Archeology {
     public static long backpackIsFull(LocalPlayer player) {
         if (Backpack.contains("Archaeological soil box")) {
             backpack.interact("Archaeological soil box", "Fill");
-            ScriptConsole.println("[Archeology] Filling soil box.");
+            ScriptConsole.println("[Archaeology] Filling soil box.");
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
 
