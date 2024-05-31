@@ -22,6 +22,7 @@ import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.IDLE;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 public class Dissasembler {
@@ -53,8 +54,8 @@ public class Dissasembler {
                                     log("[Error] Valuable item warning detected, but setting not enabled in the UI. Removing task.");
                                     return random.nextLong(1500, 3000);
                                 }
-                                if (task.getAmountDisassembled() >= itemMenuSize) { // Check if we have disassembled the required amount
-                                    tasks.remove(task); // Remove the task from the list
+                                if (task.getAmountDisassembled() >= itemMenuSize) {
+                                    tasks.remove(task);
                                 }
                                 return random.nextLong(1500, 3000);
                             }
@@ -69,14 +70,7 @@ public class Dissasembler {
                 }
             }
         }
-        log("[Disassembler] Returning from Dissasemble method...");
-        shutdown();
         return random.nextLong(750, 1250);
-    }
-    public static void shutdown() {
-        SnowsScript.setBotState(IDLE);
-        LoginManager.setAutoLogin(false);
-        MiniMenu.interact(14, 1, -1, 93913156);
     }
 
     public static long castHighLevelAlchemy(LocalPlayer player) {
@@ -115,8 +109,6 @@ public class Dissasembler {
                 }
             }
         }
-        log("[High Alchemy] Returning from Dissasemble method...");
-        shutdown();
         return random.nextLong(1750, 2500);
     }
 }

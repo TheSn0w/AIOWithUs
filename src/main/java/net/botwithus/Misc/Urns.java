@@ -24,13 +24,14 @@ import java.util.Random;
 public class Urns {
     SnowsScript script;
     private static Random random = new Random();
-    public static boolean makeUrn = true;
+    public static boolean isMakeUrnsActive = false;
+    public static boolean makeUrn = false;
 
     public Urns(SnowsScript script) {
         this.script = script;
     }
 
-    private long useclayCrafting() {
+    public static long useclayCrafting() {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Portable crafter").option("Clay Crafting").results();
         EntityResultSet<SceneObject> bankChest = SceneObjectQuery.newQuery().name("Bank chest").option("Bank").results();
 
@@ -69,31 +70,31 @@ public class Urns {
         return 0;
     }
 
-    private long handleFormClayInterface() {
+    private static long handleFormClayInterface() {
         Dialog.interact("Form Clay");
         ScriptConsole.println("Interacting with Form Clay");
         return random.nextLong(400, 600);
     }
 
-    private long handleCreateAllInterface() {
+    private static long handleCreateAllInterface() {
         MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
         ScriptConsole.println("Interacting with Create All");
         return random.nextLong(400, 600);
     }
 
-    private long interactWithPortable(EntityResultSet<SceneObject> results) {
+    private static long interactWithPortable(EntityResultSet<SceneObject> results) {
         results.nearest().interact("Clay Crafting");
         ScriptConsole.println("Interacting with Portable");
         return random.nextLong(400, 600);
     }
 
-    private long loadLastPreset(EntityResultSet<SceneObject> bankChest) {
+    private static long loadLastPreset(EntityResultSet<SceneObject> bankChest) {
         bankChest.nearest().interact("Load Last Preset from");
         ScriptConsole.println("Loading Last Preset");
         return random.nextLong(400, 600);
     }
 
-    private long deployPortableCrafter() {
+    private static long deployPortableCrafter() {
         backpack.interact("Portable crafter", "Deploy");
         ScriptConsole.println("Deploying Portable Crafter");
         Execution.delay(random.nextLong(500, 700));
@@ -105,7 +106,7 @@ public class Urns {
         }
         return 0;
     }
-    private long handleFireClayInterface() {
+    private static long handleFireClayInterface() {
         Dialog.interact("Fire Clay");
         ScriptConsole.println("Interacting with Fire Clay");
         return random.nextLong(400, 600);

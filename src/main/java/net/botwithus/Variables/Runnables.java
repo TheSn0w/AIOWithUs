@@ -10,6 +10,7 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.Collections;
 import java.util.List;
 
+import static net.botwithus.Misc.Urns.*;
 import static net.botwithus.Variables.Variables.*;
 
 public class Runnables {
@@ -162,6 +163,9 @@ public class Runnables {
                 }
                 if (isSiftSoilActive) {
                     Execution.delay(SiftSoil.handleSoil(player));
+                }
+                if (isMakeUrnsActive) {
+                    Execution.delay(useclayCrafting());
                 }
             }
         }

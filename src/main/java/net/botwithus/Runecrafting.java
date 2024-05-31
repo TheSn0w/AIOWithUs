@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.*;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 public class Runecrafting {
@@ -224,7 +225,7 @@ public class Runecrafting {
                 } else {
                     if (!Backpack.isFull()) {
                         log("[Error] Essence not found in backpack after loading preset.");
-                        performLogout();
+                        shutdown();
                     }
                 }
             }
@@ -260,7 +261,7 @@ public class Runecrafting {
                 } else {
                     if (!Backpack.isFull()) {
                         log("[Error] Essence not found in backpack after loading preset.");
-                        performLogout();
+                        shutdown();
                     }
                 }
             }
@@ -314,7 +315,7 @@ public class Runecrafting {
                 } else {
                     if (!Backpack.isFull()) {
                         log("[Error] Essence not found in backpack after loading preset.");
-                        checkBackpackAndLogoutIfNeeded();
+                        shutdown();
                     }
                 }
             }
@@ -322,20 +323,20 @@ public class Runecrafting {
     }
 
 
-    private void checkBackpackAndLogoutIfNeeded() {
+    /*private void checkBackpackAndLogoutIfNeeded() {
         if (!Backpack.isFull()) {
             performLogout();
             log("[Error] Backpack is not full, logging out.");
         }
-    }
+    }*/
 
-    public static void performLogout() {
+    /*public static void performLogout() {
         if (initiateLogoutSequence()) {
             waitForLogout();
         }
-    }
+    }*/
 
-    private static boolean initiateLogoutSequence() {
+    /*private static boolean initiateLogoutSequence() {
         component(1, 7, 93782016);
         return Interfaces.isOpen(1433);
     }
@@ -359,7 +360,7 @@ public class Runecrafting {
         } else {
             log("[Error] Failed to open logout menu.");
         }
-    }
+    }*/
 
     private static void interactWithRing() {
         if (notWearingRing && Backpack.isFull()) {

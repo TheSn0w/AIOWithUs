@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.component;
 import static net.botwithus.Variables.Variables.dialog;
 
@@ -37,21 +38,26 @@ public class SiftSoil {
             return random.nextLong(750, 1050);
         }
         if (Backpack.containsItemByCategory(4603)) {
-            int count = 0;
-            String itemName = "";
-            List<Item> items = Backpack.getItems();
-            for (Item item : items) {
-                if (item.getConfigType().getCategory() == 4603) {
-                    count++;
-                    itemName = item.getName();
+            if (Backpack.isFull()) {
+                int count = 0;
+                String itemName = "";
+                List<Item> items = Backpack.getItems();
+                for (Item item : items) {
+                    if (item.getConfigType().getCategory() == 4603) {
+                        count++;
+                        itemName = item.getName();
+                    }
                 }
+                log("[Sift Soil] Backpack contains: " + count + " " + itemName);
+                mesh.random().interact("Screen");
+                log("[Sift Soil] Interacting with Mesh.");
+                return random.nextLong(750, 1050);
+            } else {
+                log("[Error] Backpack does not contain the correct item.");
+                shutdown();
+                return random.nextLong(750, 1050);
             }
-            log("[Sift Soil] Backpack contains: " + count + " " + itemName);
-            mesh.random().interact("Screen");
-            log("[Sift Soil] Interacting with Mesh.");
-            return random.nextLong(750, 1050);
         } else {
-            log("[Error] Backpack does not contain the correct item.");
             EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
             if (!chestResults.isEmpty()) {
                 log("[Sift Soil] Interacting with Bank chest.");

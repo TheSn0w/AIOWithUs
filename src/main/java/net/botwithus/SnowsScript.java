@@ -34,6 +34,7 @@ import static net.botwithus.Combat.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 
@@ -253,6 +254,12 @@ public class SnowsScript extends LoopingScript {
             return;
         }
         String message = event.getMessage();
+        if (isSiftSoilActive) {
+            if (message.contains("Item could not be found")) {
+                log("[Error] Item could not be found, logging off");
+                shutdown();
+            }
+        }
         if (isGemCutterActive) {
             if (message.startsWith("You cut the")) {
                 String gemName = message.substring(11, message.length() - 1);
@@ -640,9 +647,11 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("isdivinechargeActive", String.valueOf(isdivinechargeActive));
         this.configuration.addProperty("OrangeThemeSelected", String.valueOf(OrangeThemeSelected));
         this.configuration.addProperty("BlueThemeSelected", String.valueOf(BlueThemeSelected));
-        this.configuration.addProperty("GreenThemeSelected", String.valueOf(PurpleThemeSelected));
+        this.configuration.addProperty("PurpleThemeSelected", String.valueOf(PurpleThemeSelected));
         this.configuration.addProperty("RedThemeSelected", String.valueOf(RedThemeSelected));
-        this.configuration.addProperty("PurpleThemeSelected", String.valueOf(YellowThemeSelected));
+        this.configuration.addProperty("YellowThemeSelected", String.valueOf(YellowThemeSelected));
+        this.configuration.addProperty("GreenThemeSelected", String.valueOf(GreenThemeSelected));
+        this.configuration.addProperty("isSiftSoilActive", String.valueOf(isSiftSoilActive));
         this.configuration.save();
     }
 
@@ -717,10 +726,12 @@ public class SnowsScript extends LoopingScript {
             useAlchamise = Boolean.parseBoolean(this.configuration.getProperty("useAlchamise"));
             useDisassemble = Boolean.parseBoolean(this.configuration.getProperty("useDisassemble"));
             OrangeThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("OrangeThemeSelected"));
-            PurpleThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("GreenThemeSelected"));
+            PurpleThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("PurpleThemeSelected"));
             BlueThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("BlueThemeSelected"));
             RedThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("RedThemeSelected"));
-            YellowThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("PurpleThemeSelected"));
+            YellowThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("YellowThemeSelected"));
+            GreenThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("GreenThemeSelected"));
+            isSiftSoilActive = Boolean.parseBoolean(this.configuration.getProperty("isSiftSoilActive"));
             String loadedItemToDisassemble = this.configuration.getProperty("selectedItemToDisassemble");
             if (loadedItemToDisassemble != null && !loadedItemToDisassemble.isEmpty()) {
                 Item = loadedItemToDisassemble;
