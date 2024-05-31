@@ -2,6 +2,7 @@ package net.botwithus;
 
 import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
+import ImGui.SnowScriptGraphics;
 
 import static net.botwithus.SnowsScript.BotState.IDLE;
 
@@ -33,6 +34,7 @@ public class TaskScheduler {
 
     public static void shutdown() {
         SnowsScript.setBotState(IDLE);
+        SnowScriptGraphics.setScriptStatus(false);
         LoginManager.setAutoLogin(false);
         MiniMenu.interact(14, 1, -1, 93913156);
     }

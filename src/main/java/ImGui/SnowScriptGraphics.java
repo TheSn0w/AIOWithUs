@@ -32,7 +32,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
     SnowsScript script;
     public Instant startTime;
-    boolean ScriptisOn = false;
+    public static boolean ScriptisOn = false;
     private long totalElapsedTime = 0;
     private boolean tooltipsEnabled = false;
     public String saveSettingsFeedbackMessage = "";
@@ -44,6 +44,9 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         this.script = script;
         this.startTime = Instant.now();
         System.currentTimeMillis();
+    }
+    public static void setScriptStatus(boolean status) {
+        ScriptisOn = status;
     }
 
 

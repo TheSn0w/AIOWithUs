@@ -4,10 +4,8 @@ import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
-import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
-import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 
@@ -15,8 +13,6 @@ import java.util.List;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.TaskScheduler.shutdown;
-import static net.botwithus.Variables.Variables.component;
 import static net.botwithus.Variables.Variables.dialog;
 
 public class SiftSoil {
@@ -38,7 +34,6 @@ public class SiftSoil {
             return random.nextLong(750, 1050);
         }
         if (Backpack.containsItemByCategory(4603)) {
-            if (Backpack.isFull()) {
                 int count = 0;
                 String itemName = "";
                 List<Item> items = Backpack.getItems();
@@ -52,11 +47,6 @@ public class SiftSoil {
                 mesh.random().interact("Screen");
                 log("[Sift Soil] Interacting with Mesh.");
                 return random.nextLong(750, 1050);
-            } else {
-                log("[Error] Backpack does not contain the correct item.");
-                shutdown();
-                return random.nextLong(750, 1050);
-            }
         } else {
             EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
             if (!chestResults.isEmpty()) {
