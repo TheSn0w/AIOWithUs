@@ -501,15 +501,10 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
 
             if (ImGui.BeginChild("Column1", childWidth, windowHeight, true, 0)) {
-
-                float buttonW1 = 145;
-                float buttonW2 = 145;
-                float windowW = 180;
                 String buttonText;
                 float textWidth1;
                 float padding;
 
-// Start/Stop Script Button
                 buttonText = ScriptisOn ? "Stop Script" : "Start Script";
                 textWidth1 = ImGui.CalcTextSize(buttonText).getX();
                 padding = (childWidth - textWidth1) / 2;
@@ -527,8 +522,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     }
                 }
                 ImGui.PopStyleVar(1);
-
-// Save Settings Button
                 buttonText = "Save Settings";
                 textWidth1 = ImGui.CalcTextSize(buttonText).getX();
                 padding = (childWidth - textWidth1) / 2;
@@ -556,8 +549,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 boolean rcselected = isRunecraftingActive;
                 boolean miscselected = isMiscActive;
                 boolean herbloreselcted = isHerbloreActive;
-
-// Check if any checkbox is selected
                 boolean anySelected =
                         agilitySelected ||
                                 divinationSelected ||
