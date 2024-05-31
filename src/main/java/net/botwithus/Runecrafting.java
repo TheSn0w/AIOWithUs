@@ -1,18 +1,14 @@
 package net.botwithus;
 
-import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
-import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
-import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -31,8 +27,6 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +40,7 @@ public class Runecrafting {
         this.skeletonScript = script; // Initialize with the correct instance
     }
 
-    public SnowsScript skeletonScript; // Store a reference to SkeletonScript
+    public SnowsScript skeletonScript;
     private static long lastMovedOrAnimatedTime = System.currentTimeMillis();
     public static ScriptState currentState = IDLE;
     private static Random random = new Random();
@@ -193,20 +187,20 @@ public class Runecrafting {
 
 
     public static void HopWorlds(int world) {
-        MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, 7, 93782016);
+        component( 1, 7, 93782016);
         boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
         Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
         if (hopperOpen) {
             Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
             if (HopWorldsMenu != null) {
-                MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 93913153);
+                component( 1, -1, 93913153);
                 ScriptConsole.println("Hop Worlds Button Clicked.");
                 boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
                 Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
                 if (worldSelectOpen) {
-                    MiniMenu.interact(ComponentAction.COMPONENT.getType(), 2, world, 104005640);
+                    component(2, world, 104005640);
                     Execution.delay(RandomGenerator.nextInt(10000, 20000));
                 }
             } else {
@@ -356,7 +350,7 @@ public class Runecrafting {
     }
 
     private static boolean initiateLogoutSequence() {
-        MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, 7, 93782016);
+        component(1, 7, 93782016);
         return Interfaces.isOpen(1433);
     }
 
@@ -388,7 +382,7 @@ public class Runecrafting {
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             ScriptConsole.println("Using Ring of Passing");
             if (Interfaces.isOpen(720)) {
-                MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
+                dialog(0, -1, 47185940);
                 ScriptConsole.println("Interacting with Haunt on the Hill");
                 Execution.delay(RandomGenerator.nextInt(3500, 5000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
@@ -398,7 +392,7 @@ public class Runecrafting {
         } else if (WearingRing && Backpack.isFull()) {
             ResultSet<Item> results = InventoryItemQuery.newQuery().ids(56416).option("City of Um: Haunt on the Hill").results();
             if (!results.isEmpty()) {
-                MiniMenu.interact(ComponentAction.COMPONENT.getType(), 3, 9, 95944719);
+                component(3, 9, 95944719);
                 Execution.delay(RandomGenerator.nextInt(3500, 5000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
@@ -733,7 +727,7 @@ public class Runecrafting {
             return random.nextLong(1500, 3000);
         }
         if (Interfaces.isOpen(1370)) {
-            MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
+            dialog( 0, -1, 89784350);
             ScriptConsole.println("Selecting 'Weave'");
             return random.nextLong(1500, 3000);
         }

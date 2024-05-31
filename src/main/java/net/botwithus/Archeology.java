@@ -109,14 +109,21 @@ public class Archeology {
             return backpackIsFull(player);
         }
         if (useGote) {
-            if (Backpack.contains("Sign of the porter VII")) {
-                ScriptConsole.println("[Archaeology] We have Porters in the inventory. Checking charges.");
-                if (VarManager.getInvVarbit(94, 2, 30214) < 250) {
-                    ScriptConsole.println("[Archaeology] Porters have less than 250 charges. Charging.");
-                    Equipment.interact(Equipment.Slot.NECK, "Charge all porters");
-                    Execution.delay(RandomGenerator.nextInt(1500, 3000));
+            if (Backpack.contains("Sign of the porter VII") && VarManager.getInvVarbit(94, 2, 30214) < 250) {
+                ScriptConsole.println("[Archaeology] Porters have less than 250 charges. Charging.");
+                ScriptConsole.println("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
+                boolean interactionResult = Equipment.interact(Equipment.Slot.NECK, "Charge all porters");
+                if (interactionResult) {
+                    ScriptConsole.println("[Debug] Interaction with Equipment was successful.");
+                } else {
+                    ScriptConsole.println("[Debug] Interaction with Equipment failed.");
                 }
+                Execution.delay(RandomGenerator.nextInt(1500, 3000));
+            } else {
+                ScriptConsole.println("[Debug] Porters have 250 or more charges.");
             }
+        } else {
+            ScriptConsole.println("[Debug] No 'Sign of the porter VII' found in the Backpack.");
         }
         if (archaeologistsTea || materialManual || hiSpecMonocle) {
             if (archaeologistsTea) {
@@ -423,7 +430,7 @@ public class Archeology {
             int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
             boolean withdrew;
             if (VarManager.getVarbitValue(45189) != 7) {
-                MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 33882215);
+                component(1, -1, 33882215);
             }
             withdrew = Bank.withdraw(selectedPorter, quantity);
             if (withdrew) {
@@ -543,16 +550,16 @@ public class Archeology {
 
     private static void interactWithDialogOption(List<String> selectedArchNames) {
         if ((selectedArchNames.contains("Sacrificial altar") || selectedArchNames.contains("Dis dungeon debris") || selectedArchNames.contains("Cultist footlocker"))) {
-            MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
+            dialog(0, -1, 47185940);
             ScriptConsole.println("[Archaeology] Selecting: Dungeon of Disorder.");
         } else if ((selectedArchNames.contains("Lodge bar storage") || selectedArchNames.contains("Lodge art storage"))) {
-            MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185921);
+            dialog(0, -1, 47185921);
             ScriptConsole.println("[Archaeology] Selecting: Star Lodge cellar.");
         } else if ((selectedArchNames.contains("Legionary remains") || selectedArchNames.contains("Castra debris") || selectedArchNames.contains("Administratum debris"))) {
-            MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185921);
+            dialog(0, -1, 47185921);
             ScriptConsole.println("[Archaeology] Selecting: Main Fortress.");
         } else if (selectedArchNames.contains("Praesidio remains") || selectedArchNames.contains("Carcerem debris")) {
-            MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
+            dialog(0, -1, 47185940);
             ScriptConsole.println("[Archaeology] Selecting: Prison block.");
         } else {
             ScriptConsole.println("[Error] No valid dialog option found.");

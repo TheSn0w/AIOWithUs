@@ -6,7 +6,6 @@ import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.inventory.backpack;
-import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -14,8 +13,6 @@ import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
-import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -917,7 +914,7 @@ public class Combat {
             if (nearestKags != null && nearestKags.interact("Travel")) {
                 Execution.delayUntil((5000), () -> Interfaces.isOpen(1188));
                 if (Interfaces.isOpen(1188)) {
-                    MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 77856776);
+                    dialog( 0, -1, 77856776);
                     Execution.delay(RandomGenerator.nextInt(5000, 8000));
                     return true;
                 }
@@ -1031,24 +1028,21 @@ public class Combat {
 
         EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
         while (Aqueduct.isEmpty()) {
-            Execution.delay(1000);  // Delay to prevent rapid, unnecessary CPU usage
+            Execution.delay(1000);
             Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
         }
 
-        // Interact with aqueduct, delay until interface is open 1591
         SceneObject nearestAqueduct = Aqueduct.nearest();
         nearestAqueduct.interact("Enter");
         Execution.delayUntil(random.nextLong(10000, 15000), () -> Interfaces.isOpen(1591));
 
-        // If interface is open, minimenu.interact
         if (Interfaces.isOpen(1591)) {
-            MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 104267836);
+            component( 1, -1, 104267836);
             Execution.delay(random.nextLong(2500, 3500));
         } else {
             return false;
         }
 
-        // Movement.walk to +11 and -4
         Movement.walkTo(player.getCoordinate().getX() + 11, player.getCoordinate().getY() -4 , true);
 
         return true;

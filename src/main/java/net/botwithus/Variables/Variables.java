@@ -3,6 +3,8 @@ package net.botwithus.Variables;
 import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.minimenu.MiniMenu;
+import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.script.ScriptConsole;
 
 import java.time.Instant;
@@ -138,6 +140,38 @@ public class Variables {
     public static boolean makeRefinedPlanks = false;
     public static boolean makeFrames = false;
     public static boolean isMiscActive = false;
+
+
+
+
+    //TODO
+
+    public static void dialog(int option1, int option2, int option3) {
+        MiniMenu.interact(ComponentAction.DIALOGUE.getType(), option1, option2, option3);
+    }
+    public static void component(int option1, int option2, int option3) {
+        MiniMenu.interact(ComponentAction.COMPONENT.getType(), option1, option2, option3);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static TaskScheduler getActiveTask() {
         if (!tasks.isEmpty()) {
