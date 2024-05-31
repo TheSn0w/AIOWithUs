@@ -44,9 +44,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     private boolean tooltipsEnabled = false;
     public String saveSettingsFeedbackMessage = "";
     static List<String> logMessages = new ArrayList<>();
-
-    boolean autoScrollToBottom = false;
     boolean showLogs = false;
+    public static boolean scrollToBottom = false;
+
 
 
 
@@ -681,19 +681,32 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
                     if (showLogs) {
-                        ImGui.SetScrollHereY(1.0f);
+                        if (ImGui.Button("Scroll to Bottom")) {
+                            scrollToBottom = true;
+                        }
+                        ImGui.SameLine();
                         ImGui.SeparatorText("Console Logs");
-                        for (String message : CustomLogger.getLogMessages()) {
-                            if (message.contains("[Error]")) {
-                                String[] parts = message.split(" ", 2);
-                                ImGui.PushStyleColor(ImGuiCol.Text,1.0f, 0.0f, 0.0f, 1.0f); // Red color for "[Archaeology]"
-                                ImGui.Text(parts[0]);
-                                ImGui.SameLine();
-                                ImGui.Text(parts[1]);
-                                ImGui.PopStyleColor(); // Revert the color back to the previous one
-                            } else {
-                                ImGui.Text(message);
+
+                        ImGui.SetCursorPosX(13);
+                        if (ImGui.BeginChild("LogRegion", 374, windowHeight - 57, true, 0)) {
+                            List<String> logMessages = CustomLogger.getLogMessages();
+                            for (String message : logMessages) {
+                                if (message.contains("[Error]")) {
+                                    String[] parts = message.split(" ", 2);
+                                    ImGui.PushStyleColor(ImGuiCol.Text, 1.0f, 0.0f, 0.0f, 1.0f);
+                                    ImGui.Text(parts[0]);
+                                    ImGui.SameLine();
+                                    ImGui.Text(parts[1]);
+                                    ImGui.PopStyleColor();
+                                } else {
+                                    ImGui.Text(message);
+                                }
                             }
+                            if (scrollToBottom) {
+                                ImGui.SetScrollHereY(1.0f);
+                                scrollToBottom = false;
+                            }
+                            ImGui.EndChild();  // End the child region
                         }
                     } else {
                         if (!anySelected) {
@@ -2295,7 +2308,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         showLogs = !showLogs;
                     }
                     if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Auto scroll to bottom");
+                        ImGui.SetTooltip("Show Console Logs");
                     }
 
                     ImGui.PopStyleVar(2);
