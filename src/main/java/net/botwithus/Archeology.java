@@ -332,6 +332,7 @@ public class Archeology {
             ScriptConsole.println("[Archaeology] Bank is open.");
 
             delayRandomly();
+            ScriptConsole.println("[Archaeology] Depositing all items except selected.");
             depositAllExceptSelectedItems();
             logItemsDeposited();
 
@@ -345,10 +346,10 @@ public class Archeology {
             delayRandomly();
             returnToLastLocation(player, selectedArchNames);
             return randomDelay();
+        } else {
+            ScriptConsole.println("[Archaeology] Bank did not open.");
+            return random.nextLong(750, 1250);
         }
-
-        ScriptConsole.println("[Archaeology] Bank did not open.");
-        return random.nextLong(750, 1250);
     }
 
     private static void interactWithBankChest() {
