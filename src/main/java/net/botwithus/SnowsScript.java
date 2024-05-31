@@ -23,7 +23,6 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
-import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.script.config.ScriptConfig;
 
 import java.time.Instant;
@@ -641,7 +640,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("isdivinechargeActive", String.valueOf(isdivinechargeActive));
         this.configuration.addProperty("OrangeThemeSelected", String.valueOf(OrangeThemeSelected));
         this.configuration.addProperty("BlueThemeSelected", String.valueOf(BlueThemeSelected));
-        this.configuration.addProperty("GreenThemeSelected", String.valueOf(GreenThemeSelected));
+        this.configuration.addProperty("GreenThemeSelected", String.valueOf(PurpleThemeSelected));
         this.configuration.addProperty("RedThemeSelected", String.valueOf(RedThemeSelected));
         this.configuration.addProperty("PurpleThemeSelected", String.valueOf(YellowThemeSelected));
         this.configuration.save();
@@ -718,7 +717,7 @@ public class SnowsScript extends LoopingScript {
             useAlchamise = Boolean.parseBoolean(this.configuration.getProperty("useAlchamise"));
             useDisassemble = Boolean.parseBoolean(this.configuration.getProperty("useDisassemble"));
             OrangeThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("OrangeThemeSelected"));
-            GreenThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("GreenThemeSelected"));
+            PurpleThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("GreenThemeSelected"));
             BlueThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("BlueThemeSelected"));
             RedThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("RedThemeSelected"));
             YellowThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("PurpleThemeSelected"));

@@ -1,21 +1,13 @@
 package ImGui;
 
 import net.botwithus.*;
-import net.botwithus.Misc.CaveNightshade;
-import net.botwithus.Misc.Dissasembler;
-import net.botwithus.Misc.PorterMaker;
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.imgui.*;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.script.ScriptGraphicsContext;
 import net.botwithus.Combat;
-import net.botwithus.Archeology;
 import net.botwithus.SnowsScript;
-import net.botwithus.Mining;
-import net.botwithus.Woodcutting;
-import net.botwithus.Fishing;
-import net.botwithus.Divination;
 import net.botwithus.Misc.Summoning;
 
 
@@ -29,7 +21,6 @@ import java.util.List;
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
-import static net.botwithus.Misc.Dissasembler.*;
 import static net.botwithus.Runecrafting.*;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -268,18 +259,20 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
 
 
-    public static boolean GreenThemeSelected = false;
+    public static boolean PurpleThemeSelected = false;
     public static boolean BlueThemeSelected = false;
     public static boolean RedThemeSelected = false;
     public static boolean OrangeThemeSelected = true;
     public static boolean YellowThemeSelected = false;
+    public static boolean GreenThemeSelected = false;
 
 
     private void setDefaultTheme() {
-        if (GreenThemeSelected) {
+        if (PurpleThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 80, 0, 150, 200);
             setStyleColor(ImGuiCol.ButtonHovered, 100, 50, 180, 250);
+            setStyleColor(ImGuiCol.ButtonActive, 80, 0, 150, 200);
             setStyleColor(ImGuiCol.Text, 208, 217, 209, 255);
             setStyleColor(ImGuiCol.Separator, 102, 0, 128, 255);
             setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
@@ -313,6 +306,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
         (BlueThemeSelected) {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 70, 130, 180, 200);
+            setStyleColor(ImGuiCol.ButtonActive, 70, 130, 180, 200);
             setStyleColor(ImGuiCol.ButtonHovered, 70, 130, 180, 255);
             setStyleColor(ImGuiCol.Text, 240, 248, 255, 255);
             setStyleColor(ImGuiCol.Separator, 70, 130, 180, 255);
@@ -345,6 +339,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 178, 34, 34, 200);
             setStyleColor(ImGuiCol.ButtonHovered, 220, 20, 60, 250);
+            setStyleColor(ImGuiCol.ButtonActive, 178, 34, 34, 200);
             setStyleColor(ImGuiCol.Text, 255, 250, 250, 255);
             setStyleColor(ImGuiCol.Separator, 178, 34, 34, 255);
             setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
@@ -378,6 +373,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 255, 140, 0, 200);
             setStyleColor(ImGuiCol.ButtonHovered, 255, 165, 0, 250);
+            setStyleColor(ImGuiCol.ButtonActive, 255, 140, 0, 200);
             setStyleColor(ImGuiCol.Text, 255, 255, 240, 255);
             setStyleColor(ImGuiCol.Separator, 255, 140, 0, 255);
             setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
@@ -411,6 +407,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 255, 223, 0, 200);
             setStyleColor(ImGuiCol.ButtonHovered, 255, 255, 0, 200);
+            setStyleColor(ImGuiCol.ButtonActive, 255, 223, 0, 200);
             setStyleColor(ImGuiCol.Text, 255, 255, 255, 230);
             setStyleColor(ImGuiCol.Separator, 255, 223, 0, 255);
             setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
@@ -440,9 +437,10 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
             setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
             setStyleColor(ImGuiCol.FrameBgHovered, 139, 139, 0, 150);
             setStyleColor(ImGuiCol.TableHeaderBg,   255, 255, 0, 200);
-        } else {
+        } else if (GreenThemeSelected){
             setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
             setStyleColor(ImGuiCol.Button, 39, 92, 46, 255);
+            setStyleColor(ImGuiCol.ButtonActive, 39, 92, 46, 255);
             setStyleColor(ImGuiCol.ButtonHovered, 91, 102, 91, 250); // Change the checkmark color to red
             setStyleColor(ImGuiCol.Text, 208, 217, 209, 255); // checkbox and input text backgorund
             setStyleColor(ImGuiCol.Separator, 39, 92, 46, 255);
@@ -662,11 +660,82 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     } else if (miscselected) {
                         createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, isMiscActive);
                         createCenteredButton("Disassembler", () -> isDissasemblerActive = !isDissasemblerActive, isDissasemblerActive);
-                        createCenteredButton("Violet Theme", () -> GreenThemeSelected = !GreenThemeSelected, GreenThemeSelected);
-                        createCenteredButton("Blue Theme", () -> BlueThemeSelected = !BlueThemeSelected, BlueThemeSelected);
-                        createCenteredButton("Red Theme", () -> RedThemeSelected = !RedThemeSelected, RedThemeSelected);
-                        createCenteredButton("Orange Theme", () -> OrangeThemeSelected = !OrangeThemeSelected, OrangeThemeSelected);
-                        createCenteredButton("Yellow Theme", () -> YellowThemeSelected = !YellowThemeSelected, YellowThemeSelected);
+                        createCenteredButton("Violet Theme", () -> {
+                            if (!PurpleThemeSelected) {
+                                PurpleThemeSelected = true;
+                                BlueThemeSelected = false;
+                                RedThemeSelected = false;
+                                OrangeThemeSelected = false;
+                                YellowThemeSelected = false;
+                                GreenThemeSelected = false;
+                            } else {
+                                PurpleThemeSelected = false;
+                            }
+                        }, PurpleThemeSelected);
+
+                        createCenteredButton("Blue Theme", () -> {
+                            if (!BlueThemeSelected) {
+                                BlueThemeSelected = true;
+                                PurpleThemeSelected = false;
+                                RedThemeSelected = false;
+                                OrangeThemeSelected = false;
+                                YellowThemeSelected = false;
+                                GreenThemeSelected = false;
+                            } else {
+                                BlueThemeSelected = false;
+                            }
+                        }, BlueThemeSelected);
+
+                        createCenteredButton("Red Theme", () -> {
+                            if (!RedThemeSelected) {
+                                RedThemeSelected = true;
+                                PurpleThemeSelected = false;
+                                BlueThemeSelected = false;
+                                OrangeThemeSelected = false;
+                                YellowThemeSelected = false;
+                                GreenThemeSelected = false;
+                            } else {
+                                RedThemeSelected = false;
+                            }
+                        }, RedThemeSelected);
+
+                        createCenteredButton("Orange Theme", () -> {
+                            if (!OrangeThemeSelected) {
+                                OrangeThemeSelected = true;
+                                PurpleThemeSelected = false;
+                                BlueThemeSelected = false;
+                                RedThemeSelected = false;
+                                YellowThemeSelected = false;
+                                GreenThemeSelected = false;
+                            } else {
+                                OrangeThemeSelected = false;
+                            }
+                        }, OrangeThemeSelected);
+
+                        createCenteredButton("Yellow Theme", () -> {
+                            if (!YellowThemeSelected) {
+                                YellowThemeSelected = true;
+                                PurpleThemeSelected = false;
+                                BlueThemeSelected = false;
+                                RedThemeSelected = false;
+                                OrangeThemeSelected = false;
+                                GreenThemeSelected = false;
+                            } else {
+                                YellowThemeSelected = false;
+                            }
+                        }, YellowThemeSelected);
+                        createCenteredButton("Green Theme", () -> {
+                            if (!GreenThemeSelected) {
+                                GreenThemeSelected = true;
+                                PurpleThemeSelected = false;
+                                BlueThemeSelected = false;
+                                RedThemeSelected = false;
+                                OrangeThemeSelected = false;
+                                YellowThemeSelected = false;
+                            } else {
+                                GreenThemeSelected = false;
+                            }
+                        }, GreenThemeSelected);
                     } else if (herbloreselcted) {
                         createCenteredButton("Herblore", () -> isHerbloreActive = !isHerbloreActive, isHerbloreActive);
                         if (ImGui.IsItemHovered()) {
@@ -2260,8 +2329,12 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                 ImGui.EndChild();
                 ImGui.Columns(1, "Column", false);
+                int noScrollbarFlag = 0x00000008; // ImGuiWindowFlags_NoScrollbar
+                int noScrollWithMouseFlag = 0x00000010; // ImGuiWindowFlags_NoScrollWithMouse
+                int combinedFlags = noScrollbarFlag | noScrollWithMouseFlag;
 
-                if (ImGui.BeginChild("Child1", 580, 60, true, 0)) {
+                if (ImGui.BeginChild("Child1", 580, 60, true, combinedFlags)) {
+
 
                     String botState;
                     if (isRunecraftingActive) {
@@ -2291,29 +2364,52 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     } else {
                         setStyleColor(ImGuiCol.Text, 255, 255, 255, 255);
                     }
+                    ImGui.SetCursorPosY(12);
+                    ImGui.SetCursorPosX(10);
 
-                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 10, 5);
-                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 20);
-                    ImGui.PushStyleColor(ImGuiCol.Button, 0, 0, 0, 0);
-                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 255, 255);
+                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 20, 10); // Increase height padding
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 5);
+                    ImGui.PushStyleColor(ImGuiCol.Button,0, 0, 0, 0);
+                    ImGui.PushStyleColor(ImGuiCol.Text, 1, 1, 1, 1);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0, 0, 0, 0);
 
-                    if (ImGui.Button("Enable Tooltips")) {
+
+                    float buttonWidth = 580.0f - 2 * 20; // Width of BeginChild minus padding on both sides
+
+                    ImGui.SetItemWidth(buttonWidth); // Set the button width
+
+                    ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0); // Set the border color to transparent
+                    ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0); // Set the border color to transparent
+
+
+
+                    if (ImGui.Button("Enable Tooltips")) { // Set the button size
                         tooltipsEnabled = !tooltipsEnabled;
                     }
+
+                    ImGui.PopStyleColor(2); // Reset the border color to the default value
+
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Enable or disable tooltips in the Options tab");
                     }
+
                     ImGui.SameLine(); // This will place the next button on the same line
-                    if (ImGui.Button("Logs")) {
+
+                    ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0); // Set the border color to transparent
+                    ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0); // Set the border color to transparent
+
+                    if (ImGui.Button("Logs")) { // Set the button size
                         showLogs = !showLogs;
                     }
+
+                    ImGui.PopStyleColor(2); // Reset the border color to the default value
+
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Show Console Logs");
                     }
 
                     ImGui.PopStyleVar(2);
-                    ImGui.PopStyleColor(2);
-
+                    ImGui.PopStyleColor(5);
                     float windowWidth = 577.0f;
                     float textWidth = ImGui.CalcTextSize("" + botState).getX();
                     float centeredX = (windowWidth - textWidth) / 2;
@@ -2404,7 +2500,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
         ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0.0f); // Control the frame rounding
 
         if (isClicked) {
-            if (GreenThemeSelected) {
+            if (PurpleThemeSelected) {
                 setStyleColor(ImGuiCol.Button, 80, 0, 150, 200);
             } else if (BlueThemeSelected) {
                 setStyleColor(ImGuiCol.Button, 70, 130, 180, 200);
