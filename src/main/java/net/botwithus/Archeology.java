@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
+import static net.botwithus.Runecrafting.player;
 import static net.botwithus.SnowsScript.getLastSkillingLocation;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
@@ -445,13 +446,11 @@ public class Archeology {
         if (charges < 250) {
             String selectedPorter = porterTypes[currentPorterType.get()];
             int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
-            boolean withdrew = false;
+            boolean withdrew;
             if (VarManager.getVarbitValue(45189) != 7) {
                 MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 33882215);
-                withdrew = Bank.withdraw(selectedPorter, quantity);
-            } else {
-                withdrew = Bank.withdraw(selectedPorter, quantity);
             }
+            withdrew = Bank.withdraw(selectedPorter, quantity);
             if (withdrew) {
                 ScriptConsole.println("[Archaeology] Withdrew: " + selectedPorter + ".");
             } else {
@@ -487,7 +486,8 @@ public class Archeology {
         return selectedArchNames.contains("Legionary remains")
                 || selectedArchNames.contains("Castra debris")
                 || selectedArchNames.contains("Administratum debris")
-                || selectedArchNames.contains("Praesidio remains");
+                || selectedArchNames.contains("Praesidio remains")
+                || selectedArchNames.contains("Carcerem debris");
 
     }
 
@@ -513,15 +513,29 @@ public class Archeology {
                     Execution.delay(random.nextLong(1000, 1500));
                     interactWithDialogOption(selectedArchNames);
                     Execution.delay(random.nextLong(4500, 6000));
+                    if (selectedArchNames.contains("Carcerem debris")) {
+                        ScriptConsole.println("[Archaeology] Traversing to Legatus barrier.");
+                        if (Movement.traverse(NavPath.resolve(new Coordinate(2258, 7586, 0))) == TraverseEvent.State.FINISHED) {
+                            EntityResultSet<SceneObject> legatusBarrier = SceneObjectQuery.newQuery().name("Legatus barrier").option("Pass").results();
+                            if (!legatusBarrier.isEmpty()) {
+                                SceneObject barrier = legatusBarrier.first();
+                                ScriptConsole.println("[Archaeology] Interacting with Legatus Barrier.");
+                                if (barrier != null && barrier.interact("Pass")) {
+                                    Execution.delay(random.nextLong(3500, 5000));
+                                    traverseToLastSkillingLocation();
+                                }
+                            }
+                        }
+                    }
                     traverseToLastSkillingLocation();
                 } else {
-                    ScriptConsole.println("[Error] Failed to interact with Hellfire Lift.");
+                    ScriptConsole.println("[Error] Failed to interact with Fort Entrance.");
                 }
             } else {
-                ScriptConsole.println("[Error] No Hellfire Lift found.");
+                ScriptConsole.println("[Error] No Fort Entrance found.");
             }
         } else {
-            ScriptConsole.println("[Error] Failed to traverse to Hellfire Lift.");
+            ScriptConsole.println("[Error] Failed to traverse to Fort Entrance.");
         }
     }
 
@@ -562,12 +576,11 @@ public class Archeology {
         } else if ((selectedArchNames.contains("Legionary remains") || selectedArchNames.contains("Castra debris") || selectedArchNames.contains("Administratum debris"))) {
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185921);
             ScriptConsole.println("[Archaeology] Selecting: Main Fortress.");
-        } else if (selectedArchNames.contains("Praesidio remains")) {
+        } else if (selectedArchNames.contains("Praesidio remains") || selectedArchNames.contains("Carcerem debris")) {
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
             ScriptConsole.println("[Archaeology] Selecting: Prison block.");
         } else {
             ScriptConsole.println("[Error] No valid dialog option found.");
-            traverseToLastSkillingLocation();
         }
     }
     private static void traverseToLastSkillingLocation() {
