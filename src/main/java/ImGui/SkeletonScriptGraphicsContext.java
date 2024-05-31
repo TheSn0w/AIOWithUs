@@ -2398,11 +2398,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
             }
         } else {
-            ImGui.PushStyleColor(ImGuiCol.Button, 0, 0, 0, 0); // Change the frame background color to red
+            ImGui.PushStyleColor(ImGuiCol.Button, 0, 0, 0, 0);
         }
 
-        ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0); // Change the frame background color to red
-        ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0); // Change the text color to red
+        ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0);
+        ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0);
         float textWidth = ImGui.CalcTextSize(buttonText).getX();
         float padding = (170 - textWidth) / 2;
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding, 2.0f);
