@@ -505,33 +505,36 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 float buttonW1 = 145;
                 float buttonW2 = 145;
                 float windowW = 180;
-                float centeredX1 = (windowW - buttonW1) / 2;
-                float centeredX2 = (windowW - buttonW2) / 2;
-                if (ScriptisOn) {
-                    ImGui.SetCursorPosX(centeredX1);
-                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 32, 15);
-                    if (ImGui.Button("Stop Script")) {
+                String buttonText;
+                float textWidth1;
+                float padding;
+
+// Start/Stop Script Button
+                buttonText = ScriptisOn ? "Stop Script" : "Start Script";
+                textWidth1 = ImGui.CalcTextSize(buttonText).getX();
+                padding = (childWidth - textWidth1) / 2;
+                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding, 15);
+                ImGui.SetCursorPosX(0);
+                if (ImGui.Button(buttonText)) {
+                    if (ScriptisOn) {
                         botState = BotState.IDLE;
                         totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
                         ScriptisOn = false;
-                    }
-                    ImGui.PopStyleVar(1);
-                } else {
-                    ImGui.SetCursorPosX(centeredX1);
-                    setStyleColor(ImGuiCol.Button, 120, 11, 20, 255);
-                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 32, 15);
-                    if (ImGui.Button("Start Script")) {
+                    } else {
                         botState = BotState.SKILLING;
                         startTime = Instant.now();
                         ScriptisOn = true;
                     }
-                    ImGui.PopStyleVar(1);
-                    ImGui.PopStyleColor(1);
                 }
+                ImGui.PopStyleVar(1);
 
-                ImGui.SetCursorPosX(centeredX2);
-                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 24, 5);
-                if (ImGui.Button("Save Settings")) {
+// Save Settings Button
+                buttonText = "Save Settings";
+                textWidth1 = ImGui.CalcTextSize(buttonText).getX();
+                padding = (childWidth - textWidth1) / 2;
+                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding, 5);
+                ImGui.SetCursorPosX(0);
+                if (ImGui.Button(buttonText)) {
                     try {
                         script.saveConfiguration();
                         saveSettingsFeedbackMessage = "Settings saved successfully.";
@@ -540,7 +543,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     }
                 }
                 ImGui.PopStyleVar(1);
-                ImGui.Separator();
 
                 boolean agilitySelected = agility;
                 boolean divinationSelected = isDivinationActive;
@@ -572,147 +574,113 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
 
                 if (!anySelected) {
-                    Variables.agility = ImGui.Checkbox("Agility AIO", Variables.agility);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("1-35 Agility Only`");
-                    }
-                    Variables.isDivinationActive = ImGui.Checkbox("Divination AIO", Variables.isDivinationActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Divination AIO`");
-                    }
-                    Variables.isThievingActive = ImGui.Checkbox("Thieving AIO", Variables.isThievingActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Thieving AIO`");
-                    }
-                    Variables.isArcheologyActive = ImGui.Checkbox("Archaeology", Variables.isArcheologyActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Archaeology with Material Caches Etc..`");
-                    }
-                    Variables.isFishingActive = ImGui.Checkbox("Fishing", Variables.isFishingActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Fishing at any spot using any option`");
-                    }
-                    Variables.isMiningActive = ImGui.Checkbox("Mining", Variables.isMiningActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Mining at any spot using any option`");
-                    }
-                    Variables.isWoodcuttingActive = ImGui.Checkbox("Woodcutting", Variables.isWoodcuttingActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Woodcutting at any spot using any option`");
-                    }
-                    Variables.isCookingActive = ImGui.Checkbox("Cooking", Variables.isCookingActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Use at `Range/Portable Range AIO too!`");
-                    }
-                    Variables.isCombatActive = ImGui.Checkbox("Combat", Variables.isCombatActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("AIO Fighter`");
-                    }
-                    isRunecraftingActive = ImGui.Checkbox("Runecrafting", isRunecraftingActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Does necrotic runes`");
-                    }
-                    isHerbloreActive = ImGui.Checkbox("Herblore", isHerbloreActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
-                    }
-                    isMiscActive = ImGui.Checkbox("Misc", isMiscActive);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("random smaller stuff`");
-                    }
+                    createCenteredButton("Agility AIO", () -> Variables.agility = !Variables.agility, Variables.agility);
+                    createCenteredButton("Divination AIO", () -> isDivinationActive = !isDivinationActive, isDivinationActive);
+                    createCenteredButton("Thieving AIO", () -> Variables.isThievingActive = !Variables.isThievingActive, Variables.isThievingActive);
+                    createCenteredButton("Archaeology AIO", () -> Variables.isArcheologyActive = !Variables.isArcheologyActive, Variables.isArcheologyActive);
+                    createCenteredButton("Fishing AIO", () -> Variables.isFishingActive = !Variables.isFishingActive, Variables.isFishingActive);
+                    createCenteredButton("Mining AIO", () -> Variables.isMiningActive = !Variables.isMiningActive, Variables.isMiningActive);
+                    createCenteredButton("Woodcutting AIO", () -> Variables.isWoodcuttingActive = !Variables.isWoodcuttingActive, Variables.isWoodcuttingActive);
+                    createCenteredButton("Cooking AIO", () -> Variables.isCookingActive = !Variables.isCookingActive, Variables.isCookingActive);
+                    createCenteredButton("Combat AIO", () -> Variables.isCombatActive = !Variables.isCombatActive, Variables.isCombatActive);
+                    createCenteredButton("Runecrafting AIO", () -> Variables.isRunecraftingActive = !Variables.isRunecraftingActive, Variables.isRunecraftingActive);
+                    createCenteredButton("Herblore AIO", () -> Variables.isHerbloreActive = !Variables.isHerbloreActive, Variables.isHerbloreActive);
+
+                    createCenteredButton("Misc AIO", () -> Variables.isMiscActive = !Variables.isMiscActive, Variables.isMiscActive);
                 } else {
                     if (agilitySelected) {
-                        agility = ImGui.Checkbox("Agility AIO", agility);
+                        createCenteredButton("Agility AIO", () -> agility = !agility, agility);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("1-35 Agility Only`");
                         }
                     } else if (divinationSelected) {
-                        isDivinationActive = ImGui.Checkbox("Divination AIO", isDivinationActive);
+                        createCenteredButton("Divination AIO", () -> isDivinationActive = !isDivinationActive, isDivinationActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Divination AIO`");
                         }
-                        offerChronicles = ImGui.Checkbox("Offer Chronicles", offerChronicles);
-                        useDivineoMatic = ImGui.Checkbox("Use Divine-o-matic", useDivineoMatic);
-                        useFamiliarSummoning = ImGui.Checkbox("Use Familiar", useFamiliarSummoning);
-                        harvestChronicles = ImGui.Checkbox("Harvest Chronicles", harvestChronicles);
+                        createCenteredButton("Offer Chronicles", () -> offerChronicles = !offerChronicles, offerChronicles);
+                        createCenteredButton("Use Divine-o-matic", () -> useDivineoMatic = !useDivineoMatic, useDivineoMatic);
+                        createCenteredButton("Use Familiar", () -> useFamiliarSummoning = !useFamiliarSummoning, useFamiliarSummoning);
+                        createCenteredButton("Harvest Chronicles", () -> harvestChronicles = !harvestChronicles, harvestChronicles);
                     } else if (thievingSelected) {
-                        isThievingActive = ImGui.Checkbox("Thieving AIO", isThievingActive);
+                        createCenteredButton("Thieving AIO", () -> isThievingActive = !isThievingActive, isThievingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Thieving AIO`");
                         }
                     } else if (archeologySelected) {
-                        isArcheologyActive = ImGui.Checkbox("Archeology", isArcheologyActive);
+                        createCenteredButton("Archeology", () -> isArcheologyActive = !isArcheologyActive, isArcheologyActive);
+
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Archaeology with Material Caches Etc..`");
                         }
-                        MaterialCache = ImGui.Checkbox("Material Cache", MaterialCache);
-                        materialManual = ImGui.Checkbox("Material Manual", materialManual);
-                        archaeologistsTea = ImGui.Checkbox("Archaeologists Tea", archaeologistsTea);
-                        hiSpecMonocle = ImGui.Checkbox("Hi-Spec Monocle", hiSpecMonocle);
-                        useGote = ImGui.Checkbox("Use Gote", useGote);
+                        createCenteredButton("Material Cache", () -> MaterialCache = !MaterialCache, MaterialCache);
+                        createCenteredButton("Material Manual", () -> materialManual = !materialManual, materialManual);
+                        createCenteredButton("Archaeologists Tea", () -> archaeologistsTea = !archaeologistsTea, archaeologistsTea);
+                        createCenteredButton("Hi-Spec Monocle", () -> hiSpecMonocle = !hiSpecMonocle, hiSpecMonocle);
+                        createCenteredButton("Use Gote", () -> useGote = !useGote, useGote);
                     } else if (combatSelected) {
                         /*attackOsseous = ImGui.Checkbox("Attack Osseous", attackOsseous);*/
-                        isCombatActive = ImGui.Checkbox("Combat", isCombatActive);
+                        createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, isCombatActive);
+
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("AIO Fighter`");
                         }
                         /*BankforFood = ImGui.Checkbox("Bank for food", BankforFood);*/
-                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
-                        useLoot = ImGui.Checkbox("Loot", useLoot);
-                        interactWithLootAll = ImGui.Checkbox("Loot All", interactWithLootAll);
-                        usePOD = ImGui.Checkbox("Use POD", usePOD);
-                        handleArchGlacor = ImGui.Checkbox("Arch Glacor", handleArchGlacor);
+                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Loot", () -> useLoot = !useLoot, useLoot);
+                        createCenteredButton("Loot All", () -> interactWithLootAll = !interactWithLootAll, interactWithLootAll);
+                        createCenteredButton("Use POD", () -> usePOD = !usePOD, usePOD);
+                        createCenteredButton("Arch Glacor", () -> handleArchGlacor = !handleArchGlacor, handleArchGlacor);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("start at portal and needs max guild teleport`");
                         }
                     } else if (fishingSelected) {
-                        isFishingActive = ImGui.Checkbox("Fishing", isFishingActive);
+                        createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, isFishingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Fishing at any spot using any option`");
                         }
-                        AnimationCheck = ImGui.Checkbox("Animation Check", AnimationCheck);
-                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
+                        createCenteredButton("Animation Check", () -> AnimationCheck = !AnimationCheck, AnimationCheck);
+                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
                     } else if (miningSelected) {
-                        isMiningActive = ImGui.Checkbox("Mining", isMiningActive);
+                        createCenteredButton("Mining", () -> isMiningActive = !isMiningActive, isMiningActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Mining at any spot using any option`");
                         }
-                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
+                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
                     } else if (woodcuttingSelected) {
-                        isWoodcuttingActive = ImGui.Checkbox("Woodcutting", isWoodcuttingActive);
+                        createCenteredButton("Woodcutting", () -> isWoodcuttingActive = !isWoodcuttingActive, isWoodcuttingActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Woodcutting at any spot using any option`");
                         }
-                        nearestBank = ImGui.Checkbox("Use Nearest Bank", nearestBank);
-                        acadiaTree = ImGui.Checkbox("Acadia Tree", acadiaTree);
-                        acadiaVIP = ImGui.Checkbox("Acadia VIP", acadiaVIP);
-                        crystallise = ImGui.Checkbox("Crystallise", crystallise);
-                        crystalliseMahogany = ImGui.Checkbox("Crystallise Mahogany", crystalliseMahogany);
+                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Acadia Tree", () -> acadiaTree = !acadiaTree, acadiaTree);
+                        createCenteredButton("Acadia VIP", () -> acadiaVIP = !acadiaVIP, acadiaVIP);
+                        createCenteredButton("Crystallise", () -> crystallise = !crystallise, crystallise);
+                        createCenteredButton("Crystallise Mahogany", () -> crystalliseMahogany = !crystalliseMahogany, crystalliseMahogany);
                     } else if (rcselected) {
-                        isRunecraftingActive = ImGui.Checkbox("Runecrafting", isRunecraftingActive);
-                        HandleBoneAltar = ImGui.Checkbox("Bone Altar", HandleBoneAltar);
-                        HandleFleshAltar = ImGui.Checkbox("Flesh Altar", HandleFleshAltar);
-                        HandleMiasmaAltar = ImGui.Checkbox("Miasma Altar", HandleMiasmaAltar);
-                        HandleSpiritAltar = ImGui.Checkbox("Spirit Altar", HandleSpiritAltar);
-                        soulAltar = ImGui.Checkbox("Soul Altar", soulAltar);
+                        createCenteredButton("Runecrafting", () -> isRunecraftingActive = !isRunecraftingActive, isRunecraftingActive);
+                        createCenteredButton("Bone Altar", () -> HandleBoneAltar = !HandleBoneAltar, HandleBoneAltar);
+                        createCenteredButton("Flesh Altar", () -> HandleFleshAltar = !HandleFleshAltar, HandleFleshAltar);
+                        createCenteredButton("Miasma Altar", () -> HandleMiasmaAltar = !HandleMiasmaAltar, HandleMiasmaAltar);
+                        createCenteredButton("Spirit Altar", () -> HandleSpiritAltar = !HandleSpiritAltar, HandleSpiritAltar);
+                        createCenteredButton("Soul Altar", () -> soulAltar = !soulAltar, soulAltar);
                     } else if (miscselected) {
-                        isMiscActive = ImGui.Checkbox("Misc", isMiscActive);
-                        isDissasemblerActive = ImGui.Checkbox("Disassembler", isDissasemblerActive);
-                        GreenThemeSelected = ImGui.Checkbox("Violet Theme", GreenThemeSelected);
-                        BlueThemeSelected = ImGui.Checkbox("Blue Theme", BlueThemeSelected);
-                        RedThemeSelected = ImGui.Checkbox("Red Theme", RedThemeSelected);
-                        OrangeThemeSelected = ImGui.Checkbox("Orange Theme", OrangeThemeSelected);
-                        YellowThemeSelected = ImGui.Checkbox("Yellow Theme", YellowThemeSelected);
+                        createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, isMiscActive);
+                        createCenteredButton("Disassembler", () -> isDissasemblerActive = !isDissasemblerActive, isDissasemblerActive);
+                        createCenteredButton("Violet Theme", () -> GreenThemeSelected = !GreenThemeSelected, GreenThemeSelected);
+                        createCenteredButton("Blue Theme", () -> BlueThemeSelected = !BlueThemeSelected, BlueThemeSelected);
+                        createCenteredButton("Red Theme", () -> RedThemeSelected = !RedThemeSelected, RedThemeSelected);
+                        createCenteredButton("Orange Theme", () -> OrangeThemeSelected = !OrangeThemeSelected, OrangeThemeSelected);
+                        createCenteredButton("Yellow Theme", () -> YellowThemeSelected = !YellowThemeSelected, YellowThemeSelected);
                     } else if (herbloreselcted) {
-                        isHerbloreActive = ImGui.Checkbox("Herblore", isHerbloreActive);
+                        createCenteredButton("Herblore", () -> isHerbloreActive = !isHerbloreActive, isHerbloreActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
                         }
-                        makeBombs = ImGui.Checkbox("Make Bombs", makeBombs);
+                        createCenteredButton("Make Bombs", () -> makeBombs = !makeBombs, makeBombs);
                     } else if (cookingselected){
-                        isCookingActive = ImGui.Checkbox("Cooking", isCookingActive);
-                        makeWines = ImGui.Checkbox("Make Wines", makeWines);
-                    }
+                        createCenteredButton("Cooking", () -> isCookingActive = !isCookingActive, isCookingActive);
+                        createCenteredButton("Make Wines", () -> makeWines = !makeWines, makeWines);                    }
                 }
                 ImGui.EndChild();
                 ImGui.NextColumn();
@@ -2411,6 +2379,41 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
         if (HandleFleshAltar) return "Flesh Runes";
         return "None";
     }
+    private void createCenteredButton(String buttonText, Runnable onClick, boolean isClicked) {
+        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0.0f); // Control the frame rounding
+
+        if (isClicked) {
+            if (GreenThemeSelected) {
+                setStyleColor(ImGuiCol.Button, 80, 0, 150, 200);
+            } else if (BlueThemeSelected) {
+                setStyleColor(ImGuiCol.Button, 70, 130, 180, 200);
+            } else if (RedThemeSelected) {
+                setStyleColor(ImGuiCol.Button, 178, 34, 34, 200);
+            } else if (OrangeThemeSelected) {
+                setStyleColor(ImGuiCol.Button, 255, 140, 0, 200);
+            } else if (YellowThemeSelected) {
+                setStyleColor(ImGuiCol.Button, 255, 223, 0, 200);
+            } else {
+                setStyleColor(ImGuiCol.Button, 39, 92, 46, 255);
+
+            }
+        } else {
+            ImGui.PushStyleColor(ImGuiCol.Button, 0, 0, 0, 0); // Change the frame background color to red
+        }
+
+        ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0); // Change the frame background color to red
+        ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0); // Change the text color to red
+        float textWidth = ImGui.CalcTextSize(buttonText).getX();
+        float padding = (170 - textWidth) / 2;
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding, 2.0f);
+        ImGui.SetCursorPosX(0);
+        if (ImGui.Button(buttonText)) {
+            onClick.run();
+        }
+        ImGui.PopStyleVar(2);
+        ImGui.PopStyleColor(3);
+    }
+
 
 
 
