@@ -2,6 +2,7 @@ package net.botwithus.Misc;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -168,7 +169,7 @@ public class CaveNightshade {
     }
 
     private static void openMemoryShardInterface() {
-        Backpack.interact("Memory shard", "Open");
+        backpack.interact("Memory shard", "Open");
         ScriptConsole.println("Opening memory shard interface.");
         Execution.delayUntil(5000, () -> Interfaces.isOpen(1370));
     }
@@ -187,7 +188,7 @@ public class CaveNightshade {
 
     private static void wearPorter() {
         ScriptConsole.println("Sign of the porter VII is in inventory. Wearing it.");
-        Backpack.interact("Sign of the porter VII", "Wear");
+        backpack.interact("Sign of the porter VII", "Wear");
         Execution.delay(random.nextLong(650, 800));
     }
     private static long handleBanking() {

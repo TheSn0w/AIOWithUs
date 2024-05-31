@@ -4,6 +4,7 @@ import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
@@ -189,7 +190,7 @@ public class Archeology {
     private static void useArchaeologistsTea() { // 47027 must be material + 1
         if (VarManager.getVarbitValue(47028) == 0) {
             if (Backpack.contains("Archaeologist's tea")) {
-                Backpack.interact("Archaeologist's tea", "Drink");
+                backpack.interact("Archaeologist's tea", "Drink");
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
             }
         }
@@ -197,7 +198,7 @@ public class Archeology {
     private static void useHiSpecMonocle() {
         if (VarManager.getVarbitValue(47026) == 0) {
             if (Backpack.contains("Hi-spec monocle")) {
-                Backpack.interact("Hi-spec monocle", "Wear");
+                backpack.interact("Hi-spec monocle", "Wear");
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
             }
         }
@@ -205,7 +206,7 @@ public class Archeology {
     private static void useMaterialManual() {
         if (VarManager.getVarbitValue(47025) == 0) {
             if (Backpack.contains("Material manual")) {
-                Backpack.interact("Material manual", "Read");
+                backpack.interact("Material manual", "Read");
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
             }
         }
@@ -609,7 +610,7 @@ public class Archeology {
 
     public static long backpackIsFull(LocalPlayer player) {
         if (Backpack.contains("Archaeological soil box")) {
-            Backpack.interact("Archaeological soil box", "Fill");
+            backpack.interact("Archaeological soil box", "Fill");
             ScriptConsole.println("[Archeology] Filling soil box.");
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }

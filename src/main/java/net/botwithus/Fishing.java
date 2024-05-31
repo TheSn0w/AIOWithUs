@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
@@ -43,7 +44,7 @@ public class Fishing {
     private static Coordinate lastFishingSpotCoord = null;
 
     public static long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
-        if (Backpack.isFull()) {
+        if (backpack.isFull()) {
             return handleFullBackpack(player);
         }
 
@@ -114,7 +115,7 @@ public class Fishing {
                 Execution.delay(random.nextLong(206, 405));
             }
         } else if (category == 57 || category == 929) { // Use Backpack fallback
-            boolean success = Backpack.interact(itemName, "Drop");
+            boolean success = backpack.interact(itemName, "Drop");
             if (success) {
                 ScriptConsole.println("[Fishing] Dropping (Backpack): " + itemName);
                 Execution.delay(random.nextLong(620, 650));

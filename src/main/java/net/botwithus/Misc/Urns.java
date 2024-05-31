@@ -3,6 +3,7 @@ package net.botwithus.Misc;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.Dialog;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -93,7 +94,7 @@ public class Urns {
     }
 
     private long deployPortableCrafter() {
-        Backpack.interact("Portable crafter", "Deploy");
+        backpack.interact("Portable crafter", "Deploy");
         ScriptConsole.println("Deploying Portable Crafter");
         Execution.delay(random.nextLong(500, 700));
         if (Interfaces.isOpen(1188)) {

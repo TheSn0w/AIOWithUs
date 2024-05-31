@@ -4,6 +4,7 @@ import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.EquipmentInventory;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
@@ -332,7 +333,7 @@ public class Divination {
             if (filledCharges > random.nextInt(25, 100) && equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
                 Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 4, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
                 if (Backpack.contains(41073) && emptyCharges < 100) {
-                    if (Backpack.interact(41073, "Add all to vacuum")) {
+                    if (backpack.interact(41073, "Add all to vacuum")) {
                         Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 4, 37521) + VarManager.getInvVarbit(94, 3, 37522) == 0);
                     }
                 }
@@ -367,7 +368,7 @@ public class Divination {
             ScriptConsole.println("Familiar is already summoned.");
         } else {
             if (!results.isEmpty()) {
-                Backpack.interact("Nightmare muspah pouch", "Summon");
+                backpack.interact("Nightmare muspah pouch", "Summon");
                 Execution.delayUntil(5000, () -> VarManager.getVarbitValue(6055) > 5);
             } else {
                 ScriptConsole.println("Pouch is empty, using bank.");
@@ -392,7 +393,7 @@ public class Divination {
         }
 
         ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
-        boolean success = Backpack.interact(prayerOrRestorePot.getName(), "Drink");
+        boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
             ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
             long delay = random.nextLong(1500, 3000);

@@ -3,6 +3,7 @@ package net.botwithus.Misc;
 import net.botwithus.SnowsScript;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -40,7 +41,7 @@ public class PorterMaker {
             return random.nextLong(1250, 1500);
         }
         if (Backpack.contains("Dragonstone necklace")) {
-            Backpack.interact("Incandescent energy", "Weave");
+            backpack.interact("Incandescent energy", "Weave");
             return random.nextLong(1250, 2500);
         } else {
             EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Load Last Preset from").results();
@@ -67,7 +68,7 @@ public class PorterMaker {
             return random.nextLong(1250, 1500);
         }
         if (Backpack.contains("Incandescent energy")) {
-            Backpack.interact("Incandescent energy", "Weave");
+            backpack.interact("Incandescent energy", "Weave");
             ScriptConsole.println("Weaving Incandescent energy");
         }
         return random.nextLong(750, 1050);

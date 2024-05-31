@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -83,7 +84,7 @@ public class Woodcutting {
                             Execution.delay(random.nextLong(206, 405));
                         }
                     } else if (category == 22) {
-                        boolean success = Backpack.interact(itemName, "Drop");
+                        boolean success = backpack.interact(itemName, "Drop");
                         if (success) {
                             ScriptConsole.println("Dropping (Backpack): " + itemName);
                             Execution.delay(random.nextLong(620, 650));

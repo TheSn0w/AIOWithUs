@@ -2,6 +2,7 @@ package net.botwithus;
 
 import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Client;
@@ -635,7 +636,7 @@ public class Runecrafting {
         }
 
         ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
-        boolean success = Backpack.interact(prayerOrRestorePot.getName(), "Drink");
+        boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
             ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
             long delay = random.nextLong(1500, 3000);

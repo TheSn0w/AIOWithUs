@@ -3,6 +3,7 @@ package net.botwithus.Misc;
 import net.botwithus.SnowsScript;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -39,7 +40,7 @@ public class GemCutter {
         }
         if (Backpack.containsItemByCategory(5289)) {
             if (craftitems != null) {
-                Backpack.interact(craftitems.getName(), "Craft");
+                backpack.interact(craftitems.getName(), "Craft");
                 return random.nextLong(750, 1050);
             }
         } else {

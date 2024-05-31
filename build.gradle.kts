@@ -29,6 +29,7 @@ tasks.withType<JavaCompile> {
 dependencies {
     implementation("net.botwithus.rs3:botwithus-api:1.0.0-SNAPSHOT")
     implementation("net.botwithus.xapi.public:api:1.0.0-SNAPSHOT")
+    implementation("com.google.flogger:flogger:0.7.4")
     "includeInJar"("net.botwithus.xapi.public:api:1.0.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     implementation("com.google.code.gson:gson:2.10.1")

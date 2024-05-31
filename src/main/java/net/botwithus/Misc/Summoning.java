@@ -2,6 +2,7 @@ package net.botwithus.Misc;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -48,7 +49,7 @@ public class Summoning {
             return random.nextLong(1250, 1500);
         }
         if (containsPouch()) {
-            Backpack.interact("Attuned crystal teleport seed", "Activate");
+            backpack.interact("Attuned crystal teleport seed", "Activate");
             ScriptConsole.println("Activating 'Attuned crystal teleport seed'");
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             if (Interfaces.isOpen(720)) {
@@ -63,7 +64,7 @@ public class Summoning {
                 }
             }
         } else {
-            Backpack.interact("Attuned crystal teleport seed", "Activate");
+            backpack.interact("Attuned crystal teleport seed", "Activate");
             ScriptConsole.println("Activating 'Attuned crystal teleport seed'");
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             if (Interfaces.isOpen(720)) {

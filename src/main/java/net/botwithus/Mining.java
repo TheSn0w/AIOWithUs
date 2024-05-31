@@ -2,6 +2,7 @@ package net.botwithus;
 
 import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
@@ -134,7 +135,7 @@ public class Mining {
         Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
 
         if (oreBox != null) {
-            boolean interactionSuccess = Backpack.interact(oreBox.getName(), "Fill");
+            boolean interactionSuccess = backpack.interact(oreBox.getName(), "Fill");
             Execution.delay(random.nextInt(1500, 3500));
 
             if (interactionSuccess) {
@@ -175,7 +176,7 @@ public class Mining {
                         Execution.delay(random.nextLong(206, 405));
                     }
                 } else if (category == 91) { // Use Backpack fallback
-                    boolean success = Backpack.interact(itemName, "Drop");
+                    boolean success = backpack.interact(itemName, "Drop");
                     if (success) {
                         ScriptConsole.println("Dropping (Backpack): " + itemName);
                         Execution.delay(random.nextLong(620, 650));

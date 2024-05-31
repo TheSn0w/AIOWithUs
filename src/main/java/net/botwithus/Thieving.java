@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -246,7 +247,7 @@ public class Thieving {
                 return random.nextLong(1500, 3000);
         }
 
-        boolean eatSuccess = Backpack.interact(food.getName(), "Eat");
+        boolean eatSuccess = backpack.interact(food.getName(), "Eat");
 
         if (eatSuccess) {
             ScriptConsole.println("[EatFood] Successfully ate " + food.getName());

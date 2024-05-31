@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -33,7 +34,7 @@ public class Herblore {
         }
         if (makeBombs) {
             if (Backpack.contains("Bomb vial") && Backpack.isFull()) {
-                Backpack.interact("Bomb vial", "Make");
+                backpack.interact("Bomb vial", "Make");
             } else {
                 SceneObject bank = SceneObjectQuery.newQuery().name("Bank chest").results().nearest();
                 if(bank != null && bank.interact("Load Last Preset from")) {

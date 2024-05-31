@@ -5,6 +5,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.LootInventory;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
@@ -567,7 +568,7 @@ public class Combat {
 
         Item aggressionFlask = results.first();
         if (aggressionFlask != null) {
-            boolean success = Backpack.interact(aggressionFlask.getName(), "Drink");
+            boolean success = backpack.interact(aggressionFlask.getName(), "Drink");
             if (success) {
                 ScriptConsole.println("[Aggression Potions] Using aggression potion: " + aggressionFlask.getName());
                 long delay = random.nextLong(1500, 3000);
@@ -603,7 +604,7 @@ public class Combat {
         }
 
         ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
-        boolean success = Backpack.interact(prayerOrRestorePot.getName(), "Drink");
+        boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
             ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
             long delay = random.nextLong(1500, 3000);
@@ -640,7 +641,7 @@ public class Combat {
         }
 
 
-        boolean success = Backpack.interact(overloadPot.getName(), "Drink");
+        boolean success = backpack.interact(overloadPot.getName(), "Drink");
         if (success) {
             ScriptConsole.println("[Overload] Successfully drank " + overloadPot.getName());
             long delay = random.nextLong(1500, 3000);
@@ -673,7 +674,7 @@ public class Combat {
             return 1L;
         }
 
-        boolean success = Backpack.interact(weaponPoisonItem.getName(), "Apply");
+        boolean success = backpack.interact(weaponPoisonItem.getName(), "Apply");
         if (success) {
             ScriptConsole.println("[Weapon Poison] Successfully applied " + weaponPoisonItem.getName());
             long delay = random.nextLong(1500, 3000);
@@ -834,7 +835,7 @@ public class Combat {
             }
         }
 
-        boolean eatSuccess = Backpack.interact(food.getName(), "Eat");
+        boolean eatSuccess = backpack.interact(food.getName(), "Eat");
 
         if (eatSuccess) {
             ScriptConsole.println("[EatFood] Successfully ate " + food.getName());
