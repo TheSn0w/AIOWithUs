@@ -14,8 +14,8 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
-import static net.botwithus.Variables.Variables.corruptedOre;
-import static net.botwithus.Variables.Variables.isCorruptedOreActive;
+import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.*;
 
 public class CorruptedOre {
     SnowsScript script;
@@ -30,14 +30,15 @@ public class CorruptedOre {
             return random.nextLong(1250, 2500);
         }
         if (Interfaces.isOpen(37)) {
-            MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 2424995);
-            ScriptConsole.println("Selecting 'Smelt'");
+            component(1, -1, 2424995);
+            log("[Corrupted Ore] Selecting 'Smelt'");
             return random.nextLong(1500, 3000);
         }
         if (!results.isEmpty()) {
             SceneObject corruptedOre = results.nearest();
             if (corruptedOre != null) {
                 corruptedOre.interact("Smelt");
+                log("[Corrupted Ore] Interacting with Furnace");
                 return random.nextLong(1250, 2500);
             }
         }

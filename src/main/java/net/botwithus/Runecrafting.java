@@ -32,6 +32,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.*;
 import static net.botwithus.Variables.Variables.*;
 
@@ -69,21 +70,6 @@ public class Runecrafting {
         return currentState;
     }
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isRunecraftingActive) {
-            if (message.contains("The charger cannot hold any more essence.")) {
-                Execution.delay(handleCharging());
-            }
-            if (message.contains("You do no have any essence to deposit")) {
-                Execution.delay(handleEdgevillebanking());
-            }
-            if (message.contains("The altar is already charged to its maximum capacity")) {
-                handleSoulAltar();
-            }
-        }
-    }
-
     public enum ScriptState {
         IDLE,
         BANKING,
@@ -100,7 +86,7 @@ public class Runecrafting {
 
         boolean playerIsIdle = !player.isMoving() && player.getAnimationId() == -1;
         if (playerIsIdle && System.currentTimeMillis() - lastMovedOrAnimatedTime > 20000) {
-            ScriptConsole.println("Player has been idle for more than 20 seconds, teleporting to bank.");
+            log("[Error] Player has been idle for more than 20 seconds, teleporting to bank.");
             currentState = TELEPORTINGTOBANK;
             lastMovedOrAnimatedTime = System.currentTimeMillis();
             return;
@@ -129,10 +115,10 @@ public class Runecrafting {
             case IDLE -> {
                 if (SceneObjectQuery.newQuery().name("Bank chest").results().nearest() != null || SceneObjectQuery.newQuery().name("Rowboat").results().nearest() != null) {
                     currentState = BANKING;
-                    ScriptConsole.println("Proceeding to bank.");
+                    log("[Runecrafting] Proceeding to bank.");
                 } else {
                     currentState = TELEPORTINGTOBANK;
-                    ScriptConsole.println("Proceeding to teleport to bank.");
+                    log("[Runecrafting] Proceeding to teleport to bank.");
                 }
                 Execution.delay(RandomGenerator.nextInt(2500, 5000));
             }
@@ -195,7 +181,7 @@ public class Runecrafting {
             Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
             if (HopWorldsMenu != null) {
                 component( 1, -1, 93913153);
-                ScriptConsole.println("Hop Worlds Button Clicked.");
+                log("[Runecrafting] Hop Worlds Button Clicked.");
                 boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
                 Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
@@ -204,7 +190,7 @@ public class Runecrafting {
                     Execution.delay(RandomGenerator.nextInt(10000, 20000));
                 }
             } else {
-                ScriptConsole.println("Hop Worlds Button not found.");
+                log("[Error] Hop Worlds Button not found.");
             }
         }
     }
@@ -215,7 +201,7 @@ public class Runecrafting {
 
         if (bankChests.isEmpty()) {
             if (Movement.traverse(NavPath.resolve(fishingHub)) == TraverseEvent.State.FINISHED) {
-                ScriptConsole.println("Traversed to Fishing hub.");
+                log("[Runecrafting] Traversed to Fishing hub.");
             }
         } else {
             interactwithBoat();
@@ -233,11 +219,11 @@ public class Runecrafting {
                         checkAndPerformActions();
                     } else {
                         currentState = TELEPORTING;
-                        ScriptConsole.println("Changed bot state to TELEPORTING.");
+                        log("[Runecrafting] Changed bot state to TELEPORTING.");
                     }
                 } else {
                     if (!Backpack.isFull()) {
-                        ScriptConsole.println("Essence not found in backpack after loading preset.");
+                        log("[Error] Essence not found in backpack after loading preset.");
                         performLogout();
                     }
                 }
@@ -251,7 +237,7 @@ public class Runecrafting {
 
         if (bankChests.isEmpty()) {
             if (Movement.traverse(NavPath.resolve(WarsBank)) == TraverseEvent.State.FINISHED) {
-                ScriptConsole.println("Traversed to Castle Wars bank.");
+                log("[Runecrafting] Traversed to Castle Wars bank.");
             }
         } else {
             interactwithBankChest();
@@ -269,11 +255,11 @@ public class Runecrafting {
                         checkAndPerformActions();
                     } else {
                         currentState = TELEPORTING;
-                        ScriptConsole.println("Changed bot state to TELEPORTING.");
+                        log("[Runecrafting] Changed bot state to TELEPORTING.");
                     }
                 } else {
                     if (!Backpack.isFull()) {
-                        ScriptConsole.println("Essence not found in backpack after loading preset.");
+                        log("[Error] Essence not found in backpack after loading preset.");
                         performLogout();
                     }
                 }
@@ -294,14 +280,14 @@ public class Runecrafting {
     }
 
     private static void performAltarInteractions() {
-        ScriptConsole.println("Conditions met for interacting with Altar of War.");
+        log("[Runecrafting] Conditions met for interacting with Altar of War.");
         Execution.delay(interactWithAltarOfWar((LocalPlayer) player));
         summonFamiliar();
     }
 
     private void changeBotStateToTeleporting() {
         currentState = TELEPORTING;
-        ScriptConsole.println("Proceeding to botState TELEPORTING.");
+        log("[Runecrafting] Proceeding to botState TELEPORTING.");
     }
 
 
@@ -324,10 +310,10 @@ public class Runecrafting {
 
                 if (Backpack.isFull()) {
                     currentState = TELEPORTING;
-                    ScriptConsole.println("Changed bot state to TELEPORTING.");
+                    log("[Runecrafting] Changed bot state to TELEPORTING.");
                 } else {
                     if (!Backpack.isFull()) {
-                        ScriptConsole.println("Essence not found in backpack after loading preset.");
+                        log("[Error] Essence not found in backpack after loading preset.");
                         checkBackpackAndLogoutIfNeeded();
                     }
                 }
@@ -339,7 +325,7 @@ public class Runecrafting {
     private void checkBackpackAndLogoutIfNeeded() {
         if (!Backpack.isFull()) {
             performLogout();
-            ScriptConsole.println("Backpack is not full, logging out.");
+            log("[Error] Backpack is not full, logging out.");
         }
     }
 
@@ -357,7 +343,7 @@ public class Runecrafting {
     private static void waitForLogout() {
         Component logoutButton = findLogoutButton();
         if (logoutButton != null && logoutButton.interact(1)) {
-            ScriptConsole.println("Logout initiated.");
+            log("[Error] Logout initiated.");
         } else {
             logLogoutFailure();
         }
@@ -369,9 +355,9 @@ public class Runecrafting {
 
     private static void logLogoutFailure() {
         if (Interfaces.isOpen(1433)) {
-            ScriptConsole.println("Could not find or interact with the logout button.");
+            log("[Error] Could not find or interact with the logout button.");
         } else {
-            ScriptConsole.println("Failed to open logout menu.");
+            log("[Error] Failed to open logout menu.");
         }
     }
 
@@ -380,10 +366,10 @@ public class Runecrafting {
             ActionBar.useItem("Passing bracelet", "Rub");
             Execution.delay(RandomGenerator.nextInt(600, 800));
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
-            ScriptConsole.println("Using Ring of Passing");
+            log("[Runecrafting] Using Ring of Passing");
             if (Interfaces.isOpen(720)) {
                 dialog(0, -1, 47185940);
-                ScriptConsole.println("Interacting with Haunt on the Hill");
+                log("[Runecrafting] Interacting with Haunt on the Hill");
                 Execution.delay(RandomGenerator.nextInt(3500, 5000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
@@ -398,10 +384,10 @@ public class Runecrafting {
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
                 currentState = INTERACTINGWITHPORTAL;
             } else {
-                ScriptConsole.println("Ring of the City of Um: Haunt on the Hill not found in inventory.");
+                log("[Runecrafting] Ring of the City of Um: Haunt on the Hill not found in inventory.");
             }
         } else {
-            ScriptConsole.println("Ring Option not chosen.");
+            log("[Error] Ring Option not chosen.");
         }
     }
 
@@ -413,7 +399,7 @@ public class Runecrafting {
         if (Portal != null) {
             while (!player.isMoving()) {
                 Portal.interact("Enter");
-                ScriptConsole.println("Attempting to interact with the Dark Portal.");
+                log("[Runecrafting] Attempting to interact with the Dark Portal.");
 
                 // Delay for a random time between 600ms and 800ms
                 Execution.delay(random.nextLong(600, 800));
@@ -423,14 +409,14 @@ public class Runecrafting {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
                     Portal.interact("Enter");
-                    ScriptConsole.println("Attempting to interact with the Dark Portal after Surging.");
+                    log("[Runecrafting] Attempting to interact with the Dark Portal after Surging.");
                 }
             }
 
             lastMovedOrAnimatedTime = System.currentTimeMillis();
             currentState = CRAFTING;
         } else {
-            ScriptConsole.println("Dark portal not found.");
+            log("[Error] Dark portal not found.");
         }
     }
 
@@ -453,26 +439,25 @@ public class Runecrafting {
     private static void handleMiasmaAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127383).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
-            ScriptConsole.println("Player animation is -1 and not moving");
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
                     Powerburst();
                     Execution.delay(RandomGenerator.nextInt(450, 550));
                 } else {
-                    ScriptConsole.println("Forgot to use Powerburst.");
+                    log("[Runecrafting] Forgot to use Powerburst.");
                 }
             }
 
             altar.nearest().interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
-            ScriptConsole.println("Attempted to interact with Miasma altar.");
+            log("[Runecrafting] Attempted to interact with Miasma altar.");
 
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
                     altar.nearest().interact("Craft runes");
-                    ScriptConsole.println("Attempting to interact with Spirit altar after Surging.");
+                    log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
         }
@@ -480,7 +465,7 @@ public class Runecrafting {
     private void checkForRuneAndAnimationMiasma(long startTime, long timeout) {
         Execution.delay(RandomGenerator.nextInt(600, 1200));
         if (Backpack.contains("Miasma rune") && player.getAnimationId() == -1) {
-            ScriptConsole.println("Miasma rune found in backpack, proceeding to next state.");
+            log("[Runecrafting] Miasma rune found in backpack, proceeding to next state.");
             updateRuneQuantities();
             Execution.delay(RandomGenerator.nextInt(650, 800));
             lastMovedOrAnimatedTime = System.currentTimeMillis();
@@ -488,7 +473,7 @@ public class Runecrafting {
         } else if (System.currentTimeMillis() - startTime < timeout) {
             checkForRuneAndAnimationMiasma(startTime, timeout);
         } else {
-            ScriptConsole.println("Condition not met within the timeout period.");
+            log("[Error] Condition not met within the timeout period.");
             updateRuneQuantities();
             Execution.delay(RandomGenerator.nextInt(650, 800));
             lastMovedOrAnimatedTime = System.currentTimeMillis();
@@ -500,25 +485,24 @@ public class Runecrafting {
     private static void handleBoneAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127381).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
-            ScriptConsole.println("Player animation is -1 and not moving");
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
                     Powerburst();
                     Execution.delay(RandomGenerator.nextInt(450, 550));
                 } else {
-                    ScriptConsole.println("Forgot to use Powerburst.");
+                    log("[Runecrafting] Forgot to use Powerburst.");
                 }
             }
 
             altar.nearest().interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
-            ScriptConsole.println("Attempted to interact with Bone altar.");
+            log("[Runecrafting] Attempted to interact with Bone altar.");
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
                     altar.nearest().interact("Craft runes");
-                    ScriptConsole.println("Attempting to interact with Spirit altar after Surging.");
+                    log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
         }
@@ -527,26 +511,25 @@ public class Runecrafting {
     private static void handleSpiritAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127380).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
-            ScriptConsole.println("Player animation is -1 and not moving");
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
                     Powerburst();
                     Execution.delay(RandomGenerator.nextInt(450, 550));
                 } else {
-                    ScriptConsole.println("Forgot to use Powerburst.");
+                    log("[Runecrafting] Forgot to use Powerburst.");
                 }
             }
 
             altar.nearest().interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
-            ScriptConsole.println("Attempted to interact with Spirit altar.");
+            log("[Runecrafting] Attempted to interact with Spirit altar.");
 
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
                     altar.nearest().interact("Craft runes");
-                    ScriptConsole.println("Attempting to interact with Spirit altar after Surging.");
+                    log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
         }
@@ -556,26 +539,25 @@ public class Runecrafting {
     private static void handleFleshAltar() {
         EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127382).option("Craft runes").results();
         if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
-            ScriptConsole.println("Player animation is -1 and not moving");
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
                     Powerburst();
                     Execution.delay(RandomGenerator.nextInt(450, 550));
                 } else {
-                    ScriptConsole.println("Forgot to use Powerburst.");
+                    log("[Runecrafting] Forgot to use Powerburst.");
                 }
             }
 
             altar.nearest().interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
-            ScriptConsole.println("Attempted to interact with Flesh altar.");
+            log("[Runecrafting] Attempted to interact with Flesh altar.");
 
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
                     altar.nearest().interact("Craft runes");
-                    ScriptConsole.println("Attempting to interact with Spirit altar after Surging.");
+                    log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
         }
@@ -583,7 +565,7 @@ public class Runecrafting {
 
 
     private void useWarsRetreat() {
-        ScriptConsole.println("Using Wars Retreat: " + ActionBar.useAbility("War's Retreat Teleport"));
+        log("[Runecrafting] Using Wars Retreat: " + ActionBar.useAbility("War's Retreat Teleport"));
         Execution.delay(RandomGenerator.nextInt(6000, 6500));
         currentState = BANKING;
     }
@@ -596,10 +578,10 @@ public class Runecrafting {
 
     private static void summonFamiliar() {
         if (VarManager.getVarbitValue(6055) > 5) {
-            ScriptConsole.println("Familiar is already summoned.");
+            log("[Runecrafting] Familiar is already summoned.");
         } else {
             ActionBar.useItem("Abyssal titan pouch", "Summon");
-            ScriptConsole.println("Summoned Abyssal Titan.");
+            log("[Runecrafting] Summoned Abyssal Titan.");
             Execution.delayUntil(10000, Runecrafting::isFamiliarSummoned);
         }
 
@@ -625,26 +607,26 @@ public class Runecrafting {
                 .orElse(null);
 
         if (prayerOrRestorePot == null) {
-            ScriptConsole.println("[Prayer Potions]  No prayer or restore potions found in the backpack.");
+            log("[Error] No prayer or restore potions found in the backpack.");
             return 1L;
         }
 
-        ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
+        log("[Runecrafting] Drinking " + prayerOrRestorePot.getName());
         boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
-            ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
+            log("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
             long delay = random.nextLong(1500, 3000);
             Execution.delay(delay);
             return delay;
         } else {
-            ScriptConsole.println("[Prayer Potions]  Failed to interact with " + prayerOrRestorePot.getName());
+            log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
             return 0;
         }
     }
 
     private static void Powerburst() {
         if (!canUsePotion()) {
-            ScriptConsole.println("Powerburst of sorcery is on cooldown.");
+            log("[Runecrafting] Powerburst of sorcery is on cooldown.");
             return;
         }
 
@@ -655,7 +637,7 @@ public class Runecrafting {
             if (ActionBar.containsItem(potionName)) {
                 boolean successfulDrink = ActionBar.useItem(potionName, "Drink");
                 if (successfulDrink) {
-                    ScriptConsole.println("Drank " + potionName + "!");
+                    log("[Runecrafting] Drank " + potionName + "!");
                     return;
                 }
                 break;
@@ -672,13 +654,12 @@ public class Runecrafting {
         if (ActionBar.getCooldown("Surge") <= 0) {
             if (Math.random() <= 0.96) {
                 int delayBeforeCasting = RandomGenerator.nextInt(500, 1000);
-                ScriptConsole.println("Delaying for " + delayBeforeCasting + "ms before casting Surge.");
                 Execution.delay(delayBeforeCasting);
             }
-            ScriptConsole.println("Surge is not on cooldown. Casting Surge: " + ActionBar.useAbility("Surge"));
+            log("[Runecrafting] Surge is not on cooldown. Casting Surge: " + ActionBar.useAbility("Surge"));
             return true;
         } else {
-            ScriptConsole.println("Surge is on cooldown, cannot cast.");
+            log("[Error] Surge is on cooldown, cannot cast.");
         }
         return false;
     }
@@ -690,7 +671,7 @@ public class Runecrafting {
         }
         if  (!Charger.isEmpty()) {
             if (Charger.nearest().interact("Deposit")) {
-                ScriptConsole.println("Interacted with Charger to deposit.");
+                log("[Runecrafting] Interacted with Charger to deposit.");
                 return random.nextLong(1500, 3000);
             }
         }
@@ -715,7 +696,7 @@ public class Runecrafting {
         }
         if (!Charger.isEmpty()) {
             if (Charger.nearest().interact("Charge altar")) {
-                ScriptConsole.println("Interacted with Charger to charge.");
+                log("[Runecrafting] Interacted with Charger to charge.");
                 return random.nextLong(1500, 3000);
             }
         }
@@ -728,7 +709,7 @@ public class Runecrafting {
         }
         if (Interfaces.isOpen(1370)) {
             dialog( 0, -1, 89784350);
-            ScriptConsole.println("Selecting 'Weave'");
+            log("[Runecrafting] Selecting 'Weave'");
             return random.nextLong(1500, 3000);
         }
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Soul altar").option("Craft-rune").results();

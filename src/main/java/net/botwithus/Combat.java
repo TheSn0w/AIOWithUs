@@ -39,6 +39,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.findNearestBank;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
@@ -53,7 +54,7 @@ public class Combat {
 
     public static long attackTarget(LocalPlayer player) {
         if (player == null) {
-            return logAndDelay("[attackTarget] Local player not found.", 1500, 3000);
+            return logAndDelay("[Error] Local player not found.", 1500, 3000);
         }
         if (Variables.useLoot) {
             processLooting();
@@ -84,7 +85,7 @@ public class Combat {
 
         if (isHealthLow(player)) {
             eatFood(player);
-            return logAndDelay("[attackTarget] Health is low.", 1000, 3000);
+            return logAndDelay("[Error] Health is low, wont attack until more health.", 1000, 3000);
         }
 
         if (player.hasTarget()) {
@@ -109,7 +110,7 @@ public class Combat {
 
         Npc monster = findTarget(player);
         if (monster == null) {
-            return logAndDelay("[Combat] No valid NPC target found.", 1000, 3000);
+            return logAndDelay("[Error] No valid NPC target found.", 1000, 3000);
         }
 
         return attackMonster(player, monster);
@@ -156,12 +157,12 @@ public class Combat {
         if (attack) {
             return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 750, 1250);
         } else {
-            return logAndDelay("[Combat] Failed to attack " + monster.getName(), 1500, 3000);
+            return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
         }
     }
 
     private static long logAndDelay(String message, int minDelay, int maxDelay) {
-        ScriptConsole.println(message);
+        log(message);
         long delay = random.nextLong(minDelay, maxDelay);
         Execution.delay(delay);
         return delay;
@@ -200,11 +201,11 @@ public class Combat {
 
 
     private static void withdrawFood() {
-        ScriptConsole.println("Interface is open.");
+        log("[Combat] Interface is open.");
         Execution.delay(RandomGenerator.nextInt(600, 1000)); // Short delay
 
         if (selectedFoodNames.isEmpty()) {
-            ScriptConsole.println("No food names specified.");
+            log("[Error] No food names specified.");
             return;
         }
 
@@ -214,7 +215,7 @@ public class Combat {
     }
 
     private static void returnToSkillingLocation(LocalPlayer player) {
-        ScriptConsole.println("Returning to last skilling location: " + skeletonScript.getLastSkillingLocation());
+        log("[Combat] Returning to last skilling location: " + skeletonScript.getLastSkillingLocation());
         Movement.traverse(NavPath.resolve(skeletonScript.getLastSkillingLocation().getRandomWalkableCoordinate())); // Navigate back
         SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
         Execution.delay(random.nextLong(1500, 3000));
@@ -255,7 +256,7 @@ public class Combat {
         List<Component> components = lootAllQuery.componentIndex(22).results().stream().toList();
 
         if (!components.isEmpty() && components.get(0).interact(1)) {
-            ScriptConsole.println("Successfully interacted with Loot All.");
+            log("[Combat] Successfully interacted with Loot All.");
             Execution.delay(RandomGenerator.nextInt(806, 1259));
         }
     }
@@ -273,7 +274,7 @@ public class Combat {
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 5500), () -> getLocalPlayer().isMoving());
 
                 if (getLocalPlayer().isMoving() && groundItem.getCoordinate() != null && Distance.between(getLocalPlayer().getCoordinate(), groundItem.getCoordinate()) > 10) {
-                    ScriptConsole.println("Used Surge: " + ActionBar.useAbility("Surge"));
+                    log("[Combat] Used Surge: " + ActionBar.useAbility("Surge"));
                     Execution.delay(RandomGenerator.nextInt(200, 250));
                 }
 
@@ -282,15 +283,15 @@ public class Combat {
                 }
 
                 if (groundItem.interact("Take")) {
-                    ScriptConsole.println("Taking " + groundItem.getName() + "...");
+                    log("[Combat] Taking " + groundItem.getName() + "...");
                     Execution.delay(RandomGenerator.nextInt(600, 700));
                 }
 
                 boolean interfaceOpened = Execution.delayUntil(15000, () -> Interfaces.isOpen(1622));
                 if (!interfaceOpened) {
-                    ScriptConsole.println("Interface 1622 did not open. Attempting to interact with ground item again.");
+                    log("[Error] Interface 1622 did not open. Attempting to interact with ground item again.");
                     if (groundItem.interact("Take")) {
-                        ScriptConsole.println("Attempting to take " + groundItem.getName() + " again...");
+                        log("[Combat] Attempting to take " + groundItem.getName() + " again...");
                         Execution.delay(RandomGenerator.nextInt(250, 300));
                     }
                 }
@@ -310,7 +311,7 @@ public class Combat {
 
     private static long activateScriptureOfJas() {
         if (VarManager.getVarbitValue(30605) == 0 && VarManager.getVarbitValue(30604) >= 60) {
-            ScriptConsole.println("Activated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            log("[Combat] Activated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
         }
         return 0L;
@@ -318,7 +319,7 @@ public class Combat {
 
     private static long deactivateScriptureOfJas() {
         if (VarManager.getVarbitValue(30605) == 1) {
-            ScriptConsole.println("Deactivated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            log("[Combat] Deactivated Scripture of Jas:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
         }
         return 0L;
@@ -336,7 +337,7 @@ public class Combat {
 
     private static long activateScriptureOfWen() {
         if (VarManager.getVarbitValue(30605) == 0 && VarManager.getVarbitValue(30604) >= 60) {
-            ScriptConsole.println("Activated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            log("[Combat] Activated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
         }
         return 0L;
@@ -344,7 +345,7 @@ public class Combat {
 
     private static long deactivateScriptureOfWen() {
         if (VarManager.getVarbitValue(30605) == 1) {
-            ScriptConsole.println("Deactivated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
+            log("[Combat] Deactivated Scripture of Wen:  " + Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate"));
             return random.nextLong(1500, 3000);
         }
         return 0L;
@@ -352,7 +353,7 @@ public class Combat {
 
     public static void processLooting() {
         if (Backpack.isFull()) {
-            ScriptConsole.println("Backpack is full. Cannot loot more items.");
+            log("[Combat] Backpack is full. Cannot loot more items.");
             return;
         }
 
@@ -379,7 +380,7 @@ public class Combat {
 
     public static void lootFromInventory() {
         if (!canLoot()) {
-            ScriptConsole.println("[LootFromInventory] No target items specified for looting.");
+            log("[Error] No target items specified for looting.");
             return;
         }
 
@@ -394,19 +395,19 @@ public class Combat {
             Matcher matcher = lootPattern.matcher(item.getName());
             if (matcher.find()) {
                 LootInventory.take(item.getName());
-                ScriptConsole.println("[LootFromInventory] Successfully looted item: " + item.getName());
+                log("[Combat] Successfully looted item: " + item.getName());
             }
         }
     }
 
     public static void lootFromGround() {
         if (targetItemNames.isEmpty()) {
-            ScriptConsole.println("[LootFromGround] No target items specified for looting.");
+            log("[Error] No target items specified for looting.");
             return;
         }
 
         if (LootInventory.isOpen()) {
-            ScriptConsole.println("[LootFromGround] Loot interface is open, skipping ground looting.");
+            log("[Combat] Loot interface is open, skipping ground looting.");
             return;
         }
 
@@ -421,7 +422,7 @@ public class Combat {
             Matcher matcher = lootPattern.matcher(groundItem.getName());
             if (matcher.find()) {
                 groundItem.interact("Take");
-                ScriptConsole.println("[lootFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                log("[Combat] Interacted with: " + groundItem.getName() + " on the ground.");
                 Execution.delay(5000);
             }
         }
@@ -456,10 +457,10 @@ public class Combat {
             if (!isSoulSplitActive && player.getPrayerPoints() > 1) {
                 boolean success = ActionBar.useAbility("Soul Split");
                 if (success) {
-                    ScriptConsole.println("Activating Soul Split.");
+                    log("[Combat] Activating Soul Split.");
                     return random.nextLong(600, 1500);
                 } else {
-                    ScriptConsole.println("Failed to activate Soul Split.");
+                    log("[Error] Failed to activate Soul Split.");
                     return 0;
                 }
             }
@@ -467,10 +468,10 @@ public class Combat {
             if (isSoulSplitActive) {
                 boolean success = ActionBar.useAbility("Soul Split");
                 if (success) {
-                    ScriptConsole.println("Deactivating Soul Split.");
+                    log("[Combat] Deactivating Soul Split.");
                     return random.nextLong(600, 1500);
                 } else {
-                    ScriptConsole.println("Failed to deactivate Soul Split.");
+                    log("[Error] Failed to deactivate Soul Split.");
                     return 0;
                 }
             }
@@ -491,10 +492,10 @@ public class Combat {
             if (currentNecrosisStacks >= NecrosisStacksThreshold) {
                 boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
                 if (abilityUsed) {
-                    ScriptConsole.println("[Combat] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
+                    log("[Combat] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
                     Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty());
                 } else {
-                    ScriptConsole.println("Attempted to use Death Grasp, but ability use failed.");
+                    log("[Error] Attempted to use Death Grasp, but ability use failed.");
                 }
             }
         }
@@ -504,7 +505,7 @@ public class Combat {
         if (getLocalPlayer() != null) {
 
             if (getLocalPlayer().getAdrenaline() >= 350 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && getLocalPlayer().getFollowing() != null && getLocalPlayer().getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && getLocalPlayer().hasTarget()) {
-                ScriptConsole.println("[Combat] Used Death Essence: " + ActionBar.useAbility("Weapon Special Attack"));
+                log("[Combat] Used Death Essence: " + ActionBar.useAbility("Weapon Special Attack"));
                 Execution.delay(RandomGenerator.nextInt(600, 1500));
             }
         }
@@ -517,10 +518,10 @@ public class Combat {
             int currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035); // Assuming this var tracks the relevant mechanic
             boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
             if (abilityUsed) {
-                ScriptConsole.println("Used Volley of Souls with " + currentResidualSouls + " residual souls.");
+                log("[Combat] Used Volley of Souls with " + currentResidualSouls + " residual souls.");
                 Execution.delayUntil(RandomGenerator.nextInt(2400, 3000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold);
             } else {
-                ScriptConsole.println("Attempted to use Volley of Souls, but ability use failed.");
+                log("[Error] Attempted to use Volley of Souls, but ability use failed.");
             }
         }
     }
@@ -528,21 +529,21 @@ public class Combat {
 
     static void Deathmark() {
         if (VarManager.getVarbitValue(53247) == 0 && getLocalPlayer().getFollowing() != null && getLocalPlayer().getFollowing().getCurrentHealth() >= 500 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && getLocalPlayer().hasTarget()) {
-            ScriptConsole.println("Used Invoke Death: " + ActionBar.useAbility("Invoke Death"));
+            log("[Combat] Used Invoke Death: " + ActionBar.useAbility("Invoke Death"));
             Execution.delay(RandomGenerator.nextInt(600, 1500));
         }
     }
 
     static void KeepArmyup() {
         if (VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0) {
-            ScriptConsole.println("Cast Conjure army: " + ActionBar.useAbility("Conjure Undead Army"));
+            log("[Combat] Cast Conjure army: " + ActionBar.useAbility("Conjure Undead Army"));
             Execution.delay(RandomGenerator.nextInt(600, 1500));
         }
     }
     static void manageAnimateDead(LocalPlayer player) {
         if (player.inCombat()) {
             if (VarManager.getVarbitValue(49447) <= 1) {
-                ScriptConsole.println("Cast Animate Dead: " + ActionBar.useAbility("Animate Dead"));
+                log("[Combat] Cast Animate Dead: " + ActionBar.useAbility("Animate Dead"));
                 Execution.delay(RandomGenerator.nextInt(600, 1500));
             }
         }
@@ -559,7 +560,7 @@ public class Combat {
                 .results();
 
         if (results.isEmpty()) {
-            ScriptConsole.println("[Aggression Potions] No aggression flasks found in the inventory.");
+            log("[Error] No aggression flasks found in the inventory.");
             return 1L;
         }
 
@@ -567,12 +568,12 @@ public class Combat {
         if (aggressionFlask != null) {
             boolean success = backpack.interact(aggressionFlask.getName(), "Drink");
             if (success) {
-                ScriptConsole.println("[Aggression Potions] Using aggression potion: " + aggressionFlask.getName());
+                log("[Combat] Using aggression potion: " + aggressionFlask.getName());
                 long delay = random.nextLong(1500, 3000);
                 Execution.delay(delay);
                 return delay;
             } else {
-                ScriptConsole.println("[Aggression Potions] Failed to use aggression potion: " + aggressionFlask.getName());
+                log("[Error] Failed to use aggression potion: " + aggressionFlask.getName());
                 return 0;
             }
         }
@@ -596,19 +597,19 @@ public class Combat {
                 .orElse(null);
 
         if (prayerOrRestorePot == null) {
-            ScriptConsole.println("[Prayer Potions]  No prayer or restore potions found in the backpack.");
+            log("[Error]  No prayer or restore potions found in the backpack.");
             return 1L;
         }
 
-        ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
+        log("[Combat] Drinking " + prayerOrRestorePot.getName());
         boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
-            ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
+            log("[Combat] Successfully drank " + prayerOrRestorePot.getName());
             long delay = random.nextLong(1500, 3000);
             Execution.delay(delay);
             return delay;
         } else {
-            ScriptConsole.println("[Prayer Potions]  Failed to interact with " + prayerOrRestorePot.getName());
+            log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
             return 0;
         }
     }
@@ -633,19 +634,19 @@ public class Combat {
                 .orElse(null);
 
         if (overloadPot == null) {
-            ScriptConsole.println("[Overload] No overload potion found in the Backpack.");
+            log("[Error] No overload potion found in the Backpack.");
             return 1L;
         }
 
 
         boolean success = backpack.interact(overloadPot.getName(), "Drink");
         if (success) {
-            ScriptConsole.println("[Overload] Successfully drank " + overloadPot.getName());
+            log("[Combat] Successfully drank " + overloadPot.getName());
             long delay = random.nextLong(1500, 3000);
             Execution.delay(delay);
             return delay;
         } else {
-            ScriptConsole.println("[Overload] Failed to interact with overload potion.");
+            log("[Error] Failed to interact with overload potion.");
             return 0L;
         }
     }
@@ -667,18 +668,18 @@ public class Combat {
                 .orElse(null);
 
         if (weaponPoisonItem == null) {
-            ScriptConsole.println("[Weapon Poison] No weapon poison found in the Backpack.");
+            log("[Error] No weapon poison found in the Backpack.");
             return 1L;
         }
 
         boolean success = backpack.interact(weaponPoisonItem.getName(), "Apply");
         if (success) {
-            ScriptConsole.println("[Weapon Poison] Successfully applied " + weaponPoisonItem.getName());
+            log("[Combat] Successfully applied " + weaponPoisonItem.getName());
             long delay = random.nextLong(1500, 3000);
             Execution.delay(delay);
             return delay;
         } else {
-            ScriptConsole.println("[Weapon Poison] Failed to apply weapon poison.");
+            log("[Error] Failed to apply weapon poison.");
             return 0L;
         }
     }
@@ -693,7 +694,7 @@ public class Combat {
                 Execution.delay(deactivateScrimshaws());
             }
         } else {
-            ScriptConsole.println("Pocket slot does not contain a scrimshaw.");
+            log("[Error] Pocket slot does not contain a scrimshaw.");
         }
     }
 
@@ -701,7 +702,7 @@ public class Combat {
         Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
         Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
         if (Scrimshaw != null && VarManager.getInvVarbit(Scrimshaw.getInventoryType().getId(), Scrimshaw.getSlot(), 17232) == 0) {
-            ScriptConsole.println("Activating Scrimshaws.");
+            log("[Combat] Activating Scrimshaws.");
             Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate");
             return RandomGenerator.nextInt(1500, 3000);
         }
@@ -712,7 +713,7 @@ public class Combat {
         Pattern scrimshawPattern = Pattern.compile("scrimshaw", Pattern.CASE_INSENSITIVE);
         Item Scrimshaw = InventoryItemQuery.newQuery(94).name(scrimshawPattern).results().first();
         if (Scrimshaw != null && VarManager.getInvVarbit(Scrimshaw.getInventoryType().getId(), Scrimshaw.getSlot(), 17232) == 1) {
-            ScriptConsole.println("Deactivating Scrimshaws.");
+            log("[Combat] Deactivating Scrimshaws.");
             Equipment.interact(Equipment.Slot.POCKET, "Activate/Deactivate");
             return RandomGenerator.nextInt(1500, 3000);
         }
@@ -764,24 +765,24 @@ public class Combat {
 
     private static void activateQuickPrayers() {
         if (!quickPrayersActive) {
-            ScriptConsole.println("Activating Quick Prayers.");
+            log("[Combat] Activating Quick Prayers.");
             if (ActionBar.useAbility("Quick-prayers 1")) {
-                ScriptConsole.println("Quick Prayers activated successfully.");
+                log("[Combat] Quick Prayers activated successfully.");
                 quickPrayersActive = true;
             } else {
-                ScriptConsole.println("Failed to activate Quick Prayers.");
+                log("[Error] Failed to activate Quick Prayers.");
             }
         }
     }
 
     private static void deactivateQuickPrayers() {
         if (quickPrayersActive) {
-            ScriptConsole.println("Deactivating Quick Prayers.");
+            log("[Combat] Deactivating Quick Prayers.");
             if (ActionBar.useAbility("Quick-prayers 1")) {
-                ScriptConsole.println("Quick Prayers deactivated.");
+                log("[Combat] Quick Prayers deactivated.");
                 quickPrayersActive = false;
             } else {
-                ScriptConsole.println("Failed to deactivate Quick Prayers.");
+                log("[Error] Failed to deactivate Quick Prayers.");
             }
         }
     }
@@ -822,12 +823,12 @@ public class Combat {
 
         if (food == null) {
             if (BankforFood) {
-                ScriptConsole.println("[EatFood] No food found. Banking for food.");
+                log("[Error] No food found. Banking for food.");
                 setLastSkillingLocation(player.getCoordinate());
                 SnowsScript.setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             } else {
-                ScriptConsole.println("[EatFood] No food found and banking for food is disabled.");
+                log("[Error] No food found and banking for food is disabled.");
                 return 0;
             }
         }
@@ -835,10 +836,10 @@ public class Combat {
         boolean eatSuccess = backpack.interact(food.getName(), "Eat");
 
         if (eatSuccess) {
-            ScriptConsole.println("[EatFood] Successfully ate " + food.getName());
+            log("[Combat] Successfully ate " + food.getName());
             Execution.delay(RandomGenerator.nextInt(250, 450));
         } else {
-            ScriptConsole.println("[EatFood] Failed to eat.");
+            log("[Error] Failed to eat.");
         }
         return 0;
     }
@@ -854,33 +855,33 @@ public class Combat {
         switch (currentStep) {
             case 1:
                 if (travelToPOD()) {
-                    ScriptConsole.println("Arrived at POD. Proceeding to interaction.");
+                    log("[Combat] Arrived at POD. Proceeding to interaction.");
                     currentStep = 2;
                 } else {
-                    ScriptConsole.println("Traveling to POD...");
+                    log("[Combat] Traveling to POD...");
                 }
                 break;
             case 2:
                 if (interactWithKags()) {
-                    ScriptConsole.println("Interacted with Kags. Proceeding to the next step.");
+                    log("[Combat] Interacted with Kags. Proceeding to the next step.");
                     currentStep = 3;
                 }
                 break;
             case 3:
                 if (interactWithFirstDoor()) {
-                    ScriptConsole.println("Interacted with the first door. Proceeding to the next step.");
+                    log("[Combat] Interacted with the first door. Proceeding to the next step.");
                     currentStep = 4;
                 }
                 break;
             case 4:
                 if (interactWithOtherDoor()) {
-                    ScriptConsole.println("Interacted with the other door. Proceeding to the next step.");
+                    log("[Combat] Interacted with the other door. Proceeding to the next step.");
                     currentStep = 5;
                 }
                 break;
             case 5:
                 if (movePlayerEast()) {
-                    ScriptConsole.println("Moved player east. Proceeding to the next step.");
+                    log("[Combat] Moved player east. Proceeding to the next step.");
                     currentStep = 6;
                 }
                 break;
@@ -897,7 +898,7 @@ public class Combat {
                 break;
 
             default:
-                ScriptConsole.println("Invalid step. Please check the process flow.");
+                log("[Error] Invalid step. Please check the process flow.");
                 break;
         }
     }
@@ -1059,7 +1060,7 @@ public class Combat {
     public static long printRemainingTime() {
         Component timerComponent = getTimerComponent();
         String remainingTime = timerComponent.getText();
-        ScriptConsole.println("Remaining time: " + remainingTime);
+        /*log("[Combat] Remaining time: " + remainingTime);*/
         return random.nextLong(1500, 3000);
     }
     public static boolean enableRadiusTracking = false;
@@ -1075,19 +1076,19 @@ public class Combat {
         if (!isWithinRadius(player)) {
             Movement.walkTo(centerCoordinate.getX(), centerCoordinate.getY(), true);
             Execution.delayUntil(15000, () -> isWithinRadius(player));
-            ScriptConsole.println("[Radius Tracking] Moved player back to center.");
+            log("[Combat] Moved player back to center.");
         }
         return random.nextLong(1500, 3000);
     }
 
     public static void setCenterCoordinate(Coordinate newCenter) {
         centerCoordinate = newCenter;
-        ScriptConsole.println("[Radius Tracking] Center coordinate set to: " + newCenter);
+        log("[Combat] Center coordinate set to: " + newCenter);
     }
 
     public static void setRadius(int newRadius) {
         radius = newRadius;
-        ScriptConsole.println("[Radius Tracking] Radius set to: " + newRadius);
+        log("[Combat] Radius set to: " + newRadius);
     }
     public void handleBossAnimation(LocalPlayer player, Npc boss) {
         if (boss == null) {

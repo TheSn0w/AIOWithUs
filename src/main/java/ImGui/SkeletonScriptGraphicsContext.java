@@ -43,7 +43,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     private long totalElapsedTime = 0;
     private boolean tooltipsEnabled = false;
     public String saveSettingsFeedbackMessage = "";
+    static List<String> logMessages = new ArrayList<>();
+
     boolean autoScrollToBottom = false;
+    boolean showLogs = false;
+
 
 
 
@@ -676,366 +680,523 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                 ImGui.EndChild();
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
-                    if (autoScrollToBottom) {
+                    if (showLogs) {
                         ImGui.SetScrollHereY(1.0f);
-                    }
-                    if (!anySelected) {
-                        String[] snowTexts = {
-                                " SSSS         N   N       OOO       W      W",
-                                "S             NN  N      O   O      W      W",
-                                " SSS          N N N      O   O      W      W",
-                                "    S         N  NN      O   O      W  W  W",
-                                "    S         N   N      O   O      W  W  W",
-                                "S   S         N   N      O   O      W  W  W",
-                                " SSS          N   N       OOO        W W W "
-                        };
-
-                        for (String text : snowTexts) {
-                            float windowWidth = 400;
-                            float textWidth = ImGui.CalcTextSize(text).getX();
-                            float centeredX = (windowWidth - textWidth) / 2;
-                            ImGui.SetCursorPosX(centeredX);
-                            ImGui.Text(text);
-                            ImGui.Spacing(5, 5);
+                        ImGui.SeparatorText("Console Logs");
+                        for (String message : CustomLogger.getLogMessages()) {
+                            if (message.contains("[Error]")) {
+                                String[] parts = message.split(" ", 2);
+                                ImGui.PushStyleColor(ImGuiCol.Text,1.0f, 0.0f, 0.0f, 1.0f); // Red color for "[Archaeology]"
+                                ImGui.Text(parts[0]);
+                                ImGui.SameLine();
+                                ImGui.Text(parts[1]);
+                                ImGui.PopStyleColor(); // Revert the color back to the previous one
+                            } else {
+                                ImGui.Text(message);
+                            }
                         }
-                        ImGui.SetCursorPosY(220);
+                    } else {
+                        if (!anySelected) {
+                            String[] snowTexts = {
+                                    " SSSS         N   N       OOO       W      W",
+                                    "S             NN  N      O   O      W      W",
+                                    " SSS          N N N      O   O      W      W",
+                                    "    S         N  NN      O   O      W  W  W",
+                                    "    S         N   N      O   O      W  W  W",
+                                    "S   S         N   N      O   O      W  W  W",
+                                    " SSS          N   N       OOO        W W W "
+                            };
 
-                        String[] newLines = {
-                                "Welcome to the AIO Script",
-                                "Please select a skill to start",
-                                "if you like the script please",
-                                "consider leaving a review",
-                                "if you have any bugs or issues",
-                                "please report them on the forum",
-                                "please note, these are just the barebones of some scripts",
-                                "that can be found on the marketplace",
-                        };
+                            for (String text : snowTexts) {
+                                float windowWidth = 400;
+                                float textWidth = ImGui.CalcTextSize(text).getX();
+                                float centeredX = (windowWidth - textWidth) / 2;
+                                ImGui.SetCursorPosX(centeredX);
+                                ImGui.Text(text);
+                                ImGui.Spacing(5, 5);
+                            }
+                            ImGui.SetCursorPosY(220);
 
-                        for (String line : newLines) {
-                            float windowWidth = 400;
-                            float textWidth = ImGui.CalcTextSize(line).getX();
-                            float centeredX = (windowWidth - textWidth) / 2;
-                            ImGui.SetCursorPosX(centeredX);
-                            ImGui.Text(line);
-                        }
+                            String[] newLines = {
+                                    "Welcome to the AIO Script",
+                                    "Please select a skill to start",
+                                    "if you like the script please",
+                                    "consider leaving a review",
+                                    "if you have any bugs or issues",
+                                    "please report them on the forum",
+                                    "please note, these are just the barebones of some scripts",
+                                    "that can be found on the marketplace",
+                            };
+
+                            for (String line : newLines) {
+                                float windowWidth = 400;
+                                float textWidth = ImGui.CalcTextSize(line).getX();
+                                float centeredX = (windowWidth - textWidth) / 2;
+                                ImGui.SetCursorPosX(centeredX);
+                                ImGui.Text(line);
+                            }
 
 // Add the Discord support button
-                        String discordLink = "https://discordapp.com/channels/973830420858810378/1192140405689548891";
-                        float buttonWidth1 = ImGui.CalcTextSize("Discord Support").getX();
-                        float centeredButtonX1 = (362 - buttonWidth1) / 3;
-                        ImGui.SetCursorPosX(centeredButtonX1);
-                        if (ImGui.Button("Discord Support")) {
-                            try {
-                                Desktop.getDesktop().browse(new URI(discordLink));
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            String discordLink = "https://discordapp.com/channels/973830420858810378/1192140405689548891";
+                            float buttonWidth1 = ImGui.CalcTextSize("Discord Support").getX();
+                            float centeredButtonX1 = (362 - buttonWidth1) / 3;
+                            ImGui.SetCursorPosX(centeredButtonX1);
+                            if (ImGui.Button("Discord Support")) {
+                                try {
+                                    Desktop.getDesktop().browse(new URI(discordLink));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("Click here to join the Discord server for support");
+                            }
+
+                            ImGui.SameLine();
+
+                            String reviewLink = "https://discord.com/channels/973830420858810378/1116465231141544038";
+                            float buttonWidth2 = ImGui.CalcTextSize("Write a Review").getX();
+                            float centeredButtonX2 = centeredButtonX1 + buttonWidth1 + 20;
+                            ImGui.SetCursorPosX(centeredButtonX2);
+                            if (ImGui.Button("Write a Review")) {
+                                try {
+                                    Desktop.getDesktop().browse(new URI(reviewLink));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("Click here to write a review on Discord");
                             }
                         }
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Click here to join the Discord server for support");
-                        }
+                        if (isThievingActive && !showLogs) {
+                            ImGui.SeparatorText("Thieving Options");
+                            if (tooltipsEnabled) {
+                                String[] texts = {
+                                        "Currently does 1-5 @ Pompous Merchant",
+                                        "Currently does 5-42 @ Bakery Stall",
+                                        "Currently does 42-99 @ Crux Druid",
+                                        "Crystal Mask Support + Lightform",
+                                        "Will Bank to Load Last Preset for food",
+                                        "if you like this script, consider looking at Pzoots Thiever",
+                                };
 
-                        ImGui.SameLine();
+                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
 
-                        String reviewLink = "https://discord.com/channels/973830420858810378/1116465231141544038";
-                        float buttonWidth2 = ImGui.CalcTextSize("Write a Review").getX();
-                        float centeredButtonX2 = centeredButtonX1 + buttonWidth1 + 20;
-                        ImGui.SetCursorPosX(centeredButtonX2);
-                        if (ImGui.Button("Write a Review")) {
-                            try {
-                                Desktop.getDesktop().browse(new URI(reviewLink));
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                for (String text : texts) {
+                                    float windowWidth = 400;
+                                    float textWidth = ImGui.CalcTextSize(text).getX();
+                                    float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                    ImGui.SetCursorPosX(centeredStartPos);
+                                    ImGui.Text(text);
+                                }
+
+                                ImGui.PopStyleColor(1);
                             }
                         }
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Click here to write a review on Discord");
-                        }
-                    }
-                    if (isThievingActive) {
-                        ImGui.SeparatorText("Thieving Options");
-                        if (tooltipsEnabled) {
-                            String[] texts = {
-                                    "Currently does 1-5 @ Pompous Merchant",
-                                    "Currently does 5-42 @ Bakery Stall",
-                                    "Currently does 42-99 @ Crux Druid",
-                                    "Crystal Mask Support + Lightform",
-                                    "Will Bank to Load Last Preset for food",
-                                    "if you like this script, consider looking at Pzoots Thiever",
-                            };
+                        if (isHerbloreActive && !showLogs) {
+                            if (tooltipsEnabled) {
+                                String[] texts = {
+                                        "Uses `Load Last Preset from` Bank chest",
+                                        "Uses Portable Well",
+                                        "You dont need a Portable Well if Making Bombs",
+                                        "if you like this script, consider looking at HerbloreWithUs",
+                                };
 
-                            ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
 
-                            for (String text : texts) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(text).getX();
-                                float centeredStartPos = (windowWidth - textWidth) / 2;
+                                for (String text : texts) {
+                                    float windowWidth = 400;
+                                    float textWidth = ImGui.CalcTextSize(text).getX();
+                                    float centeredStartPos = (windowWidth - textWidth) / 2;
 
-                                ImGui.SetCursorPosX(centeredStartPos);
-                                ImGui.Text(text);
+                                    ImGui.SetCursorPosX(centeredStartPos);
+                                    ImGui.Text(text);
+                                }
+
+                                ImGui.PopStyleColor(1);
                             }
-
-                            ImGui.PopStyleColor(1);
-                        }
-                    }
-                    if (isHerbloreActive) {
-                        if (tooltipsEnabled) {
-                            String[] texts = {
-                                    "Uses `Load Last Preset from` Bank chest",
-                                    "Uses Portable Well",
-                                    "You dont need a Portable Well if Making Bombs",
-                                    "if you like this script, consider looking at HerbloreWithUs",
-                            };
-
-                            ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
-
-                            for (String text : texts) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(text).getX();
-                                float centeredStartPos = (windowWidth - textWidth) / 2;
-
-                                ImGui.SetCursorPosX(centeredStartPos);
-                                ImGui.Text(text);
-                            }
-
-                            ImGui.PopStyleColor(1);
-                        }
-                        ImGui.SeparatorText("Potions Made Count");
-                        for (Map.Entry<String, Integer> entry : Potions.entrySet()) {
-                            ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                        }
-
-                        int totalPotionsMade = 0;
-                        for (int count : Potions.values()) {
-                            totalPotionsMade += count;
-                        }
-
-                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                        double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                        double potionsMadePerHour = totalPotionsMade / elapsedHours;
-                        int potionsMadePerHourInt = (int) potionsMadePerHour;
-
-                        ImGui.Text("Potions Made Per Hour: " + potionsMadePerHourInt);
-                    }
-                    if (isMiscActive && !isDissasemblerActive) {
-                        float totalWidth = 360.0f;
-                        float checkboxWidth = 100.0f;
-                        float numItems = 3.0f;
-                        float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
-                        ImGui.SeparatorText("Miscellaneous Options");
-
-                        boolean NoneSelected = isportermakerActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
-
-                        if (!NoneSelected || isportermakerActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isportermakerActive = ImGui.Checkbox("Porter Maker", isportermakerActive);
-                            if (!NoneSelected) {
-                                ImGui.SameLine();
-                            }
-                        }
-
-                        if (!NoneSelected || isPlanksActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isPlanksActive = ImGui.Checkbox("Planks", isPlanksActive);
-                            if (!NoneSelected) {
-                                ImGui.SameLine();
-                            }
-                        }
-
-                        if (!NoneSelected || isCorruptedOreActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isCorruptedOreActive = ImGui.Checkbox("Corrupted Ore", isCorruptedOreActive);
-
-                        }
-
-                        if (!NoneSelected || isSummoningActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isSummoningActive = ImGui.Checkbox("Summoning", isSummoningActive);
-                            if (!NoneSelected) {
-                                ImGui.SameLine();
-                            }
-                        }
-
-                        if (!NoneSelected || isGemCutterActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isGemCutterActive = ImGui.Checkbox("Gem Cutter", isGemCutterActive);
-                            if (!NoneSelected) {
-                                ImGui.SameLine();
-                            }
-                        }
-
-                        if (!NoneSelected || isdivinechargeActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isdivinechargeActive = ImGui.Checkbox("Divine Charge", isdivinechargeActive);
-                        }
-
-                        if (!NoneSelected || isSmeltingActive) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            isSmeltingActive = ImGui.Checkbox("Smelting", isSmeltingActive);
-                            if (!NoneSelected) {
-                                ImGui.SameLine();
-                            }
-                        }
-                        if (!NoneSelected || pickCaveNightshade) {
-                            if (!NoneSelected) {
-                                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            } else {
-                                ImGui.SetCursorPosX(spacing);
-                            }
-                            pickCaveNightshade = ImGui.Checkbox("Cave Nightshade", pickCaveNightshade);
-                        }
-                        if (pickCaveNightshade) {
-                            ImGui.SeparatorText("Cave Nightshade Picked Count");
-                            for (Map.Entry<String, Integer> entry : NightshadePicked.entrySet()) {
+                            ImGui.SeparatorText("Potions Made Count");
+                            for (Map.Entry<String, Integer> entry : Potions.entrySet()) {
                                 ImGui.Text(entry.getKey() + ": " + entry.getValue());
                             }
 
-                            int totalNightshadePicked = 0;
-                            for (int count : NightshadePicked.values()) {
-                                totalNightshadePicked += count;
+                            int totalPotionsMade = 0;
+                            for (int count : Potions.values()) {
+                                totalPotionsMade += count;
                             }
 
                             long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                             double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
-                            double nightshadePickedPerHour = totalNightshadePicked / elapsedHours;
-                            int nightshadePickedPerHourInt = (int) nightshadePickedPerHour;
+                            double potionsMadePerHour = totalPotionsMade / elapsedHours;
+                            int potionsMadePerHourInt = (int) potionsMadePerHour;
 
-                            ImGui.Text("Cave Nightshade Picked Per Hour: " + nightshadePickedPerHourInt);
+                            ImGui.Text("Potions Made Per Hour: " + potionsMadePerHourInt);
                         }
+                        if (isMiscActive && !isDissasemblerActive && !showLogs) {
+                            float totalWidth = 360.0f;
+                            float checkboxWidth = 100.0f;
+                            float numItems = 3.0f;
+                            float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
+                            ImGui.SeparatorText("Miscellaneous Options");
 
-                        if (isSmeltingActive) {
-                            ImGui.SeparatorText("Smelting Options");
-                            if (tooltipsEnabled) {
-                                String[] texts = {
-                                        "Load Last Preset from Bank chest",
-                                        "Set your item before starting",
-                                        "will only work with gems and Enchanted gems",
-                                        "if you like this script, consider looking at SmithWithUs",
-                                };
+                            boolean NoneSelected = isportermakerActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
-                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+                            if (!NoneSelected || isportermakerActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isportermakerActive = ImGui.Checkbox("Porter Maker", isportermakerActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
 
-                                for (String text : texts) {
-                                    float windowWidth = 400;
-                                    float textWidth = ImGui.CalcTextSize(text).getX();
-                                    float centeredStartPos = (windowWidth - textWidth) / 2;
+                            if (!NoneSelected || isPlanksActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isPlanksActive = ImGui.Checkbox("Planks", isPlanksActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
 
-                                    ImGui.SetCursorPosX(centeredStartPos);
-                                    ImGui.Text(text);
+                            if (!NoneSelected || isCorruptedOreActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isCorruptedOreActive = ImGui.Checkbox("Corrupted Ore", isCorruptedOreActive);
+
+                            }
+
+                            if (!NoneSelected || isSummoningActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isSummoningActive = ImGui.Checkbox("Summoning", isSummoningActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
+
+                            if (!NoneSelected || isGemCutterActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isGemCutterActive = ImGui.Checkbox("Gem Cutter", isGemCutterActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
+
+                            if (!NoneSelected || isdivinechargeActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isdivinechargeActive = ImGui.Checkbox("Divine Charge", isdivinechargeActive);
+                            }
+
+                            if (!NoneSelected || isSmeltingActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isSmeltingActive = ImGui.Checkbox("Smelting", isSmeltingActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
+                            if (!NoneSelected || pickCaveNightshade) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                pickCaveNightshade = ImGui.Checkbox("Cave Nightshade", pickCaveNightshade);
+                            }
+                            if (pickCaveNightshade) {
+                                ImGui.SeparatorText("Cave Nightshade Picked Count");
+                                for (Map.Entry<String, Integer> entry : NightshadePicked.entrySet()) {
+                                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
                                 }
 
-                                ImGui.PopStyleColor(1);
-                            }
-                        }
-
-
-
-                        if (isSummoningActive) {
-                            if (tooltipsEnabled) {
-                                String[] texts = {
-                                        "Will use buy sell method at taverly summoning shop",
-                                        "Taverly currently only supports Geyser titan pouch",
-                                        "If using spirit stone will use it to teleport to bank when out",
-                                        "Will only load last preset for spirit stones",
-                                        "Ff using prifddinas will load last preset.",
-                                        "Prif uses crystal teleport crystal so make sure its in preset",
-                                };
-
-                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
-
-                                for (String text : texts) {
-                                    float windowWidth = 400;
-                                    float textWidth = ImGui.CalcTextSize(text).getX();
-                                    float centeredStartPos = (windowWidth - textWidth) / 2;
-
-                                    ImGui.SetCursorPosX(centeredStartPos);
-                                    ImGui.Text(text);
+                                int totalNightshadePicked = 0;
+                                for (int count : NightshadePicked.values()) {
+                                    totalNightshadePicked += count;
                                 }
 
-                                ImGui.PopStyleColor(1);
+                                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                                double nightshadePickedPerHour = totalNightshadePicked / elapsedHours;
+                                int nightshadePickedPerHourInt = (int) nightshadePickedPerHour;
+
+                                ImGui.Text("Cave Nightshade Picked Per Hour: " + nightshadePickedPerHourInt);
                             }
-                            ImGui.SeparatorText("Summoning Options");
-                            ImGui.SetCursorPosX(spacing);
-                            useSpiritStone = ImGui.Checkbox("Spirit Stone", useSpiritStone);
-                            ImGui.SameLine();
-                            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            usePrifddinas = ImGui.Checkbox("Prifddinas", usePrifddinas);
+
+                            if (isSmeltingActive) {
+                                ImGui.SeparatorText("Smelting Options");
+                                if (tooltipsEnabled) {
+                                    String[] texts = {
+                                            "Load Last Preset from Bank chest",
+                                            "Set your item before starting",
+                                            "will only work with gems and Enchanted gems",
+                                            "if you like this script, consider looking at SmithWithUs",
+                                    };
+
+                                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                                    for (String text : texts) {
+                                        float windowWidth = 400;
+                                        float textWidth = ImGui.CalcTextSize(text).getX();
+                                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                        ImGui.SetCursorPosX(centeredStartPos);
+                                        ImGui.Text(text);
+                                    }
+
+                                    ImGui.PopStyleColor(1);
+                                }
+                            }
 
 
-                            if (useSpiritStone) {
+                            if (isSummoningActive) {
+                                if (tooltipsEnabled) {
+                                    String[] texts = {
+                                            "Will use buy sell method at taverly summoning shop",
+                                            "Taverly currently only supports Geyser titan pouch",
+                                            "If using spirit stone will use it to teleport to bank when out",
+                                            "Will only load last preset for spirit stones",
+                                            "Ff using prifddinas will load last preset.",
+                                            "Prif uses crystal teleport crystal so make sure its in preset",
+                                    };
+
+                                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                                    for (String text : texts) {
+                                        float windowWidth = 400;
+                                        float textWidth = ImGui.CalcTextSize(text).getX();
+                                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                        ImGui.SetCursorPosX(centeredStartPos);
+                                        ImGui.Text(text);
+                                    }
+
+                                    ImGui.PopStyleColor(1);
+                                }
+                                ImGui.SeparatorText("Summoning Options");
+                                ImGui.SetCursorPosX(spacing);
+                                useSpiritStone = ImGui.Checkbox("Spirit Stone", useSpiritStone);
+                                ImGui.SameLine();
+                                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                                usePrifddinas = ImGui.Checkbox("Prifddinas", usePrifddinas);
+
+
+                                if (useSpiritStone) {
+                                    ImGui.SetItemWidth(150.0F);
+                                    if (ImGui.Combo("Spirit Stones", spiritStone_current_idx, spiritStone.toArray(new String[0]))) {
+                                        int selectedIndex = spiritStone_current_idx.get();
+                                        if (selectedIndex >= 0 && selectedIndex < spiritStone.size()) {
+                                            String selectedName = spiritStone.get(selectedIndex);
+                                            Summoning.setSpiritStoneName(selectedName);
+                                            ScriptConsole.println("Spirit Stone selected: " + selectedName);
+                                        } else {
+                                            ScriptConsole.println("Please select a valid Spirit Stone.");
+                                        }
+                                    }
+                                }
                                 ImGui.SetItemWidth(150.0F);
-                                if (ImGui.Combo("Spirit Stones", spiritStone_current_idx, spiritStone.toArray(new String[0]))) {
-                                    int selectedIndex = spiritStone_current_idx.get();
-                                    if (selectedIndex >= 0 && selectedIndex < spiritStone.size()) {
-                                        String selectedName = spiritStone.get(selectedIndex);
-                                        Summoning.setSpiritStoneName(selectedName);
-                                        ScriptConsole.println("Spirit Stone selected: " + selectedName);
+                                if (ImGui.Combo("Pouch Names", pouchName_current_idx, pouchName.toArray(new String[0]))) {
+                                    int selectedIndex = pouchName_current_idx.get();
+                                    if (selectedIndex >= 0 && selectedIndex < pouchName.size()) {
+                                        String selectedName = pouchName.get(selectedIndex);
+                                        Summoning.setPouchName(selectedName);
+                                        ScriptConsole.println("Pouch Name selected: " + selectedName);
                                     } else {
-                                        ScriptConsole.println("Please select a valid Spirit Stone.");
+                                        ScriptConsole.println("Please select a valid Pouch Name.");
+                                    }
+                                }
+                                ImGui.SetItemWidth(150.0F);
+                                if (ImGui.Combo("Secondary Items", secondaryItem_current_idx, secondaryItemName.values().toArray(new String[0]))) {
+                                    int selectedIndex = secondaryItem_current_idx.get();
+                                    if (selectedIndex >= 0 && selectedIndex < secondaryItemName.size()) {
+                                        int selectedId = (int) secondaryItemName.keySet().toArray()[selectedIndex];
+                                        String selectedItemName = secondaryItemName.get(selectedId);
+                                        Summoning.setSecondaryItem(selectedId);
+                                        ScriptConsole.println("Secondary Item selected: " + selectedItemName + " (" + selectedId + ")");
+                                    } else {
+                                        ScriptConsole.println("Please select a valid Secondary Item.");
                                     }
                                 }
                             }
-                            ImGui.SetItemWidth(150.0F);
-                            if (ImGui.Combo("Pouch Names", pouchName_current_idx, pouchName.toArray(new String[0]))) {
-                                int selectedIndex = pouchName_current_idx.get();
-                                if (selectedIndex >= 0 && selectedIndex < pouchName.size()) {
-                                    String selectedName = pouchName.get(selectedIndex);
-                                    Summoning.setPouchName(selectedName);
-                                    ScriptConsole.println("Pouch Name selected: " + selectedName);
-                                } else {
-                                    ScriptConsole.println("Please select a valid Pouch Name.");
+                            if (isportermakerActive) {
+                                if (tooltipsEnabled) {
+                                    String[] texts = {
+                                            "Will only work with Sign of the Porter VII",
+                                            "Needs Incandescent Energy to make Porters",
+                                            "Need Dragonstone Necklace to make Porters",
+                                            "Will use `Bank chest` or `Banker`"
+                                    };
+
+                                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                                    for (String text : texts) {
+                                        float windowWidth = 400;
+                                        float textWidth = ImGui.CalcTextSize(text).getX();
+                                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                        ImGui.SetCursorPosX(centeredStartPos);
+                                        ImGui.Text(text);
+                                    }
+
+                                    ImGui.PopStyleColor(1);
                                 }
+                                ImGui.SeparatorText("Porters Made Count");
+                                for (Map.Entry<String, Integer> entry : portersMade.entrySet()) {
+                                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                                }
+
+                                int totalPortersMade = 0;
+                                for (int count : portersMade.values()) {
+                                    totalPortersMade += count;
+                                }
+
+                                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                                double portersMadePerHour = totalPortersMade / elapsedHours;
+                                int portersMadePerHourInt = (int) portersMadePerHour;
+
+                                ImGui.Text("Porters Made Per Hour: " + portersMadePerHourInt);
                             }
-                            ImGui.SetItemWidth(150.0F);
-                            if (ImGui.Combo("Secondary Items", secondaryItem_current_idx, secondaryItemName.values().toArray(new String[0]))) {
-                                int selectedIndex = secondaryItem_current_idx.get();
-                                if (selectedIndex >= 0 && selectedIndex < secondaryItemName.size()) {
-                                    int selectedId = (int) secondaryItemName.keySet().toArray()[selectedIndex];
-                                    String selectedItemName = secondaryItemName.get(selectedId);
-                                    Summoning.setSecondaryItem(selectedId);
-                                    ScriptConsole.println("Secondary Item selected: " + selectedItemName + " (" + selectedId + ")");
-                                } else {
-                                    ScriptConsole.println("Please select a valid Secondary Item.");
+                            if (isdivinechargeActive) {
+                                ImGui.SeparatorText("Divine Charges Count");
+                                for (Map.Entry<String, Integer> entry : divineCharges.entrySet()) {
+                                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
                                 }
+
+                                int totalDivineCharges = 0;
+                                for (int count : divineCharges.values()) {
+                                    totalDivineCharges += count;
+                                }
+
+                                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                                double divineChargesPerHour = totalDivineCharges / elapsedHours;
+                                int divineChargesPerHourInt = (int) divineChargesPerHour;
+
+                                ImGui.Text("Divine Charges Per Hour: " + divineChargesPerHourInt);
+                            }
+                            if (isGemCutterActive) {
+                                ImGui.SeparatorText("Gem Counts");
+                                for (Map.Entry<String, Integer> entry : SnowsScript.Gems.entrySet()) {
+                                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                                }
+
+                                int totalGems = 0;
+                                for (int count : SnowsScript.Gems.values()) {
+                                    totalGems += count;
+                                }
+
+                                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                                double gemsPerHour = totalGems / elapsedHours;
+                                int gemsPerHourInt = (int) gemsPerHour;
+
+                                ImGui.Text("Gems Per Hour: " + gemsPerHourInt);
+                            }
+                            if (isPlanksActive) {
+                                if (tooltipsEnabled) {
+                                    String[] texts = {
+                                            "Have Preset Ready Saved",
+                                            "Start at Fort Bank chest"
+                                    };
+
+                                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                                    for (String text : texts) {
+                                        float windowWidth = 400; // Set the window width
+                                        float textWidth = ImGui.CalcTextSize(text).getX();
+                                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                        ImGui.SetCursorPosX(centeredStartPos);
+                                        ImGui.Text(text);
+                                    }
+
+                                    ImGui.PopStyleColor(1);
+                                }
+                                ImGui.SeparatorText("Plank Options");
+                                ImGui.SetCursorPosX(spacing);
+                                makeFrames = ImGui.Checkbox("Frames", makeFrames);
+                                ImGui.SameLine();
+                                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                                makePlanks = ImGui.Checkbox("make planks", makePlanks);
+                                ImGui.SameLine();
+                                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                                makeRefinedPlanks = ImGui.Checkbox("Refined Planks", makeRefinedPlanks);
+                            }
+                            if (isCorruptedOreActive) {
+                                if (tooltipsEnabled) {
+                                    String[] texts = {
+                                            "Have Corrupted Ore in Backpack and be at Prif Furnace",
+                                    };
+
+                                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                                    for (String text : texts) {
+                                        float windowWidth = 400;
+                                        float textWidth = ImGui.CalcTextSize(text).getX();
+                                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                        ImGui.SetCursorPosX(centeredStartPos);
+                                        ImGui.Text(text);
+                                    }
+
+                                    ImGui.PopStyleColor(1);
+                                }
+                                ImGui.SeparatorText("Corrupted Ore Count");
+                                for (Map.Entry<String, Integer> entry : corruptedOre.entrySet()) {
+                                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                                }
+
+                                int totalCorruptedOre = 0;
+                                for (int count : corruptedOre.values()) {
+                                    totalCorruptedOre += count;
+                                }
+
+                                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                                double corruptedOrePerHour = totalCorruptedOre / elapsedHours;
+                                int corruptedOrePerHourInt = (int) corruptedOrePerHour;
+
+                                ImGui.Text("Corrupted Ore Per Hour: " + corruptedOrePerHourInt);
                             }
                         }
-                        if (isportermakerActive) {
+                        if (isMiscActive && isDissasemblerActive && !showLogs) {
                             if (tooltipsEnabled) {
                                 String[] texts = {
-                                        "Will only work with Sign of the Porter VII",
-                                        "Needs Incandescent Energy to make Porters",
-                                        "Need Dragonstone Necklace to make Porters",
-                                        "Will use `Bank chest` or `Banker`"
+                                        "have Either High Alch or Disassemble on action bar",
+                                        "Have Enough Runes for High Alch",
+                                        "Will log out once the count is finished"
                                 };
 
                                 ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -1051,308 +1212,163 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                                 ImGui.PopStyleColor(1);
                             }
-                            ImGui.SeparatorText("Porters Made Count");
-                            for (Map.Entry<String, Integer> entry : portersMade.entrySet()) {
-                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                            }
-
-                            int totalPortersMade = 0;
-                            for (int count : portersMade.values()) {
-                                totalPortersMade += count;
-                            }
-
-                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                            double portersMadePerHour = totalPortersMade / elapsedHours;
-                            int portersMadePerHourInt = (int) portersMadePerHour;
-
-                            ImGui.Text("Porters Made Per Hour: " + portersMadePerHourInt);
-                        }
-                        if (isdivinechargeActive) {
-                            ImGui.SeparatorText("Divine Charges Count");
-                            for (Map.Entry<String, Integer> entry : divineCharges.entrySet()) {
-                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                            }
-
-                            int totalDivineCharges = 0;
-                            for (int count : divineCharges.values()) {
-                                totalDivineCharges += count;
-                            }
-
-                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                            double divineChargesPerHour = totalDivineCharges / elapsedHours;
-                            int divineChargesPerHourInt = (int) divineChargesPerHour;
-
-                            ImGui.Text("Divine Charges Per Hour: " + divineChargesPerHourInt);
-                        }
-                        if (isGemCutterActive) {
-                            ImGui.SeparatorText("Gem Counts");
-                            for (Map.Entry<String, Integer> entry : SnowsScript.Gems.entrySet()) {
-                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                            }
-
-                            int totalGems = 0;
-                            for (int count : SnowsScript.Gems.values()) {
-                                totalGems += count;
-                            }
-
-                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                            double gemsPerHour = totalGems / elapsedHours;
-                            int gemsPerHourInt = (int) gemsPerHour;
-
-                            ImGui.Text("Gems Per Hour: " + gemsPerHourInt);
-                        }
-                        if (isPlanksActive) {
-                            if (tooltipsEnabled) {
-                                String[] texts = {
-                                        "Have Preset Ready Saved",
-                                        "Start at Fort Bank chest"
-                                };
-
-                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
-
-                                for (String text : texts) {
-                                    float windowWidth = 400; // Set the window width
-                                    float textWidth = ImGui.CalcTextSize(text).getX();
-                                    float centeredStartPos = (windowWidth - textWidth) / 2;
-
-                                    ImGui.SetCursorPosX(centeredStartPos);
-                                    ImGui.Text(text);
-                                }
-
-                                ImGui.PopStyleColor(1);
-                            }
-                            ImGui.SeparatorText("Plank Options");
-                            ImGui.SetCursorPosX(spacing);
-                            makeFrames = ImGui.Checkbox("Frames", makeFrames);
+                            ImGui.SeparatorText("Dissasembler/High Alcher Options");
+                            useDisassemble = ImGui.Checkbox("Disassemble", useDisassemble);
                             ImGui.SameLine();
-                            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                            makePlanks = ImGui.Checkbox("make planks", makePlanks);
-                            ImGui.SameLine();
-                            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                            makeRefinedPlanks = ImGui.Checkbox("Refined Planks", makeRefinedPlanks);
-                        }
-                        if (isCorruptedOreActive) {
-                            if (tooltipsEnabled) {
-                                String[] texts = {
-                                        "Have Corrupted Ore in Backpack and be at Prif Furnace",
-                                };
-
-                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
-
-                                for (String text : texts) {
-                                    float windowWidth = 400;
-                                    float textWidth = ImGui.CalcTextSize(text).getX();
-                                    float centeredStartPos = (windowWidth - textWidth) / 2;
-
-                                    ImGui.SetCursorPosX(centeredStartPos);
-                                    ImGui.Text(text);
-                                }
-
-                                ImGui.PopStyleColor(1);
+                            useAlchamise = ImGui.Checkbox("High Alch", useAlchamise);
+                            ImGui.Separator();
+                            setItemName(ImGui.InputText("Item name", getItemName(), 100, ImGuiWindowFlag.None.getValue()));
+                            itemMenuSize = ImGui.InputInt("Item amount: ", itemMenuSize, 1, 100, ImGuiWindowFlag.None.getValue());
+                            if (ImGui.Button("Add to queue")) {
+                                addTask(new TaskScheduler(itemMenuSize, getItemName()));
                             }
-                            ImGui.SeparatorText("Corrupted Ore Count");
-                            for (Map.Entry<String, Integer> entry : corruptedOre.entrySet()) {
-                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                            }
-
-                            int totalCorruptedOre = 0;
-                            for (int count : corruptedOre.values()) {
-                                totalCorruptedOre += count;
-                            }
-
-                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                            double corruptedOrePerHour = totalCorruptedOre / elapsedHours;
-                            int corruptedOrePerHourInt = (int) corruptedOrePerHour;
-
-                            ImGui.Text("Corrupted Ore Per Hour: " + corruptedOrePerHourInt);
-                        }
-                    }
-                    if (isMiscActive && isDissasemblerActive) {
-                        if (tooltipsEnabled) {
-                            String[] texts = {
-                                    "have Either High Alch or Disassemble on action bar",
-                                    "Have Enough Runes for High Alch",
-                                    "Will log out once the count is finished"
-                            };
-
-                            ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
-
-                            for (String text : texts) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(text).getX();
-                                float centeredStartPos = (windowWidth - textWidth) / 2;
-
-                                ImGui.SetCursorPosX(centeredStartPos);
-                                ImGui.Text(text);
-                            }
-
-                            ImGui.PopStyleColor(1);
-                        }
-                        ImGui.SeparatorText("Dissasembler/High Alcher Options");
-                        useDisassemble = ImGui.Checkbox("Disassemble", useDisassemble);
-                        ImGui.SameLine();
-                        useAlchamise = ImGui.Checkbox("High Alch", useAlchamise);
-                        ImGui.Separator();
-                        setItemName(ImGui.InputText("Item name", getItemName(), 100, ImGuiWindowFlag.None.getValue()));
-                        itemMenuSize = ImGui.InputInt("Item amount: ", itemMenuSize, 1, 100, ImGuiWindowFlag.None.getValue());
-                        if (ImGui.Button("Add to queue")) {
-                            addTask(new TaskScheduler(itemMenuSize, getItemName()));
-                        }
-                        ImGui.Separator();
-                        if (ImGui.BeginTable("Tasks", 3, ImGuiWindowFlag.None.getValue())) {
-                            ImGui.TableNextRow();
-                            ImGui.TableSetupColumn("Item name", 0);
-                            ImGui.TableSetupColumn("Item amount", 1);
-                            ImGui.TableSetupColumn("Delete task", 2);
-                            ImGui.TableHeadersRow();
-                            for (Iterator<TaskScheduler> iterator = tasks.iterator(); iterator.hasNext(); ) {
-                                TaskScheduler task = iterator.next();
+                            ImGui.Separator();
+                            if (ImGui.BeginTable("Tasks", 3, ImGuiWindowFlag.None.getValue())) {
                                 ImGui.TableNextRow();
-                                ImGui.TableNextColumn();
-                                ImGui.Text(task.itemToDisassemble);
-                                ImGui.TableNextColumn();
-                                ImGui.Text("x" + (task.amountToDisassemble - task.getAmountDisassembled()));
-                                ImGui.TableNextColumn();
-                                if (ImGui.Button("Remove") || task.isComplete()) {
-                                    iterator.remove();
+                                ImGui.TableSetupColumn("Item name", 0);
+                                ImGui.TableSetupColumn("Item amount", 1);
+                                ImGui.TableSetupColumn("Delete task", 2);
+                                ImGui.TableHeadersRow();
+                                for (Iterator<TaskScheduler> iterator = tasks.iterator(); iterator.hasNext(); ) {
+                                    TaskScheduler task = iterator.next();
+                                    ImGui.TableNextRow();
+                                    ImGui.TableNextColumn();
+                                    ImGui.Text(task.itemToDisassemble);
+                                    ImGui.TableNextColumn();
+                                    ImGui.Text("x" + (task.amountToDisassemble - task.getAmountDisassembled()));
+                                    ImGui.TableNextColumn();
+                                    if (ImGui.Button("Remove") || task.isComplete()) {
+                                        iterator.remove();
+                                    }
                                 }
+                                ImGui.EndTable();
                             }
-                            ImGui.EndTable();
                         }
-                    }
 
-                    if (isDivinationActive) {
-                        if (tooltipsEnabled) {
-                            String[] texts = {
-                                    "1-99 AIO, will move from spot to spot automatically",
-                                    "have required quests complete, it follows wiki guide",
-                                    "if using familiar, have pouches/restore potions in preset",
-                                    "will bank at prif if out of pouches/restore potions",
-                                    "will use Load Last Preset from, make sure preset is set",
-                                    "if you like this script, consider looking at DivWithUs",
-                            };
+                        if (isDivinationActive && !showLogs) {
+                            if (tooltipsEnabled) {
+                                String[] texts = {
+                                        "1-99 AIO, will move from spot to spot automatically",
+                                        "have required quests complete, it follows wiki guide",
+                                        "if using familiar, have pouches/restore potions in preset",
+                                        "will bank at prif if out of pouches/restore potions",
+                                        "will use Load Last Preset from, make sure preset is set",
+                                        "if you like this script, consider looking at DivWithUs",
+                                };
 
-                            ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
 
-                            for (String text : texts) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(text).getX();
-                                float centeredStartPos = (windowWidth - textWidth) / 2;
+                                for (String text : texts) {
+                                    float windowWidth = 400;
+                                    float textWidth = ImGui.CalcTextSize(text).getX();
+                                    float centeredStartPos = (windowWidth - textWidth) / 2;
 
-                                ImGui.SetCursorPosX(centeredStartPos);
-                                ImGui.Text(text);
+                                    ImGui.SetCursorPosX(centeredStartPos);
+                                    ImGui.Text(text);
+                                }
+
+                                ImGui.PopStyleColor(1);
                             }
-
-                            ImGui.PopStyleColor(1);
-                        }
-                        ImGui.SeparatorText("Chronicles Captured Count");
-                        for (Map.Entry<String, Integer> entry : chroniclesCaughtCount.entrySet()) {
-                            ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                        }
-
-                        int totalChroniclesCaptured = 0;
-                        for (int count : chroniclesCaughtCount.values()) {
-                            totalChroniclesCaptured += count;
-                        }
-
-                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                        double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                        double chroniclesCapturedPerHour = totalChroniclesCaptured / elapsedHours;
-                        int chroniclesCapturedPerHourInt = (int) chroniclesCapturedPerHour;
-
-                        ImGui.Text("Chronicles Captured Per Hour: " + chroniclesCapturedPerHourInt);
-
-                        ImGui.SeparatorText("Energy Gathered Count");
-                        for (Map.Entry<String, Integer> entry : energy.entrySet()) {
-                            ImGui.Text(entry.getKey() + ": " + entry.getValue());
-                        }
-
-                        int totalEnergyGathered = 0;
-                        for (int count : energy.values()) {
-                            totalEnergyGathered += count;
-                        }
-
-                        double energyGatheredPerHour = totalEnergyGathered / elapsedHours;
-                        int energyGatheredPerHourInt = (int) energyGatheredPerHour;
-
-                        ImGui.Text("Energy Gathered Per Hour: " + energyGatheredPerHourInt);
-                    }
-                    if (isRunecraftingActive) {
-                        if (tooltipsEnabled) {
-                            String[] texts = {
-                                    "Select your option and it will run",
-                                    "Will log out if Backpack is not full after Banking",
-                                    "have all stuff on action bar",
-                                    "Have restore potions in preset if using familiar",
-                                    "Soul altar will only work with protean essence",
-                                    "if soul altar, start next to it",
-                                    "you have to choose a ring choice",
-                                    "meaning you need passing bracelet for this to work",
-                                    "unless your doing soul altar",
-                                    "if you like this script, consider looking at RCWithUs",
-                            };
-
-                            ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
-
-                            for (String text : texts) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(text).getX();
-                                float centeredStartPos = (windowWidth - textWidth) / 2;
-
-                                ImGui.SetCursorPosX(centeredStartPos);
-                                ImGui.Text(text);
+                            ImGui.SeparatorText("Chronicles Captured Count");
+                            for (Map.Entry<String, Integer> entry : chroniclesCaughtCount.entrySet()) {
+                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
                             }
 
-                            ImGui.PopStyleColor(1);
-                        }
-                        ImGui.SeparatorText("Runecrafting Options");
-                        float totalWidth = 360.0f;
-                        float checkboxWidth = 100.0f;
-                        float numItems = 3.0f;
-                        float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
+                            int totalChroniclesCaptured = 0;
+                            for (int count : chroniclesCaughtCount.values()) {
+                                totalChroniclesCaptured += count;
+                            }
 
-                        ImGui.SetCursorPosX(spacing);
-                        ManageFamiliar = ImGui.Checkbox("Familiar", ManageFamiliar);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will use level 93 Beast of Burden");
-                        }
-                        ImGui.SameLine();
+                            long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                            double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
-                        ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        Powerburst = ImGui.Checkbox("Powerburst", Powerburst);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will use Powerburst of Sorcery, have on action bar");
-                        }
-                        ImGui.SameLine();
+                            double chroniclesCapturedPerHour = totalChroniclesCaptured / elapsedHours;
+                            int chroniclesCapturedPerHourInt = (int) chroniclesCapturedPerHour;
 
-                        ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        notWearingRing = ImGui.Checkbox("Wearing Bracelet", notWearingRing);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("have passing bracelet in Backpack and select this and have on actionbar");
-                        }
+                            ImGui.Text("Chronicles Captured Per Hour: " + chroniclesCapturedPerHourInt);
 
-                        ImGui.SetCursorPosX(spacing);
-                        WearingRing = ImGui.Checkbox("Wearing Ring", WearingRing);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("if you have equipped passing bracelet, select this");
-                        }
-                        ImGui.SameLine();
+                            ImGui.SeparatorText("Energy Gathered Count");
+                            for (Map.Entry<String, Integer> entry : energy.entrySet()) {
+                                ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                            }
 
-                        ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                        RingofDueling = ImGui.Checkbox("Ring of Dueling", RingofDueling);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("if you have Ring of Dueling, select this,doesnt matter where if its in backpack or not");
+                            int totalEnergyGathered = 0;
+                            for (int count : energy.values()) {
+                                totalEnergyGathered += count;
+                            }
+
+                            double energyGatheredPerHour = totalEnergyGathered / elapsedHours;
+                            int energyGatheredPerHourInt = (int) energyGatheredPerHour;
+
+                            ImGui.Text("Energy Gathered Per Hour: " + energyGatheredPerHourInt);
                         }
-                        ImGui.SetCursorPosX(spacing);
+                        if (isRunecraftingActive && !showLogs) {
+                            if (tooltipsEnabled) {
+                                String[] texts = {
+                                        "Select your option and it will run",
+                                        "Will log out if Backpack is not full after Banking",
+                                        "have all stuff on action bar",
+                                        "Have restore potions in preset if using familiar",
+                                        "Soul altar will only work with protean essence",
+                                        "if soul altar, start next to it",
+                                        "you have to choose a ring choice",
+                                        "meaning you need passing bracelet for this to work",
+                                        "unless your doing soul altar",
+                                        "if you like this script, consider looking at RCWithUs",
+                                };
+
+                                ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                                for (String text : texts) {
+                                    float windowWidth = 400;
+                                    float textWidth = ImGui.CalcTextSize(text).getX();
+                                    float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                                    ImGui.SetCursorPosX(centeredStartPos);
+                                    ImGui.Text(text);
+                                }
+
+                                ImGui.PopStyleColor(1);
+                            }
+                            ImGui.SeparatorText("Runecrafting Options");
+                            float totalWidth = 360.0f;
+                            float checkboxWidth = 100.0f;
+                            float numItems = 3.0f;
+                            float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
+
+                            ImGui.SetCursorPosX(spacing);
+                            ManageFamiliar = ImGui.Checkbox("Familiar", ManageFamiliar);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("Will use level 93 Beast of Burden");
+                            }
+                            ImGui.SameLine();
+
+                            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                            Powerburst = ImGui.Checkbox("Powerburst", Powerburst);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("Will use Powerburst of Sorcery, have on action bar");
+                            }
+                            ImGui.SameLine();
+
+                            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                            notWearingRing = ImGui.Checkbox("Wearing Bracelet", notWearingRing);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("have passing bracelet in Backpack and select this and have on actionbar");
+                            }
+
+                            ImGui.SetCursorPosX(spacing);
+                            WearingRing = ImGui.Checkbox("Wearing Ring", WearingRing);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("if you have equipped passing bracelet, select this");
+                            }
+                            ImGui.SameLine();
+
+                            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                            RingofDueling = ImGui.Checkbox("Ring of Dueling", RingofDueling);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("if you have Ring of Dueling, select this,doesnt matter where if its in backpack or not");
+                            }
+                            ImGui.SetCursorPosX(spacing);
 
                         /*ImGui.SameLine();
 
@@ -1360,12 +1376,13 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         useGraceoftheElves = ImGui.Checkbox("Grace of the Elves", useGraceoftheElves);*/
 
 
-                        ImGui.SeparatorText("Statistics");
-                        displayLoopCountAndRunesPerHour(determineSelectedRuneType());
+                            ImGui.SeparatorText("Statistics");
+                            displayLoopCountAndRunesPerHour(determineSelectedRuneType());
+                        }
                     }
 
 
-                    if (isArcheologyActive) {
+                    if (isArcheologyActive && !showLogs) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "Some areas are not supported by Traversal",
@@ -1520,7 +1537,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                     }
 
 
-                    if (isCombatActive) {
+                    if (isCombatActive && !showLogs) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "use nearest bank - will use a predefined",
@@ -1764,7 +1781,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.EndChild();
                     }
-                    if (isCombatActive && useLoot) {
+                    if (isCombatActive && useLoot && !showLogs) {
                         ImGui.SeparatorText("Loot Options");
 
                         if (ImGui.Button("Add Item") && !Combat.getSelectedItem().isEmpty()) {
@@ -1823,7 +1840,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.EndChild();
                     }
-                    if (isCombatActive && BankforFood) {
+                    if (isCombatActive && BankforFood && !showLogs) {
                         ImGui.SeparatorText("Food Options");
                         if (ImGui.Button("Add Food") && !getFoodName().isEmpty()) {
                             addFoodName(getFoodName());
@@ -1881,7 +1898,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         ImGui.EndChild();
                     }
 
-                    if (isMiningActive) {
+                    if (isMiningActive && !showLogs) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "start anywhere, will move to the closest rock",
@@ -1981,7 +1998,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                     }
 
-                    if (isFishingActive) {
+                    if (isFishingActive && !showLogs) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "start anywhere, will move to the closest spot",
@@ -2092,7 +2109,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.Text("Fish Caught Per Hour: " + fishCaughtPerHourInt);
                     }
-                    if (isCookingActive) {
+                    if (isCookingActive && !showLogs) {
                         if (tooltipsEnabled) {
                             float windowWidth = 400;
                             String[] texts = {
@@ -2133,7 +2150,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.Text("Cooked: " + entry.getKey() + " - " + entry.getValue());
                         }
                     }
-                    if (isWoodcuttingActive) {
+                    if (isWoodcuttingActive && !showLogs) {
                         if (tooltipsEnabled) {
                             String[] texts = {
                                     "start anywhere, will move to the closest tree",
@@ -2274,8 +2291,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         ImGui.SetTooltip("Enable or disable tooltips in the Options tab");
                     }
                     ImGui.SameLine(); // This will place the next button on the same line
-                    if (ImGui.Button("Scroll")) {
-                        autoScrollToBottom = !autoScrollToBottom;
+                    if (ImGui.Button("Logs")) {
+                        showLogs = !showLogs;
                     }
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Auto scroll to bottom");

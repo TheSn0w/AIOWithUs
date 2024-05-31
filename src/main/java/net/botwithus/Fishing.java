@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
@@ -66,7 +67,7 @@ public class Fishing {
         EntityResultSet<SceneObject> DepositBox = SceneObjectQuery.newQuery().name("Deposit box").results();
         if (nearestBank) {
             if (DepositBox.nearest() != null) {
-                ScriptConsole.println("[Fishing] Depositing all fish...");
+                log("[Fishing] Depositing all fish...");
                 boolean success = false;
                 List<String> options = DepositBox.nearest().getOptions();
                 if (options.contains("Deposit all fish")) {
@@ -93,7 +94,7 @@ public class Fishing {
     }
 
     static void dropAllFish() {
-        ScriptConsole.println("[Fishing] Backpack is full. Dropping all fish...");
+        log("[Fishing] Backpack is full. Dropping all fish...");
 
         ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
 
@@ -111,13 +112,13 @@ public class Fishing {
         if (ActionBar.containsItem(itemName)) {
             boolean success = ActionBar.useItem(itemName, "Drop");
             if (success) {
-                ScriptConsole.println("[Fishing] Dropping (ActionBar): " + itemName);
+                log("[Fishing] Dropping (ActionBar): " + itemName);
                 Execution.delay(random.nextLong(206, 405));
             }
         } else if (category == 57 || category == 929) { // Use Backpack fallback
             boolean success = backpack.interact(itemName, "Drop");
             if (success) {
-                ScriptConsole.println("[Fishing] Dropping (Backpack): " + itemName);
+                log("[Fishing] Dropping (Backpack): " + itemName);
                 Execution.delay(random.nextLong(620, 650));
             }
         }
@@ -150,7 +151,7 @@ public class Fishing {
         if (!currentFishingSpotCoord.equals(lastFishingSpotCoord) && player.getAnimationId() == -1) {
             boolean success = nearestFishingSpot.interact(fishingAction);
             if (success) {
-                ScriptConsole.println("[Fishing] Interacted with fishing spot: " + nearestFishingSpot.getName());
+                log("[Fishing] Interacted with fishing spot: " + nearestFishingSpot.getName());
                 lastFishingSpotCoord = currentFishingSpotCoord;
                 return random.nextLong(2500, 5000);
             }
@@ -158,7 +159,7 @@ public class Fishing {
             boolean success = nearestFishingSpot.interact(fishingAction);
             if (success) {
                 lastFishingSpotCoord = currentFishingSpotCoord;
-                ScriptConsole.println("[Fishing] Interacted with fishing spot: " + nearestFishingSpot.getName());
+                log("[Fishing] Interacted with fishing spot: " + nearestFishingSpot.getName());
                 return random.nextLong(2500, 5000);
             }
         }

@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.dialog;
 import static net.botwithus.Variables.Variables.useSpiritStone;
 
 public class Summoning {
@@ -44,37 +46,41 @@ public class Summoning {
             return random.nextLong(1250, 2500);
         }
         if (Interfaces.isOpen(1370)) {
+            log("[Summoning] Interface 1370 is open.");
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
-            ScriptConsole.println("Selecting 'Creating Pouches'");
+            log("[Summoning] Selecting 'Creating Pouches'");
             return random.nextLong(1250, 1500);
         }
         if (containsPouch()) {
             backpack.interact("Attuned crystal teleport seed", "Activate");
-            ScriptConsole.println("Activating 'Attuned crystal teleport seed'");
+            log("[Summoning] Activating 'Attuned crystal teleport seed'");
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             if (Interfaces.isOpen(720)) {
-                MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185955);
-                ScriptConsole.println("Teleporting to Bank'");
+                dialog(0, -1, 47185955);
+                log("[Summoning] Teleporting to Bank'");
                 Execution.delay(random.nextLong(3500, 4000));
                 SceneObject bank = bankChest.nearest();
                 if (bank != null) {
+                    log("[Error] Bank chest is present.");
                     bank.interact("Load Last Preset from");
-                    ScriptConsole.println("Selecting 'Load Last Preset from'");
+                    log("[Summoning] Selecting 'Load Last Preset from'");
                     return random.nextLong(1250, 1500);
                 }
             }
         } else {
+            log("[Error] Pouch is not present.");
             backpack.interact("Attuned crystal teleport seed", "Activate");
-            ScriptConsole.println("Activating 'Attuned crystal teleport seed'");
+            log("[Summoning] Activating 'Attuned crystal teleport seed'");
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             if (Interfaces.isOpen(720)) {
+                log("[Summoning] Interface 720 is open.");
                 MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
-                ScriptConsole.println("Teleporting to Obolisk'");
+                log("[Summoning] Teleporting to Obolisk'");
                 Execution.delay(random.nextLong(3500, 4000));
                 SceneObject obolisk = Obolisk.nearest();
                 if (obolisk != null) {
                     obolisk.interact("Infuse-pouch");
-                    ScriptConsole.println("Selecting 'Infuse-pouch'");
+                    log("[Summoning] Selecting 'Infuse-pouch'");
                     return random.nextLong(1250, 1500);
                 }
             }
@@ -131,7 +137,7 @@ public class Summoning {
         }
 
         if (isSpiritOnyxMissing() && useSpiritStone) {
-            ScriptConsole.println("Spirit stone is missing, moving to bank");
+            log("[Error] Spirit stone is missing, moving to bank");
             return bankforPreset();
         }
 
@@ -182,7 +188,7 @@ public class Summoning {
             Execution.delay(random.nextLong(2200, 2600));
         }
         else {
-            ScriptConsole.println("Failed to select 'Creating Pouches'");
+            log("[Error] Failed to select 'Creating Pouches'");
         }
     }
 
@@ -212,7 +218,7 @@ public class Summoning {
     private static void infusePouchWithWaterTalisman(SceneObject obolisk) {
         obolisk.interact(INFUSE_POUCH_OPTION);
         String itemName = secondaryItemName.get(secondaryItem);
-        ScriptConsole.println("Infusing pouch with: " + itemName);
+        log("[Summoning] Infusing pouch with: " + itemName);
     }
 
     private static boolean isGeyserTitanPouchAvailable() {
@@ -221,22 +227,22 @@ public class Summoning {
 
     private static void infusePouchWithGeyserTitanPouch(SceneObject obolisk) {
         obolisk.interact(INFUSE_POUCH_OPTION);
-        ScriptConsole.println("Infusing pouch with: " + pouchName);
+        log("[Summoning] Infusing pouch with: " + pouchName);
     }
 
     private static long interactWithMagestix() {
         if (Interfaces.isOpen(1265)) {
-            ScriptConsole.println("Interface is open");
+            log("[Summoning] Interface is open");
             ResultSet<Item> items = InventoryItemQuery.newQuery(628).ids(secondaryItem).results();
             if (!items.isEmpty()) {
                 Item item = items.first();
                 int slot = item.getSlot();
                 MiniMenu.interact(ComponentAction.COMPONENT.getType(), 7, slot, 82903060);
-                ScriptConsole.println("Buying all: " + item.getName());
+                log("[Summoning] Buying all: " + item.getName());
                 Execution.delay(random.nextLong(550, 600));
             } else {
                 MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 82903072);
-                ScriptConsole.println("Selecting [Sell]");
+                log("[Summoning] Selecting [Sell]");
                 Execution.delay(random.nextLong(550, 600));
                 ResultSet<Item> items1 = InventoryItemQuery.newQuery(93).ids(1445).results();
                 if (!items1.isEmpty()) {
@@ -244,9 +250,9 @@ public class Summoning {
                     int slot = item.getSlot();
                     MiniMenu.interact(ComponentAction.COMPONENT.getType(), 6, slot, 82903060);
                 }
-                ScriptConsole.println("Selling all: " + secondaryItemName.get(secondaryItem));
+                log("[Summoning] Selling all: " + secondaryItemName.get(secondaryItem));
                 Execution.delay(random.nextLong(550, 600));
-                ScriptConsole.println("Selecting [Buy]");
+                log("[Summoning] Selecting [Buy]");
                 MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, 82903081);
                 Execution.delay(random.nextLong(550, 600));
             }
@@ -255,7 +261,7 @@ public class Summoning {
             if (!magestix.isEmpty()) {
                 Npc nearestMagestix = magestix.nearest();
                 nearestMagestix.interact("Trade");
-                ScriptConsole.println("Interacting with Magestix");
+                log("[Summoning] Interacting with Magestix");
             }
         }
         return 0;
@@ -268,7 +274,7 @@ public class Summoning {
         if (!results.isEmpty()) {
             SceneObject bank = results.nearest();
             bank.interact("Load Last Preset from");
-            ScriptConsole.println("Interacting with Bank");
+            log("[Summoning] Interacting with Bank");
         } else
         if (Movement.traverse(NavPath.resolve(bankLocation)) == TraverseEvent.State.FINISHED) {
             return random.nextLong(1250, 1500);

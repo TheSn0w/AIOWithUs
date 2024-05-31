@@ -1,5 +1,6 @@
 package net.botwithus
 
+import net.botwithus.CustomLogger.log
 import net.botwithus.api.game.hud.inventories.Backpack
 import net.botwithus.api.game.hud.inventories.Bank
 import net.botwithus.rs3.game.Client
@@ -30,7 +31,7 @@ class Cooking {
 
         if (Interfaces.isOpen(1370)) {
             MiniMenu.interact(ComponentAction.DIALOGUE.type, 0, -1, 89784350)
-            ScriptConsole.println("Selecting 'Cook All'")
+            log("[Cooking] Selecting 'Cook All'")
             return randomDelay
         }
 
@@ -40,7 +41,7 @@ class Cooking {
             val (range, option) = rangeAndOption
             if (range != null && (Backpack.containsItemByCategory(57) || Backpack.contains(53120))) {
                 if (range.interact(option)) {
-                    ScriptConsole.println("Interacting with: " + range.name)
+                    log("[Cooking] Interacting with: " + range.name)
                     return randomDelay
                 }
             }
@@ -89,7 +90,7 @@ class Cooking {
                 val itemName = item.name
                 if (itemName != null) {
 
-                    ScriptConsole.println("Interacting with item: $itemName")
+                    log("[Cooking] Interacting with item: $itemName")
 
                     Backpack.interact(itemName, "Drink")
                 }
@@ -110,7 +111,7 @@ class Cooking {
             if (bank != null) {
                 return handleBankInteractions(bank, option, randomDelay)
             } else {
-                ScriptConsole.println("Bank not found")
+                log("[Error] Bank not found")
             }
         }
 
@@ -119,20 +120,20 @@ class Cooking {
 
     private fun handleBankInteractions(bank: SceneObject, option: String, randomDelay: Long): Long {
         if (bank.interact("Load Last Preset from")) {
-            ScriptConsole.println("Interacting with Bank using 'Load Last Preset'")
+            log("[Cooking] Interacting with Bank using 'Load Last Preset'")
             Execution.delayUntil(10000) { !Backpack.containsItemByCategory(58) }
 
             if (Backpack.containsItemByCategory(57)) {
                 return randomDelay
             } else {
-                ScriptConsole.println("No food in backpack - Loading preset 9")
+                log("[Error] No food in backpack - Loading preset 9")
                 Bank.loadPreset(9)
                 Execution.delayUntil(10000) { Backpack.containsItemByCategory(57) }
 
                 if (Backpack.containsItemByCategory(57)) {
                     return randomDelay
                 } else {
-                    ScriptConsole.println("Still no food in backpack - creating new preset")
+                    log("[Error] Still no food in backpack - creating new preset")
                     return handleBankWithdrawals(Pair(bank, option), randomDelay)
                 }
             }
@@ -143,7 +144,7 @@ class Cooking {
     private fun handleBankWithdrawals(bankAndOption: Pair<SceneObject, String>, randomDelay: Long): Long {
         val (bank, option) = bankAndOption
         if (bank.interact(option)) {
-            ScriptConsole.println("Interacting with Bank using $option action")
+            log("[Cooking] Interacting with Bank using $option action")
             Execution.delay(randomDelay)
             if (waitForBankToOpen()) {
                 Execution.delay(randomDelay)
@@ -188,7 +189,7 @@ class Cooking {
     private fun waitForBankToOpen(): Boolean {
         val isBankOpen = Execution.delayUntil(30000) { Bank.isOpen() }
         if (isBankOpen) {
-            ScriptConsole.println("Bank interface is open")
+            log("[Cooking] Bank interface is open")
         }
         return isBankOpen
     }
@@ -201,21 +202,21 @@ class Cooking {
             .map { (name, items) -> name to items.sumOf { it.stackSize } }
 
         if (itemCounts.isNotEmpty()) {
-            ScriptConsole.println("Depositing items:")
+            log("[Cooking] Depositing items:")
             itemCounts.forEach { (name, stackSize) ->
-                ScriptConsole.println(" - $name (Stack size: $stackSize)")
+                log("[Cooking] - $name (Stack size: $stackSize)")
             }
             Bank.depositAll()
             Execution.delay(randomDelay)
         } else {
-            ScriptConsole.println("No depositable items found in the Backpack")
+            log("[Error] No depositable items found in the Backpack")
         }
     }
 
 
     private fun handleWithdrawals() {
         val cookingLevel = Skills.COOKING.actualLevel
-        ScriptConsole.println("Cooking level: $cookingLevel")
+        log("[Cooking] Cooking level: $cookingLevel")
 
         val fishMap = mapOf(
             1 to listOf("Crayfish", "Shrimps", "Karambwanji", "Sardine", "Anchovies", "Poison Karambwan"),
@@ -267,17 +268,17 @@ class Cooking {
 
             for (fish in fishList) {
                 if (availableFish.contains(fish)) {
-                    ScriptConsole.println("Should be cooking: $fish")
+                    log("[Cooking] Should be cooking: $fish")
                     for (item in category57Items) {
                         if (item.name == fish && item.stackSize > 1) {
-                            ScriptConsole.println("Withdrawing: ${item.name} (Stack size: ${item.stackSize})")
+                            log("[Cooking] Withdrawing: ${item.name} (Stack size: ${item.stackSize})")
                             Bank.withdraw(item.name, 1)
                             foodWithdrawn = true
                             break
                         }
                     }
                     if (!foodWithdrawn) {
-                        ScriptConsole.println("$fish does not exist in the bank.")
+                        log("[Error] $fish does not exist in the bank.")
                     }
                 }
                 if (foodWithdrawn) break
@@ -285,7 +286,7 @@ class Cooking {
         }
 
         if (!foodWithdrawn) {
-            ScriptConsole.println("No available fish found in the bank.")
+            log("[Error] No available fish found in the bank.")
         }
     }
 
@@ -296,7 +297,7 @@ class Cooking {
         }
         if (Interfaces.isOpen(1370)) {
             MiniMenu.interact(ComponentAction.DIALOGUE.type, 0, -1, 89784350)
-            ScriptConsole.println("Selecting 'Brew'")
+            log("[Cooking] Selecting 'Brew'")
             return randomDelay
         }
 
@@ -306,7 +307,7 @@ class Cooking {
             .firstOrNull()
 
         if (grapes == null) {
-            ScriptConsole.println("Grapes not found in inventory, Loading preset.")
+            log("[Error] Grapes not found in inventory, Loading preset.")
             bankChest.nearest()?.interact("Load Last Preset from")
             return random.nextLong(650, 1000)
         }
@@ -318,28 +319,28 @@ class Cooking {
             .firstOrNull()
 
         if (jugOfWater == null) {
-            ScriptConsole.println("Jug of water not found in inventory.")
+            log("[Error] Jug of water not found in inventory.")
             return random.nextLong(650, 1000)
         }
 
-        ScriptConsole.println("Found Grapes and Jug of water. Preparing to use.")
+        log("[Cooking] Found Grapes and Jug of water. Preparing to use.")
 
         val grapesSelected = MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.type, 0, grapes.slot, 96534533)
         Execution.delay(random.nextLong(500, 750))
 
         if (grapesSelected) {
-            ScriptConsole.println("Using Grapes on Jug of water...")
+            log("[Cooking] Using Grapes on Jug of water...")
             val jugOfWaterSelected =
                 MiniMenu.interact(SelectableAction.SELECT_COMPONENT_ITEM.type, 0, jugOfWater.slot, 96534533)
             Execution.delay(random.nextLong(500, 750))
 
             if (jugOfWaterSelected) {
-                ScriptConsole.println("Grapes successfully used on Jug of water.")
+                log("[Cooking] Grapes successfully used on Jug of water.")
             } else {
-                ScriptConsole.println("Failed to use Grapes on Jug of water.")
+                log("[Error] Failed to use Grapes on Jug of water.")
             }
         } else {
-            ScriptConsole.println("Failed to select Grapes.")
+            log("[Error] Failed to select Grapes.")
         }
         return random.nextLong(650, 1000)
     }

@@ -19,6 +19,8 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
+import static net.botwithus.CustomLogger.log;
+
 public class GemCutter {
     SnowsScript script;
     private static Random random = new Random();
@@ -35,22 +37,25 @@ public class GemCutter {
         }
         if (Interfaces.isOpen(1370)) {
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
-            ScriptConsole.println("Selecting 'Craft'");
+            log("[Gem Cutter] Selecting 'Craft'");
             return random.nextLong(750, 1050);
         }
         if (Backpack.containsItemByCategory(5289)) {
             if (craftitems != null) {
+                log("[Gem Cutter] Crafting " + craftitems.getName());
                 backpack.interact(craftitems.getName(), "Craft");
                 return random.nextLong(750, 1050);
             }
         } else {
             EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Load Last Preset from").results();
             if (!results.isEmpty()) {
+                log("[Gem Cutter] Loading last preset from banker");
                 results.nearest().interact("Load Last Preset from");
                 return random.nextLong(750, 1050);
             } else {
                 EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
                 if (!chestResults.isEmpty()) {
+                    log("[Gem Cutter] Loading last preset from bank chest");
                     chestResults.nearest().interact("Load Last Preset from");
                     return random.nextLong(750, 1050);
                 }

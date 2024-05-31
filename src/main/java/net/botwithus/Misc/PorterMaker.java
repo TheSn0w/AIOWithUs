@@ -17,8 +17,8 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
-import static net.botwithus.Variables.Variables.isportermakerActive;
-import static net.botwithus.Variables.Variables.portersMade;
+import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.*;
 
 
 public class PorterMaker {
@@ -36,23 +36,30 @@ public class PorterMaker {
             return random.nextLong(1250, 2500);
         }
         if (Interfaces.isOpen(1370)) {
-            MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
-            ScriptConsole.println("Selecting 'Weave'");
+            dialog(0, -1, 89784350);
+            log("[Porter Maker] Selecting 'Weave'");
             return random.nextLong(1250, 1500);
         }
         if (Backpack.contains("Dragonstone necklace")) {
+            log("[Porter Maker] Dragonstone necklace found in the backpack.");
             backpack.interact("Incandescent energy", "Weave");
+            log("[Porter Maker] Interacting with Incandescent energy to Weave.");
             return random.nextLong(1250, 2500);
         } else {
+            log("[Error] Dragonstone necklace not found in the backpack.");
             EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Load Last Preset from").results();
             if (!results.isEmpty()) {
+                log("[Porter Maker] Loading last preset from banker");
                 results.nearest().interact("Load Last Preset from");
                 return random.nextLong(750, 1050);
             } else {
                 EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
                 if (!chestResults.isEmpty()) {
+                    log("[Porter Maker] Loading last preset from bank chest");
                     chestResults.nearest().interact("Load Last Preset from");
                     return random.nextLong(750, 1050);
+                } else {
+                    log("[Error] Bank chest not found.");
                 }
             }
         }
@@ -64,12 +71,12 @@ public class PorterMaker {
         }
         if (Interfaces.isOpen(1370)) {
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
-            ScriptConsole.println("Selecting 'Weave'");
+            log("[Porter Maker] Selecting 'Weave'");
             return random.nextLong(1250, 1500);
         }
         if (Backpack.contains("Incandescent energy")) {
             backpack.interact("Incandescent energy", "Weave");
-            ScriptConsole.println("Weaving Incandescent energy");
+            log("[Porter Maker] Weaving Incandescent energy");
         }
         return random.nextLong(750, 1050);
     }

@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
 import static net.botwithus.Combat.*;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.Variables.Variables.*;
@@ -218,7 +219,7 @@ public class SnowsScript extends LoopingScript {
                 int totalRuneCount = currentCount + newCount;
 
                 runeCount.put(itemName, totalRuneCount);
-                ScriptConsole.println("Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
+                log("[Runecrafting] Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
                 Runecrafting.setCurrentState(TELEPORTINGTOBANK);
             }
         }
@@ -416,7 +417,7 @@ public class SnowsScript extends LoopingScript {
         try {
             return Integer.parseInt(text);
         } catch (NumberFormatException e) {
-            ScriptConsole.println("[Main] Error: Could not parse text to integer.");
+            log("[Error] Could not parse text to integer.");
             return 0;
         }
     }
@@ -462,15 +463,15 @@ public class SnowsScript extends LoopingScript {
                 randomBankBooth = bankBooths.get(random.nextInt(bankBooths.size()));
 
                 if (distanceToBank < 25.0D) {
-                    ScriptConsole.println("[Main] Bank is near, interacting with nearest bank");
+                    log("[Main] Bank is near, interacting with nearest bank");
                     return interactWithBank(player, randomBankBooth);
                 }
             } else {
-                ScriptConsole.println("[Main] Bank is far, traversing to bank");
+                log("[Main] Bank is far, traversing to bank");
                 Movement.traverse(NavPath.resolve(nearestBank));
             }
         } else {
-            ScriptConsole.println("[Main] Nearest bank not found.");
+            log("[Error] Nearest bank not found.");
         }
         return random.nextLong(1500, 3000);
     }
@@ -507,7 +508,7 @@ public class SnowsScript extends LoopingScript {
         if (actionBank) {
             String interactionOption = "Bank";
             boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-            ScriptConsole.println("[Main] Interacting with the bank: " + interactionSuccess);
+            log("[Main] Interacting with the bank: " + interactionSuccess);
 
             if (interactionSuccess) {
                 Execution.delayUntil(15000, Bank::isOpen);
@@ -518,11 +519,11 @@ public class SnowsScript extends LoopingScript {
 
                     if (oreBox != null) {
                         Bank.depositAllExcept(oreBoxesPattern);
-                        ScriptConsole.println("[Main] Deposited everything except: " + oreBox.getName());
+                        log("[Main] Deposited everything except: " + oreBox.getName());
 
                         if (oreBox.getSlot() >= 0) {
                             MiniMenu.interact(ComponentAction.COMPONENT.getType(), 8, oreBox.getSlot(), 33882127);
-                            ScriptConsole.println("[Main] Emptied: " + oreBox.getName());
+                            log("[Main] Emptied: " + oreBox.getName());
                         }
                     }
                 }
@@ -530,12 +531,12 @@ public class SnowsScript extends LoopingScript {
         } else {
             String interactionOption = "Load Last Preset from";
             boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-            ScriptConsole.println("[Main] Interacting with the bank using Load Last Preset: " + interactionSuccess);
+            log("[Main] Interacting with the bank using Load Last Preset: " + interactionSuccess);
 
             Execution.delayUntil(15000, () -> !Backpack.isFull());
 
             if (!Backpack.isFull()) {
-                ScriptConsole.println("[Main] Backpack is not full, returning to last skilling location.");
+                log("[Main] Backpack is not full, returning to last skilling location.");
                 if (Movement.traverse(NavPath.resolve(getLastSkillingLocation())) == TraverseEvent.State.FINISHED) {
                     setBotState(SKILLING);
                 }
@@ -823,9 +824,9 @@ public class SnowsScript extends LoopingScript {
                     addFoodName(foodName);
                 }
             }
-            println("Configuration loaded successfully.");
+            log("[Settings] Configuration loaded successfully.");
         } catch (Exception e) {
-            println("Failed to load configuration. Using defaults.");
+            log("[Error] Failed to load configuration. Using defaults.");
         }
     }
 }

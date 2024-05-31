@@ -12,6 +12,7 @@ import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class Agility {
@@ -27,7 +28,7 @@ public class Agility {
             SceneObject nearestObject = SceneObjectQuery.newQuery().name(objectName).results().nearest();
             if (nearestObject != null) {
                 if (nearestObject.interact(interaction)) {
-                    ScriptConsole.println("[Main] Interacted with: " + objectName);
+                    log("[Agility] Interacted with: " + objectName);
                     Execution.delayUntil(random.nextLong(10000, 15000), () -> player.getCoordinate().equals(successLocation));
                     Execution.delay(random.nextLong(500, 1500));
                 }
@@ -39,16 +40,16 @@ public class Agility {
         int agilityLevel = Skills.AGILITY.getActualLevel();
 
         if (agilityLevel >= 1 && agilityLevel <= 34) {
-            ScriptConsole.println("[Main] Using Tree Gnome agility course.");
+            log("[Agility] Using Tree Gnome agility course.");
 
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(69526).option("Walk-across").results();
             if (results.isEmpty() && !player.isMoving()) {
-                ScriptConsole.println("[Main] Walking to the starting point of the agility course.");
+                log("[Agility] Walking to the starting point of the agility course.");
                 Movement.traverse(NavPath.resolve(Variables.LOG_BALANCE));
                 return random.nextLong(1500, 3000);
             }
             if (!results.isEmpty() && !player.isMoving() && !LOG_BALANCE.equals(player.getCoordinate())) {
-                ScriptConsole.println("[Main] Player is not at the correct location, walking to LOG_BALANCE.");
+                log("[Agility] Player is not at the correct location, walking to LOG_BALANCE.");
                 Movement.walkTo(LOG_BALANCE.getX(), LOG_BALANCE.getY(), true);
                 return random.nextLong(1500, 3000);
             }

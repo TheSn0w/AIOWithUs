@@ -28,6 +28,8 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.List;
 import java.util.Random;
 
+import static net.botwithus.CustomLogger.log;
+
 public class Thieving {
     private static final Random random = new Random();
     public static SnowsScript skeletonScript;
@@ -49,7 +51,7 @@ public class Thieving {
                 if (options.contains("Steal from")) {
                     Execution.delay(random.nextInt(500, 1000));
                     boolean interactionSuccess = bakeryStall.interact("Steal from");
-                    ScriptConsole.println("Attempted interaction with Bakery Stall: " + interactionSuccess);
+                    log("[Thieving] Attempted interaction with Bakery Stall: " + interactionSuccess);
 
                     long startTime = System.currentTimeMillis();
                     long endTime = startTime + 2000;  // 2-second monitoring window
@@ -66,16 +68,16 @@ public class Thieving {
                     }
 
                     if (success) {
-                        ScriptConsole.println("Interaction successful after monitoring. Animation ID: 832");
+                        log("[Thieving] Interaction successful after monitoring. Animation ID: 832");
                         failedAttempts = 0;
                         return random.nextLong(1500, 3000);
                     } else {
                         failedAttempts++;
-                        ScriptConsole.println("Interaction unsuccessful after monitoring. Failed attempts: " + failedAttempts);
+                        log("[Error] Interaction unsuccessful after monitoring. Failed attempts: " + failedAttempts);
 
                         if (failedAttempts >= 3) {
                             if (!BakerystallLocation.equals(player.getCoordinate())) {
-                                ScriptConsole.println("Traversing to BakeryStallLocation after 3 failed attempts.");
+                                log("[Thieving] Traversing to Bakery Stall Location after 3 failed attempts.");
                                 Movement.traverse(NavPath.resolve(BakerystallLocation));
                                 return random.nextLong(3500, 5000);
                             }
@@ -111,7 +113,7 @@ public class Thieving {
                 if (!player.isMoving() && player.getAnimationId() == -1) {
                     Npc npc = results.nearest();
                     if (npc != null) {
-                        ScriptConsole.println("Interacting with Pompous merchant.");
+                        log("[Thieving] Interacting with Pompous merchant.");
                         npc.interact("Pickpocket");
                     }
                 }
@@ -125,14 +127,14 @@ public class Thieving {
                 if (bankChest != null) {
                     boolean bankInteractionSuccess = bankChest.interact("Load Last Preset from");  // Attempt interaction
                     if (bankInteractionSuccess) {
-                        ScriptConsole.println("Interacted with BankChest.");
+                        log("[Thieving] Interacted with BankChest.");
                         Execution.delayUntil(15000, Backpack::isEmpty);
                         return random.nextLong(3500, 5000);
                     } else {
-                        ScriptConsole.println("BankChest interaction failed.");
+                        log("[Error] BankChest interaction failed.");
                     }
                 } else {
-                    ScriptConsole.println("BankChest not found.");
+                    log("[Error] BankChest not found.");
                 }
             }
             if (distance > 15.0D) {
@@ -179,19 +181,19 @@ public class Thieving {
                         boolean isCrystalMaskActive = !resultsMask.isEmpty();
 
                         if (!isCrystalMaskActive) {
-                            ScriptConsole.println("Activating Crystal Mask.");
+                            log("[Thieving] Activating Crystal Mask.");
                             if (ActionBar.useAbility("Crystal Mask")) {
-                                ScriptConsole.println("Crystal Mask activated successfully.");
+                                log("[Thieving] Crystal Mask activated successfully.");
                                 Execution.delay(RandomGenerator.nextInt(1000, 2000));
                             } else {
-                                ScriptConsole.println("Failed to activate Crystal Mask.");
+                                log("[Error] Failed to activate Crystal Mask.");
                             }
                         }
                         LightFormActivation();
 
                         Npc npc = results.nearest();
                         if (npc != null) {
-                            ScriptConsole.println("Interacting with Druid.");
+                            log("[Thieving] Interacting with Druid.");
                             npc.interact("Pickpocket");
                         }
                     }
@@ -209,7 +211,7 @@ public class Thieving {
 
     private static void activateLightForm() {
         ActionBar.useAbility("Light Form");
-        ScriptConsole.println("Light Form activated.");
+        log("[Thieving] Light Form activated.");
         Execution.delay(RandomGenerator.nextInt(1000, 2000));
     }
     public static void eatFood(LocalPlayer player) {
@@ -242,7 +244,7 @@ public class Thieving {
         Item food = foodItems.isEmpty() ? null : foodItems.first();
 
         if (food == null) {
-                ScriptConsole.println("[EatFood] No food found. Banking for food.");
+                log("[EatFood] No food found. Banking for food.");
             SnowsScript.setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
         }
@@ -250,10 +252,10 @@ public class Thieving {
         boolean eatSuccess = backpack.interact(food.getName(), "Eat");
 
         if (eatSuccess) {
-            ScriptConsole.println("[EatFood] Successfully ate " + food.getName());
+            log("[EatFood] Successfully ate " + food.getName());
             Execution.delay(RandomGenerator.nextInt(250, 450));
         } else {
-            ScriptConsole.println("[EatFood] Failed to eat.");
+            log("[Error] Failed to eat.");
         }
         return 0;
     }
@@ -262,17 +264,17 @@ public class Thieving {
         if (bankChest != null) {
             boolean bankInteractionSuccess = bankChest.interact("Load Last Preset from");
             if (bankInteractionSuccess) {
-                ScriptConsole.println("Interacted with BankChest.");
+                log("[Thieving] Interacted with Bank chest.");
                 Execution.delayUntil(15000, () -> Backpack.containsItemByCategory(58));
                 if (Backpack.containsItemByCategory(58)) { // Corrected syntax here
-                    ScriptConsole.println("Food found in backpack.");
+                    log("[Thieving] Food found in backpack.");
                     SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
                 }
             } else {
-                ScriptConsole.println("BankChest interaction failed.");
+                log("[Error] Bank chest interaction failed.");
             }
         } else {
-            ScriptConsole.println("BankChest not found.");
+            log("[Error] BankChest not found.");
             ActionBar.useAbility("War's Retreat Teleport");
             Execution.delay(random.nextLong(7000, 7500));
         }

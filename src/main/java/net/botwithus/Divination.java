@@ -31,6 +31,7 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.*;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTING;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.Variables.Variables.*;
@@ -44,12 +45,12 @@ public class Divination {
         Coordinate wispCoordinates = getWispCoordinates(divinationLevel);
 
         if (wispCoordinates == null) {
-            ScriptConsole.println("No valid wisp coordinates found for level: " + divinationLevel);
+            log("[Error] No valid wisp coordinates found for level: " + divinationLevel);
             return random.nextLong(1500, 3000);
         }
 
         if (wispName == null && player.getAnimationId() != 16385) {
-            ScriptConsole.println("No valid wisp name for level: " + divinationLevel);
+            log("[Error] No valid wisp name for level: " + divinationLevel);
             return navigateTo(player, wispCoordinates);
         }
         if (useFamiliarSummoning) {
@@ -69,7 +70,7 @@ public class Divination {
             return convertChroniclesAtRift();
 
         if (Backpack.isFull()) {
-            ScriptConsole.println("Backpack is full, converting at the rift.");
+            log("[Divination] Backpack is full, converting at the rift.");
             return handleFullBackpack();
         }
 
@@ -92,7 +93,7 @@ public class Divination {
     private static long interactWithChronicle(EntityResultSet<Npc> chronicles) {
         Npc nearestChronicle = chronicles.nearest();
 
-        ScriptConsole.println("Interacted with Chronicle: " + nearestChronicle.interact("Capture"));
+        log("[Divination] Interacted with Chronicle: " + nearestChronicle.interact("Capture"));
 
         Execution.delayUntil(random.nextLong(10000, 15000), () -> !nearestChronicle.validate());
 
@@ -104,7 +105,7 @@ public class Divination {
             return random.nextLong(1500, 3000);
         }
 
-        ScriptConsole.println("Navigating to: " + destination);
+        log("[Divination] Navigating to: " + destination);
         Movement.traverse(NavPath.resolve(destination));
 
         Execution.delayUntil(360000, () -> player.getCoordinate().equals(destination));
@@ -119,7 +120,7 @@ public class Divination {
         SceneObject nearestRift = findNearestRift();
 
         if (nearestRift == null) {
-            ScriptConsole.println("No nearby rift found to convert memories.");
+            log("[Error] No nearby rift found to convert memories.");
             delay += random.nextLong(500, 1000);
         } else {
             if (nearestRift.interact("Convert memories")) {
@@ -143,11 +144,11 @@ public class Divination {
         SceneObject nearestRift = findNearestRift();
 
         if (nearestRift == null) {
-            ScriptConsole.println("No nearby rift found to convert memories.");
+            log("[Error] No nearby rift found to convert memories.");
             return random.nextLong(500, 1000);
         }
 
-        ScriptConsole.println("Offering Chronicles: " + nearestRift.interact("Empower"));
+        log("[Divination] Offering Chronicles: " + nearestRift.interact("Empower"));
         Execution.delayUntil(5000, () -> !Backpack.containsItemByCategory(3026));
         return random.nextLong(500, 750);
     }
@@ -175,7 +176,7 @@ public class Divination {
                 Execution.delay(random.nextLong(500, 1250));
                 boolean success = nearestWisp.interact("Harvest");
                 if (success) {
-                    ScriptConsole.println("Harvesting " + wispName);
+                    log("[Divination] Harvesting " + wispName);
                     Execution.delay(random.nextLong(1500, 2500));
                 }
             }
@@ -352,7 +353,7 @@ public class Divination {
     }
 
     private static void performAltarInteractions(LocalPlayer player) {
-        ScriptConsole.println("Conditions met for Summoning pouch.");
+        log("[Divination] Conditions met for Summoning pouch.");
         Execution.delay(interactWithAltarOfWar(player));
         summonFamiliar(player);
     }
@@ -365,13 +366,13 @@ public class Divination {
     private static void summonFamiliar(LocalPlayer player) {
         ResultSet<Item> results = InventoryItemQuery.newQuery(93).ids(31328).option("Summon").results();
         if (VarManager.getVarbitValue(6055) > 5) {
-            ScriptConsole.println("Familiar is already summoned.");
+            log("[Error] Familiar is already summoned.");
         } else {
             if (!results.isEmpty()) {
                 backpack.interact("Nightmare muspah pouch", "Summon");
                 Execution.delayUntil(5000, () -> VarManager.getVarbitValue(6055) > 5);
             } else {
-                ScriptConsole.println("Pouch is empty, using bank.");
+                log("[Error] Pouch is empty, using bank.");
                 useBank(player);
             }
         }
@@ -388,19 +389,19 @@ public class Divination {
                 .orElse(null);
 
         if (prayerOrRestorePot == null) {
-            ScriptConsole.println("[Prayer Potions]  No prayer or restore potions found in the backpack.");
+            log("[Error]  No prayer or restore potions found in the backpack.");
             return useBank(player);
         }
 
-        ScriptConsole.println("Drinking " + prayerOrRestorePot.getName());
+        log("[Divination] Drinking " + prayerOrRestorePot.getName());
         boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
-            ScriptConsole.println("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
+            log("[Divination] Successfully drank " + prayerOrRestorePot.getName());
             long delay = random.nextLong(1500, 3000);
             Execution.delay(delay);
             return delay;
         } else {
-            ScriptConsole.println("[Prayer Potions]  Failed to interact with " + prayerOrRestorePot.getName());
+            log("[Error]  Failed to interact with " + prayerOrRestorePot.getName());
             return 0;
         }
     }
@@ -414,11 +415,11 @@ public class Divination {
         EntityResultSet<Npc> bankers = NpcQuery.newQuery().name("Banker").option("Bank").results();
 
         if (bankers.isEmpty()) {
-            ScriptConsole.println("No banker found to interact with.");
+            log("[Error] No banker found to interact with.");
             if (Movement.traverse(NavPath.resolve(BANK_COORDINATE)) == TraverseEvent.State.FINISHED) {
                 bankers = NpcQuery.newQuery().name("Banker").option("Bank").results();
                 if (bankers.isEmpty()) {
-                    ScriptConsole.println("Failed to find banker after moving to bank.");
+                    log("[Error] Failed to find banker after moving to bank.");
                     return random.nextLong(1500, 3000);
                 }
                 Npc nearestBanker = bankers.nearest();
@@ -426,7 +427,7 @@ public class Divination {
                     Execution.delay(random.nextLong(2500, 3500));
                     return handleDivination(player);
                 } else {
-                    ScriptConsole.println("Failed to interact with banker.");
+                    log("[Error] Failed to interact with banker.");
                     return random.nextLong(1500, 3000);
                 }
             }

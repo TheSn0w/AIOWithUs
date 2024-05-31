@@ -26,6 +26,7 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.*;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.logCount;
@@ -68,7 +69,7 @@ public class Woodcutting {
                 return random.nextLong(1500, 3000);
             }
 
-            ScriptConsole.println("Backpack is full. Dropping all logs...");
+            log("[Woodcutting] Backpack is full. Dropping all logs...");
 
             ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
 
@@ -80,13 +81,13 @@ public class Woodcutting {
                     if (ActionBar.containsItem(itemName)) {
                         boolean success = ActionBar.useItem(itemName, "Drop");
                         if (success) {
-                            ScriptConsole.println("Dropping (ActionBar): " + itemName);
+                            log("[Woodcutting] Dropping (ActionBar): " + itemName);
                             Execution.delay(random.nextLong(206, 405));
                         }
                     } else if (category == 22) {
                         boolean success = backpack.interact(itemName, "Drop");
                         if (success) {
-                            ScriptConsole.println("Dropping (Backpack): " + itemName);
+                            log("[Woodcutting] Dropping (Backpack): " + itemName);
                             Execution.delay(random.nextLong(620, 650));
                         }
                     }
@@ -96,7 +97,7 @@ public class Woodcutting {
         }
         GroundItem nearestBirdNest = GroundItemQuery.newQuery().name("Bird's nest").results().nearest();
         if (nearestBirdNest != null) {
-            ScriptConsole.println("Interacted with: Bird nest");
+            log("[Woodcutting] Interacted with: Bird nest");
             nearestBirdNest.interact("Take");
             Execution.delay(random.nextLong(1500, 3000));
         }
@@ -108,31 +109,31 @@ public class Woodcutting {
         if (acadiaTree || acadiaVIP) {
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Acadia tree").option("Cut down").results();
             if (results.isEmpty()) {
-                ScriptConsole.println("No Acadia trees found.");
+                log("[Error] No Acadia trees found.");
             } else {
                 SceneObject nearestTree = results.nearest();
                 if (nearestTree == null) {
-                    ScriptConsole.println("Nearest tree is null.");
+                    log("[Error] Nearest tree is null.");
                 } else {
                     currentTreeCoordinate = nearestTree.getCoordinate();
 
                     SceneObject treeStump = SceneObjectQuery.newQuery().name("Tree stump").results().nearestTo(currentTreeCoordinate);
                     if (treeStump == null || !treeStump.getCoordinate().equals(currentTreeCoordinate)) {
-                        ScriptConsole.println("No stump found at the tree location or stump is not at the expected tree coordinate. Interacting with the nearest tree again.");
+                        log("[Woodcutting] Interacting with the nearest tree again.");
                         if (nearestTree.interact("Cut down")) {
-                            ScriptConsole.println("Successfully re-interacted with the nearest tree.");
+                            log("[Woodcutting] Successfully re-interacted with the nearest tree.");
                             Execution.delay(random.nextLong(1500, 3000));
                         } else {
-                            ScriptConsole.println("Failed to re-interact with the nearest tree.");
+                            log("[Error] Failed to re-interact with the nearest tree.");
                         }
                     } else {
                         List<Coordinate> currentTreeCoordinates = new ArrayList<>();
                         if (acadiaVIP) {
                             currentTreeCoordinates = vipTreeCoordinates;
-                            ScriptConsole.println("VIP mode is active. Using VIP tree coordinates.");
+                            log("[Woodcutting] VIP mode is active. Using VIP tree coordinates.");
                         } else if (acadiaTree) {
                             currentTreeCoordinates = treeCoordinates;
-                            ScriptConsole.println("Acadia tree mode is active. Using regular tree coordinates.");
+                            log("[Woodcutting] Acadia tree mode is active. Using regular tree coordinates.");
                         }
                         Collections.shuffle(currentTreeCoordinates); // Shuffle the treeCoordinates list
                         currentTreeIndex = (currentTreeIndex + 1) % currentTreeCoordinates.size();
@@ -140,7 +141,7 @@ public class Woodcutting {
 
                         SceneObject nextTreeStump = SceneObjectQuery.newQuery().name("Tree stump").results().nearestTo(nextTreeCoordinate);
                         if (nextTreeStump != null && nextTreeStump.getCoordinate().equals(nextTreeCoordinate)) {
-                            ScriptConsole.println("Tree stump found at the next tree coordinate. Skipping this coordinate.");
+                            log("[Woodcutting] Tree stump found at the next tree coordinate. Skipping this coordinate.");
                         } else {
                             SceneObject nextTree = SceneObjectQuery.newQuery().name("Acadia tree").option("Cut down").results().stream()
                                     .filter(tree -> tree.getCoordinate().equals(nextTreeCoordinate))
@@ -148,11 +149,11 @@ public class Woodcutting {
                                     .orElse(null);
 
                             if (nextTree == null) {
-                                ScriptConsole.println("Next tree at designated coordinates not found.");
+                                log("[Error] Next tree at designated coordinates not found.");
                             } else if (!nextTree.interact("Cut down")) {
-                                ScriptConsole.println("Failed to interact with the next tree.");
+                                log("[Error] Failed to interact with the next tree.");
                             } else {
-                                ScriptConsole.println("Interacted with another tree at: " + nextTreeCoordinate);
+                                log("[Woodcutting] Interacted with another tree at: " + nextTreeCoordinate);
                                 Execution.delay(random.nextLong(1500, 3000));
                             }
                         }
@@ -165,7 +166,7 @@ public class Woodcutting {
                 if (nearestTree != null) {
                     boolean Success = nearestTree.interact("Chop down");
                     if (Success) {
-                        ScriptConsole.println("Interacted with: " + treeName);
+                        log("[Woodcutting] Interacted with: " + treeName);
                         Execution.delay(random.nextLong(1500, 3000));
                     }
                 }
@@ -181,17 +182,17 @@ public class Woodcutting {
         if (animations.isEmpty()) {
 
             MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, 109510839);
-            ScriptConsole.println("Interacted with: Crystallise");
+            log("[Woodcutting] Interacted with: Crystallise");
             Execution.delay(random.nextLong(450, 500));
 
             MiniMenu.interact(SelectableAction.SELECT_OBJECT.getType(), TREE_OBJECT_ID, currentTreeCoordinate.getX(), currentTreeCoordinate.getY());
-            ScriptConsole.println("Cast Crystallise on: Acadia Tree");
+            log("[Woodcutting] Cast Crystallise on: Acadia Tree");
             Execution.delay(random.nextLong(750, 1250));
 
 
             boolean success = SceneObjectQuery.newQuery().name("Acadia tree").option("Cut down").results().nearest().interact("Cut down");
             if (success) {
-                ScriptConsole.println("Interacted with: Acadia Tree");
+                log("[Woodcutting] Interacted with: Acadia Tree");
                 Execution.delay(random.nextLong(750, 1250));
             }
         }
@@ -218,7 +219,7 @@ public class Woodcutting {
 
                 boolean Success = nearestTree.interact("Cut down");
                 if (Success) {
-                    ScriptConsole.println("Interacted with: Acadia Tree");
+                    log("[Woodcutting] Interacted with: Acadia Tree");
                     Execution.delay(random.nextLong(750, 1250));
                 }
             }
@@ -232,7 +233,7 @@ public class Woodcutting {
         if (System.currentTimeMillis() - lastCrystalliseCast >= nextCrystalliseDelay) {
             if (ActionBar.containsAbility("Crystallise")) {
                 MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, 109510839);
-                ScriptConsole.println("Interacted with: Crystallise");
+                log("[Woodcutting] Interacted with: Crystallise");
                 Execution.delay(random.nextLong(450, 500));
 
                 for (Coordinate mahoganyCoordinate : mahoganyCoordinates) {
@@ -242,12 +243,12 @@ public class Woodcutting {
                             .orElse(null);
                     if (nearestTree != null) {
                         MiniMenu.interact(SelectableAction.SELECT_OBJECT.getType(), 70076, mahoganyCoordinate.getX(), mahoganyCoordinate.getY());
-                        ScriptConsole.println("Interacted with: Tree");
+                        log("[Woodcutting] Interacted with: Tree");
                         Execution.delay(random.nextLong(750, 1000));
 
                         boolean Success = nearestTree.interact("Chop down");
                         if (Success) {
-                            ScriptConsole.println("Interacted with: Mahogany Tree");
+                            log("[Woodcutting] Interacted with: Mahogany Tree");
                             Execution.delay(random.nextLong(1500, 3000));
                         }
                     }

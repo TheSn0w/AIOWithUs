@@ -20,6 +20,7 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 import java.util.Random;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.IDLE;
 import static net.botwithus.Variables.Variables.*;
 
@@ -39,17 +40,17 @@ public class Dissasembler {
                 if (!task.isComplete()) {
                     String itemName = task.itemToDisassemble;
                     if (Backpack.contains(itemName)) {
-                        ScriptConsole.println("Backpack contains the item: " + itemName);
+                        log("[Disassembler] Backpack contains the item: " + itemName);
                         Item item = Backpack.getItem(itemName);
                         if (item != null && ActionBar.containsAbility("Disassemble")) {
                             Component disassemble = ComponentQuery.newQuery(1430, 1670, 1671, 1672, 1673).spriteId(12510).option("Customise-keybind").results().first();
                             if (disassemble != null) {
-                                ScriptConsole.println("Used disassemble spell: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, disassemble.getInterfaceIndex() << 16 | disassemble.getComponentIndex()));
+                                log("[Disassembler] Used disassemble spell: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, disassemble.getInterfaceIndex() << 16 | disassemble.getComponentIndex()));
                                 Execution.delay(random.nextLong(750,1758));
-                                ScriptConsole.println("Selected disassemble item: " + MiniMenu.interact(SelectableAction.SELECT_COMPONENT_ITEM.getType(), 0, item.getSlot(), 96534533));
+                                log("[Disassembler] Selected disassemble item: " + MiniMenu.interact(SelectableAction.SELECT_COMPONENT_ITEM.getType(), 0, item.getSlot(), 96534533));
                                 Execution.delay(random.nextLong(750,1758));
                                 if (Interfaces.isOpen(847)) {
-                                    ScriptConsole.println("Valuable item warning detected, but setting not enabled in the UI. Removing task.");
+                                    log("[Error] Valuable item warning detected, but setting not enabled in the UI. Removing task.");
                                     return random.nextLong(1500, 3000);
                                 }
                                 if (task.getAmountDisassembled() >= itemMenuSize) { // Check if we have disassembled the required amount
@@ -58,17 +59,17 @@ public class Dissasembler {
                                 return random.nextLong(1500, 3000);
                             }
                         } else {
-                            ScriptConsole.println("Item is null or ActionBar does not contain 'Disassemble' ability.");
+                            log("[Error] Item is null or ActionBar does not contain 'Disassemble' ability.");
                             shutdown();
                         }
                     } else {
-                        ScriptConsole.println("Backpack does not contain the item: " + itemName);
+                        log("[Error] Backpack does not contain the item: " + itemName);
                         shutdown();
                     }
                 }
             }
         }
-        ScriptConsole.println("Returning from Dissasemble method...");
+        log("[Disassembler] Returning from Dissasemble method...");
         shutdown();
         return random.nextLong(750, 1250);
     }
@@ -86,16 +87,16 @@ public class Dissasembler {
                 if (!task.isComplete()) {
                     String itemName = task.itemToDisassemble;
                     if (Backpack.contains(itemName)) {
-                        ScriptConsole.println("Backpack contains the item: " + itemName);
+                        log("[High Alchemy] Backpack contains the item: " + itemName);
                         Item item = Backpack.getItem(itemName);
                         if (item != null && ActionBar.containsAbility("High Level Alchemy")) {
                             Component Alchemy = ComponentQuery.newQuery(1430, 1670, 1671, 1672, 1673).spriteId(14379).option("Customise-keybind").results().first();
                             if (Alchemy != null) {
-                                ScriptConsole.println("Selected High Level Alchemy: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, Alchemy.getInterfaceIndex() << 16 | Alchemy.getComponentIndex()));
+                                log("[High Alchemy] Selected High Level Alchemy: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, Alchemy.getInterfaceIndex() << 16 | Alchemy.getComponentIndex()));
                                 Execution.delay(random.nextLong(505, 650));
-                                ScriptConsole.println("Selected item: " + MiniMenu.interact(SelectableAction.SELECT_COMPONENT_ITEM.getType(), 0, item.getSlot(), 96534533));
+                                log("[High Alchemy] Selected item: " + MiniMenu.interact(SelectableAction.SELECT_COMPONENT_ITEM.getType(), 0, item.getSlot(), 96534533));
                                 if (Interfaces.isOpen(847)) {
-                                    ScriptConsole.println("Valuable item warning detected, but setting not enabled in the UI. Removing task.");
+                                    log("[Error] Valuable item warning detected, but setting not enabled in the UI. Removing task.");
                                     return random.nextLong(1500, 3000);
                                 }
                                 if (task.getAmountDisassembled() >= itemMenuSize) {
@@ -104,17 +105,17 @@ public class Dissasembler {
                                 return random.nextLong(2250, 3000);
                             }
                         } else {
-                            ScriptConsole.println("Item is null or ActionBar does not contain 'High Level Alchemy' ability.");
+                            log("[Error] Item is null or ActionBar does not contain 'High Level Alchemy' ability.");
                             shutdown();
                         }
                     } else {
-                        ScriptConsole.println("Backpack does not contain the item: " + itemName);
+                        log("[Error] Backpack does not contain the item: " + itemName);
                         shutdown();
                     }
                 }
             }
         }
-        ScriptConsole.println("Returning from Dissasemble method...");
+        log("[High Alchemy] Returning from Dissasemble method...");
         shutdown();
         return random.nextLong(1750, 2500);
     }

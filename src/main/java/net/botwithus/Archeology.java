@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.player;
 import static net.botwithus.SnowsScript.getLastSkillingLocation;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
@@ -71,7 +72,7 @@ public class Archeology {
 
     public static long findSpotAnimationAndAct(LocalPlayer player, List<String> selectedArchNames) {
         if (selectedArchNames == null || selectedArchNames.isEmpty()) {
-            ScriptConsole.println("[Archaeology] No Excavation names provided.");
+            log("[Error] No Excavation names provided.");
             return random.nextLong(1500, 3000);
         }
 
@@ -116,18 +117,18 @@ public class Archeology {
         }
         if (useGote) {
             if (Backpack.contains("Sign of the porter VII") && VarManager.getInvVarbit(94, 2, 30214) < 250) {
-                ScriptConsole.println("[Archaeology] Porters have less than 250 charges. Charging.");
-                ScriptConsole.println("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
+                log("[Archaeology] Porters have less than 250 charges. Charging.");
+                log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                 boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                 if (interactionResult) {
-                    ScriptConsole.println("[Debug] Interaction with Equipment was successful.");
+                    log("[Archaeology] Interaction with Equipment was successful.");
                 } else {
-                    ScriptConsole.println("[Debug] Interaction with Equipment failed.");
+                    log("[Error] Interaction with Equipment failed.");
                 }
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
             }
         } else {
-            ScriptConsole.println("[Debug] No 'Sign of the porter VII' found in the Backpack.");
+            log("[Error] No 'Sign of the porter VII' found in the Backpack.");
         }
         if (archaeologistsTea || materialManual || hiSpecMonocle) {
             if (archaeologistsTea) {
@@ -154,7 +155,7 @@ public class Archeology {
                 .nearest();
 
         if (currentSpotAnimation == null) {
-            ScriptConsole.println("[Archaeology] No spot animation found.");
+            log("[Error] No spot animation found.");
             return interactWithDefaultObjects(selectedArchNames, checkInterval);
         }
 
@@ -163,7 +164,7 @@ public class Archeology {
         boolean spotAnimationMoved = (lastSpotAnimationCoordinate == null || !lastSpotAnimationCoordinate.equals(currentCoord));
 
         if (spotAnimationMoved) {
-            ScriptConsole.println("[Archaeology] Spot animation has moved.");
+            log("[Archaeology] Spot animation has moved.");
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
             lastSpotAnimationCoordinate = currentCoord;
         }
@@ -180,7 +181,7 @@ public class Archeology {
             if (spotAnimationMoved || playerIdle) {
                 if (selectedArchNames.contains(matchingArchObject.getName())) {
                     matchingArchObject.interact("Excavate");
-                    ScriptConsole.println("[Archaeology] Interacting with: " + matchingArchObject.getName());
+                    log("[Archaeology] Interacting with: " + matchingArchObject.getName());
                     return checkInterval;
                 }
             }
@@ -191,7 +192,7 @@ public class Archeology {
 
             if (nearestObject != null && selectedArchNames.contains(nearestObject.getName())) {
                 nearestObject.interact("Excavate");
-                ScriptConsole.println("[Archaeology] Interacting with: " + nearestObject.getName());
+                log("[Archaeology] Interacting with: " + nearestObject.getName());
                 return checkInterval;
             }
         }
@@ -233,7 +234,7 @@ public class Archeology {
 
             if (nearestSceneObject != null) {
                 nearestSceneObject.interact("Excavate");
-                ScriptConsole.println("[Archaeology] Interacting with: " + nearestSceneObject.getName());
+                log("[Archaeology] Interacting with: " + nearestSceneObject.getName());
                 return checkInterval;
             }
         }
@@ -245,7 +246,7 @@ public class Archeology {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(115427).option("Use").results();
         if (Backpack.isFull()) {
             if (!results.isEmpty()) {
-                ScriptConsole.println("[Archaeology] Backpack is full, using Bank.");
+                log("[Archaeology] Backpack is full, using Bank.");
                 setLastSkillingLocation(player.getCoordinate());
                 handleBankInteraction(player, selectedArchNames);
             } else {
@@ -268,7 +269,7 @@ public class Archeology {
 
             if (nearestSceneObject != null) {
                 nearestSceneObject.interact("Excavate");
-                ScriptConsole.println("[Archaeology] Interacting with: " + nearestSceneObject.getName());
+                log("[Archaeology] Interacting with: " + nearestSceneObject.getName());
                 return random.nextLong(1500, 3000);
             }
         }
@@ -281,9 +282,9 @@ public class Archeology {
         Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
         setLastSkillingLocation(player.getCoordinate());
 
-        ScriptConsole.println("[Archaeology] Teleporting to bank.");
+        log("[Archaeology] Teleporting to bank.");
         if (Movement.traverse(NavPath.resolve(bankChestCoordinate)) == TraverseEvent.State.FINISHED) {
-            ScriptConsole.println("[Archaeology] Finished traversing to bank.");
+            log("[Archaeology] Finished traversing to bank.");
             Execution.delay(handleBankInteraction(player, selectedArchNames));
         }
         return random.nextLong(1500, 3000);
@@ -314,15 +315,15 @@ public class Archeology {
         boolean interactionSuccess = materialsCart.interact("Deposit materials");
 
         if (interactionSuccess) {
-            ScriptConsole.println("[Archaeology] Interacted with the material cart.");
+            log("[Archaeology] Interacted with the material cart.");
             Execution.delayUntil(360000, () -> !Backpack.isFull());
 
-            ScriptConsole.println("[Archaeology] Returning to last location");
+            log("[Archaeology] Returning to last location");
             Movement.traverse(NavPath.resolve(getLastSkillingLocation().getRandomWalkableCoordinate()));
             SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
             return random.nextLong(1500, 3000);
         } else {
-            ScriptConsole.println("[Archaeology] Failed to interact with material cart.");
+            log("[Error] Failed to interact with material cart.");
             return random.nextLong(1500, 3000);
         }
     }
@@ -330,15 +331,15 @@ public class Archeology {
 
     private static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
         interactWithBankChest();
-        ScriptConsole.println("[Archaeology] Waiting for bank to open.");
+        log("[Archaeology] Waiting for bank to open.");
         waitForBankToOpen();
 
         ResultSet<Item> soilBox = findSoilBoxInInventory();
         if (Interfaces.isOpen(517)) {
-            ScriptConsole.println("[Archaeology] Bank is open.");
+            log("[Archaeology] Bank is open.");
 
             delayRandomly();
-            ScriptConsole.println("[Archaeology] Depositing all items except selected.");
+            log("[Archaeology] Depositing all items except selected.");
             depositAllExceptSelectedItems();
             logItemsDeposited();
 
@@ -353,7 +354,7 @@ public class Archeology {
             returnToLastLocation(player, selectedArchNames);
             return randomDelay();
         } else {
-            ScriptConsole.println("[Archaeology] Bank did not open.");
+            log("[Error] Bank did not open.");
             return random.nextLong(750, 1250);
         }
     }
@@ -370,25 +371,26 @@ public class Archeology {
             if (nearestBankChest != null) {
                 for (int attempts = 0; attempts < 3; attempts++) {
                     if (nearestBankChest.interact("Use")) {
+                        log("[Archaeology] Interacted with Bank chest.");
                         Execution.delay(randomDelay());
                         return;
                     } else {
                         Execution.delay(randomDelay());
                     }
                 }
-                ScriptConsole.println("[Error] Failed to interact with Bank chest after 3 attempts.");
+                log("[Error] Failed to interact with Bank chest after 3 attempts.");
             } else {
-                ScriptConsole.println("[Error] No nearest Bank chest found.");
+                log("[Error] No nearest Bank chest found.");
             }
         } else {
-            ScriptConsole.println("[Error] No Bank chest found.");
+            log("[Error] No Bank chest found.");
         }
     }
 
     private static void waitForBankToOpen() {
         boolean bankOpened = Execution.delayUntil(30000, () -> Interfaces.isOpen(517));
         if (!bankOpened) {
-            ScriptConsole.println("[Error] Bank did not open within 30 seconds.");
+            log("[Error] Bank did not open within 30 seconds.");
         }
     }
 
@@ -406,7 +408,7 @@ public class Archeology {
     }
 
     private static void logItemsDeposited() {
-        ScriptConsole.println("[Archaeology] Deposited all items except selected.");
+        log("[Archaeology] Deposited all items except selected.");
     }
 
     private static void interactWithSoilBoxIfPresent(ResultSet<Item> soilBox) {
@@ -415,21 +417,21 @@ public class Archeology {
             if (slotIndex >= 0) {
                 boolean interactionSuccess = MiniMenu.interact(ComponentAction.COMPONENT.getType(), 9, slotIndex, 33882127);
                 if (interactionSuccess) {
-                    ScriptConsole.println("[Archaeology] Interacted with Archaeological soil box.");
+                    log("[Archaeology] Interacted with Archaeological soil box.");
                 } else {
-                    ScriptConsole.println("[Error] Failed to interact with Archaeological soil box.");
+                    log("[Error] Failed to interact with Archaeological soil box.");
                 }
             } else {
-                ScriptConsole.println("[Error] Invalid slot index for Archaeological soil box.");
+                log("[Error] Invalid slot index for Archaeological soil box.");
             }
         } else {
-            ScriptConsole.println("[Error] No Archaeological soil box found in inventory.");
+            log("[Error] No Archaeological soil box found in inventory.");
         }
     }
 
     private static void handleGoteCharges() {
         int charges = VarManager.getInvVarbit(94, 2, 30214);
-        ScriptConsole.println("Charges remaining: " + charges);
+        log("[Archaeology] Charges remaining: " + charges);
         if (charges < 250) {
             String selectedPorter = porterTypes[currentPorterType.get()];
             int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
@@ -439,9 +441,9 @@ public class Archeology {
             }
             withdrew = Bank.withdraw(selectedPorter, quantity);
             if (withdrew) {
-                ScriptConsole.println("[Archaeology] Withdrew: " + selectedPorter + ".");
+                log("[Archaeology] Withdrew: " + selectedPorter + ".");
             } else {
-                ScriptConsole.println("[Error] Failed to withdraw " + selectedPorter + ".");
+                log("[Error] Failed to withdraw " + selectedPorter + ".");
             }
         }
     }
@@ -458,7 +460,7 @@ public class Archeology {
     }
 
     private static void returnToLastLocation(LocalPlayer player, List<String> selectedArchNames) {
-        ScriptConsole.println("[Archaeology] Returning to last location");
+        log("[Archaeology] Returning to last location");
 
         if (shouldTraverseToHellfire(selectedArchNames)) {
             traverseToHellfireLift(selectedArchNames);
@@ -487,26 +489,26 @@ public class Archeology {
     }
     private static void traverseToKharidEt(List<String> selectedArchNames) {
         Coordinate hellfire = new Coordinate(3374, 3181, 0);
-        ScriptConsole.println("[Archaeology] Traversing to Fort Entrance.");
+        log("[Archaeology] Traversing to Fort Entrance.");
 
         if (Movement.traverse(NavPath.resolve(hellfire)) == TraverseEvent.State.FINISHED) {
-            ScriptConsole.println("[Archaeology] Finished traversing to Fort Entrance.");
+            log("[Archaeology] Finished traversing to Fort Entrance.");
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(116926).option("Enter").results();
             if (!results.isEmpty()) {
                 SceneObject Fort = results.first();
                 if (Fort != null && Fort.interact("Enter")) {
                     Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
-                    ScriptConsole.println("[Archaeology] Interface is Open.");
+                    log("[Archaeology] Interface is Open.");
                     Execution.delay(random.nextLong(1000, 1500));
                     interactWithDialogOption(selectedArchNames);
                     Execution.delay(random.nextLong(4500, 6000));
                     if (selectedArchNames.contains("Carcerem debris")) {
-                        ScriptConsole.println("[Archaeology] Traversing to Legatus barrier.");
+                        log("[Archaeology] Traversing to Legatus barrier.");
                         if (Movement.traverse(NavPath.resolve(new Coordinate(2258, 7586, 0))) == TraverseEvent.State.FINISHED) {
                             EntityResultSet<SceneObject> legatusBarrier = SceneObjectQuery.newQuery().name("Legatus barrier").option("Pass").results();
                             if (!legatusBarrier.isEmpty()) {
                                 SceneObject barrier = legatusBarrier.first();
-                                ScriptConsole.println("[Archaeology] Interacting with Legatus Barrier.");
+                                log("[Archaeology] Interacting with Legatus Barrier.");
                                 if (barrier != null && barrier.interact("Pass")) {
                                     Execution.delay(random.nextLong(3500, 5000));
                                     traverseToLastSkillingLocation();
@@ -516,66 +518,66 @@ public class Archeology {
                     }
                     traverseToLastSkillingLocation();
                 } else {
-                    ScriptConsole.println("[Error] Failed to interact with Fort Entrance.");
+                    log("[Error] Failed to interact with Fort Entrance.");
                 }
             } else {
-                ScriptConsole.println("[Error] No Fort Entrance found.");
+                log("[Error] No Fort Entrance found.");
             }
         } else {
-            ScriptConsole.println("[Error] Failed to traverse to Fort Entrance.");
+            log("[Error] Failed to traverse to Fort Entrance.");
         }
     }
 
     private static void traverseToHellfireLift(List<String> selectedArchNames) {
         Coordinate hellfire = new Coordinate(3263, 3504, 0);
-        ScriptConsole.println("[Archaeology] Traversing to Hellfire Lift.");
+        log("[Archaeology] Traversing to Hellfire Lift.");
 
         if (Movement.traverse(NavPath.resolve(hellfire)) == TraverseEvent.State.FINISHED) {
-            ScriptConsole.println("[Archaeology] Finished traversing to Hellfire Lift.");
+            log("[Archaeology] Finished traversing to Hellfire Lift.");
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(116691).option("Descend").results();
             if (!results.isEmpty()) {
                 SceneObject hellfireLift = results.first();
                 if (hellfireLift != null && hellfireLift.interact("Descend")) {
                     Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
-                    ScriptConsole.println("[Archaeology] Interface is Open.");
+                    log("[Archaeology] Interface is Open.");
                     Execution.delay(random.nextLong(1000, 1500));
                     interactWithDialogOption(selectedArchNames);
                     Execution.delay(random.nextLong(4500, 6000));
                     traverseToLastSkillingLocation();
                 } else {
-                    ScriptConsole.println("[Error] Failed to interact with Hellfire Lift.");
+                    log("[Error] Failed to interact with Hellfire Lift.");
                 }
             } else {
-                ScriptConsole.println("[Error] No Hellfire Lift found.");
+                log("[Error] No Hellfire Lift found.");
             }
         } else {
-            ScriptConsole.println("[Error] Failed to traverse to Hellfire Lift.");
+            log("[Error] Failed to traverse to Hellfire Lift.");
         }
     }
 
     private static void interactWithDialogOption(List<String> selectedArchNames) {
         if ((selectedArchNames.contains("Sacrificial altar") || selectedArchNames.contains("Dis dungeon debris") || selectedArchNames.contains("Cultist footlocker"))) {
             dialog(0, -1, 47185940);
-            ScriptConsole.println("[Archaeology] Selecting: Dungeon of Disorder.");
+            log("[Archaeology] Selecting: Dungeon of Disorder.");
         } else if ((selectedArchNames.contains("Lodge bar storage") || selectedArchNames.contains("Lodge art storage"))) {
             dialog(0, -1, 47185921);
-            ScriptConsole.println("[Archaeology] Selecting: Star Lodge cellar.");
+            log("[Archaeology] Selecting: Star Lodge cellar.");
         } else if ((selectedArchNames.contains("Legionary remains") || selectedArchNames.contains("Castra debris") || selectedArchNames.contains("Administratum debris"))) {
             dialog(0, -1, 47185921);
-            ScriptConsole.println("[Archaeology] Selecting: Main Fortress.");
+            log("[Archaeology] Selecting: Main Fortress.");
         } else if (selectedArchNames.contains("Praesidio remains") || selectedArchNames.contains("Carcerem debris")) {
             dialog(0, -1, 47185940);
-            ScriptConsole.println("[Archaeology] Selecting: Prison block.");
+            log("[Archaeology] Selecting: Prison block.");
         } else {
-            ScriptConsole.println("[Error] No valid dialog option found.");
+            log("[Error] No valid dialog option found.");
         }
     }
     private static void traverseToLastSkillingLocation() {
         if (Movement.traverse(NavPath.resolve(getLastSkillingLocation())) == TraverseEvent.State.FINISHED) {
-            ScriptConsole.println("[Archaeology] Finished traversing to last location.");
+            log("[Archaeology] Finished traversing to last location.");
             SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
         } else {
-            ScriptConsole.println("[Error] Failed to traverse to last location.");
+            log("[Error] Failed to traverse to last location.");
         }
     }
 
@@ -594,7 +596,7 @@ public class Archeology {
         Coordinate targetCoordinate = coordinateMap.get(targetName);
 
         if (targetCoordinate == null) {
-            ScriptConsole.println("[Archeology] No coordinate for " + targetName);
+            log("[Error] No coordinate for " + targetName);
             return random.nextLong(1500, 3000);
         }
 
@@ -605,7 +607,7 @@ public class Archeology {
                 .results();
 
         if (results.isEmpty()) {
-            ScriptConsole.println("[Archeology] No " + targetName + " found.");
+            log("[Error] No " + targetName + " found.");
 
             Movement.traverse(NavPath.resolve(targetCoordinate)); // Traverse to coordinate
             return random.nextLong(1500, 3000);
@@ -623,7 +625,7 @@ public class Archeology {
     public static long backpackIsFull(LocalPlayer player) {
         if (Backpack.contains("Archaeological soil box")) {
             backpack.interact("Archaeological soil box", "Fill");
-            ScriptConsole.println("[Archaeology] Filling soil box.");
+            log("[Archaeology] Filling soil box.");
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
 

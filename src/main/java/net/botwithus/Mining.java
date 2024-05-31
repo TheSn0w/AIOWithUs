@@ -25,6 +25,8 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.function.Supplier;
+
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
@@ -86,7 +88,7 @@ public class Mining {
 
     public static long handleTraversal(LocalPlayer player, List<String> selectedRockNames) {
         if (selectedRockNames == null || selectedRockNames.isEmpty()) {
-            ScriptConsole.println("[Traversal] No rock names provided.");
+            log("[Error] No rock names provided.");
             return random.nextLong(1500, 3000);
         }
 
@@ -94,11 +96,11 @@ public class Mining {
         Coordinate baseCoordinate = coordinateMap.get(targetName);
 
         if (baseCoordinate == null) {
-            ScriptConsole.println("[Traversal] No coordinate for " + targetName);
+            log("[Error] No coordinate for " + targetName);
             return random.nextLong(1500, 3000);
         }
 
-        ScriptConsole.println("[Traversal] Moving to random location near " + targetName);
+        log("[Mining] Moving to random location near " + targetName);
 
         Movement.traverse(NavPath.resolve(baseCoordinate));
 
@@ -139,13 +141,13 @@ public class Mining {
             Execution.delay(random.nextInt(1500, 3500));
 
             if (interactionSuccess) {
-                ScriptConsole.println("[Mining] Filled: " + oreBox.getName());
+                log("[Mining] Filled: " + oreBox.getName());
                 return random.nextLong(1500, 3000);
             } else {
-                ScriptConsole.println("[Mining] Failed to interact with the ore box.");
+                log("[Error] Failed to interact with the ore box.");
             }
         } else {
-            ScriptConsole.println("[Mining] No ore box found with category 4448.");
+            log("[Error] No ore box found.");
         }
 
         return 0;
@@ -156,11 +158,11 @@ public class Mining {
         setLastSkillingLocation(player.getCoordinate());
         Execution.delay(random.nextLong(1500, 3000));
         SnowsScript.setBotState(SnowsScript.BotState.BANKING);
-        ScriptConsole.println("[Mining] Sending to bank.");
+        log("[Mining] Traversing to bank.");
     }
 
     private static void dropAllOres() {
-        ScriptConsole.println("[Mining] Backpack is full. Dropping all ores...");
+        log("[Mining] Backpack is full. Dropping all ores...");
 
         ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
 
@@ -172,13 +174,13 @@ public class Mining {
                 if (ActionBar.containsItem(itemName)) {
                     boolean success = ActionBar.useItem(itemName, "Drop");
                     if (success) {
-                        ScriptConsole.println("Dropping (ActionBar): " + itemName);
+                        log("[Mining] Dropping (ActionBar): " + itemName);
                         Execution.delay(random.nextLong(206, 405));
                     }
                 } else if (category == 91) { // Use Backpack fallback
                     boolean success = backpack.interact(itemName, "Drop");
                     if (success) {
-                        ScriptConsole.println("Dropping (Backpack): " + itemName);
+                        log("[Mining] Dropping (Backpack): " + itemName);
                         Execution.delay(random.nextLong(620, 650));
                     }
                 }
@@ -229,7 +231,7 @@ public class Mining {
 
             if (nearestRock != null) {
                 if (nearestRock.interact("Mine")) {
-                    ScriptConsole.println("[Mining] Interacted with: " + rockName);
+                    log("[Mining] Interacted with: " + rockName);
                     Execution.delayUntil(RandomGenerator.nextInt(1500, 3000), () -> player.getAnimationId() == -1);
                 }
             }
@@ -250,7 +252,7 @@ public class Mining {
             if (matchingRock != null) {
                 Execution.delay(RandomGenerator.nextInt(750, 3000));
                 if (matchingRock.interact("Mine")) {
-                    ScriptConsole.println("[Mining] Interacted with: Rockertunity");
+                    log("[Mining] Interacted with: Rockertunity");
                     Execution.delayUntil(RandomGenerator.nextInt(1500, 3000), animations::isEmpty);
                 }
             }

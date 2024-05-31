@@ -27,6 +27,8 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.*;
 
+import static net.botwithus.CustomLogger.log;
+
 public class CaveNightshade {
 
     private static Random random = new Random();
@@ -84,9 +86,9 @@ public class CaveNightshade {
         Coordinate destination = new Coordinate(2524, 3070, 0);
 
         if (nightshade.isEmpty()) {
-            ScriptConsole.println("We are traversing to the destination");
+            log("[Nightshade] We are traversing to the destination");
             if (Movement.traverse(NavPath.resolve(destination)) == TraverseEvent.State.FINISHED && !caveEntrance.isEmpty()) {
-                ScriptConsole.println("We have arrived at the destination");
+                log("[Nightshade] We have arrived at the destination");
                 caveEntrance.nearest().interact("Enter");
                 Execution.delay(random.nextLong(5000, 7500));
                 nightShadeState = NightShadeState.PICKING;
@@ -101,7 +103,7 @@ public class CaveNightshade {
     private static long handlePicking(LocalPlayer player) {
         ComponentQuery porterQuery = ComponentQuery.newQuery(284).spriteId(51490);
         if (porterQuery.results().isEmpty()) {
-            ScriptConsole.println("No porter found in equipment.");
+            log("[Error] No porter found in equipment.");
             nightShadeState = NightShadeState.MAKEPORTER;
             return random.nextLong(1000, 3000);
         }
@@ -115,26 +117,26 @@ public class CaveNightshade {
         SceneObject nightshadeObject = nightshade.nearest();
 
         if (player.isMoving()) {
-            ScriptConsole.println("Player is currently moving. Waiting...");
+            log("[Error] Player is currently moving. Waiting...");
             return random.nextLong(1000, 3000);
         }
 
         if (nightshadeObject == null) {
-            ScriptConsole.println("No nightshade objects found.");
+            log("[Error] No nightshade objects found.");
             return random.nextLong(1000, 3000);
         }
 
         if (!nightshadeCoordinates.contains(nightshadeObject.getCoordinate())) {
-            ScriptConsole.println("Nightshade object is not at a specified coordinate.");
+            log("[Error] Nightshade object is not at a specified coordinate.");
             return random.nextLong(1000, 3000);
         }
 
         /*ScriptConsole.println("Picking nightshade at " + nightshadeObject.getCoordinate());*/ // debugging
 
         if (nightshadeObject.interact("Pick")) {
-            ScriptConsole.println("Successfully interacted with nightshade.");
+            log("[Nightshade] Successfully interacted with nightshade.");
         } else {
-            ScriptConsole.println("Failed to interact with nightshade.");
+            log("[Error] Failed to interact with nightshade.");
             return random.nextLong(1000, 3000);
         }
 
@@ -143,7 +145,7 @@ public class CaveNightshade {
 
     private static long makePorter() {
         if (Backpack.getQuantity("Memory shard") <= 50) {
-            ScriptConsole.println("Not enough memory shards to make a porter.");
+            log("[Error]Not enough memory shards to make a porter.");
             return handleBanking();
         }
 
@@ -170,31 +172,31 @@ public class CaveNightshade {
 
     private static void openMemoryShardInterface() {
         backpack.interact("Memory shard", "Open");
-        ScriptConsole.println("Opening memory shard interface.");
+        log("[Nightshade] Opening memory shard interface.");
         Execution.delayUntil(5000, () -> Interfaces.isOpen(1370));
     }
 
     private static void interactWithPorter() {
-        ScriptConsole.println("Var value is incorrect. Interacting with Porter.");
+        log("[Nightshade] Var value is incorrect. Interacting with Porter.");
         MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, 25, 89849878);
         Execution.delay(random.nextLong(650, 800));
     }
 
     private static void interactWithDialogue() {
-        ScriptConsole.println("Interacting with dialogue.");
+        log("[Nightshade] Interacting with dialogue.");
         MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
         Execution.delayUntil(15000, () -> Backpack.contains("Sign of the porter VII"));
     }
 
     private static void wearPorter() {
-        ScriptConsole.println("Sign of the porter VII is in inventory. Wearing it.");
+        log("[Nightshade] Sign of the porter VII is in inventory. Wearing it.");
         backpack.interact("Sign of the porter VII", "Wear");
         Execution.delay(random.nextLong(650, 800));
     }
     private static long handleBanking() {
         EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Banker").option("Bank").results();
         if (banker.isEmpty()) {
-            ScriptConsole.println("No banker found, teleporting to Max Guild.");
+            log("[Nightshade] No banker found, teleporting to Max Guild.");
             ActionBar.useAbility("Max Guild Teleport");
             Execution.delay(random.nextLong(5000, 7500));
 
@@ -203,10 +205,10 @@ public class CaveNightshade {
 
         Npc bankObject = banker.nearest();
         if (bankObject.interact("Load Last Preset from")) {
-            ScriptConsole.println("Interacting with banker.");
+            log("[Nightshade] Interacting with banker.");
             Execution.delay(random.nextLong(4500, 5000));
         } else {
-            ScriptConsole.println("Failed to interact with banker.");
+            log("[Error] Failed to interact with banker.");
             return random.nextLong(1000, 3000);
         }
 

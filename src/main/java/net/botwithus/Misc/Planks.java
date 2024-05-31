@@ -12,6 +12,7 @@ import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.Random;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class Planks {
@@ -23,7 +24,7 @@ public class Planks {
         }
         if (Interfaces.isOpen(1370)) {
             MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350);
-            ScriptConsole.println("Selecting 'Craft'");
+            log("[Planks] Selecting 'Craft'");
             return random.nextLong(1250, 1500);
         }
         if (makePlanks) {
@@ -44,14 +45,14 @@ public class Planks {
 
         if (sawmill != null && Backpack.containsItemByCategory(22)) {
             sawmill.interact("Process planks");
-            ScriptConsole.println("Interacting with Sawmill");
+            log("[Planks] Interacting with Sawmill");
             return random.nextLong(750, 1250);
         }
 
         if (!Backpack.containsItemByCategory(22)) {
             if (bankChest != null) {
                 bankChest.interact("Load Last Preset from");
-                ScriptConsole.println("Interacting with Bank Chest");
+                log("[Planks] Interacting with Bank Chest");
                 return random.nextLong(750, 1250);
             }
         }
@@ -67,7 +68,7 @@ public class Planks {
         if (sawmill != null && Backpack.getItems().stream().anyMatch(item ->
                 item.getName().toLowerCase().contains("plank") && !item.getName().toLowerCase().contains("refined"))) {
             sawmill.interact("Process planks");
-            ScriptConsole.println("Interacting with Sawmill");
+            log("[Planks] Interacting with Sawmill");
             return random.nextLong(750, 1250);
         }
 
@@ -75,7 +76,7 @@ public class Planks {
                 item.getName().toLowerCase().contains("plank") && !item.getName().toLowerCase().contains("refined"))) {
             if (bankChest != null) {
                 bankChest.interact("Load Last Preset from");
-                ScriptConsole.println("Interacting with Bank Chest");
+                log("[Planks] Interacting with Bank Chest");
                 return random.nextLong(750, 1250);
             }
         }
@@ -90,7 +91,7 @@ public class Planks {
         if (woodworkingBench != null && Backpack.getItems().stream().anyMatch(item ->
                 item.getName().toLowerCase().contains("plank"))) {
             woodworkingBench.interact("Construct frames");
-            ScriptConsole.println("Interacting with Woodworking Bench");
+            log("[Planks] Interacting with Woodworking Bench");
             return random.nextLong(750, 1250);
         }
 
@@ -98,7 +99,7 @@ public class Planks {
                 item.getName().toLowerCase().contains("plank"))) {
             if (bankChest != null) {
                 bankChest.interact("Load Last Preset from");
-                ScriptConsole.println("Interacting with Bank Chest");
+                log("[Planks] Interacting with Bank Chest");
                 return random.nextLong(750, 1250);
             }
         }
