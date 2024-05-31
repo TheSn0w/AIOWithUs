@@ -16,9 +16,12 @@ import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
+import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
@@ -32,7 +35,6 @@ import java.util.regex.Pattern;
 import static ImGui.Theme.*;
 import static net.botwithus.Combat.*;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Runecrafting.ScriptState.IDLE;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.TaskScheduler.shutdown;
@@ -66,7 +68,6 @@ public class SnowsScript extends LoopingScript {
         this.sgc = new SnowScriptGraphics(getConsole(), this);
         startTime = Instant.now();
         runStartTime = System.currentTimeMillis();
-        this.loadConfiguration();
 
         skillingTasks.put(() -> Variables.isHerbloreActive, Runnables::handleHerblore);
         skillingTasks.put(() -> Variables.isRunecraftingActive, Runnables::handleRunecrafting);
@@ -91,6 +92,8 @@ public class SnowsScript extends LoopingScript {
             return;
         }
 
+        capturestuff();
+
         switch (botState) {
             case IDLE -> Execution.delay(random.nextLong(1500, 3000));
             case SKILLING -> skillingTasks.forEach((condition, task) -> {
@@ -111,9 +114,24 @@ public class SnowsScript extends LoopingScript {
             }
         }
     }
+    private void capturestuff() {
+        EntityResultSet<Npc> serenSpiritResults = NpcQuery.newQuery().name("Seren spirit").option("Capture").results();
+        if (serenSpiritResults.isEmpty()) {
+            return;
+        }
+        Npc serenSpirit = serenSpiritResults.nearest();
+        if (serenSpirit != null) {
+            serenSpirit.interact("Capture");
+            log("[Info] Interacting with Seren spirit.");
+        } else {
+            log("[Error] Failed to find nearest Seren spirit.");
+        }
+    }
+
 
     @Override
     public void onActivation() {
+        loadConfiguration();
         subscribeToEvents();
         super.initialize();
     }
