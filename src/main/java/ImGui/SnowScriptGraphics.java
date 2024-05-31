@@ -18,6 +18,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.List;
 
+import static ImGui.PredefinedStrings.*;
+import static ImGui.Theme.*;
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
@@ -26,7 +28,7 @@ import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Woodcutting.*;
 
-public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
+public class SnowScriptGraphics extends ScriptGraphicsContext {
 
     SnowsScript script;
     public Instant startTime;
@@ -34,16 +36,10 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     private long totalElapsedTime = 0;
     private boolean tooltipsEnabled = false;
     public String saveSettingsFeedbackMessage = "";
-    static List<String> logMessages = new ArrayList<>();
     boolean showLogs = false;
     public static boolean scrollToBottom = false;
 
-
-
-
-
-
-    public SkeletonScriptGraphicsContext(ScriptConsole scriptConsole, SnowsScript script) {
+    public SnowScriptGraphics(ScriptConsole scriptConsole, SnowsScript script) {
         super(scriptConsole);
         this.script = script;
         this.startTime = Instant.now();
@@ -51,447 +47,9 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
     }
 
 
-    List<String> predefinedNames = List.of(
-            "Venator remains",
-            "Legionary remains",
-            "Castra debris",
-            "Lodge bar storage",
-            "Lodge art storage",
-            "Administratum debris",
-            "Cultist footlocker",
-            "Sacrificial altar",
-            "Prodromoi remains",
-            "Dis dungeon debris",
-            "Praesidio remains",
-            "Monoceros remains",
-            "Amphitheatre debris",
-            "Ceramics studio debris",
-            "Carcerem debris",
-            "Ministry remains",
-            "Stadio debris",
-            "Cathedral debris",
-            "Marketplace debris",
-            "Inquisitor remains",
-            "Infernal art",
-            "Gladiator remains",
-            "Citizen remains",
-            "Shakroth remains",
-            "Dominion Games podium",
-            "Ikovian memorial",
-            "Dragonkin remains",
-            "Oikos studio debris",
-            "Kharid-et chapel debris",
-            "Forum entrance",
-            "Gladiatorial goblin remains",
-            "Keshik ger",
-            "Animal trophies",
-            "Pontifex remains",
-            "Crucible stands debris",
-            "Tailory debris",
-            "Goblin dorm debris",
-            "Oikos fishing hut remnants",
-            "Weapons research debris",
-            "Orcus altar",
-            "Standing stone debris",
-            "Runic debris",
-            "Dis overspill",
-            "Big High War God shrine",
-            "Orthen rubble",
-            "Varanusaur remains",
-            "Gravitron research debris",
-            "Acropolis debris",
-            "Armarium debris",
-            "Yu'biusk animal pen",
-            "Keshik tower debris",
-            "Dragonkin reliquary",
-            "Goblin trainee remains",
-            "Byzroth remains",
-            "Destroyed golem",
-            "Dragonkin coffin",
-            "Icyene weapon rack",
-            "Culinarum debris",
-            "Kyzaj champion's boudoir",
-            "Autopsy table",
-            "Experiment workbench",
-            "Keshik weapon rack",
-            "Hellfire forge",
-            "Warforge scrap pile",
-            "Stockpiled art",
-            "Aughra remains",
-            "Ancient magick munitions",
-            "Moksha device",
-            "Bibliotheke debris",
-            "Chthonian trophies",
-            "Warforge weapon rack",
-            "Flight research debris",
-            "Aetherium forge",
-            "Xolo mine",
-            "Praetorian remains",
-            "Bandos's sanctum debris",
-            "Tsutsaroth remains",
-            "Optimatoi remains",
-            "War table debris",
-            "Howl's workshop debris",
-            "Makeshift pie oven",
-            "Xolo remains"
-    );
-    List<String> predefinedCacheNames = List.of(
-            "Material cache (third Age iron)",
-            "Material cache (Zarosian insignia)",
-            "Material cache (samite silk)",
-            "Material cache (imperial steel)",
-            "Material cache (white oak)",
-            "Material cache (goldrune)",
-            "Material cache (orthenglass)",
-            "Material cache (vellum)",
-            "Material cache (cadmium red)",
-            "Material cache (ancient vis)",
-            "Material cache (Tyrian purple)",
-            "Material cache (leather scraps)",
-            "Material cache (chaotic brimstone)",
-            "Material cache (demonhide)",
-            "Material cache (Eye of Dagon)",
-            "Material cache (hellfire metal)",
-            "Material cache (keramos)",
-            "Material cache (white marble)",
-            "Material cache (cobalt blue)",
-            "Material cache (Everlight silvthril)",
-            "Material cache (Star of Saradomin)",
-            "Material cache (Blood of Orcus)",
-            "Material cache (soapstone)",
-            "Material cache (Stormguard steel)",
-            "Material cache (Wings of War)",
-            "Material cache (animal furs)",
-            "Material cache (Armadylean yellow)",
-            "Material cache (malachite green)",
-            "Material cache (Mark of the Kyzaj)",
-            "Material cache (vulcanised rubber)",
-            "Material cache (warforged bronze)",
-            "Material cache (fossilised bone)",
-            "Material cache (Yu'biusk clay)",
-            "Material cache (aetherium alloy)",
-            "Material cache (compass rose)",
-            "Material cache (felt)",
-            "Material cache (quintessence)",
-            "Material cache (dragon metal)",
-            "Material cache (carbon black)"
-    );
-    List<String> MiningList = List.of(
-            "Light animica rock",
-            "Dark animica rock",
-            "Banite rock",
-            "Orichalcite rock",
-            "Drakolith rock",
-            "Necrite rock",
-            "Phasmatite rock",
-            "Luminite rock",
-            "Runite rock",
-            "Adamantite rock",
-            "Mithril rock",
-            "Iron rock",
-            "Tin rock",
-            "Copper rock",
-            "Soft clay rock",
-            "Crystal-flecked sandstone",
-            "Prifddinas gem rock"
-    );
-
-    List<String> TreeList = List.of(
-            "Tree",
-            "Oak",
-            "Willow",
-            "Maple",
-            "Magic",
-            "Yew",
-            "Elder",
-            "Mahogany",
-            "Teak"
-    );
-    List<String> CombatList = List.of(
-            "Goblin",
-            "Zombie",
-            "Skeleton",
-            "Giant Spider",
-            "Hill Giant",
-            "Abyssal Demon"
-
-    );
-    List<String> FoodList = List.of(
-            "Shark",
-            "Rocktail",
-            "Salmon",
-            "Trout",
-            "Swordfish",
-            "Lobster"
-
-    );
-    List<String> LootList = List.of(
-            "Charms",
-            "Coins"
-
-
-    );
-
-    List<String> spiritStone = List.of(
-            "Spirit onyx (a)",
-            "Spirit dragonstone (a)",
-            "Spirit diamond (a)",
-            "Spirit ruby (a)",
-            "Spirit emerald (a)",
-            "Spirit sapphire (a)"
-    );
-
-    List<String> pouchName = List.of(
-            "Geyser titan pouch"
-    );
-    static Map<Integer, String> secondaryItemName = new HashMap<>();
-    static {
-        secondaryItemName.put(1444, "Water talisman");
-    }
-
-    public final NativeInteger spiritStone_current_idx = new NativeInteger(0);
-    public final NativeInteger pouchName_current_idx = new NativeInteger(0);
-    public final NativeInteger secondaryItem_current_idx = new NativeInteger(0);
-    public static final String[] porterTypes = {"Sign of the porter I", "Sign of the porter II", "Sign of the porter III", "Sign of the porter IV", "Sign of the porter V", "Sign of the porter VI", "Sign of the porter VII"};
-    public static final String[] quantities = {"ALL", "1", "5", "10"};
-    public static final NativeInteger currentPorterType = new NativeInteger(0);
-    public static final NativeInteger currentQuantity = new NativeInteger(0);
-
-
-
-    public static boolean PurpleThemeSelected = false;
-    public static boolean BlueThemeSelected = false;
-    public static boolean RedThemeSelected = false;
-    public static boolean OrangeThemeSelected = true;
-    public static boolean YellowThemeSelected = false;
-    public static boolean GreenThemeSelected = false;
-
-
-    private void setDefaultTheme() {
-        if (PurpleThemeSelected) {
-            setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.Button, 80, 0, 150, 200);
-            setStyleColor(ImGuiCol.ButtonHovered, 100, 50, 180, 250);
-            setStyleColor(ImGuiCol.ButtonActive, 80, 0, 150, 200);
-            setStyleColor(ImGuiCol.Text, 208, 217, 209, 255);
-            setStyleColor(ImGuiCol.Separator, 102, 0, 128, 255);
-            setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 255, 255, 255, 200);
-            setStyleColor(ImGuiCol.ResizeGripHovered, 100, 0, 200, 200);
-            setStyleColor(ImGuiCol.ResizeGripActive, 80, 0, 150, 255);
-            setStyleColor(ImGuiCol.ResizeGrip, 80, 0, 150, 255);
-            setStyleColor(ImGuiCol.SliderGrab, 80, 0, 150, 200);
-            setStyleColor(ImGuiCol.SliderGrabActive, 80, 0, 150, 200);
-            setStyleColor(ImGuiCol.SeparatorHovered, 100, 0, 200, 200);
-            setStyleColor(ImGuiCol.Border, 255, 80, 232, 220);
-            setStyleColor(ImGuiCol.BorderShadow, 132, 7, 116, 150);
-            setStyleColor(ImGuiCol.ScrollbarGrab, 80, 0, 150, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrabHovered, 100, 0, 200, 200);
-            setStyleColor(ImGuiCol.ScrollbarGrabActive, 100, 0, 200, 200);
-            setStyleColor(ImGuiCol.MenuBarBg, 80, 0, 150, 100);
-            setStyleColor(ImGuiCol.TabActive, 80, 0, 150, 100);
-            setStyleColor(ImGuiCol.Tab, 80, 0, 150, 100);
-            setStyleColor(ImGuiCol.TabHovered, 80, 0, 150, 100);
-            setStyleColor(ImGuiCol.TabUnfocused, 80, 0, 150, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 80, 0, 150, 100);
-            setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.PopupBg,  80, 0, 150, 200);
-            setStyleColor(ImGuiCol.HeaderHovered,  0, 0, 0, 220);
-            setStyleColor(ImGuiCol.HeaderActive,  0, 0, 0, 200);
-            setStyleColor(ImGuiCol.Header,  0, 0, 0, 100);
-            setStyleColor(ImGuiCol.FrameBgHovered, 100, 50, 180, 250);
-            setStyleColor(ImGuiCol.TableHeaderBg,  100, 50, 180, 250);
-        } else if
-        (BlueThemeSelected) {
-            setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.Button, 70, 130, 180, 200);
-            setStyleColor(ImGuiCol.ButtonActive, 70, 130, 180, 200);
-            setStyleColor(ImGuiCol.ButtonHovered, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.Text, 240, 248, 255, 255);
-            setStyleColor(ImGuiCol.Separator, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.ResizeGripHovered, 100, 149, 237, 200);
-            setStyleColor(ImGuiCol.ResizeGripActive, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.ResizeGrip, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.SliderGrab, 70, 130, 180, 200);
-            setStyleColor(ImGuiCol.SliderGrabActive, 70, 130, 180, 200);
-            setStyleColor(ImGuiCol.SeparatorHovered, 100, 149, 237, 200);
-            setStyleColor(ImGuiCol.Border, 70, 130, 180, 220);
-            setStyleColor(ImGuiCol.BorderShadow, 25, 25, 112, 150);
-            setStyleColor(ImGuiCol.ScrollbarGrab, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrabHovered, 100, 149, 237, 200);
-            setStyleColor(ImGuiCol.ScrollbarGrabActive, 100, 149, 237, 200);
-            setStyleColor(ImGuiCol.MenuBarBg,  70, 130, 180, 255);
-            setStyleColor(ImGuiCol.TabActive,  240, 248, 255, 200);
-            setStyleColor(ImGuiCol.Tab, 70, 130, 180, 100);
-            setStyleColor(ImGuiCol.TabHovered,  240, 248, 255, 200);
-            setStyleColor(ImGuiCol.TabUnfocused, 70, 130, 180, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.HeaderHovered,  70, 130, 180, 200);
-            setStyleColor(ImGuiCol.HeaderActive,  70, 130, 180, 255);
-            setStyleColor(ImGuiCol.Header,  0, 0, 0, 255);
-            setStyleColor(ImGuiCol.FrameBgHovered, 70, 130, 180, 255);
-            setStyleColor(ImGuiCol.TableHeaderBg, 70, 130, 180, 255);
-        } else if (RedThemeSelected) {
-            setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.Button, 178, 34, 34, 200);
-            setStyleColor(ImGuiCol.ButtonHovered, 220, 20, 60, 250);
-            setStyleColor(ImGuiCol.ButtonActive, 178, 34, 34, 200);
-            setStyleColor(ImGuiCol.Text, 255, 250, 250, 255);
-            setStyleColor(ImGuiCol.Separator, 178, 34, 34, 255);
-            setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 255, 250, 250, 200);
-            setStyleColor(ImGuiCol.ResizeGripHovered, 220, 20, 60, 200);
-            setStyleColor(ImGuiCol.ResizeGripActive, 178, 34, 34, 255);
-            setStyleColor(ImGuiCol.ResizeGrip, 178, 34, 34, 255);
-            setStyleColor(ImGuiCol.SliderGrab, 178, 34, 34, 200);
-            setStyleColor(ImGuiCol.SliderGrabActive, 178, 34, 34, 200);
-            setStyleColor(ImGuiCol.SeparatorHovered, 220, 20, 60, 200);
-            setStyleColor(ImGuiCol.Border, 178, 34, 34, 220);
-            setStyleColor(ImGuiCol.BorderShadow, 139, 0, 0, 150);
-            setStyleColor(ImGuiCol.ScrollbarGrab, 178, 34, 34, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrabHovered, 220, 20, 60, 200);
-            setStyleColor(ImGuiCol.ScrollbarGrabActive, 220, 20, 60, 200);
-            setStyleColor(ImGuiCol.MenuBarBg, 178, 34, 34, 100);
-            setStyleColor(ImGuiCol.TabActive, 178, 34, 34, 100);
-            setStyleColor(ImGuiCol.Tab, 178, 34, 34, 100);
-            setStyleColor(ImGuiCol.TabHovered, 178, 34, 34, 100);
-            setStyleColor(ImGuiCol.TabUnfocused, 178, 34, 34, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 178, 34, 34, 100);
-            setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 220, 20, 60, 250);
-            setStyleColor(ImGuiCol.HeaderActive, 220, 20, 60, 250);
-            setStyleColor(ImGuiCol.Header, 220, 20, 60, 250);
-            setStyleColor(ImGuiCol.FrameBgHovered, 220, 20, 60, 150);
-            setStyleColor(ImGuiCol.TableHeaderBg, 220, 20, 60, 250);
-        } else if (OrangeThemeSelected) {
-            setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.Button, 255, 140, 0, 200);
-            setStyleColor(ImGuiCol.ButtonHovered, 255, 165, 0, 250);
-            setStyleColor(ImGuiCol.ButtonActive, 255, 140, 0, 200);
-            setStyleColor(ImGuiCol.Text, 255, 255, 240, 255);
-            setStyleColor(ImGuiCol.Separator, 255, 140, 0, 255);
-            setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 255, 255, 240, 200);
-            setStyleColor(ImGuiCol.ResizeGripHovered, 255, 165, 0, 200);
-            setStyleColor(ImGuiCol.ResizeGripActive, 255, 140, 0, 255);
-            setStyleColor(ImGuiCol.ResizeGrip, 255, 140, 0, 255);
-            setStyleColor(ImGuiCol.SliderGrab, 255, 140, 0, 200);
-            setStyleColor(ImGuiCol.SliderGrabActive, 255, 140, 0, 200);
-            setStyleColor(ImGuiCol.SeparatorHovered, 255, 165, 0, 200);
-            setStyleColor(ImGuiCol.Border, 255, 140, 0, 220);
-            setStyleColor(ImGuiCol.BorderShadow, 139, 69, 19, 150);
-            setStyleColor(ImGuiCol.ScrollbarGrab, 255, 140, 0, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrabHovered, 255, 165, 0, 200);
-            setStyleColor(ImGuiCol.ScrollbarGrabActive, 255, 165, 0, 200);
-            setStyleColor(ImGuiCol.MenuBarBg, 255, 140, 0, 100);
-            setStyleColor(ImGuiCol.TabActive, 255, 140, 0, 100);
-            setStyleColor(ImGuiCol.Tab, 255, 140, 0, 100);
-            setStyleColor(ImGuiCol.TabHovered, 255, 140, 0, 100);
-            setStyleColor(ImGuiCol.TabUnfocused, 255, 140, 0, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 255, 140, 0, 100);
-            setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 255, 165, 0, 250);
-            setStyleColor(ImGuiCol.HeaderActive, 255, 165, 0, 250);
-            setStyleColor(ImGuiCol.Header, 255, 165, 0, 250);
-            setStyleColor(ImGuiCol.FrameBgHovered, 255, 165, 0, 250);
-            setStyleColor(ImGuiCol.TableHeaderBg, 255, 165, 0, 250);
-        } else if (YellowThemeSelected) {
-            setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.Button, 255, 223, 0, 200);
-            setStyleColor(ImGuiCol.ButtonHovered, 255, 255, 0, 200);
-            setStyleColor(ImGuiCol.ButtonActive, 255, 223, 0, 200);
-            setStyleColor(ImGuiCol.Text, 255, 255, 255, 230);
-            setStyleColor(ImGuiCol.Separator, 255, 223, 0, 255);
-            setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 255, 255, 255, 230);
-            setStyleColor(ImGuiCol.ResizeGripHovered, 255, 255, 0, 200);
-            setStyleColor(ImGuiCol.ResizeGripActive, 255, 223, 0, 255);
-            setStyleColor(ImGuiCol.ResizeGrip, 255, 223, 0, 255);
-            setStyleColor(ImGuiCol.SliderGrab, 255, 223, 0, 200);
-            setStyleColor(ImGuiCol.SliderGrabActive, 255, 223, 0, 200);
-            setStyleColor(ImGuiCol.SeparatorHovered, 255, 255, 0, 200);
-            setStyleColor(ImGuiCol.Border, 255, 223, 0, 220);
-            setStyleColor(ImGuiCol.BorderShadow, 139, 139, 0, 150);
-            setStyleColor(ImGuiCol.ScrollbarGrab, 255, 223, 0, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrabHovered, 255, 255, 0, 200);
-            setStyleColor(ImGuiCol.ScrollbarGrabActive, 255, 255, 0, 200);
-            setStyleColor(ImGuiCol.MenuBarBg, 255, 223, 0, 100);
-            setStyleColor(ImGuiCol.TabActive, 255, 223, 0, 100);
-            setStyleColor(ImGuiCol.Tab, 255, 223, 0, 100);
-            setStyleColor(ImGuiCol.TabHovered, 255, 223, 0, 100);
-            setStyleColor(ImGuiCol.TabUnfocused, 255, 223, 0, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 255, 223, 0, 100);
-            setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 139, 139, 0, 150);
-            setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
-            setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
-            setStyleColor(ImGuiCol.FrameBgHovered, 139, 139, 0, 150);
-            setStyleColor(ImGuiCol.TableHeaderBg,   255, 255, 0, 200);
-        } else if (GreenThemeSelected){
-            setStyleColor(ImGuiCol.WindowBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.Button, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.ButtonActive, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.ButtonHovered, 91, 102, 91, 250); // Change the checkmark color to red
-            setStyleColor(ImGuiCol.Text, 208, 217, 209, 255); // checkbox and input text backgorund
-            setStyleColor(ImGuiCol.Separator, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.CheckMark, 35, 219, 60, 200);
-            setStyleColor(ImGuiCol.ResizeGripHovered, 35, 219, 60, 200);
-            setStyleColor(ImGuiCol.ResizeGripActive, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.ResizeGrip, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.SliderGrab, 39, 92, 46, 200);
-            setStyleColor(ImGuiCol.SliderGrabActive, 39, 92, 46, 200);
-            setStyleColor(ImGuiCol.SeparatorHovered, 35, 219, 60, 200);
-            setStyleColor(ImGuiCol.Border, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.BorderShadow, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrab, 39, 92, 46, 255);
-            setStyleColor(ImGuiCol.ScrollbarGrabHovered, 35, 219, 60, 200);
-            setStyleColor(ImGuiCol.ScrollbarGrabActive, 35, 219, 60, 200);
-            setStyleColor(ImGuiCol.MenuBarBg, 39, 92, 46, 100);
-            setStyleColor(ImGuiCol.TabActive, 39, 92, 46, 100);
-            setStyleColor(ImGuiCol.Tab, 39, 92, 46, 100);
-            setStyleColor(ImGuiCol.TabHovered, 39, 92, 46, 100);
-            setStyleColor(ImGuiCol.TabUnfocused, 39, 92, 46, 100);
-            setStyleColor(ImGuiCol.TabUnfocusedActive, 39, 92, 46, 100);
-            setStyleColor(ImGuiCol.FrameBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
-            setStyleColor(ImGuiCol.HeaderHovered, 91, 102, 91, 250);
-            setStyleColor(ImGuiCol.HeaderActive, 32, 77, 30, 100);
-            setStyleColor(ImGuiCol.Header, 32, 77, 30, 100);
-            setStyleColor(ImGuiCol.FrameBgHovered, 91, 102, 91, 250);
-            setStyleColor(ImGuiCol.TableHeaderBg,  39, 92, 46, 255);
-        }
-    }
-
-
-
     @Override
     public void drawSettings() {
         setDefaultTheme();
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, (float) 6);
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, (float) 6);
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, (float) 3);
-        ImGui.PushStyleVar(ImGuiStyleVar.GrabRounding, (float) 3);
-        ImGui.PushStyleVar(ImGuiStyleVar.PopupRounding, (float) 3);
-        ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarSize, (float) 9);
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, (float) 2);
-        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, (float) 6, (float) 2);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, (float) 15, (float) 15);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, (float) 3);
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, (float) 2);
-
-
         float columnWidth = 180;
         float childWidth = columnWidth - 10;
 
@@ -668,8 +226,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 OrangeThemeSelected = false;
                                 YellowThemeSelected = false;
                                 GreenThemeSelected = false;
-                            } else {
-                                PurpleThemeSelected = false;
                             }
                         }, PurpleThemeSelected);
 
@@ -681,8 +237,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 OrangeThemeSelected = false;
                                 YellowThemeSelected = false;
                                 GreenThemeSelected = false;
-                            } else {
-                                BlueThemeSelected = false;
                             }
                         }, BlueThemeSelected);
 
@@ -694,8 +248,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 OrangeThemeSelected = false;
                                 YellowThemeSelected = false;
                                 GreenThemeSelected = false;
-                            } else {
-                                RedThemeSelected = false;
                             }
                         }, RedThemeSelected);
 
@@ -707,8 +259,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 RedThemeSelected = false;
                                 YellowThemeSelected = false;
                                 GreenThemeSelected = false;
-                            } else {
-                                OrangeThemeSelected = false;
                             }
                         }, OrangeThemeSelected);
 
@@ -720,8 +270,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 RedThemeSelected = false;
                                 OrangeThemeSelected = false;
                                 GreenThemeSelected = false;
-                            } else {
-                                YellowThemeSelected = false;
                             }
                         }, YellowThemeSelected);
                         createCenteredButton("Green Theme", () -> {
@@ -732,8 +280,6 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 RedThemeSelected = false;
                                 OrangeThemeSelected = false;
                                 YellowThemeSelected = false;
-                            } else {
-                                GreenThemeSelected = false;
                             }
                         }, GreenThemeSelected);
                     } else if (herbloreselcted) {

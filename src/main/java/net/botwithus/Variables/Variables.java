@@ -5,6 +5,7 @@ import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
+import net.botwithus.rs3.imgui.NativeInteger;
 import net.botwithus.rs3.script.ScriptConsole;
 
 import java.time.Instant;
@@ -179,6 +180,14 @@ public class Variables {
         }
         return null; // Return null if the list is empty
     }
+
+    public static final NativeInteger spiritStone_current_idx = new NativeInteger(0);
+    public static final NativeInteger pouchName_current_idx = new NativeInteger(0);
+    public static final NativeInteger secondaryItem_current_idx = new NativeInteger(0);
+    public static final String[] porterTypes = {"Sign of the porter I", "Sign of the porter II", "Sign of the porter III", "Sign of the porter IV", "Sign of the porter V", "Sign of the porter VI", "Sign of the porter VII"};
+    public static final String[] quantities = {"ALL", "1", "5", "10"};
+    public static final NativeInteger currentPorterType = new NativeInteger(0);
+    public static final NativeInteger currentQuantity = new NativeInteger(0);
 
     public static void addTask(TaskScheduler task) {
         tasks.add(task);

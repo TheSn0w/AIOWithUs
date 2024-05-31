@@ -1,6 +1,6 @@
 package net.botwithus;
 
-import ImGui.SkeletonScriptGraphicsContext;
+import ImGui.SnowScriptGraphics;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
@@ -29,7 +29,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static ImGui.SkeletonScriptGraphicsContext.*;
+import static ImGui.Theme.*;
 import static net.botwithus.Combat.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
@@ -60,7 +60,7 @@ public class SnowsScript extends LoopingScript {
 
     public SnowsScript(String s, ScriptConfig scriptConfig, ScriptDefinition scriptDefinition) {
         super(s, scriptConfig, scriptDefinition);
-        this.sgc = new SkeletonScriptGraphicsContext(getConsole(), this);
+        this.sgc = new SnowScriptGraphics(getConsole(), this);
         startTime = Instant.now();
         runStartTime = System.currentTimeMillis();
         this.loadConfiguration();
