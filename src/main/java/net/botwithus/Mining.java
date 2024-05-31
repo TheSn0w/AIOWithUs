@@ -105,39 +105,37 @@ public class Mining {
     }
 
     private static long handleBackpack(LocalPlayer player) {
-        if (Backpack.isFull()) { // Check if the backpack is full
-            if (nearestBank) { // If banking is enabled
-                if (!Backpack.containsItemByCategory(4448)) { // If there's no ore box
-                    sendToBank(player); // Send to the bank
-                    return random.nextLong(1500, 3000); // Delay for early exit
+        if (Backpack.isFull()) {
+            if (nearestBank) {
+                if (!Backpack.containsItemByCategory(4448)) {
+                    sendToBank(player);
+                    return random.nextLong(1500, 3000);
                 }
 
-                // If ore box is present, attempt to fill it
-                long oreBoxDelay = fillOreBox(); // Fill ore box if it's found
-                if (oreBoxDelay > 0) { // If successful interaction
-                    if (Backpack.isFull()) { // If backpack is still full
-                        sendToBank(player); // Go to the bank
-                        return oreBoxDelay; // Delay for early exit
+                long oreBoxDelay = fillOreBox();
+                if (oreBoxDelay > 0) {
+                    if (Backpack.isFull()) {
+                        sendToBank(player);
+                        return oreBoxDelay;
                     } else {
-                        return random.nextLong(500, 1000); // Delay if ore box filled and backpack not full
+                        return random.nextLong(500, 1000);
                     }
                 }
             }
 
-            dropAllOres(); // If no banking or ore box handling, drop ores
-            return random.nextLong(1500, 3000); // Delay after dropping ores
+            dropAllOres();
+            return random.nextLong(1500, 3000);
         }
 
-        return 0; // No delay if backpack is not full
+        return 0;
     }
 
-    // Fill the ore box if it exists
     private static long fillOreBox() {
-        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first(); // Query for the ore box
+        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
 
         if (oreBox != null) {
-            boolean interactionSuccess = Backpack.interact(oreBox.getName(), "Fill"); // Try to fill the ore box
-            Execution.delay(random.nextInt(1500, 3500)); // Random delay after interaction
+            boolean interactionSuccess = Backpack.interact(oreBox.getName(), "Fill");
+            Execution.delay(random.nextInt(1500, 3500));
 
             if (interactionSuccess) {
                 ScriptConsole.println("[Mining] Filled: " + oreBox.getName());
@@ -146,7 +144,7 @@ public class Mining {
                 ScriptConsole.println("[Mining] Failed to interact with the ore box.");
             }
         } else {
-            ScriptConsole.println("[Mining] No ore box found with category 4448."); // If no ore box found
+            ScriptConsole.println("[Mining] No ore box found with category 4448.");
         }
 
         return 0;
@@ -170,7 +168,7 @@ public class Mining {
                 String itemName = item.getName();
                 int category = item.getConfigType().getCategory();
 
-                if (ActionBar.containsItem(itemName)) { // Use ActionBar if available
+                if (ActionBar.containsItem(itemName)) {
                     boolean success = ActionBar.useItem(itemName, "Drop");
                     if (success) {
                         ScriptConsole.println("Dropping (ActionBar): " + itemName);

@@ -1392,13 +1392,13 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         ImGui.SeparatorText("Archaeology Options");
 
                         if (ImGui.Button("Enter Excavation Name")) {
-                            Archeology.addName(Archeology.getName());
-                            ScriptConsole.println("Excavation added: " + Archeology.getName());
-                            Archeology.setName("");
+                            addName(getName());
+                            ScriptConsole.println("Excavation added: " + getName());
+                            setName("");
                         }
                         ImGui.SameLine();
                         ImGui.SetItemWidth(200.0F);
-                        Archeology.Rock1 = ImGui.InputText("##Excavation Name", Archeology.getName());
+                        Rock1 = ImGui.InputText("##Excavation Name", getName());
 
                         List<String> comboItemsList = new ArrayList<>(predefinedNames);
                         comboItemsList.add(0, "                          Select Excavation Name");
@@ -1418,7 +1418,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             int selectedIndex = excavationItemIndex.get();
                             if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                                 String selectedName = comboItems[selectedIndex];
-                                Archeology.addName(selectedName);
+                                addName(selectedName);
                                 ScriptConsole.println("Predefined excavation added: " + selectedName);
                                 excavationItemIndex.set(0);
                             } else {
@@ -1431,7 +1431,7 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 int selectedIndex = cacheItemIndex.get();
                                 if (selectedIndex > 0 && selectedIndex < Caches.length) {
                                     String selectedName = Caches[selectedIndex];
-                                    Archeology.addName(selectedName);
+                                    addName(selectedName);
                                     MaterialCache = true;
                                     ScriptConsole.println("Predefined material cache added: " + selectedName);
                                     cacheItemIndex.set(0);
@@ -1447,14 +1447,14 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.TableSetupColumn("Remove", 1);
                             ImGui.TableHeadersRow();
 
-                            List<String> selectedNames = new ArrayList<>(Archeology.getSelectedNames());
+                            List<String> selectedNames = new ArrayList<>(getSelectedNames());
                             for (String name : selectedNames) {
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.Text(name);
                                 ImGui.TableNextColumn();
                                 if (ImGui.Button("Remove##" + name)) {
-                                    Archeology.removeName(name);
+                                    removeName(name);
                                     MaterialCache = false;
                                     ScriptConsole.println("Excavation name removed: " + name);
                                 }
@@ -2006,11 +2006,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                         ImGui.SeparatorText("Fishing Options");
                         if (ImGui.Button("Add Fishing Action")) {
-                            String actionInput = Fishing.getFishingAction();
+                            String actionInput = getFishingAction();
                             if (actionInput != null && !actionInput.trim().isEmpty()) {
-                                Fishing.addFishingAction(actionInput);
+                                addFishingAction(actionInput);
                                 ScriptConsole.println("Fishing action added: " + actionInput);
-                                Fishing.setFishingAction("");
+                                setFishingAction("");
                             } else {
                                 ScriptConsole.println("Invalid fishing action.");
                             }
@@ -2022,15 +2022,15 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
 
                         ImGui.SetItemWidth(227.0F);
                         ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 2.0f);
-                        String actionInput = ImGui.InputText("##Fishing Action", Fishing.getFishingAction());
+                        String actionInput = ImGui.InputText("##Fishing Action", getFishingAction());
                         ImGui.PopStyleVar(1);
-                        Fishing.setFishingAction(actionInput);
+                        setFishingAction(actionInput);
                         if (ImGui.Button("Add Fishing Location")) {
-                            String locationInput = Fishing.getFishingLocation();
+                            String locationInput = getFishingLocation();
                             if (locationInput != null && !locationInput.trim().isEmpty()) {
-                                Fishing.addFishingLocation(locationInput);
+                                addFishingLocation(locationInput);
                                 ScriptConsole.println("Fishing location added: " + locationInput);
-                                Fishing.setFishingLocation("");
+                                setFishingLocation("");
                             } else {
                                 ScriptConsole.println("Invalid fishing location.");
                             }
@@ -2040,8 +2040,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                         }
                         ImGui.SameLine();
                         ImGui.SetItemWidth(214.0F);
-                        String locationInput = ImGui.InputText("##Fishing Location", Fishing.getFishingLocation());
-                        Fishing.setFishingLocation(locationInput);
+                        String locationInput = ImGui.InputText("##Fishing Location", getFishingLocation());
+                        setFishingLocation(locationInput);
 
                         if (ImGui.BeginTable("Selected Fishing", 3, ImGuiWindowFlag.None.getValue())) {
                             ImGui.TableNextRow();
@@ -2050,8 +2050,8 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                             ImGui.TableSetupColumn("Action", 2);
                             ImGui.TableHeadersRow();
 
-                            List<String> selectedActions = new ArrayList<>(Fishing.getSelectedFishingActions());
-                            List<String> selectedLocations = new ArrayList<>(Fishing.getSelectedFishingLocations());
+                            List<String> selectedActions = new ArrayList<>(getSelectedFishingActions());
+                            List<String> selectedLocations = new ArrayList<>(getSelectedFishingLocations());
 
                             for (int i = 0; i < Math.max(selectedActions.size(), selectedLocations.size()); i++) {
                                 ImGui.TableNextRow();
@@ -2061,11 +2061,11 @@ public class SkeletonScriptGraphicsContext extends ScriptGraphicsContext {
                                 ImGui.Text(i < selectedLocations.size() ? selectedLocations.get(i) : "");
                                 ImGui.TableNextColumn();
                                 if (i < selectedActions.size() && ImGui.Button("Remove Action##" + selectedActions.get(i))) {
-                                    Fishing.removeFishingAction(selectedActions.get(i));
+                                    removeFishingAction(selectedActions.get(i));
                                     ScriptConsole.println("Fishing action removed: " + selectedActions.get(i));
                                 }
                                 if (i < selectedLocations.size() && ImGui.Button("Remove Location##" + selectedLocations.get(i))) {
-                                    Fishing.removeFishingLocation(selectedLocations.get(i));
+                                    removeFishingLocation(selectedLocations.get(i));
                                     ScriptConsole.println("Fishing location removed: " + selectedLocations.get(i));
                                 }
                             }

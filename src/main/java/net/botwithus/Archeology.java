@@ -61,32 +61,6 @@ public class Archeology {
         coordinateMap.put("Material cache (samite silk)", new Coordinate(3373, 3200, 0));
     }
 
-    public static String Rock1 = "";
-    public static List<String> selectedArchNames = new ArrayList<>();
-
-    public static String getName() {
-        return Rock1;
-    }
-
-    public static List<String> getSelectedNames() {
-        return selectedArchNames;
-    }
-
-    public static void addName(String name) {
-        if (!selectedArchNames.contains(name)) {
-            selectedArchNames.add(name);
-        }
-    }
-
-    public static void removeName(String name) {
-        selectedArchNames.remove(name);
-    }
-
-    public static void setName(String Rock1Name) {
-        Rock1 = Rock1Name;
-    }
-
-    private static Coordinate lastSpotAnimationCoordinate = null;
 
     public static long findSpotAnimationAndAct(LocalPlayer player, List<String> selectedArchNames) {
         if (selectedArchNames == null || selectedArchNames.isEmpty()) {

@@ -37,38 +37,6 @@ public class Woodcutting {
         this.skeletonScript = script;
     }
 
-    public void updateChatMessageEvent(ChatMessageEvent event) {
-        String message = event.getMessage();
-        if (isWoodcuttingActive) {
-            if (message.contains("You get some")) {
-                String logType = message.substring(message.lastIndexOf("some") + 5).trim();
-                logType = logType.replace(".", ""); // Remove the period
-                int count = logCount.getOrDefault(logType, 0);
-                logCount.put(logType, count + 1);
-            }
-            if (message.toLowerCase().contains("bird's nest")) {
-                int count = nestCount.getOrDefault("Bird's nest", 0);
-                nestCount.put("Bird's nest", count + 1);
-            }
-            if (message.contains("You transport the following item to your bank:")) {
-                String logType = message.substring(message.lastIndexOf("bank:") + 6).trim();
-                logType = logType.replace(".", ""); // Remove the period
-                int count = logCount.getOrDefault(logType, 0);
-                logCount.put(logType, count + 1);
-            }
-            if (message.contains("As you cut from the tree, the log:")) {
-                String logType = message.substring(message.lastIndexOf("log:") + 7).trim();
-                logType = logType.replace(".", ""); // Remove the period
-                int count = logCount.getOrDefault(logType, 0);
-                logCount.put(logType, count + 1);
-            }
-            if (message.contains("Crystallise takes your resource and converts it into XP.")) {
-                String key = "Resources"; // The key for the logCount map
-                int count = logCount.getOrDefault(key, 0);
-                logCount.put(key, count + 1);
-            }
-        }
-    }
 
     static int currentTreeIndex = 0;
     static List<Coordinate> treeCoordinates = Arrays.asList(
@@ -145,7 +113,7 @@ public class Woodcutting {
                 if (nearestTree == null) {
                     ScriptConsole.println("Nearest tree is null.");
                 } else {
-                    currentTreeCoordinate = nearestTree.getCoordinate(); // Update the current tree coordinate
+                    currentTreeCoordinate = nearestTree.getCoordinate();
 
                     SceneObject treeStump = SceneObjectQuery.newQuery().name("Tree stump").results().nearestTo(currentTreeCoordinate);
                     if (treeStump == null || !treeStump.getCoordinate().equals(currentTreeCoordinate)) {
@@ -284,7 +252,6 @@ public class Woodcutting {
                     }
                 }
 
-                // Update the lastCrystalliseCast time and nextCrystalliseDelay
                 lastCrystalliseCast = System.currentTimeMillis();
                 nextCrystalliseDelay = random.nextInt(21000, 22500);
             }

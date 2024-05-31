@@ -276,6 +276,80 @@ public class Variables {
             selectedTreeNames.add(name);
         }
     }
+    public static String fishingLocation = "";
+    public static String fishingAction = "";
+    public static List<String> selectedFishingLocations = new ArrayList<>();
+    public static List<String> selectedFishingActions = new ArrayList<>();
+
+    public static String getFishingLocation() {
+        return fishingLocation;
+    }
+
+    public static void setFishingLocation(String location) {
+        fishingLocation = location;
+    }
+
+    public static List<String> getSelectedFishingLocations() {
+        return selectedFishingLocations;
+    }
+
+    public static void addFishingLocation(String location) {
+        if (location != null && !location.trim().isEmpty() && !selectedFishingLocations.contains(location)) {
+            selectedFishingLocations.add(location);
+        }
+    }
+
+    public static void removeFishingLocation(String location) {
+        selectedFishingLocations.remove(location);
+    }
+
+    public static String getFishingAction() {
+        return fishingAction;
+    }
+
+    public static void setFishingAction(String action) {
+        fishingAction = action;
+    }
+
+    public static List<String> getSelectedFishingActions() {
+        return new ArrayList<>(selectedFishingActions);
+    }
+
+    public static void addFishingAction(String action) {
+        if (action != null && !action.trim().isEmpty() && !selectedFishingActions.contains(action)) {
+            selectedFishingActions.add(action);
+        }
+    }
+    public static String Rock1 = "";
+    public static List<String> selectedArchNames = new ArrayList<>();
+
+    public static String getName() {
+        return Rock1;
+    }
+
+    public static List<String> getSelectedNames() {
+        return selectedArchNames;
+    }
+
+    public static void addName(String name) {
+        if (!selectedArchNames.contains(name)) {
+            selectedArchNames.add(name);
+        }
+    }
+
+    public static void removeName(String name) {
+        selectedArchNames.remove(name);
+    }
+
+    public static void setName(String Rock1Name) {
+        Rock1 = Rock1Name;
+    }
+
+    public static Coordinate lastSpotAnimationCoordinate = null;
+
+    public static void removeFishingAction(String action) {
+        selectedFishingActions.remove(action);
+    }
 
     public static void removeTreeName(String name) {
         selectedTreeNames.remove(name);

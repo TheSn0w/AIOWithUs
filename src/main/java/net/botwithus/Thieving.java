@@ -29,14 +29,14 @@ import java.util.Random;
 
 public class Thieving {
     private static final Random random = new Random();
-    public static SnowsScript skeletonScript; // Store a reference to SkeletonScript
+    public static SnowsScript skeletonScript;
     private static int failedAttempts = 0;
 
     public Thieving(SnowsScript script) {
-        skeletonScript = script; // Initialize with the correct instance
+        skeletonScript = script;
     }
 
-    static final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0); // Set the BakeryStall coordinate
+    static final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0);
 
     public static long interactWithBakeryStall(LocalPlayer player) {
         if (!Backpack.isFull() && !player.inCombat()) {
@@ -46,7 +46,7 @@ public class Thieving {
                 List<String> options = bakeryStall.getOptions();
 
                 if (options.contains("Steal from")) {
-                    Execution.delay(random.nextInt(500, 1000));  // Small delay before interaction
+                    Execution.delay(random.nextInt(500, 1000));
                     boolean interactionSuccess = bakeryStall.interact("Steal from");
                     ScriptConsole.println("Attempted interaction with Bakery Stall: " + interactionSuccess);
 
@@ -54,39 +54,39 @@ public class Thieving {
                     long endTime = startTime + 2000;  // 2-second monitoring window
 
                     boolean success = false;
-                    while (System.currentTimeMillis() < endTime) {  // Monitor within 2 seconds
-                        Execution.delay(100);  // Check every 100 milliseconds
-                        int currentAnimation = player.getAnimationId();  // Get animation ID
+                    while (System.currentTimeMillis() < endTime) {
+                        Execution.delay(100);
+                        int currentAnimation = player.getAnimationId();
 
-                        if (currentAnimation == 832) {  // Successful interaction
+                        if (currentAnimation == 832) {
                             success = true;
-                            break;  // Exit loop if success is detected
+                            break;
                         }
                     }
 
-                    if (success) {  // Successful interaction
+                    if (success) {
                         ScriptConsole.println("Interaction successful after monitoring. Animation ID: 832");
-                        failedAttempts = 0;  // Reset failed attempts
-                        return random.nextLong(1500, 3000);  // Shorter delay for success
-                    } else {  // Unsuccessful interaction
-                        failedAttempts++;  // Increment failed attempts
+                        failedAttempts = 0;
+                        return random.nextLong(1500, 3000);
+                    } else {
+                        failedAttempts++;
                         ScriptConsole.println("Interaction unsuccessful after monitoring. Failed attempts: " + failedAttempts);
 
-                        if (failedAttempts >= 3) {  // If failed three times or more
-                            if (!BakerystallLocation.equals(player.getCoordinate())) {  // Check if not at Bakery Stall
+                        if (failedAttempts >= 3) {
+                            if (!BakerystallLocation.equals(player.getCoordinate())) {
                                 ScriptConsole.println("Traversing to BakeryStallLocation after 3 failed attempts.");
-                                Movement.traverse(NavPath.resolve(BakerystallLocation));  // Move to Bakery Stall location
-                                return random.nextLong(3500, 5000);  // Longer delay for failure and movement
+                                Movement.traverse(NavPath.resolve(BakerystallLocation));
+                                return random.nextLong(3500, 5000);
                             }
                         }
 
-                        return random.nextLong(3500, 5000);  // Longer delay for failure
+                        return random.nextLong(3500, 5000);
                     }
                 }
             }
         }
 
-        return random.nextLong(3500, 5000);  // Default longer delay for failure
+        return random.nextLong(3500, 5000);
     }
 
 

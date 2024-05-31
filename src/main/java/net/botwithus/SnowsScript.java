@@ -31,10 +31,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static ImGui.SkeletonScriptGraphicsContext.*;
-import static net.botwithus.Archeology.addName;
-import static net.botwithus.Archeology.selectedArchNames;
 import static net.botwithus.Combat.*;
-import static net.botwithus.Fishing.*;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.Variables.Variables.*;

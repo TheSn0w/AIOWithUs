@@ -37,7 +37,6 @@ public class Fishing {
             return false;
         }
     }
-
     public Fishing(SnowsScript script) {
         this.skeletonScript = script;
     }
@@ -174,54 +173,5 @@ public class Fishing {
             Execution.delay(1000);
         }
         return true;
-    }
-
-    public static String fishingLocation = "";
-    public static String fishingAction = "";
-    public static List<String> selectedFishingLocations = new ArrayList<>();
-    public static List<String> selectedFishingActions = new ArrayList<>();
-
-    public static String getFishingLocation() {
-        return fishingLocation;
-    }
-
-    public static void setFishingLocation(String location) {
-        fishingLocation = location;
-    }
-
-    public static List<String> getSelectedFishingLocations() {
-        return selectedFishingLocations;
-    }
-
-    public static void addFishingLocation(String location) {
-        if (location != null && !location.trim().isEmpty() && !selectedFishingLocations.contains(location)) {
-            selectedFishingLocations.add(location);
-        }
-    }
-
-    public static void removeFishingLocation(String location) {
-        selectedFishingLocations.remove(location);
-    }
-
-    public static String getFishingAction() {
-        return fishingAction;
-    }
-
-    public static void setFishingAction(String action) {
-        fishingAction = action;
-    }
-
-    public static List<String> getSelectedFishingActions() {
-        return new ArrayList<>(selectedFishingActions);
-    }
-
-    public static void addFishingAction(String action) {
-        if (action != null && !action.trim().isEmpty() && !selectedFishingActions.contains(action)) {
-            selectedFishingActions.add(action);
-        }
-    }
-
-    public static void removeFishingAction(String action) {
-        selectedFishingActions.remove(action);
     }
 }

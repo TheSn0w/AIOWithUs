@@ -70,8 +70,8 @@ public class Runnables {
 
     public static  void handleFishing() {
         LocalPlayer player = Client.getLocalPlayer();
-        List<String> selectedFishingLocations = Fishing.getSelectedFishingLocations();
-        List<String> selectedFishingActions = Fishing.getSelectedFishingActions();
+        List<String> selectedFishingLocations = getSelectedFishingLocations();
+        List<String> selectedFishingActions = getSelectedFishingActions();
         if (player != null) {
             Execution.delay(Fishing.handleFishing(player, selectedFishingLocations.get(0), selectedFishingActions.get(0)));
         }
@@ -114,7 +114,7 @@ public class Runnables {
     public static  void handleArcheology() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            List<String> selectedArchNames = Archeology.getSelectedNames();
+            List<String> selectedArchNames = getSelectedNames();
             Execution.delay(Archeology.findSpotAnimationAndAct(player, selectedArchNames));
         }
     }
