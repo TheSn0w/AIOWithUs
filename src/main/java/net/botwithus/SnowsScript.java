@@ -188,8 +188,12 @@ public class SnowsScript extends LoopingScript {
         if (isdivinechargeActive) {
             String itemName = event.getNewItem().getName();
             if ("Divine charge".equals(itemName)) {
-                int count = divineCharges.getOrDefault(itemName, 0);
-                divineCharges.put(itemName, count + 1);
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int newDivineCharges = newCount - oldCount;
+                    divineCharges.put(itemName, newDivineCharges);
+                }
             }
         }
         if (isArcheologyActive) {
