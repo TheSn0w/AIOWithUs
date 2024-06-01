@@ -272,11 +272,21 @@ public class Archeology {
     public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
         Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
         setLastSkillingLocation(player.getCoordinate());
-
-        log("[Archaeology] Teleporting to bank.");
-        if (Movement.traverse(NavPath.resolve(bankChestCoordinate)) == TraverseEvent.State.FINISHED) {
-            log("[Archaeology] Finished traversing to bank.");
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
+                .name("Bank chest")
+                .option("Use")
+                .results();
+        if (!results.isEmpty()) {
             Execution.delay(handleBankInteraction(player, selectedArchNames));
+        } else {
+            log("[Archaeology] Teleporting to bank.");
+            TraverseEvent.State traverseState = Movement.traverse(NavPath.resolve(bankChestCoordinate));
+            if (traverseState == TraverseEvent.State.FINISHED) {
+                log("[Archaeology] Finished traversing to bank.");
+                Execution.delay(handleBankInteraction(player, selectedArchNames));
+            } else {
+                log("[Error] Failed to traverse to bank.");
+            }
         }
         return random.nextLong(1500, 3000);
     }
