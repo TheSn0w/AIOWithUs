@@ -195,7 +195,7 @@ public class SnowsScript extends LoopingScript {
         }
         if (isArcheologyActive) {
             String itemName = event.getNewItem().getName();
-            if (itemName != null) {
+            if (itemName != null && !itemName.contains("soil box") && !itemName.contains("porter")) {
                 int count = materialTypes.getOrDefault(itemName, 0);
                 materialTypes.put(itemName, count + 1);
                 log("[Debug] Set " + itemName + " count to " + (count + 1));
