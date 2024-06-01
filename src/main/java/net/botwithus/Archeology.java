@@ -57,6 +57,7 @@ public class Archeology {
         coordinateMap.put("Lodge art storage", new Coordinate(2589, 7331, 0));
         coordinateMap.put("Lodge bar storage", new Coordinate(2589, 7331, 0));
         coordinateMap.put("Material cache (samite silk)", new Coordinate(3373, 3200, 0));
+        coordinateMap.put("Ikovian memorial", new Coordinate(2681, 3397, 0));
     }
 
 
@@ -116,9 +117,10 @@ public class Archeology {
                     log("[Error] Interaction with Equipment failed.");
                 }
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
+            } else if (!Backpack.contains("Sign of the porter VII") && VarManager.getInvVarbit(94, 2, 30214) < 250) {
+                log("[Error] No 'Sign of the porter VII' found in the Backpack.");
+                Execution.delay(BankforArcheology(player, selectedArchNames));
             }
-        } else {
-            log("[Error] No 'Sign of the porter VII' found in the Backpack.");
         }
         if (archaeologistsTea || materialManual || hiSpecMonocle) {
             if (archaeologistsTea) {

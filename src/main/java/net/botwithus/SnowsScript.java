@@ -190,7 +190,6 @@ public class SnowsScript extends LoopingScript {
             if ("Divine charge".equals(itemName)) {
                 int count = divineCharges.getOrDefault(itemName, 0);
                 divineCharges.put(itemName, count + 1);
-                log("[Debug] Set " + itemName + " count to " + (count + 1));
             }
         }
         if (isArcheologyActive) {
@@ -198,7 +197,6 @@ public class SnowsScript extends LoopingScript {
             if (itemName != null && !itemName.contains("soil box") && !itemName.contains("porter")) {
                 int count = materialTypes.getOrDefault(itemName, 0);
                 materialTypes.put(itemName, count + 1);
-                log("[Debug] Set " + itemName + " count to " + (count + 1));
             }
         }
         if (isCorruptedOreActive) {
