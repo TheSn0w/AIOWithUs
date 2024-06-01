@@ -137,8 +137,6 @@ public class Variables {
     public static boolean makeRefinedPlanks = false;
     public static boolean makeFrames = false;
     public static boolean isMiscActive = false;
-    public static Map<String, Integer> Gems = new HashMap<>();
-    public static Map<String, Integer> divineCharges = new HashMap<>();
 
 
 

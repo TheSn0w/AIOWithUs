@@ -175,6 +175,8 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
     }
+    public static Map<String, Integer> divineCharges = new HashMap<>();
+    public static Map<String, Integer> Gems = new HashMap<>();
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
@@ -262,9 +264,15 @@ public class SnowsScript extends LoopingScript {
         if (isDivinationActive) {
             String itemName = event.getNewItem().getName();
             if (itemName.contains("energy")) {
-                int count = Variables.energy.getOrDefault(itemName, 0);
-                Variables.energy.put(itemName, count + 1);
-                log("[Debug] Set " + itemName + " count to " + (count + 1));
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+
+                    int currentCount = Variables.energy.getOrDefault(itemName, 0);
+
+                    energy.put(itemName, currentCount + quantity);
+                }
             }
         }
         if (isDissasemblerActive) {
