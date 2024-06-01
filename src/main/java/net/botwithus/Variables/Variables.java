@@ -1,5 +1,7 @@
 package net.botwithus.Variables;
 
+import net.botwithus.Herblore.Herblore;
+import net.botwithus.Herblore.SharedState;
 import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Coordinate;
@@ -8,11 +10,11 @@ import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.imgui.NativeInteger;
 import net.botwithus.rs3.script.ScriptConsole;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
+import static ImGui.PredefinedStrings.recipeNamesList;
 import static net.botwithus.SnowsScript.BotState.IDLE;
 
 public class Variables {
@@ -142,6 +144,13 @@ public class Variables {
 
 
     //TODO
+    public static final String[] recipeNames = recipeNamesList.toArray(new String[0]);
+    public static final NativeInteger currentRecipeIndex = new NativeInteger(0); // Default to "Select Herblore Recipe"
+
+
+
+
+
 
     public static void dialog(int option1, int option2, int option3) {
         MiniMenu.interact(ComponentAction.DIALOGUE.getType(), option1, option2, option3);

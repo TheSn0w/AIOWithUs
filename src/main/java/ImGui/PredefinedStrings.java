@@ -1,5 +1,8 @@
 package ImGui;
 
+import net.botwithus.Herblore.Herblore;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,4 +208,42 @@ public class PredefinedStrings {
     static {
         secondaryItemName.put(1444, "Water talisman");
     }
+
+    public static final List<String> recipeNamesList = new ArrayList<>();
+    static {
+        recipeNamesList.add("Supreme Overloads");
+        recipeNamesList.add("Overloads");
+        recipeNamesList.add("Extreme Attack");
+        recipeNamesList.add("Extreme Strength");
+        recipeNamesList.add("Extreme Defence");
+        recipeNamesList.add("Extreme Magic");
+        recipeNamesList.add("Extreme Ranging");
+        recipeNamesList.add("Extreme Necromancy");
+        recipeNamesList.add("Super Attack");
+        recipeNamesList.add("Super Strength");
+        recipeNamesList.add("Super Defence");
+        recipeNamesList.add("Super Magic");
+        recipeNamesList.add("Super Ranged");
+        recipeNamesList.add("Super Necromancy");
+    }
+    public static Herblore.HerbloreRecipe stringToHerbloreRecipe(String recipeName) {
+        return switch (recipeName) {
+            case "Supreme Overloads" -> Herblore.HerbloreRecipe.SUPREME_OVERLOADS;
+            case "Overloads" -> Herblore.HerbloreRecipe.OVERLOADS;
+            case "Extreme Attack" -> Herblore.HerbloreRecipe.EXTREME_ATTACK;
+            case "Extreme Strength" -> Herblore.HerbloreRecipe.EXTREME_STRENGTH;
+            case "Extreme Defence" -> Herblore.HerbloreRecipe.EXTREME_DEFENCE;
+            case "Extreme Magic" -> Herblore.HerbloreRecipe.EXTREME_MAGIC;
+            case "Extreme Ranging" -> Herblore.HerbloreRecipe.EXTREME_RANGING;
+            case "Extreme Necromancy" -> Herblore.HerbloreRecipe.EXTREME_NECROMANCY;
+            case "Super Attack" -> Herblore.HerbloreRecipe.SUPER_ATTACK;
+            case "Super Strength" -> Herblore.HerbloreRecipe.SUPER_STRENGTH;
+            case "Super Defence" -> Herblore.HerbloreRecipe.SUPER_DEFENCE;
+            case "Super Magic" -> Herblore.HerbloreRecipe.SUPER_MAGIC;
+            case "Super Ranged" -> Herblore.HerbloreRecipe.SUPER_RANGED;
+            case "Super Necromancy" -> Herblore.HerbloreRecipe.SUPER_NECROMANCY;
+            default -> throw new IllegalArgumentException("Unknown recipe: " + recipeName);
+        };
+    }
+
 }

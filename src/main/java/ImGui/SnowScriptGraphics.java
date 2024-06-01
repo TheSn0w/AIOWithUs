@@ -1,6 +1,8 @@
 package ImGui;
 
 import net.botwithus.*;
+import net.botwithus.Herblore.Herblore;
+import net.botwithus.Herblore.SharedState;
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.imgui.*;
@@ -24,6 +26,8 @@ import static ImGui.PredefinedStrings.*;
 import static ImGui.Theme.*;
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
+import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Herblore.Herblore.getSelectedRecipe;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Runecrafting.*;
@@ -222,7 +226,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Material Manual", () -> materialManual = !materialManual, materialManual);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will do Upkeep Material Manual");
+                            ImGui.SetTooltip("Will Upkeep Material Manual");
                         }
                         createCenteredButton("Archaeologists Tea", () -> archaeologistsTea = !archaeologistsTea, archaeologistsTea);
                         if (ImGui.IsItemHovered()) {
@@ -564,6 +568,26 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
                                 ImGui.PopStyleColor(1);
                             }
+
+
+                            /*String[] recipeNames = Arrays.stream(Herblore.HerbloreRecipe.values())
+                                    .map(Enum::name)
+                                    .toArray(String[]::new);*/ //will display CASE NAME
+
+                            ImGui.SetItemWidth(200.0F);
+                            if (ImGui.Combo("Select Herblore Recipe", currentRecipeIndex, recipeNames)) {
+                                int selectedIndex = currentRecipeIndex.get();
+                                if (selectedIndex >= 0 && selectedIndex < recipeNames.length) {
+                                    String selectedRecipeName = recipeNames[selectedIndex];
+                                    SharedState.selectedRecipe = stringToHerbloreRecipe(selectedRecipeName);
+                                    log("Herblore Recipe selected: " + selectedRecipeName);
+                                } else {
+                                    log("Please select a valid Herblore Recipe.");
+                                }
+                            }
+
+
+
                             ImGui.SeparatorText("Potions Made Count");
                             for (Map.Entry<String, Integer> entry : Potions.entrySet()) {
                                 ImGui.Text(entry.getKey() + ": " + entry.getValue());
@@ -2021,6 +2045,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         botState = String.valueOf(getCurrentState());
                     } else if (pickCaveNightshade) {
                         botState = String.valueOf(getNightShadeState());
+                    } else if (isHerbloreActive){
+                        botState = String.valueOf(getSelectedRecipe());
                     } else {
                         botState = String.valueOf(getBotState());
                     }
@@ -2073,7 +2099,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     float centeredX = (windowWidth - textWidth) / 2;
 
                     ImGui.SetCursorPosX(0);
-                    ImGui.SetCursorPosY(15);
+                    ImGui.SetCursorPosY(10);
                     ImGui.SetCursorPosX(centeredX);
                     ImGui.Text("" + botState);
                     ImGui.PopStyleColor(1);

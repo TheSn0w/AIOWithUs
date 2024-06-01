@@ -69,14 +69,21 @@ tasks.register("updateVersion") {
             versionProps.load(FileInputStream(versionPropsFile))
         }
 
-        val versionStr = versionProps.getProperty("version", "1.0")
+        val versionStr = versionProps.getProperty("version", "1.0.0")
 
-        val versionNumber = versionStr.toDoubleOrNull() ?: 1.0
+        // Split the version string into major, minor, and patch parts
+        val versionParts = versionStr.split(".")
+        val major = versionParts[0].toInt()
+        val minor = versionParts[1].toInt()
+        val patch = versionParts[2].toInt()
 
-        val newVersionNumber = versionNumber + 0.1
+        // Increment the patch version by 1
+        val newPatch = patch + 1
 
-        val newVersionStr = "%.1f".format(newVersionNumber)
+        // Format the new version number
+        val newVersionStr = "$major.$minor.$newPatch"
 
+        // Update the version in the properties file
         versionProps.setProperty("version", newVersionStr)
         versionProps.store(FileOutputStream(versionPropsFile), null)
 

@@ -286,7 +286,20 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+
+        if (isHerbloreActive) {
+            String itemName = event.getNewItem().getName();
+            int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+            int newCount = event.getNewItem().getStackSize();
+            if (newCount > oldCount) {
+                int quantity = newCount - oldCount;
+
+                int currentCount = Potions.getOrDefault(itemName, 0);
+                Potions.put(itemName, currentCount + quantity);
+            }
+        }
     }
+
 
 
     void onChatMessageEvent(ChatMessageEvent event) {
@@ -313,13 +326,6 @@ public class SnowsScript extends LoopingScript {
                 itemType = itemType.replace(".", "");
                 int count = portersMade.getOrDefault(itemType, 0);
                 portersMade.put(itemType, count + 1);
-            }
-        }
-        if (isHerbloreActive) {
-            if (message.contains("You mix the ingredients")) {
-                String potionType = "Potions Made";
-                int count = Potions.getOrDefault(potionType, 0);
-                Potions.put(potionType, count + 1);
             }
         }
         if (isRunecraftingActive) {
