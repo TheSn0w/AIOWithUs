@@ -12,6 +12,8 @@ import net.botwithus.Misc.Summoning;
 
 
 import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -2087,15 +2089,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     ImGui.SetCursorPosX(centeredX);
                     ImGui.Text(elapsedTimeText);
 
-                    String versionText = "V1.0.1";
-                    float versionTextWidth = ImGui.CalcTextSize(versionText).getX();
-                    float rightAlignedX = windowWidth - versionTextWidth -23;
+                    displayVersion(577.0f);
 
-                    ImGui.SetCursorPosX(0);
-                    ImGui.SetCursorPosY(22);
-                    ImGui.SetCursorPosX(rightAlignedX);
-
-                    ImGui.Text(versionText);
 
 
 
@@ -2106,6 +2101,16 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 ImGui.End();
             }
         }
+    }
+    public static void displayVersion(float windowWidth) {
+        String versionText = "V" + VersionManager.getVersion();
+
+        float versionTextWidth = ImGui.CalcTextSize(versionText).getX();
+        float rightAlignedX = windowWidth - versionTextWidth - 23;
+
+        ImGui.SetCursorPosX(rightAlignedX);
+        ImGui.SetCursorPosY(20);
+        ImGui.Text(versionText);
     }
     public static void setStyleColor(int colorEnum, int r, int g, int b, int a) {
         r = Math.max(0, Math.min(255, r));

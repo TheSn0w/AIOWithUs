@@ -877,5 +877,6 @@ public class SnowsScript extends LoopingScript {
             log("[Error] Failed to load configuration. Using defaults.");
         }
     }
+
 }
 

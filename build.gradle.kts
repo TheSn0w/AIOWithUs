@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.util.*
 
 plugins {
     id("java")
@@ -6,7 +9,6 @@ plugins {
 }
 
 group = "net.botwithus.debug"
-version = "1.1"
 
 repositories {
     mavenLocal()
@@ -37,7 +39,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-
 val copyJar by tasks.register<Copy>("copyJar") {
     from("build/libs/")
     into("${System.getProperty("user.home")}\\BotWithUs\\scripts\\local\\")
@@ -57,4 +58,34 @@ tasks.getByName<Test>("test") {
 }
 kotlin {
     jvmToolchain(20)
+}
+
+tasks.register("updateVersion") {
+    doLast {
+        val versionPropsFile = file("C:\\Users\\Sn0w\\OneDrive\\Desktop\\AIO\\version.properties")
+        val versionProps = Properties()
+
+        if (versionPropsFile.canRead()) {
+            versionProps.load(FileInputStream(versionPropsFile))
+        }
+
+        val versionStr = versionProps.getProperty("version", "1.0")
+        val versionNumber = versionStr.toDoubleOrNull() ?: 1.0
+
+        // Increment the version number
+        val newVersionNumber = versionNumber + 0.1
+
+        // Format the new version number
+        val newVersionStr = "%.1f".format(newVersionNumber)
+
+        // Update the version in the properties file
+        versionProps.setProperty("version", newVersionStr)
+        versionProps.store(FileOutputStream(versionPropsFile), null)
+
+        println("Updated version to: $newVersionStr")
+    }
+}
+
+tasks.named("build") {
+    dependsOn("updateVersion")
 }
