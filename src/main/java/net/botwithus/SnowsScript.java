@@ -68,6 +68,7 @@ public class SnowsScript extends LoopingScript {
         this.sgc = new SnowScriptGraphics(getConsole(), this);
         startTime = Instant.now();
         runStartTime = System.currentTimeMillis();
+        loadConfiguration();
 
         skillingTasks.put(() -> Variables.isHerbloreActive, Runnables::handleHerblore);
         skillingTasks.put(() -> Variables.isRunecraftingActive, Runnables::handleRunecrafting);
@@ -154,7 +155,6 @@ public class SnowsScript extends LoopingScript {
 
     @Override
     public void onActivation() {
-        loadConfiguration();
         subscribeToEvents();
         super.initialize();
     }
