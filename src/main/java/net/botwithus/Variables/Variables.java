@@ -1,7 +1,5 @@
 package net.botwithus.Variables;
 
-import net.botwithus.Herblore.Herblore;
-import net.botwithus.Herblore.SharedState;
 import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Coordinate;
@@ -155,8 +153,9 @@ public class Variables {
     public static void dialog(int option1, int option2, int option3) {
         MiniMenu.interact(ComponentAction.DIALOGUE.getType(), option1, option2, option3);
     }
-    public static void component(int option1, int option2, int option3) {
+    public static boolean component(int option1, int option2, int option3) {
         MiniMenu.interact(ComponentAction.COMPONENT.getType(), option1, option2, option3);
+        return false;
     }
 
 
