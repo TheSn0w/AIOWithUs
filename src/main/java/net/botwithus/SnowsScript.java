@@ -184,26 +184,20 @@ public class SnowsScript extends LoopingScript {
         if (event.getInventoryId() != 93) {
             return;
         }
+        //TODO: check the counts work properly and ajust to isArchActive
         if (isdivinechargeActive) {
             String itemName = event.getNewItem().getName();
             if ("Divine charge".equals(itemName)) {
-                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-                int newCount = event.getNewItem().getStackSize();
-                if (newCount > oldCount) {
-                    int newDivineCharges = newCount - oldCount;
-                    divineCharges.put(itemName, newDivineCharges);
-                }
+                int count = divineCharges.getOrDefault(itemName, 0);
+                divineCharges.put(itemName, count + 1);
+                log("[Debug] Set " + itemName + " count to " + (count + 1));
             }
         }
         if (isArcheologyActive) {
             String itemName = event.getNewItem().getName();
-            int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-            int newCount = event.getNewItem().getStackSize();
-            if (newCount > oldCount) {
-                int quantity = newCount - oldCount;
-                int count = materialTypes.getOrDefault(itemName, 0);
-                materialTypes.put(itemName, count + quantity);
-            }
+            int count = materialTypes.getOrDefault(itemName, 0);
+            materialTypes.put(itemName, count + 1);
+            log("[Debug] Set " + itemName + " count to " + (count + 1));
         }
         if (isCorruptedOreActive) {
             String itemName = event.getNewItem().getName();
@@ -264,15 +258,9 @@ public class SnowsScript extends LoopingScript {
         if (isDivinationActive) {
             String itemName = event.getNewItem().getName();
             if (itemName.contains("energy")) {
-                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-                int newCount = event.getNewItem().getStackSize();
-                if (newCount > oldCount) {
-                    int quantity = newCount - oldCount;
-
-                    int currentCount = Variables.energy.getOrDefault(itemName, 0);
-
-                    energy.put(itemName, currentCount + quantity);
-                }
+                int count = Variables.energy.getOrDefault(itemName, 0);
+                Variables.energy.put(itemName, count + 1);
+                log("[Debug] Set " + itemName + " count to " + (count + 1));
             }
         }
         if (isDissasemblerActive) {
