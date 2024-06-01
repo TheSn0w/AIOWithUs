@@ -187,6 +187,8 @@ public class SnowsScript extends LoopingScript {
             return;
         }
         //TODO: check the counts work properly and ajust to isArchActive
+        // Fixed Divination and Archeology
+        // Need to check divine charges > Corrupted Ores, Runecrafting and combat
         if (isdivinechargeActive) {
             String itemName = event.getNewItem().getName();
             if ("Divine charge".equals(itemName)) {
