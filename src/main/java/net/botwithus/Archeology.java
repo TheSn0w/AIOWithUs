@@ -107,17 +107,34 @@ public class Archeology {
             return backpackIsFull(player);
         }
         if (useGote) {
-            if (Backpack.contains("Sign of the porter VII") && VarManager.getInvVarbit(94, 2, 30214) < 250) {
-                log("[Archaeology] Porters have less than 250 charges. Charging.");
+            String currentPorter = porterTypes[currentPorterType.get()];
+            int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+
+            if (Backpack.contains(currentPorter) && varbitValue < 10) {
+                log("[Archaeology] Porters have less than 10 charges. Charging.");
                 log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
-                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
-                if (interactionResult) {
-                    log("[Archaeology] Interaction with Equipment was successful.");
+                if (equipment.contains("Grace of the elves")) {
+                    boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                    if (interactionResult) {
+                        log("[Archaeology] Interaction with Equipment was successful.");
+                    } else {
+                        log("[Error] Interaction with Equipment failed.");
+                    }
                 } else {
-                    log("[Error] Interaction with Equipment failed.");
+                    String selectedPorter = porterTypes[currentPorterType.get()];
+                    if (Backpack.contains(selectedPorter)) {
+                        boolean interactionResult = backpack.interact(selectedPorter, "Wear");
+                        if (interactionResult) {
+                            log("[Archaeology] Interaction with Backpack was successful.");
+                        } else {
+                            log("[Error] Interaction with Backpack failed.");
+                        }
+                    } else {
+                        log("[Error] No '" + selectedPorter + "' found in the Backpack.");
+                    }
                 }
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
-            } else if (!Backpack.contains("Sign of the porter VII") && VarManager.getInvVarbit(94, 2, 30214) < 250) {
+            } else if (!Backpack.contains(currentPorter) && VarManager.getInvVarbit(94, 2, 30214) < 10) {
                 log("[Error] No 'Sign of the porter VII' found in the Backpack.");
                 Execution.delay(BankforArcheology(player, selectedArchNames));
             }
