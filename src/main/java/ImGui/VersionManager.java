@@ -16,21 +16,16 @@ public class VersionManager {
         Properties versionProps = new Properties();
         File file = new File(VERSION_FILE);
 
-        ScriptConsole.println("Attempting to read file: " + file.getAbsolutePath());
 
         if (file.exists() && file.canRead()) {
             try (FileInputStream fis = new FileInputStream(file)) {
                 versionProps.load(fis);
-                ScriptConsole.println("Properties loaded: " + versionProps);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            ScriptConsole.println("File not found or not readable: " + file.getAbsolutePath());
         }
 
         String version = versionProps.getProperty(VERSION_KEY, "1.0");
-        ScriptConsole.println("Version read: " + version);
         return version;
     }
 }

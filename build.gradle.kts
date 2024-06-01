@@ -70,15 +70,13 @@ tasks.register("updateVersion") {
         }
 
         val versionStr = versionProps.getProperty("version", "1.0")
+
         val versionNumber = versionStr.toDoubleOrNull() ?: 1.0
 
-        // Increment the version number
         val newVersionNumber = versionNumber + 0.1
 
-        // Format the new version number
         val newVersionStr = "%.1f".format(newVersionNumber)
 
-        // Update the version in the properties file
         versionProps.setProperty("version", newVersionStr)
         versionProps.store(FileOutputStream(versionPropsFile), null)
 
