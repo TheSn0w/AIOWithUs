@@ -211,10 +211,10 @@ public class PredefinedStrings {
 
     public static final Map<String, List<String>> categorizedRecipes = new HashMap<>();
     static {
-        categorizedRecipes.put("Extremes", List.of("Extreme Attack", "Extreme Strength", "Extreme Defence", "Extreme Magic", "Extreme Ranging", "Extreme Necromancy"));
+        categorizedRecipes.put("Extremes", List.of("Extreme Attack", "Extreme Strength", "Extreme Defence"/*, "Extreme Magic", "Extreme Ranging", "Extreme Necromancy"*/));
         /*categorizedRecipes.get("Extremes").addAll(List.of("Extreme Hunter", "Extreme Divination", "Extreme Runecrafting", "Extreme Invention", "Extreme Cooking"));*/
 
-        categorizedRecipes.put("Super", List.of("Super Attack", "Super Strength", "Super Defence", "Super Magic", "Super Ranged", "Super Necromancy"));
+      /*  categorizedRecipes.put("Super", List.of("Super Attack", "Super Strength", "Super Defence", "Super Magic", "Super Ranged", "Super Necromancy"));*/
         categorizedRecipes.put("Combination", List.of("Supreme Overloads", "Overloads"));
         // Add more categories as needed
     }
