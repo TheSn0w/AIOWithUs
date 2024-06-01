@@ -4,6 +4,7 @@ import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.bank;
+import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -315,27 +316,22 @@ public class Herblore {
     }
 
     private static long handleBankInteractions(SceneObject bank, String option) {
+        LocalPlayer player = Client.getLocalPlayer();
         if (bank.interact("Load Last Preset from")) {
             log("[Herblore] Interacting with Bank using 'Load Last Preset'");
+            Execution.delay(random.nextLong(900, 1250));
 
             HerbloreRecipe selectedRecipe = SharedState.selectedRecipe;
             List<String> requiredItems = potionMap.get(selectedRecipe);
 
             if (requiredItems != null && Backpack.containsAllOf(requiredItems.toArray(new String[0]))) {
+                handleHerblore(player);
                 return random.nextLong(750, 1050);
             } else {
-                log("[Error] No potions in backpack - Loading preset 9");
-                Bank.loadPreset(9);
-                Execution.delayUntil(10000, () -> Backpack.containsAllOf(requiredItems.toArray(new String[0])));
-
-                if (Backpack.containsAllOf(requiredItems.toArray(new String[0]))) {
-                    return random.nextLong(750, 1050);
-                } else {
                     log("[Error] Still no potions in backpack - creating new preset");
                     return handleBankWithdrawals(new SimpleEntry<>(bank, option));
                 }
             }
-        }
         return random.nextLong(750, 1050);
     }
 

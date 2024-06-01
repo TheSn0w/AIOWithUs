@@ -158,6 +158,9 @@ public class Variables {
         return false;
     }
 
+    public static String selectedCategory = "";
+    public static NativeInteger currentCategoryIndex = new NativeInteger(0);
+
 
 
 

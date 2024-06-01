@@ -574,15 +574,37 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     .map(Enum::name)
                                     .toArray(String[]::new);*/ //will display CASE NAME
 
-                            ImGui.SetItemWidth(200.0F);
-                            if (ImGui.Combo("Select Herblore Recipe", currentRecipeIndex, recipeNames)) {
-                                int selectedIndex = currentRecipeIndex.get();
-                                if (selectedIndex >= 0 && selectedIndex < recipeNames.length) {
-                                    String selectedRecipeName = recipeNames[selectedIndex];
-                                    SharedState.selectedRecipe = stringToHerbloreRecipe(selectedRecipeName);
-                                    log("Herblore Recipe selected: " + selectedRecipeName);
-                                } else {
-                                    log("Please select a valid Herblore Recipe.");
+                            List<String> categoryList = new ArrayList<>(categorizedRecipes.keySet());
+                            categoryList.add(0, "Select Herblore Category");
+                            String[] categoryNames = categoryList.toArray(new String[0]);
+
+                            ImGui.SetItemWidth(372.0F);
+                            if (ImGui.Combo("##HerbloreCategory", currentCategoryIndex, categoryNames)) {
+                                int selectedIndex = currentCategoryIndex.get();
+                                if (selectedIndex > 0 && selectedIndex < categoryNames.length) {
+                                    String selectedCategoryName = categoryNames[selectedIndex];
+                                    selectedCategory = selectedCategoryName;
+                                    log("Herblore Category selected: " + selectedCategoryName);
+                                } else if (selectedIndex != 0) {
+                                    log("Please select a valid Herblore Category.");
+                                }
+                            }
+
+                            if (selectedCategory != null && !selectedCategory.equals("Select Herblore Category")) {
+                                List<String> recipeList = new ArrayList<>(categorizedRecipes.get(selectedCategory));
+                                recipeList.add(0, "Select Herblore Recipe");
+                                String[] recipeNames = recipeList.toArray(new String[0]);
+
+                                ImGui.SetItemWidth(372.0F);
+                                if (ImGui.Combo("##HerbloreRecipe", currentRecipeIndex, recipeNames)) {
+                                    int selectedIndex = currentRecipeIndex.get();
+                                    if (selectedIndex > 0 && selectedIndex < recipeNames.length) {
+                                        String selectedRecipeName = recipeNames[selectedIndex];
+                                        SharedState.selectedRecipe = stringToHerbloreRecipe(selectedRecipeName);
+                                        log("Herblore Recipe selected: " + selectedRecipeName);
+                                    } else if (selectedIndex != 0) {
+                                        log("Please select a valid Herblore Recipe.");
+                                    }
                                 }
                             }
 
