@@ -143,7 +143,7 @@ public class SnowsScript extends LoopingScript {
                     log("[Error] Unknown NPC found: " + npcName);
                     return;
             }
-
+            Execution.delay(random.nextLong(1500, 3000));
             npc.interact(interactionOption);
             log("[Info] Interacting with " + npcName + " using " + interactionOption + ".");
         } else {
