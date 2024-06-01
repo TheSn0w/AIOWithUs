@@ -121,16 +121,15 @@ public class Archeology {
                         log("[Error] Interaction with Equipment failed.");
                     }
                 } else {
-                    String selectedPorter = porterTypes[currentPorterType.get()];
-                    if (Backpack.contains(selectedPorter)) {
-                        boolean interactionResult = backpack.interact(selectedPorter, "Wear");
+                    if (Backpack.contains(currentPorter)) {
+                        boolean interactionResult = backpack.interact(currentPorter, "Wear");
                         if (interactionResult) {
                             log("[Archaeology] Interaction with Backpack was successful.");
                         } else {
                             log("[Error] Interaction with Backpack failed.");
                         }
                     } else {
-                        log("[Error] No '" + selectedPorter + "' found in the Backpack.");
+                        log("[Error] No '" + currentPorter + "' found in the Backpack.");
                     }
                 }
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));

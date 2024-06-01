@@ -2073,7 +2073,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     float centeredX = (windowWidth - textWidth) / 2;
 
                     ImGui.SetCursorPosX(0);
-                    ImGui.SetCursorPosY(10);
+                    ImGui.SetCursorPosY(15);
                     ImGui.SetCursorPosX(centeredX);
                     ImGui.Text("" + botState);
                     ImGui.PopStyleColor(1);
@@ -2085,7 +2085,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     ImGui.PopStyleColor(1);
 
                     ImGui.SetCursorPosX(0);
-                    ImGui.SetCursorPosY(25);
+                    ImGui.SetCursorPosY(27);
                     ImGui.SetCursorPosX(centeredX);
                     ImGui.Text(elapsedTimeText);
 
