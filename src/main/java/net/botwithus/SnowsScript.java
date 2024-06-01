@@ -152,10 +152,6 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
     }
-    public static Map<String, Integer> Gems = new HashMap<>();
-    public static Map<String, Integer> divineCharges = new HashMap<>();
-
-
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
@@ -197,7 +193,6 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-
         if (isCombatActive) {
             String itemName = event.getNewItem().getName();
             if (itemName.endsWith(" charm")) {
@@ -324,7 +319,6 @@ public class SnowsScript extends LoopingScript {
                 cooking.cookingPotion();
             }
         }
-
         if (isWoodcuttingActive) {
             if (message.contains("You get some")) {
                 String logType = message.substring(message.lastIndexOf("some") + 5).trim();
@@ -354,7 +348,6 @@ public class SnowsScript extends LoopingScript {
                 logCount.put(key, count + 1);
             }
         }
-
         if (isFishingActive) {
             if (message.contains("You catch a")) {
                 String[] words = message.split(" ");

@@ -865,12 +865,12 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             }
                             if (isGemCutterActive) {
                                 ImGui.SeparatorText("Gem Counts");
-                                for (Map.Entry<String, Integer> entry : SnowsScript.Gems.entrySet()) {
+                                for (Map.Entry<String, Integer> entry : Gems.entrySet()) {
                                     ImGui.Text(entry.getKey() + ": " + entry.getValue());
                                 }
 
                                 int totalGems = 0;
-                                for (int count : SnowsScript.Gems.values()) {
+                                for (int count : Gems.values()) {
                                     totalGems += count;
                                 }
 
