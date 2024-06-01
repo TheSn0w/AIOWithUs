@@ -395,7 +395,7 @@ public class Archeology {
 
     private static void depositAllExceptSelectedItems() {
         int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753};
-        bank.depositAllExcept(itemIdsToKeep);
+        Bank.depositAllExcept(itemIdsToKeep);
     }
 
     private static void logItemsDeposited() {
