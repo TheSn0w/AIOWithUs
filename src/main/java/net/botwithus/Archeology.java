@@ -32,7 +32,6 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.getLastSkillingLocation;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
-import static net.botwithus.inventory.bank.depositAll;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Archeology {
@@ -291,7 +290,7 @@ public class Archeology {
         return random.nextLong(1500, 3000);
     }
 
-    private boolean shouldInteractWithMaterialsCart(LocalPlayer player) {
+   /* private boolean shouldInteractWithMaterialsCart(LocalPlayer player) {
         EntityResultSet<SceneObject> cartResults = SceneObjectQuery.newQuery()
                 .name("Materials cart")
                 .option("Deposit materials")
@@ -327,7 +326,7 @@ public class Archeology {
             log("[Error] Failed to interact with material cart.");
             return random.nextLong(1500, 3000);
         }
-    }
+    }*/
 
 
     private static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
@@ -610,7 +609,7 @@ public class Archeology {
         if (results.isEmpty()) {
             log("[Error] No " + targetName + " found.");
 
-            Movement.traverse(NavPath.resolve(targetCoordinate)); // Traverse to coordinate
+            Movement.traverse(NavPath.resolve(targetCoordinate));
             return random.nextLong(1500, 3000);
         }
 
