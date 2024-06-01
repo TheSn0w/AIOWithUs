@@ -115,16 +115,16 @@ public class SnowsScript extends LoopingScript {
         }
     }
     private void capturestuff() {
-        EntityResultSet<Npc> serenSpiritResults = NpcQuery.newQuery().name("Seren spirit").option("Capture").results();
-        if (serenSpiritResults.isEmpty()) {
+        EntityResultSet<Npc> npcResults = NpcQuery.newQuery().name("Seren spirit", "Divine blessing", "Catalyst of alteration").option("Capture").results();
+        if (npcResults.isEmpty()) {
             return;
         }
-        Npc serenSpirit = serenSpiritResults.nearest();
-        if (serenSpirit != null) {
-            serenSpirit.interact("Capture");
-            log("[Info] Interacting with Seren spirit.");
+        Npc npc = npcResults.nearest();
+        if (npc != null) {
+            npc.interact("Capture");
+            log("[Info] Interacting with " + npc.getName() + ".");
         } else {
-            log("[Error] Failed to find nearest Seren spirit.");
+            log("[Error] Failed to find nearest Seren spirit or Divine blessing.");
         }
     }
 
