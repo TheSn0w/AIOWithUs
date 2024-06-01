@@ -3,6 +3,7 @@ package net.botwithus.Herblore;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
+import net.botwithus.inventory.bank;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -105,7 +106,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case OVERLOADS:
@@ -132,7 +133,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case EXTREME_STRENGTH:
@@ -144,7 +145,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case EXTREME_DEFENCE:
@@ -156,7 +157,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case EXTREME_MAGIC:
@@ -168,7 +169,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case EXTREME_RANGING:
@@ -180,7 +181,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case EXTREME_NECROMANCY:
@@ -192,7 +193,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case SUPER_ATTACK:
@@ -204,7 +205,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case SUPER_STRENGTH:
@@ -216,7 +217,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case SUPER_DEFENCE:
@@ -228,7 +229,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case SUPER_MAGIC:
@@ -240,7 +241,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case SUPER_RANGED:
@@ -252,7 +253,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             case SUPER_NECROMANCY:
@@ -264,7 +265,7 @@ public class Herblore {
                         log("[Error] Failed to interact with portable well.");
                     }
                 } else {
-                    return handleBankInteraction(player);
+                    return handleBankOperations(player);
                 }
                 break;
             default:
@@ -364,7 +365,7 @@ public class Herblore {
     }
 
     private static boolean waitForBankToOpen() {
-        boolean isBankOpen = Execution.delayUntil(30000, () -> Bank.isOpen());
+        boolean isBankOpen = Execution.delayUntil(30000, Bank::isOpen);
         if (isBankOpen) {
             log("[Herblore] Bank interface is open");
         }
@@ -372,19 +373,8 @@ public class Herblore {
     }
 
     private static void handleDeposits() {
-        List<Item> itemsInBackpack = Backpack.getItems();
-        Map<String, Integer> itemCounts = itemsInBackpack.stream()
-                .collect(Collectors.groupingBy(Item::getName, Collectors.summingInt(Item::getStackSize)));
-
-        if (!itemCounts.isEmpty()) {
-            log("[Herblore] Depositing items:");
-            itemCounts.forEach((name, stackSize) -> {
-                log("[Herblore] - " + name + " (Stack size: " + stackSize + ")");
-            });
-            Bank.depositAll();
-            Execution.delay(random.nextLong(500, 1000));
-        } else {
-            log("[Error] No depositable items found in the Backpack");
+        if (bank.isOpen()) {
+            component(1, -1, 33882151);
         }
     }
     private static boolean handleWithdrawals() {
