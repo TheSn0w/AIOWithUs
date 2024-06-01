@@ -9,7 +9,7 @@ public class Theme {
     public static boolean RedThemeSelected = false;
     public static boolean OrangeThemeSelected = true;
     public static boolean YellowThemeSelected = false;
-    public static boolean GreenThemeSelected = false;
+    public static boolean GreenThemeSelected = true;
 
 
     public static void setDefaultTheme() {
