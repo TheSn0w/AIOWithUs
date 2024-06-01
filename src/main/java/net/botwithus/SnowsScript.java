@@ -195,9 +195,11 @@ public class SnowsScript extends LoopingScript {
         }
         if (isArcheologyActive) {
             String itemName = event.getNewItem().getName();
-            int count = materialTypes.getOrDefault(itemName, 0);
-            materialTypes.put(itemName, count + 1);
-            log("[Debug] Set " + itemName + " count to " + (count + 1));
+            if (itemName != null) {
+                int count = materialTypes.getOrDefault(itemName, 0);
+                materialTypes.put(itemName, count + 1);
+                log("[Debug] Set " + itemName + " count to " + (count + 1));
+            }
         }
         if (isCorruptedOreActive) {
             String itemName = event.getNewItem().getName();
