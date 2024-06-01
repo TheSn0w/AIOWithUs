@@ -232,7 +232,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Upkeep Hi-Spec Monocle");
                         }
-                        createCenteredButton("Use Gote", () -> useGote = !useGote, useGote);
+                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Upkeep Grace of the Elves");
                         }

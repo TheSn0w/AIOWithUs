@@ -110,8 +110,8 @@ public class Archeology {
             String currentPorter = porterTypes[currentPorterType.get()];
             int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
-            if (Backpack.contains(currentPorter) && varbitValue < 10) {
-                log("[Archaeology] Porters have less than 10 charges. Charging.");
+            if (Backpack.contains(currentPorter) && varbitValue == 0) {
+                log("[Archaeology] Porters have 0 charges. Charging.");
                 log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                 if (equipment.contains("Grace of the elves")) {
                     boolean interactionResult = equipment.interact(NECK, "Charge all porters");
@@ -133,7 +133,7 @@ public class Archeology {
                     }
                 }
                 Execution.delay(RandomGenerator.nextInt(1500, 3000));
-            } else if (!Backpack.contains(currentPorter) && VarManager.getInvVarbit(94, 2, 30214) < 10) {
+            } else if (!Backpack.contains(currentPorter) && VarManager.getInvVarbit(94, 2, 30214) == 0) {
                 log("[Error] No 'Sign of the porter VII' found in the Backpack.");
                 Execution.delay(BankforArcheology(player, selectedArchNames));
             }
