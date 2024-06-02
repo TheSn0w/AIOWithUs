@@ -7,9 +7,11 @@ import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.SelectableAction;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -180,9 +182,10 @@ public class Woodcutting {
     public static long handleCrystallise() {
         EntityResultSet<SpotAnimation> animations = SpotAnimationQuery.newQuery().ids(5802).results();
         if (animations.isEmpty()) {
-
-            MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, 109510839);
-            log("[Woodcutting] Interacted with: Crystallise");
+            Component Crystallise = ComponentQuery.newQuery(1430, 1670, 1671, 1672, 1673).spriteId(25939).option("Customise-keybind").results().first();
+            if (Crystallise != null) {
+                log("[Woodcutting] Used Crystallise spell: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, Crystallise.getInterfaceIndex() << 16 | Crystallise.getComponentIndex()));
+            }
             Execution.delay(random.nextLong(450, 500));
 
             MiniMenu.interact(SelectableAction.SELECT_OBJECT.getType(), TREE_OBJECT_ID, currentTreeCoordinate.getX(), currentTreeCoordinate.getY());
@@ -231,9 +234,9 @@ public class Woodcutting {
 
     public static long handleCrystalliseMahogany() {
         if (System.currentTimeMillis() - lastCrystalliseCast >= nextCrystalliseDelay) {
-            if (ActionBar.containsAbility("Crystallise")) {
-                MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, 109510839);
-                log("[Woodcutting] Interacted with: Crystallise");
+            Component Crystallise = ComponentQuery.newQuery(1430, 1670, 1671, 1672, 1673).spriteId(25939).option("Customise-keybind").results().first();
+            if (Crystallise != null) {
+                log("[Woodcutting] Used Crystallise spell: " + MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, -1, Crystallise.getInterfaceIndex() << 16 | Crystallise.getComponentIndex()));
                 Execution.delay(random.nextLong(450, 500));
 
                 for (Coordinate mahoganyCoordinate : mahoganyCoordinates) {

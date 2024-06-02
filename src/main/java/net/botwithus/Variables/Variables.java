@@ -137,6 +137,8 @@ public class Variables {
     public static boolean makeRefinedPlanks = false;
     public static boolean makeFrames = false;
     public static boolean isMiscActive = false;
+    public static boolean isCrystalChestActive = false;
+    public static boolean isMakeUrnsActive = false;
 
 
 

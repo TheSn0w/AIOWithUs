@@ -14,8 +14,6 @@ import net.botwithus.Misc.Summoning;
 
 
 import java.awt.*;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -27,9 +25,11 @@ import static ImGui.Theme.*;
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Divination.count;
 import static net.botwithus.Herblore.Herblore.getSelectedRecipe;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
+import static net.botwithus.Misc.UrnMaker.getUrnState;
 import static net.botwithus.Runecrafting.*;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -635,7 +635,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
                             ImGui.SeparatorText("Miscellaneous Options");
 
-                            boolean NoneSelected = isportermakerActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
+                            boolean NoneSelected = isportermakerActive || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
                             if (!NoneSelected || isportermakerActive) {
                                 if (!NoneSelected) {
@@ -737,6 +737,34 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 }
                                 isSiftSoilActive = ImGui.Checkbox("Sift Soil", isSiftSoilActive);
                             }
+                            if (!NoneSelected || isCrystalChestActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isCrystalChestActive = ImGui.Checkbox("Crystal Chest", isCrystalChestActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
+                            if (!NoneSelected || isMakeUrnsActive) {
+                                if (!NoneSelected) {
+                                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                                } else {
+                                    ImGui.SetCursorPosX(spacing);
+                                }
+                                isMakeUrnsActive = ImGui.Checkbox("Make Urns", isMakeUrnsActive);
+                                if (!NoneSelected) {
+                                    ImGui.SameLine();
+                                }
+                            }
+                            if (isMakeUrnsActive) {
+                                ImGui.Text("Only works at menophos");
+                            }
+                            if (isCrystalChestActive) {
+                                ImGui.Text("Only works at prifddinas");
+                            }
                             if (pickCaveNightshade) {
                                 ImGui.SeparatorText("Cave Nightshade Picked Count");
                                 for (Map.Entry<String, Integer> entry : NightshadePicked.entrySet()) {
@@ -781,6 +809,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     ImGui.PopStyleColor(1);
                                 }
                             }
+
 
 
                             if (isSummoningActive) {
@@ -1108,6 +1137,14 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             int energyGatheredPerHourInt = (int) energyGatheredPerHour;
 
                             ImGui.Text("Energy Gathered Per Hour: " + energyGatheredPerHourInt);
+
+                            ImGui.SeparatorText("Divine Charges");
+                            ImGui.Text("Divine Charges Created: " + count);
+
+                            double countPerHour = count / elapsedHours;
+                            int countPerHourInt = (int) countPerHour;
+
+                            ImGui.Text("Per Hour: " + countPerHourInt);
                         }
                         if (isRunecraftingActive && !showLogs) {
                             if (tooltipsEnabled) {
@@ -1158,13 +1195,13 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             ImGui.SameLine();
 
                             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                            notWearingRing = ImGui.Checkbox("Wearing Bracelet", notWearingRing);
+                            notWearingRing = ImGui.Checkbox("Backpack Bracelet", notWearingRing);
                             if (ImGui.IsItemHovered()) {
                                 ImGui.SetTooltip("have passing bracelet in Backpack and select this and have on actionbar");
                             }
 
                             ImGui.SetCursorPosX(spacing);
-                            WearingRing = ImGui.Checkbox("Wearing Ring", WearingRing);
+                            WearingRing = ImGui.Checkbox("Wearing Bracelet", WearingRing);
                             if (ImGui.IsItemHovered()) {
                                 ImGui.SetTooltip("if you have equipped passing bracelet, select this");
                             }
@@ -2067,8 +2104,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         botState = String.valueOf(getCurrentState());
                     } else if (pickCaveNightshade) {
                         botState = String.valueOf(getNightShadeState());
-                    } else if (isHerbloreActive){
+                    } else if (isHerbloreActive) {
                         botState = String.valueOf(getSelectedRecipe());
+                    } else if (isMakeUrnsActive) {
+                        botState = String.valueOf(getUrnState());
                     } else {
                         botState = String.valueOf(getBotState());
                     }
@@ -2238,38 +2277,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         }
         ImGui.PopStyleVar(2);
         ImGui.PopStyleColor(3);
-    }
-    private void listBotstate() {
-
-
-        String botState;
-        if (isRunecraftingActive) {
-            botState = String.valueOf(getCurrentState());
-        } else {
-            botState = String.valueOf(getBotState());
-        }
-
-        if (botState.equals("SKILLING")) {
-            setStyleColor(ImGuiCol.Text, 0, 255, 0, 255); // RGBA: Green
-        } else if (botState.equals("BANKING")) {
-            setStyleColor(ImGuiCol.Text, 255, 0, 0, 255); // RGBA: Red
-        } else {
-            setStyleColor(ImGuiCol.Text, 255, 255, 255, 255); // RGBA: White
-        }
-
-        if (Runecrafting.currentState == ScriptState.IDLE) {
-            setStyleColor(ImGuiCol.Text, 255, 165, 0, 255); // RGBA: Orange
-        } else if (Runecrafting.currentState == ScriptState.BANKING) {
-            setStyleColor(ImGuiCol.Text, 255, 0, 0, 255); // RGBA: Red
-        } else if (Runecrafting.currentState == ScriptState.TELEPORTING || Runecrafting.currentState == ScriptState.INTERACTINGWITHPORTAL) {
-            setStyleColor(ImGuiCol.Text, 128, 0, 128, 255); // RGBA: Purple
-        } else if (Runecrafting.currentState == ScriptState.CRAFTING) {
-            setStyleColor(ImGuiCol.Text, 0, 255, 0, 255); // RGBA: Green
-        } else if (Runecrafting.currentState == ScriptState.TELEPORTINGTOBANK) {
-            setStyleColor(ImGuiCol.Text, 128, 0, 128, 255); // RGBA: Purple
-        } else {
-            setStyleColor(ImGuiCol.Text, 255, 255, 255, 255);
-        }
     }
 
     @Override

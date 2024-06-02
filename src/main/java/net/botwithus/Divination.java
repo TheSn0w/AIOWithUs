@@ -5,6 +5,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.EquipmentInventory;
 import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
@@ -28,8 +29,10 @@ import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
+import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTING;
@@ -53,6 +56,9 @@ public class Divination {
             log("[Error] No valid wisp name for level: " + divinationLevel);
             return navigateTo(player, wispCoordinates);
         }
+
+        updateCount();
+
         if (player.isMoving()) {
             return random.nextLong(1500, 3000);
         }
@@ -329,19 +335,34 @@ public class Divination {
         return null;
     }
 
-    private static void divineoMatic() {
-        EquipmentInventory equipment = new EquipmentInventory();
-        if (equipment.contains(41083)) {
+
+    private static void divineoMatic() { // 37521 = empty charges // 37522 = filled charges
+        ResultSet<Item> divineomaticvacuum = InventoryItemQuery.newQuery(94).ids(41083).results();
+        if (!divineomaticvacuum.isEmpty()) {
+            log("[Divination] Divine-o-matic found in inventory.");
+            log("[Divination] Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
             int emptyCharges = VarManager.getInvVarbit(94, 3, 37521);
-            int filledCharges = VarManager.getInvVarbit(94, 4, 37522);
-            if (filledCharges > random.nextInt(25, 100) && equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
-                Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 4, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
+            int filledCharges = VarManager.getInvVarbit(94, 3, 37522);
+            if (filledCharges > random.nextInt(25, 100) && Equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
+                log("[Divination] Divine-o-matic is full, withdrawing.");
+                Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
                 if (Backpack.contains(41073) && emptyCharges < 100) {
+                    log("[Divination] Adding all to vacuum.");
                     if (backpack.interact(41073, "Add all to vacuum")) {
-                        Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 4, 37521) + VarManager.getInvVarbit(94, 3, 37522) == 0);
+                        Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) == 0);
                     }
                 }
             }
+        }
+    }
+    public static int initialValue = VarManager.getInvVarbit(94, 3, 37522);
+    public static int count = 0;
+
+    public static void updateCount() {
+        int currentValue = VarManager.getInvVarbit(94, 3, 37522);
+        if (currentValue > initialValue) {
+            count++;
+            initialValue = currentValue;
         }
     }
 

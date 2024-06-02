@@ -10,8 +10,10 @@ import net.botwithus.rs3.script.Execution;
 import java.util.Collections;
 import java.util.List;
 
+import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Misc.Urns.*;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.isMakeUrnsActive;
 
 public class Runnables {
 
@@ -163,8 +165,11 @@ public class Runnables {
                 if (isSiftSoilActive) {
                     Execution.delay(SiftSoil.handleSoil(player));
                 }
-                if (isMakeUrnsActive) {
-                    Execution.delay(useclayCrafting());
+                if(isCrystalChestActive){
+                    CrystalChests.openChest();
+                }
+                if(isMakeUrnsActive){
+                    Execution.delay(craftUrns(player));
                 }
             }
         }
