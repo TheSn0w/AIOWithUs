@@ -151,9 +151,27 @@ public class Thieving {
         long animationStartTime = 0;
 
 
-        if (thievingLevel >= 42) {
+        if (thievingLevel >= 42 && thievingLevel < 83) {
             eatFood(player);
-            EntityResultSet<Npc> results = NpcQuery.newQuery().id(23563).option("Pickpocket").results();
+
+            ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
+            ResultSet<Component> resultsMask = query.results();
+            boolean isCrystalMaskActive = !resultsMask.isEmpty();
+            if (!isCrystalMaskActive && ActionBar.containsAbility("Crystal Mask")) {
+                log("[Thieving] Activating Crystal Mask.");
+                if (ActionBar.useAbility("Crystal Mask")) {
+                    log("[Thieving] Crystal Mask activated successfully.");
+                    Execution.delay(RandomGenerator.nextInt(1000, 2000));
+                } else {
+                    log("[Error] Failed to activate Crystal Mask.");
+                }
+            }
+
+            if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
+                activateLightForm();
+            }
+
+            EntityResultSet<Npc> results = NpcQuery.newQuery().id(23559).option("Pickpocket").results();
             Coordinate druidLocation = new Coordinate(3311, 3304, 0);
             if (results.isEmpty()) {
                 if (Movement.traverse(NavPath.resolve(druidLocation)) == TraverseEvent.State.FINISHED) {
@@ -178,21 +196,6 @@ public class Thieving {
                     }
 
                     if (success) {
-                        ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
-                        ResultSet<Component> resultsMask = query.results();
-                        boolean isCrystalMaskActive = !resultsMask.isEmpty();
-
-                        if (!isCrystalMaskActive) {
-                            log("[Thieving] Activating Crystal Mask.");
-                            if (ActionBar.useAbility("Crystal Mask")) {
-                                log("[Thieving] Crystal Mask activated successfully.");
-                                Execution.delay(RandomGenerator.nextInt(1000, 2000));
-                            } else {
-                                log("[Error] Failed to activate Crystal Mask.");
-                            }
-                        }
-                        LightFormActivation();
-
                         Npc npc = results.nearest();
                         if (npc != null) {
                             log("[Thieving] Interacting with Druid.");
@@ -201,15 +204,71 @@ public class Thieving {
                     }
                 }
             }
+
+            eatFood(player);
+
+            return animationStartTime;
+        }
+
+        if (thievingLevel >= 83) {
+            eatFood(player);
+
+            ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
+            ResultSet<Component> resultsMask = query.results();
+            boolean isCrystalMaskActive = !resultsMask.isEmpty();
+            if (!isCrystalMaskActive && ActionBar.containsAbility("Crystal Mask")) {
+                log("[Thieving] Activating Crystal Mask.");
+                if (ActionBar.useAbility("Crystal Mask")) {
+                    log("[Thieving] Crystal Mask activated successfully.");
+                    Execution.delay(RandomGenerator.nextInt(1000, 2000));
+                } else {
+                    log("[Error] Failed to activate Crystal Mask.");
+                }
+            }
+
+            if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
+                activateLightForm();
+            }
+
+            EntityResultSet<Npc> results = NpcQuery.newQuery().id(23563).option("Pickpocket").results();
+            Coordinate druidLocation = new Coordinate(3320, 3290, 0);
+            if (results.isEmpty()) {
+                log("[Thieving] Traversing to knight Location.");
+                if (Movement.traverse(NavPath.resolve(druidLocation)) == TraverseEvent.State.FINISHED) {
+                    return random.nextLong(1500, 2500);
+                }
+            } else {
+                if (!player.isMoving() && player.getAnimationId() == -1) {
+                    long startTime = System.currentTimeMillis();
+                    long endTime = startTime + random.nextLong(4000, 5000);
+
+                    boolean success = false;
+                    while (System.currentTimeMillis() < endTime) {
+                        Execution.delay(100);
+                        int currentAnimation = player.getAnimationId();
+
+                        if (currentAnimation == -1) {
+                            success = true;
+                        } else {
+                            success = false;
+                            break;
+                        }
+                    }
+
+                    if (success) {
+                        Npc npc = results.nearest();
+                        if (npc != null) {
+                            log("[Thieving] Interacting with Druid.");
+                            npc.interact("Pickpocket");
+                        }
+                    }
+                }
+            }
+            eatFood(player);
         }
         return animationStartTime;
     }
 
-    private static void LightFormActivation() {
-        if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
-            activateLightForm();
-        }
-    }
 
     private static void activateLightForm() {
         if(ActionBar.useAbility("Light Form")) {
