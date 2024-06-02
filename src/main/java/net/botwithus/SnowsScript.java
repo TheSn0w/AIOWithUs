@@ -104,9 +104,6 @@ public class SnowsScript extends LoopingScript {
             });
 
             case BANKING -> {
-                if (isThievingActive) {
-                    Execution.delay(Thieving.bankForfood());
-                }
                 if (nearestBank) {
                     Execution.delay(useTheNearestBank(player));
                 }

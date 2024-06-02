@@ -26,9 +26,11 @@ import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.useTheNearestBank;
 
 public class Thieving {
     private static final Random random = new Random();
@@ -42,68 +44,69 @@ public class Thieving {
     static final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0);
 
     public static long interactWithBakeryStall(LocalPlayer player) {
-        if (!Backpack.isFull() && !player.inCombat()) {
-            SceneObject bakeryStall = SceneObjectQuery.newQuery().id(66692).results().nearest();
+        if (Backpack.isFull() || player.inCombat()) {
+            return random.nextLong(3500, 5000);
+        }
 
-            if (bakeryStall != null) {
-                List<String> options = bakeryStall.getOptions();
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(66692).option("Steal from").results();
+        SceneObject bakeryStall = results.nearestTo(player);
 
-                if (options.contains("Steal from")) {
-                    Execution.delay(random.nextInt(500, 1000));
-                    boolean interactionSuccess = bakeryStall.interact("Steal from");
-                    log("[Thieving] Attempted interaction with Bakery Stall: " + interactionSuccess);
-
-                    long startTime = System.currentTimeMillis();
-                    long endTime = startTime + 2000;  // 2-second monitoring window
-
-                    boolean success = false;
-                    while (System.currentTimeMillis() < endTime) {
-                        Execution.delay(100);
-                        int currentAnimation = player.getAnimationId();
-
-                        if (currentAnimation == 832) {
-                            success = true;
-                            break;
-                        }
-                    }
-
-                    if (success) {
-                        log("[Thieving] Interaction successful after monitoring. Animation ID: 832");
-                        failedAttempts = 0;
-                        return random.nextLong(1500, 3000);
-                    } else {
-                        failedAttempts++;
-                        log("[Error] Interaction unsuccessful after monitoring. Failed attempts: " + failedAttempts);
-
-                        if (failedAttempts >= 3) {
-                            if (!BakerystallLocation.equals(player.getCoordinate())) {
-                                log("[Thieving] Traversing to Bakery Stall Location after 3 failed attempts.");
-                                Movement.traverse(NavPath.resolve(BakerystallLocation));
-                                return random.nextLong(3500, 5000);
-                            }
-                        }
-
-                        return random.nextLong(3500, 5000);
-                    }
-                }
-            }
+        if (bakeryStall != null) {
+            return stealFromBakeryStall(player, bakeryStall);
         }
 
         return random.nextLong(3500, 5000);
     }
 
+    private static long stealFromBakeryStall(LocalPlayer player, SceneObject bakeryStall) {
+        if (!bakeryStall.getOptions().contains("Steal from") || player.isMoving()) {
+            return random.nextLong(3500, 5000);
+        }
+
+        Execution.delay(random.nextInt(500, 1000));
+        boolean interactionSuccess = bakeryStall.interact("Steal from");
+        log("[Thieving] Attempted interaction with Bakery Stall: " + interactionSuccess);
+
+        if (wasStealSuccessful(player)) {
+            failedAttempts = 0;
+            return random.nextLong(1000, 1500);
+        }
+
+        failedAttempts++;
+        log("[Error] Interaction unsuccessful after monitoring. Failed attempts: " + failedAttempts);
+
+        return handleFailedAttempts(player);
+    }
+
+    private static boolean wasStealSuccessful(LocalPlayer player) {
+        long endTime = System.currentTimeMillis() + 2000;  // 2-second monitoring window
+
+        while (System.currentTimeMillis() < endTime) {
+            Execution.delay(random.nextLong(100, 200));
+            if (player.getAnimationId() == 832) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static long handleFailedAttempts(LocalPlayer player) {
+        if (failedAttempts < 3 || BakerystallLocation.equals(player.getCoordinate())) {
+            return random.nextLong(3500, 5000);
+        }
+
+        log("[Thieving] Traversing to Bakery Stall Location after 3 failed attempts.");
+        Movement.traverse(NavPath.resolve(BakerystallLocation));
+        return random.nextLong(3500, 5000);
+    }
+
 
     public static long handleThieving(LocalPlayer player) {
-        if (Backpack.isFull()) {
-            SnowsScript.setBotState(SnowsScript.BotState.BANKING);
-            return random.nextLong(1500, 3000);
-        }
-        eatFood(player);
-
         int thievingLevel = Skills.THIEVING.getActualLevel();
         double distance = Distance.between(player.getCoordinate(), BakerystallLocation);
 
-        if (thievingLevel < 5) {
+        if (thievingLevel <= 5) {
             EntityResultSet<Npc> results = NpcQuery.newQuery().name("Pompous merchant").option("Talk to").results();
             if (results.isEmpty()) {
                 if (Movement.traverse(NavPath.resolve(new Coordinate(2895, 3435, 0))) == TraverseEvent.State.FINISHED) {
@@ -121,25 +124,23 @@ public class Thieving {
             }
         }
 
-        if (thievingLevel >= 5 && thievingLevel <= 42) {
+        if (thievingLevel >= 6 && thievingLevel <= 41) {
             if (Backpack.isFull()) {
-                SceneObject bankChest = SceneObjectQuery.newQuery().id(79036).option("Load Last Preset from").results().nearest();
-                if (bankChest != null) {
-                    boolean bankInteractionSuccess = bankChest.interact("Load Last Preset from");  // Attempt interaction
-                    if (bankInteractionSuccess) {
-                        log("[Thieving] Interacted with BankChest.");
-                        Execution.delayUntil(15000, Backpack::isEmpty);
-                        return random.nextLong(3500, 5000);
-                    } else {
-                        log("[Error] BankChest interaction failed.");
-                    }
+                EntityResultSet<SceneObject> bankChest = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
+                boolean bankInteractionSuccess = bankChest.nearest().interact("Load Last Preset from");  // Attempt interaction
+                if (bankInteractionSuccess) {
+                    log("[Thieving] Interacted with BankChest.");
+                    Execution.delayUntil(15000, Backpack::isEmpty);
+                    return random.nextLong(1250, 2500);
                 } else {
-                    log("[Error] BankChest not found.");
+                    log("[Error] BankChest interaction failed.");
                 }
             }
             if (distance > 15.0D) {
-                Movement.traverse(NavPath.resolve(BakerystallLocation));
-                return random.nextLong(3500, 5000);
+                if (Movement.traverse(NavPath.resolve(BakerystallLocation)) == TraverseEvent.State.FINISHED) {
+                    log("[Thieving] Arrived at Bakery Stall Location.");
+                    return random.nextLong(3500, 5000);
+                }
             } else {
                 long interactionDelay = interactWithBakeryStall(player);
                 if (interactionDelay != random.nextLong(3500, 5000)) {
@@ -150,7 +151,8 @@ public class Thieving {
         long animationStartTime = 0;
 
 
-        if (thievingLevel > 42) {
+        if (thievingLevel >= 42) {
+            eatFood(player);
             EntityResultSet<Npc> results = NpcQuery.newQuery().id(23563).option("Pickpocket").results();
             Coordinate druidLocation = new Coordinate(3311, 3304, 0);
             if (results.isEmpty()) {
@@ -204,15 +206,15 @@ public class Thieving {
     }
 
     private static void LightFormActivation() {
-        if (VarManager.getVarbitValue(29066) == 0) {
+        if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
             activateLightForm();
         }
     }
 
     private static void activateLightForm() {
-        ActionBar.useAbility("Light Form");
-        log("[Thieving] Light Form activated.");
-        Execution.delay(RandomGenerator.nextInt(1000, 2000));
+        if(ActionBar.useAbility("Light Form")) {
+            log("[Thieving] Light Form activated.");
+        }
     }
     public static void eatFood(LocalPlayer player) {
         boolean isPlayerEating = player.getAnimationId() == 18001;
@@ -232,11 +234,7 @@ public class Thieving {
         double currentHealth = player.getCurrentHealth();
         double maximumHealth = player.getMaximumHealth();
 
-        if (maximumHealth == 0) {
-            throw new ArithmeticException("Maximum health cannot be zero.");
-        }
-
-        return (currentHealth / maximumHealth) * 100;
+        return maximumHealth > 0 ? (currentHealth / maximumHealth) * 100 : 0;
     }
 
     private static long healHealth(LocalPlayer player) {
@@ -245,7 +243,7 @@ public class Thieving {
 
         if (food == null) {
                 log("[EatFood] No food found. Banking for food.");
-            SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+                Execution.delay(bankForfood(player));
                 return random.nextLong(1500, 3000);
         }
 
@@ -259,23 +257,23 @@ public class Thieving {
         }
         return 0;
     }
-    public static long bankForfood() {
+    public static long bankForfood(LocalPlayer player) {
         SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").option("Bank").results().nearest();
         if (bankChest != null) {
             boolean bankInteractionSuccess = bankChest.interact("Load Last Preset from");
             if (bankInteractionSuccess) {
                 log("[Thieving] Interacted with Bank chest.");
                 Execution.delayUntil(15000, () -> Backpack.containsItemByCategory(58));
-                if (Backpack.containsItemByCategory(58)) { // Corrected syntax here
+                if (Backpack.containsItemByCategory(58)) {
                     log("[Thieving] Food found in backpack.");
-                    SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
+                    handleThieving(player);
                 }
             } else {
                 log("[Error] Bank chest interaction failed.");
             }
         } else {
-            log("[Error] BankChest not found.");
-            ActionBar.useAbility("War's Retreat Teleport");
+            log("[Error] BankChest not found, traversing to bank to withdraw food from load last preset");
+            useTheNearestBank(player);
             Execution.delay(random.nextLong(7000, 7500));
         }
         return random.nextLong(1500, 3000);

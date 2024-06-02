@@ -340,19 +340,26 @@ public class Divination {
         ResultSet<Item> divineomaticvacuum = InventoryItemQuery.newQuery(94).ids(41083).results();
         if (!divineomaticvacuum.isEmpty()) {
             log("[Divination] Divine-o-matic found in inventory.");
-            log("[Divination] Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
             int emptyCharges = VarManager.getInvVarbit(94, 3, 37521);
             int filledCharges = VarManager.getInvVarbit(94, 3, 37522);
+            log("[Divination] Empty Charges: " + emptyCharges + " - Filled Charges: " + filledCharges);
+
             if (filledCharges > random.nextInt(25, 100) && Equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
                 log("[Divination] Divine-o-matic is full, withdrawing.");
                 Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
-                if (Backpack.contains(41073) && emptyCharges < 100) {
-                    log("[Divination] Adding all to vacuum.");
-                    if (backpack.interact(41073, "Add all to vacuum")) {
-                        Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) == 0);
-                    }
+                log("[Divination] After withdrawal, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
+            }
+
+            if (emptyCharges == 0 || (Backpack.contains(41073) && emptyCharges < 100)) {
+                log("[Divination] Adding all to vacuum.");
+                if (backpack.interact("Divine charge (empty)", "Add all to vacuum")) {
+                    log("[Divination] After adding to vacuum, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
+                } else {
+                    log("[Error] Failed to add all to vacuum.");
                 }
             }
+        } else {
+            log("[Divination] Divine-o-matic not found in inventory.");
         }
     }
     public static int initialValue = VarManager.getInvVarbit(94, 3, 37522);
