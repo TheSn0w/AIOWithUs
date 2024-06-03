@@ -32,6 +32,7 @@ import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
@@ -81,6 +82,9 @@ public class Divination {
         if (Backpack.isFull()) {
             log("[Divination] Backpack is full, converting at the rift.");
             return handleFullBackpack();
+        }
+        if (!harvestChronicles) {
+            Execution.delay(attemptHarvestEnriched(player, wispName));
         }
 
         if (player.getAnimationId() == 21228 || player.getAnimationId() == 31055) {
@@ -174,6 +178,21 @@ public class Divination {
         }
 
         return null;
+    }
+    private static long attemptHarvestEnriched(LocalPlayer player, String wispName) {
+            EntityResultSet<Npc> wispsToHarvest = NpcQuery.newQuery().name("Enriched incandescent spring").results();
+
+            Npc nearestWisp = wispsToHarvest.nearest();
+            if (nearestWisp != null) {
+                Execution.delay(random.nextLong(500, 1250));
+                boolean success = nearestWisp.interact("Harvest");
+                if (success) {
+                    log("[Enriched] Harvesting: " + wispName);
+                    Execution.delayUntil(360000, () -> !wispsToHarvest.nearest().validate() || Backpack.isFull());
+                }
+            }
+
+        return random.nextLong(1500, 2500);
     }
 
     private static long attemptHarvest(LocalPlayer player, String wispName) {
@@ -335,8 +354,29 @@ public class Divination {
         return null;
     }
 
-
     private static void divineoMatic() { // 37521 = empty charges // 37522 = filled charges
+        ResultSet<Item> divineomaticvacuum = InventoryItemQuery.newQuery(94).ids(41083).results();
+        if (!divineomaticvacuum.isEmpty()) {
+            int emptyCharges = VarManager.getInvVarbit(94, 3, 37521);
+            int filledCharges = VarManager.getInvVarbit(94, 3, 37522);
+        /*    log("[Divination] Empty Charges: " + emptyCharges + " - Filled Charges: " + filledCharges);*/
+            if (filledCharges > ThreadLocalRandom.current().nextInt(25, 100) && Equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
+                log("[Divination] Divine-o-matic is full, withdrawing.");
+                Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
+                log("[Divination] After withdrawal, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
+                if (Backpack.contains("Divine charge (empty)") && emptyCharges < 100) {
+                    log("[Divination] Adding all to vacuum.");
+                    if (backpack.interact("Divine charge (empty)", "Add all to vacuum")) {
+                        log("[Divination] After adding to vacuum, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
+                    } else {
+                        log("[Error] Failed to add all to vacuum.");
+                    }
+                }
+            }
+        }
+    }
+
+    private static void divvineoMatic() { // 37521 = empty charges // 37522 = filled charges
         ResultSet<Item> divineomaticvacuum = InventoryItemQuery.newQuery(94).ids(41083).results();
         if (!divineomaticvacuum.isEmpty()) {
             log("[Divination] Divine-o-matic found in inventory.");
@@ -344,13 +384,13 @@ public class Divination {
             int filledCharges = VarManager.getInvVarbit(94, 3, 37522);
             log("[Divination] Empty Charges: " + emptyCharges + " - Filled Charges: " + filledCharges);
 
-            if (filledCharges > random.nextInt(25, 100) && Equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
+            if (filledCharges == 100 && Equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
                 log("[Divination] Divine-o-matic is full, withdrawing.");
                 Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
                 log("[Divination] After withdrawal, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
             }
 
-            if (emptyCharges == 0 || (Backpack.contains(41073) && emptyCharges < 100)) {
+            if (emptyCharges == 0) {
                 log("[Divination] Adding all to vacuum.");
                 if (backpack.interact("Divine charge (empty)", "Add all to vacuum")) {
                     log("[Divination] After adding to vacuum, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
@@ -369,8 +409,10 @@ public class Divination {
         int currentValue = VarManager.getInvVarbit(94, 3, 37522);
         if (currentValue > initialValue) {
             count++;
-            initialValue = currentValue;
+        } else if (currentValue < initialValue) {
+            count += 100 - initialValue + currentValue;
         }
+        initialValue = currentValue;
     }
 
     public static void checkAndPerformActions(LocalPlayer player) {
