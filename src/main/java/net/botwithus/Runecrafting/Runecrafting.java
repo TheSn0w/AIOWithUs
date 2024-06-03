@@ -273,7 +273,7 @@ public class Runecrafting {
 
     private static void performAltarInteractions() {
         log("[Runecrafting] Conditions met for interacting with Restore potion.");
-        Execution.delay(interactWithAltarOfWar((LocalPlayer) player));
+        Execution.delay(drinkRestorePotion((LocalPlayer) player));
         summonFamiliar();
     }
 
@@ -580,38 +580,29 @@ public class Runecrafting {
         lastMovedOrAnimatedTime = System.currentTimeMillis();
     }
 
-    /*public void interactWithAltarOfWar() {
-        SceneObject altarOfWar = SceneObjectQuery.newQuery().name("Altar of War").results().nearest();
-        if (altarOfWar != null && altarOfWar.interact("Pray")) {
-            ScriptConsole.println("Attempting to pray at the Altar of War...");
-            Execution.delay(RandomGenerator.nextInt(4000, 5000));
-        }
-
-    }*/
-    static long interactWithAltarOfWar(LocalPlayer player) {
+    static long drinkRestorePotion(LocalPlayer player) {
         ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();
 
-        Item prayerOrRestorePot = items.stream()
+        Item RestorePot = items.stream()
                 .filter(item -> item.getName() != null &&
-                        (item.getName().toLowerCase().contains("prayer") ||
-                                item.getName().toLowerCase().contains("restore")))
+                        (item.getName().toLowerCase().contains("restore")))
                 .findFirst()
                 .orElse(null);
 
-        if (prayerOrRestorePot == null) {
+        if (RestorePot == null) {
             log("[Error] No Restore potions found in the backpack.");
             return 1L;
         }
 
-        log("[Runecrafting] Drinking " + prayerOrRestorePot.getName());
-        boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
+        log("[Runecrafting] Drinking " + RestorePot.getName());
+        boolean success = backpack.interact(RestorePot.getName(), "Drink");
         if (success) {
-            log("[Prayer Potions]  Successfully drank " + prayerOrRestorePot.getName());
+            log("[Runecrafting]  Successfully drank " + RestorePot.getName());
             long delay = random.nextLong(1500, 3000);
             Execution.delay(delay);
             return delay;
         } else {
-            log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
+            log("[Error] Failed to interact with " + RestorePot.getName());
             return 0;
         }
     }

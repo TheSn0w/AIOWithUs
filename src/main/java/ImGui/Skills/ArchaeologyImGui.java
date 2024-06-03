@@ -23,7 +23,7 @@ public class ArchaeologyImGui {
         if (isArcheologyActive && !showLogs) {
             if (tooltipsEnabled) {
                 String[] texts = {
-                        "Some areas are not supported by Traversal",
+                        "Some areas are not supported by Traversal after banking",
                         "Have Arch Journal in Inventory",
                         "will not destroy pylons/fragements",
                         "will not hand in tomes",

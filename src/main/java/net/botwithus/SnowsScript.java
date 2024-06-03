@@ -1,7 +1,6 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
-import net.botwithus.Archaeology.Archeology;
 import net.botwithus.Combat.Combat;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Runecrafting.Runecrafting;
@@ -27,6 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 import static ImGui.Theme.*;
+import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Runecrafting.ScriptState.TELEPORTINGTOBANK;
@@ -105,7 +105,7 @@ public class SnowsScript extends LoopingScript {
                     Execution.delay(performBanking(player));
                 }
                 if (isArcheologyActive)
-                    Execution.delay(Archeology.BankforArcheology(player, selectedArchNames));
+                    Execution.delay(BankforArcheology(player, selectedArchNames));
             }
         }
     }

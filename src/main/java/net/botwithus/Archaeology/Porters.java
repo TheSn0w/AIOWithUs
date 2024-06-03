@@ -1,0 +1,81 @@
+package net.botwithus.Archaeology;
+
+import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.api.game.hud.inventories.Bank;
+import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.equipment;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.vars.VarManager;
+import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.util.RandomGenerator;
+
+import static net.botwithus.Archaeology.Banking.BankforArcheology;
+import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.getEquipChargeThreshold;
+import static net.botwithus.inventory.equipment.Slot.NECK;
+
+public class Porters {
+
+    public static void usePorter() {
+        String currentPorter = porterTypes[currentPorterType.get()];
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+
+        if (net.botwithus.api.game.hud.inventories.Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+            log("[Archaeology] Porters have " + varbitValue + " charges. Charging.");
+            log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
+            if (equipment.contains("Grace of the elves")) {
+                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                if (interactionResult) {
+                    log("[Archaeology] Interaction with Equipment was successful.");
+                } else {
+                    log("[Error] Interaction with Equipment failed.");
+                }
+            } else {
+                if (net.botwithus.api.game.hud.inventories.Backpack.contains(currentPorter)) {
+                    boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                    if (interactionResult) {
+                        log("[Archaeology] Interaction with Backpack was successful.");
+                    } else {
+                        log("[Error] Interaction with Backpack failed.");
+                    }
+                } else {
+                    log("[Error] No '" + currentPorter + "' found in the Backpack.");
+                }
+            }
+            Execution.delay(RandomGenerator.nextInt(1500, 3000));
+        } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+            log("[Error] No " + currentPorter + " found in the Backpack.");
+            Execution.delay(BankforArcheology((LocalPlayer) player, selectedArchNames));
+        }
+    }
+    public static void handleGoteCharges() {
+        int charges = VarManager.getInvVarbit(94, 2, 30214);
+        log("[Archaeology] Charges remaining: " + charges);
+        if (charges < getChargeThreshold()) {
+            String selectedPorter = porterTypes[currentPorterType.get()];
+            int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
+            boolean withdrew;
+            if (VarManager.getVarbitValue(45189) != 7) {
+                component(1, -1, 33882215);
+            }
+            withdrew = Bank.withdraw(selectedPorter, quantity);
+            if (withdrew) {
+                log("[Archaeology] Withdrew: " + selectedPorter + ".");
+            } else {
+                log("[Error] Failed to withdraw " + selectedPorter + ".");
+            }
+        }
+    }
+
+    public static int getQuantityFromOption(String option) {
+        return switch (option) {
+            case "ALL" -> 1;
+            case "1" -> 2;
+            case "5" -> 3;
+            case "10" -> 4;
+            case "Preset amount" -> 5;
+            default -> 0;
+        };
+    }
+}
