@@ -30,8 +30,7 @@ import java.util.AbstractMap.SimpleEntry;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.TaskScheduler.shutdown;
-import static net.botwithus.Variables.Variables.component;
-import static net.botwithus.Variables.Variables.dialog;
+import static net.botwithus.Variables.Variables.*;
 
 public class Herblore {
     public SnowsScript skeletonScript;
@@ -40,11 +39,7 @@ public class Herblore {
         this.skeletonScript = script;
     }
 
-    public static HerbloreRecipe getSelectedRecipe() {
-        return SharedState.selectedRecipe;
-    }
 
-    private static final Random random = new Random();
 
     private static final Map<HerbloreRecipe, List<String>> potionMap = Map.ofEntries(
             new SimpleEntry<>(HerbloreRecipe.SUPREME_OVERLOADS, List.of("Overload (4)", "Crystal flask", "Super attack (4)", "Super strength (4)", "Super defence (4)", "Super ranging potion (4)", "Super magic potion (4)", "Super necromancy (4)")),

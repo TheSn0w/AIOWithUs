@@ -28,32 +28,14 @@ import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
 public class Fishing {
-    private static Random random = new Random();
-    public SnowsScript skeletonScript;
-
-    private static boolean isNumeric(String str) {
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-    public Fishing(SnowsScript script) {
-        this.skeletonScript = script;
-    }
-    private static Coordinate lastFishingSpotCoord = null;
 
     public static long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
         if (backpack.isFull()) {
             return handleFullBackpack(player);
         }
-
-
         if (player.isMoving() || (AnimationCheck && player.getAnimationId() == -1)) {
             return random.nextLong(1500, 3000);
         }
-
         Npc nearestFishingSpot = findNearestFishingSpot(fishingLocation, fishingAction);
 
         if (nearestFishingSpot != null) {

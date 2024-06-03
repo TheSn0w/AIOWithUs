@@ -56,10 +56,10 @@ public class Runnables {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
             Execution.delay(Woodcutting.handleSkillingWoodcutting(player, selectedTreeNames));
-            if (Woodcutting.crystallise) {
+            if (crystallise) {
                 Execution.delay(Woodcutting.handleit());
             }
-            if (Woodcutting.crystalliseMahogany) {
+            if (crystalliseMahogany) {
                 Execution.delay(Woodcutting.handleCrystalliseMahogany());
             }
         }

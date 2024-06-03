@@ -10,16 +10,10 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class Agility {
-    public SnowsScript skeletonScript;
-    public Agility(SnowsScript script) {
-        skeletonScript = script;
-    }
 
     public static final Coordinate RESTART = new Coordinate(2487, 3437, 0);
 

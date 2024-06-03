@@ -26,16 +26,9 @@ import java.util.Map;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Variables.Variables.dialog;
-import static net.botwithus.Variables.Variables.useSpiritStone;
+import static net.botwithus.Variables.Variables.*;
 
 public class Summoning {
-    SnowsScript script;
-    private static Random random = new Random();
-
-    public Summoning(SnowsScript script) {
-        this.script = script;
-    }
 
     public static long makePouches(LocalPlayer player) {
         EntityResultSet<SceneObject> bankChest = SceneObjectQuery.newQuery().id(92692).option("Use").results();
@@ -98,36 +91,6 @@ public class Summoning {
     }
 
 
-    private static final int INVENTORYID = 94;
-    private static final int OBOLISK_ID = 67036;
-    private static final String INFUSE_POUCH_OPTION = "Infuse-pouch";
-    private static int secondaryItem = 1444;
-    private static String spiritStoneName = "Spirit onyx (a)";
-    private static String pouchName = "Geyser titan pouch";
-    private static final int INTERFACE_ID = 1370;
-    private static final int DELAY_MIN = 660;
-    private static final int DELAY_MAX = 720;
-
-
-    public static void setSecondaryItem(int newSecondaryItem) {
-        secondaryItem = newSecondaryItem;
-    }
-    public static int getSecondaryItem() {
-        return secondaryItem;
-    }
-
-
-    public static void setSpiritStoneName(String newSpiritStoneName) {
-        spiritStoneName = newSpiritStoneName;
-    }
-
-    public static String getPouchName() {
-        return pouchName;
-    }
-
-    public static void setPouchName(String newPouchName) {
-        pouchName = newPouchName;
-    }
 
 
     public static long interactWithObolisk(LocalPlayer player) {

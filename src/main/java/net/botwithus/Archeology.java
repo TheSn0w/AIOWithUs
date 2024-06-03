@@ -24,12 +24,8 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
-
 import java.util.*;
 import java.util.function.Supplier;
-
-import static ImGui.SnowScriptGraphics.getChargeThreshold;
-import static ImGui.SnowScriptGraphics.getEquipChargeThreshold;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.getLastSkillingLocation;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
@@ -37,7 +33,6 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Archeology {
-    public static Random random = new Random();
     public SnowsScript skeletonScript;
     final Map<String, Supplier<Long>> methodMap;
     static Map<String, Coordinate> coordinateMap = Map.of();

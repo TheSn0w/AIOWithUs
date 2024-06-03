@@ -3,49 +3,36 @@ package net.botwithus;
 import ImGui.SnowScriptGraphics;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
-import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.*;
-import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
-import net.botwithus.rs3.game.movement.Movement;
-import net.botwithus.rs3.game.movement.NavPath;
-import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
-import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
-import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
-import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.config.ScriptConfig;
-
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static ImGui.SnowScriptGraphics.chargeThreshold;
-import static ImGui.SnowScriptGraphics.equipChargeThreshold;
 import static ImGui.Theme.*;
 import static net.botwithus.Combat.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
-import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
 
 
 public class SnowsScript extends LoopingScript {
-    private static BotState botState = BotState.IDLE;
+    public static BotState botState = BotState.IDLE;
     public static long runStartTime;
     public static Instant startTime;
 
@@ -492,7 +479,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("SpecialAttack", String.valueOf(SpecialAttack));
         this.configuration.addProperty("VolleyofSouls", String.valueOf(VolleyofSouls));
         this.configuration.addProperty("DeathGrasp", String.valueOf(DeathGrasp));
-        this.configuration.addProperty("agility", String.valueOf(agility));
+        this.configuration.addProperty("isAgilityActive", String.valueOf(isAgilityActive));
         this.configuration.addProperty("isDivinationActive", String.valueOf(isDivinationActive));
         this.configuration.addProperty("isMiningActive", String.valueOf(isMiningActive));
         this.configuration.addProperty("isWoodcuttingActive", String.valueOf(isWoodcuttingActive));
@@ -601,7 +588,7 @@ public class SnowsScript extends LoopingScript {
             isSmeltingActive = Boolean.parseBoolean(this.configuration.getProperty("isSmeltingActive"));
             isSummoningActive = Boolean.parseBoolean(this.configuration.getProperty("isSummoningActive"));
             isDissasemblerActive = Boolean.parseBoolean(this.configuration.getProperty("isDissasemblerActive"));
-            isAgilityActive = Boolean.parseBoolean(this.configuration.getProperty("agility"));
+            isAgilityActive = Boolean.parseBoolean(this.configuration.getProperty("isAgilityActive"));
             isDivinationActive = Boolean.parseBoolean(this.configuration.getProperty("isDivinationActive"));
             isMiningActive = Boolean.parseBoolean(this.configuration.getProperty("isMiningActive"));
             isWoodcuttingActive = Boolean.parseBoolean(this.configuration.getProperty("isWoodcuttingActive"));

@@ -8,14 +8,10 @@ import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
-
-import java.util.Random;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class Planks {
-    private static final Random random = new Random();
 
     public static long handleplankmaking(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {

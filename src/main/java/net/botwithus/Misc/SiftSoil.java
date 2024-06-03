@@ -1,6 +1,5 @@
 package net.botwithus.Misc;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -8,20 +7,12 @@ import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-
 import java.util.List;
-import java.util.Random;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.dialog;
+import static net.botwithus.Variables.Variables.random;
 
 public class SiftSoil {
-    SnowsScript script;
-    private static Random random = new Random();
-
-    public SiftSoil(SnowsScript script) {
-        this.script = script;
-    }
 
     public static long handleSoil(LocalPlayer player) {
         EntityResultSet<SceneObject> mesh = SceneObjectQuery.newQuery().name("Mesh").option("Screen").results();

@@ -23,24 +23,13 @@ import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
-
-import java.util.Random;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
-import static net.botwithus.Variables.BankInteractions.interactWithBank;
-import static net.botwithus.Variables.BankInteractions.performBanking;
+import static net.botwithus.Variables.Variables.random;
 
 public class Thieving {
-    private static final Random random = new Random();
-    public static SnowsScript skeletonScript;
     private static int failedAttempts = 0;
-
-    public Thieving(SnowsScript script) {
-        skeletonScript = script;
-    }
-
     static final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0);
 
     public static long interactWithBakeryStall(LocalPlayer player) {

@@ -12,19 +12,12 @@ import net.botwithus.rs3.game.minimenu.actions.SelectableAction;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
-import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 public class Dissasembler {
-    public SnowsScript script;
-    private static final Random random = new Random();
-
-    public Dissasembler(SnowsScript script) {
-        this.script = script;
-    }
 
     public static long Dissasemble(LocalPlayer player) {
         if (Interfaces.isOpen(1251)) {

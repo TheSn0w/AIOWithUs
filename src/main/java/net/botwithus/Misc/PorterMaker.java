@@ -11,22 +11,11 @@ import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-
-import java.util.Random;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 
 public class PorterMaker {
-    SnowsScript script;
-    private static Random random = new Random();
-
-    public PorterMaker(SnowsScript script) {
-        this.script = script;
-    }
-
-
 
     public static long makePorters() {
         if (Interfaces.isOpen(1251)) {

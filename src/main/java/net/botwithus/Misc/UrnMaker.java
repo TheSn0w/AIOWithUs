@@ -1,6 +1,5 @@
 package net.botwithus.Misc;
 
-import net.botwithus.Cooking;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
@@ -16,17 +15,15 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
-
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.dialog;
 import static net.botwithus.Variables.Variables.random;
 
 
 public class UrnMaker {
-    private static boolean hasInteracted = false; // To track if the initial interaction has occurred
+    private static boolean hasInteracted = false;
     private static UrnState urnState = UrnState.MINING;
 
     enum UrnState {

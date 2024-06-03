@@ -22,14 +22,10 @@ import net.botwithus.rs3.script.ScriptConsole;
 import java.util.Random;
 
 public class Urns {
-    SnowsScript script;
     private static Random random = new Random();
     public static boolean isMakeUrnsActive = false;
     public static boolean makeUrn = false;
 
-    public Urns(SnowsScript script) {
-        this.script = script;
-    }
 
     public static long useclayCrafting() {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Portable crafter").option("Clay Crafting").results();

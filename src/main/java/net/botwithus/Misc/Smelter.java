@@ -1,6 +1,5 @@
 package net.botwithus.Misc;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
@@ -9,19 +8,12 @@ import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-
 import java.util.Random;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.component;
+import static net.botwithus.Variables.Variables.random;
 
 public class Smelter {
-    SnowsScript script;
-    private static Random random = new Random();
-
-    public Smelter(SnowsScript script) {
-        this.script = script;
-    }
 
     public static long handleSmelter(LocalPlayer player) {
         EntityResultSet<SceneObject> furnace = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();

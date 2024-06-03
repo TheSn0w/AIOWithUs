@@ -28,14 +28,13 @@ import net.botwithus.rs3.script.ScriptConsole;
 import java.util.*;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.random;
 
 public class CaveNightshade {
-    private static Random random = new Random();
-    private static NightShadeState nightShadeState = NightShadeState.TRAVERSING;
 
-    public CaveNightshade(SnowsScript script) {
-        this.random = new Random();
-    }
+    public static NightShadeState nightShadeState = NightShadeState.TRAVERSING;
+    public static final Map<String, Integer> NightshadePicked = new HashMap<>();
+
 
     public enum NightShadeState {
         TRAVERSING,
@@ -47,7 +46,6 @@ public class CaveNightshade {
         return nightShadeState;
     }
 
-    public static final Map<String, Integer> NightshadePicked = new HashMap<>();
 
     private static final List<Coordinate> nightshadeCoordinates = Arrays.asList(
             new Coordinate(2532, 9461, 0),

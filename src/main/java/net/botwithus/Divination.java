@@ -41,7 +41,6 @@ import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.Variables.Variables.*;
 
 public class Divination {
-    private static Random random = new Random();
 
     public static long handleDivination(LocalPlayer player) {
         int divinationLevel = Skills.DIVINATION.getActualLevel();

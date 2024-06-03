@@ -14,18 +14,10 @@ import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-
-import java.util.Random;
-
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.random;
 
 public class GemCutter {
-    SnowsScript script;
-    private static Random random = new Random();
-
-    public GemCutter(SnowsScript script) {
-        this.script = script;
-    }
 
     public static long cutGems() {
         ResultSet<Item> craftingItems = InventoryItemQuery.newQuery(93).option("Craft").results();

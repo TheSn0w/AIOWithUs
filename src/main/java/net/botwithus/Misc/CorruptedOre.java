@@ -18,12 +18,8 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class CorruptedOre {
-    SnowsScript script;
-    private static Random random = new Random();
 
-    public CorruptedOre(SnowsScript script) {
-        this.script = script;
-    }
+
     public static long mineCorruptedOre() {
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
         if (Interfaces.isOpen(1251)) {

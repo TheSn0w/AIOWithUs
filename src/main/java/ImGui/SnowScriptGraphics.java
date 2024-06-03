@@ -1,7 +1,6 @@
 package ImGui;
 
 import net.botwithus.*;
-import net.botwithus.Herblore.Herblore;
 import net.botwithus.Herblore.SharedState;
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
@@ -21,12 +20,12 @@ import java.util.*;
 import java.util.List;
 
 import static ImGui.PredefinedStrings.*;
+import static ImGui.PredefinedStrings.pouchName;
 import static ImGui.Theme.*;
 import static net.botwithus.Combat.enableRadiusTracking;
 import static net.botwithus.Combat.radius;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Divination.count;
-import static net.botwithus.Herblore.Herblore.getSelectedRecipe;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Misc.UrnMaker.getUrnState;
@@ -39,55 +38,20 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
     SnowsScript script;
     public Instant startTime;
-    public static boolean ScriptisOn = false;
-    private long totalElapsedTime = 0;
-    private boolean tooltipsEnabled = false;
-    public String saveSettingsFeedbackMessage = "";
-    boolean showLogs = false;
-    public static boolean scrollToBottom = false;
 
-    private String filterText = "";
-    private NativeInteger selectedItemIndex = new NativeInteger(0);
-    private List<String> allItems;
-    private List<String> filteredItems;
+
 
     public SnowScriptGraphics(ScriptConsole scriptConsole, SnowsScript script) {
         super(scriptConsole);
         this.script = script;
         this.startTime = Instant.now();
-        this.allItems = new ArrayList<>(predefinedNames);
-        this.filteredItems = new ArrayList<>(predefinedNames);
     }
+
 
     public static void setScriptStatus(boolean status) {
         ScriptisOn = status;
     }
-    public static int chargeThreshold = 200;
-    public static int equipChargeThreshold = 0;
 
-    public static int getChargeThreshold() {
-        return chargeThreshold;
-    }
-    public static int getEquipChargeThreshold() {
-        return equipChargeThreshold;
-    }
-
-    public static void setEquipChargeThreshold(int equipChargeThreshold) {
-        SnowScriptGraphics.equipChargeThreshold = equipChargeThreshold;
-    }
-
-    public static void setChargeThreshold(int chargeThreshold) {
-        SnowScriptGraphics.chargeThreshold = chargeThreshold;
-    }
-
-    private void filterItems() {
-        filteredItems.clear();
-        for (String item : allItems) {
-            if (item.toLowerCase().contains(filterText.toLowerCase())) {
-                filteredItems.add(item);
-            }
-        }
-    }
 
 
 
@@ -141,7 +105,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 }
                 ImGui.PopStyleVar(1);
 
-                boolean agilitySelected = agility;
+                boolean agilitySelected = isAgilityActive;
                 boolean divinationSelected = isDivinationActive;
                 boolean thievingSelected = isThievingActive;
                 boolean archeologySelected = isArcheologyActive;
@@ -169,7 +133,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
 
                 if (!anySelected) {
-                    createCenteredButton("Agility", () -> Variables.agility = !Variables.agility, Variables.agility);
+                    createCenteredButton("Agility", () -> isAgilityActive = !isAgilityActive, isAgilityActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("1-35 Agility Only`");
                     }
@@ -177,49 +141,49 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Divination AIO 1-99");
                     }
-                    createCenteredButton("Thieving", () -> Variables.isThievingActive = !Variables.isThievingActive, Variables.isThievingActive);
+                    createCenteredButton("Thieving", () -> isThievingActive = !isThievingActive, isThievingActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Thieving - Read Tooltip");
                     }
-                    createCenteredButton("Archaeology", () -> Variables.isArcheologyActive = !Variables.isArcheologyActive, Variables.isArcheologyActive);
+                    createCenteredButton("Archaeology", () -> isArcheologyActive = !isArcheologyActive, isArcheologyActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Archaeology with Material Caches Etc..");
                     }
-                    createCenteredButton("Fishing", () -> Variables.isFishingActive = !Variables.isFishingActive, Variables.isFishingActive);
+                    createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, isFishingActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Fishing at any spot");
                     }
-                    createCenteredButton("Mining", () -> Variables.isMiningActive = !Variables.isMiningActive, Variables.isMiningActive);
+                    createCenteredButton("Mining", () -> isMiningActive = !isMiningActive, isMiningActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Mining at any spot");
                     }
-                    createCenteredButton("Woodcutting", () -> Variables.isWoodcuttingActive = !Variables.isWoodcuttingActive, Variables.isWoodcuttingActive);
+                    createCenteredButton("Woodcutting", () -> isWoodcuttingActive = !isWoodcuttingActive, isWoodcuttingActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Woodcutting at any spot Except Fort Forthry");
                     }
-                    createCenteredButton("Cooking", () -> Variables.isCookingActive = !Variables.isCookingActive, Variables.isCookingActive);
+                    createCenteredButton("Cooking", () -> isCookingActive = !isCookingActive, isCookingActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Cooking AIO with Fish, Recommended at Fort Forthry");
                     }
-                    createCenteredButton("Combat", () -> Variables.isCombatActive = !Variables.isCombatActive, Variables.isCombatActive);
+                    createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, isCombatActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("AIO Fighter");
                     }
-                    createCenteredButton("Runecrafting", () -> Variables.isRunecraftingActive = !Variables.isRunecraftingActive, Variables.isRunecraftingActive);
+                    createCenteredButton("Runecrafting", () -> isRunecraftingActive = !isRunecraftingActive, isRunecraftingActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Runecrafting made easy doing Necrotic Runes");
                     }
-                    createCenteredButton("Herblore", () -> Variables.isHerbloreActive = !Variables.isHerbloreActive, Variables.isHerbloreActive);
+                    createCenteredButton("Herblore", () -> isHerbloreActive = !isHerbloreActive, isHerbloreActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
                     }
-                    createCenteredButton("Misc", () -> Variables.isMiscActive = !Variables.isMiscActive, Variables.isMiscActive);
+                    createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, isMiscActive);
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Miscellaneous Options");
                     }
                 } else {
                     if (agilitySelected) {
-                        createCenteredButton("Agility AIO", () -> agility = !agility, agility);
+                        createCenteredButton("Agility AIO", () -> isAgilityActive = !isAgilityActive, isAgilityActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("1-35 Agility Only`");
                         }
@@ -894,7 +858,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                         int selectedIndex = spiritStone_current_idx.get();
                                         if (selectedIndex >= 0 && selectedIndex < spiritStone.size()) {
                                             String selectedName = spiritStone.get(selectedIndex);
-                                            Summoning.setSpiritStoneName(selectedName);
+                                            setSpiritStoneName(selectedName);
                                             ScriptConsole.println("Spirit Stone selected: " + selectedName);
                                         } else {
                                             ScriptConsole.println("Please select a valid Spirit Stone.");
@@ -906,7 +870,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     int selectedIndex = pouchName_current_idx.get();
                                     if (selectedIndex >= 0 && selectedIndex < pouchName.size()) {
                                         String selectedName = pouchName.get(selectedIndex);
-                                        Summoning.setPouchName(selectedName);
+                                        setPouchName(selectedName);
                                         ScriptConsole.println("Pouch Name selected: " + selectedName);
                                     } else {
                                         ScriptConsole.println("Please select a valid Pouch Name.");
@@ -918,7 +882,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     if (selectedIndex >= 0 && selectedIndex < secondaryItemName.size()) {
                                         int selectedId = (int) secondaryItemName.keySet().toArray()[selectedIndex];
                                         String selectedItemName = secondaryItemName.get(selectedId);
-                                        Summoning.setSecondaryItem(selectedId);
+                                        setSecondaryItem(selectedId);
                                         ScriptConsole.println("Secondary Item selected: " + selectedItemName + " (" + selectedId + ")");
                                     } else {
                                         ScriptConsole.println("Please select a valid Secondary Item.");
@@ -1312,7 +1276,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
 
                         List<String> combinedFilteredItems = new ArrayList<>();
-                        combinedFilteredItems.add("Select an item...");  // Placeholder
+                        combinedFilteredItems.add("Select an item...");
                         combinedFilteredItems.addAll(filteredItems);
                         if (MaterialCache) {
                             for (String item : predefinedCacheNames) {
@@ -1406,12 +1370,12 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
 
                         ImGui.SeparatorText("Materials Excavated Count");
-                        for (Map.Entry<String, Integer> entry : Variables.materialsExcavated.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : materialsExcavated.entrySet()) {
                             ImGui.Text(entry.getKey() + ": " + entry.getValue());
                         }
 
                         int totalMaterialsExcavated = 0;
-                        for (int count : Variables.materialsExcavated.values()) {
+                        for (int count : materialsExcavated.values()) {
                             totalMaterialsExcavated += count;
                         }
 
@@ -1894,7 +1858,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                             ImGui.EndChild();
                         }
                         ImGui.SeparatorText("Ores Mined Count");
-                        for (Map.Entry<String, Integer> entry : Variables.types.entrySet()) {
+                        for (Map.Entry<String, Integer> entry : types.entrySet()) {
                             String itemName = entry.getKey();
                             int itemCount = entry.getValue();
                             ImGui.Text(itemName + ": " + itemCount);

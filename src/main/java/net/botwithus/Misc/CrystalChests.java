@@ -1,23 +1,15 @@
 package net.botwithus.Misc;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
-import net.botwithus.api.game.hud.inventories.Equipment;
-import net.botwithus.inventory.backpack;
-import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
-import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
-import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.util.RandomGenerator;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;

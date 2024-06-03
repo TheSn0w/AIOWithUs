@@ -29,27 +29,18 @@ import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.SnowsScript.*;
+import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Combat {
-    public Combat(SnowsScript script) {
-        skeletonScript = script;
-    }
-    public static SnowsScript skeletonScript;
-    private static Random random = new Random();
 
     public static long attackTarget(LocalPlayer player) {
         if (player == null) {
@@ -129,7 +120,7 @@ public class Combat {
         }
         setLastSkillingLocation(player.getCoordinate());
         ActionBar.useAbility("War's Retreat Teleport");
-        SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+        setBotState(SnowsScript.BotState.BANKING);
         return logAndDelay("[Combat] Banking.", 1500, 3000);
     }
 
@@ -214,9 +205,9 @@ public class Combat {
     }
 
     private static void returnToSkillingLocation(LocalPlayer player) {
-        log("[Combat] Returning to last skilling location: " + skeletonScript.getLastSkillingLocation());
-        Movement.traverse(NavPath.resolve(skeletonScript.getLastSkillingLocation().getRandomWalkableCoordinate())); // Navigate back
-        SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
+        log("[Combat] Returning to last skilling location: " + getLastSkillingLocation());
+        Movement.traverse(NavPath.resolve(getLastSkillingLocation().getRandomWalkableCoordinate())); // Navigate back
+        setBotState(SKILLING);
         Execution.delay(random.nextLong(1500, 3000));
     }
 
@@ -824,7 +815,7 @@ public class Combat {
             if (BankforFood) {
                 log("[Error] No food found. Banking for food.");
                 setLastSkillingLocation(player.getCoordinate());
-                SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+                setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             } else {
                 log("[Error] No food found and banking for food is disabled.");

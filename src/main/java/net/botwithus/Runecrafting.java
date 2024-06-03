@@ -2,7 +2,6 @@ package net.botwithus;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
-import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
@@ -24,29 +23,20 @@ import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
-
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.*;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 public class Runecrafting {
-    public Runecrafting(SnowsScript script) {
-        this.skeletonScript = script; // Initialize with the correct instance
-    }
 
-    public SnowsScript skeletonScript;
-    private static long lastMovedOrAnimatedTime = System.currentTimeMillis();
-    private static Random random = new Random();
-    private static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
-    static Player player = Client.getLocalPlayer();
+    public static long lastMovedOrAnimatedTime = System.currentTimeMillis();
+    public static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
+    public static Player player = Client.getLocalPlayer();
 
     public static Map<String, Integer> getRuneQuantities() {
         return runeQuantities;
