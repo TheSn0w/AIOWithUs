@@ -105,6 +105,9 @@ public class SnowsScript extends LoopingScript {
             });
 
             case BANKING -> {
+                if (isThievingActive) {
+                    Execution.delay(performBanking(player));
+                }
                 if (nearestBank) {
                     Execution.delay(performBanking(player));
                 }

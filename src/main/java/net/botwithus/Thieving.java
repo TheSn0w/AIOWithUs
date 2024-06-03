@@ -27,6 +27,9 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.setBotState;
+import static net.botwithus.Variables.BankInteractions.interactWithBank;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 
 public class Thieving {
@@ -149,6 +152,10 @@ public class Thieving {
 
 
         if (thievingLevel >= 42 && thievingLevel < 83) {
+            if (Backpack.isFull()) {
+                setBotState(BANKING);
+
+            }
             eatFood(player);
 
             ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
@@ -208,6 +215,10 @@ public class Thieving {
         }
 
         if (thievingLevel >= 83) {
+            if (Backpack.isFull()) {
+                setBotState(BANKING);
+
+            }
             eatFood(player);
 
             ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
@@ -300,7 +311,7 @@ public class Thieving {
 
         if (food == null) {
             log("[Error] No food found. Banking for food.");
-            Execution.delay(bankForfood(player));
+            setBotState(BANKING);
             return random.nextLong(1500, 3000);
         }
 
@@ -308,15 +319,9 @@ public class Thieving {
 
         if (eatSuccess) {
             log("[EatFood] Successfully ate " + food.getName());
-            Execution.delay(RandomGenerator.nextInt(250, 450));
         } else {
             log("[Error] Failed to eat.");
         }
         return 0;
-    }
-
-    public static long bankForfood(LocalPlayer player) {
-        performBanking(player);
-        return random.nextLong(1500, 3000);  // Return a delay
     }
 }
