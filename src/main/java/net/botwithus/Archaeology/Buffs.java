@@ -6,7 +6,24 @@ import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.hiSpecMonocle;
+
 public class Buffs {
+
+    public static void useBuffs() {
+        if (archaeologistsTea || materialManual || hiSpecMonocle) {
+            if (archaeologistsTea) {
+                useArchaeologistsTea();
+            }
+            if (materialManual) {
+                useMaterialManual();
+            }
+            if (hiSpecMonocle) {
+                useHiSpecMonocle();
+            }
+        }
+    }
 
     public static void useArchaeologistsTea() { // 47027 must be material + 1
         if (VarManager.getVarbitValue(47028) == 0) {

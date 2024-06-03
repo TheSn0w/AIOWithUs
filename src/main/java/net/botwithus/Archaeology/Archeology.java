@@ -2,50 +2,37 @@ package net.botwithus.Archaeology;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
-import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.rs3.game.Coordinate;
-import net.botwithus.rs3.game.Item;
-import net.botwithus.rs3.game.hud.interfaces.Interfaces;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
-import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
-import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
-import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
-import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
-import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 import java.util.*;
 import java.util.function.Supplier;
 
 import static net.botwithus.Archaeology.Banking.backpackIsFull;
-import static net.botwithus.Archaeology.Banking.handleBankInteraction;
 import static net.botwithus.Archaeology.Buffs.*;
-import static net.botwithus.Archaeology.Porters.usePorter;
-import static net.botwithus.Archaeology.TraverseHellfire.shouldTraverseToHellfire;
-import static net.botwithus.Archaeology.TraverseHellfire.traverseToHellfireLift;
-import static net.botwithus.Archaeology.TraverseKharidEt.shouldTraverseToKharidEt;
-import static net.botwithus.Archaeology.TraverseKharidEt.traverseToKharidEt;
+import static net.botwithus.Archaeology.Porters.useGrace;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
+import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.Variables.Variables.*;
 
 public class Archeology {
-    public SnowsScript skeletonScript;
+    public SnowsScript script;
     final Map<String, Supplier<Long>> methodMap;
     static Map<String, Coordinate> coordinateMap = Map.of();
 
 
     public Archeology(SnowsScript script) {
-        this.skeletonScript = script;
+        this.script = script;
         coordinateMap = new HashMap<>();
         this.methodMap = new HashMap<>();
         this.initializeCoordinateMap();
@@ -110,20 +97,9 @@ public class Archeology {
             backpackIsFull(player);
             return random.nextLong(1500, 3000);
         }
-        if (useGote) {
-            usePorter();
-        }
-        if (archaeologistsTea || materialManual || hiSpecMonocle) {
-            if (archaeologistsTea) {
-                useArchaeologistsTea();
-            }
-            if (materialManual) {
-                useMaterialManual();
-            }
-            if (hiSpecMonocle) {
-                useHiSpecMonocle();
-            }
-        }
+        useGrace();
+        useBuffs();
+
 
         long checkInterval = RandomGenerator.nextInt(3000, 10000);
 
@@ -200,17 +176,10 @@ public class Archeology {
     }
 
     public static long MaterialCaches(LocalPlayer player, List<String> selectedArchNames) {
-        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(115427).option("Use").results();
         if (Backpack.isFull()) {
-            if (!results.isEmpty()) {
-                log("[Archaeology] Backpack is full, using Bank.");
-                setLastSkillingLocation(player.getCoordinate());
-                handleBankInteraction(player, selectedArchNames);
-            } else {
-                setLastSkillingLocation(player.getCoordinate());
-                setBotState(SnowsScript.BotState.BANKING);
-                return random.nextLong(1500, 3000);
-            }
+            setLastSkillingLocation(player.getCoordinate());
+            setBotState(BANKING);
+            return random.nextLong(1500, 3000);
         }
 
         if (player.isMoving() || player.getAnimationId() != -1) {

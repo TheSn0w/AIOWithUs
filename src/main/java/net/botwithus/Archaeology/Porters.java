@@ -17,6 +17,12 @@ import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Porters {
 
+    public static void useGrace() {
+        if (useGote) {
+            usePorter();
+        }
+    }
+
     public static void usePorter() {
         String currentPorter = porterTypes[currentPorterType.get()];
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
