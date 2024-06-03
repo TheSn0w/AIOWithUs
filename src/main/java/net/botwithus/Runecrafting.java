@@ -282,7 +282,7 @@ public class Runecrafting {
     }
 
     private static void performAltarInteractions() {
-        log("[Runecrafting] Conditions met for interacting with Altar of War.");
+        log("[Runecrafting] Conditions met for interacting with Restore potion.");
         Execution.delay(interactWithAltarOfWar((LocalPlayer) player));
         summonFamiliar();
     }
@@ -609,7 +609,7 @@ public class Runecrafting {
                 .orElse(null);
 
         if (prayerOrRestorePot == null) {
-            log("[Error] No prayer or restore potions found in the backpack.");
+            log("[Error] No Restore potions found in the backpack.");
             return 1L;
         }
 

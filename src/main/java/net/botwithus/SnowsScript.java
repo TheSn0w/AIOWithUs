@@ -32,6 +32,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static ImGui.SnowScriptGraphics.chargeThreshold;
+import static ImGui.SnowScriptGraphics.equipChargeThreshold;
 import static ImGui.Theme.*;
 import static net.botwithus.Combat.*;
 import static net.botwithus.CustomLogger.log;
@@ -585,6 +587,10 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("YellowThemeSelected", String.valueOf(YellowThemeSelected));
         this.configuration.addProperty("GreenThemeSelected", String.valueOf(GreenThemeSelected));
         this.configuration.addProperty("isSiftSoilActive", String.valueOf(isSiftSoilActive));
+        this.configuration.addProperty("chargeThreshold", String.valueOf(chargeThreshold));
+        this.configuration.addProperty("equipChargeThreshold", String.valueOf(equipChargeThreshold));
+
+
         this.configuration.save();
     }
 
@@ -665,6 +671,8 @@ public class SnowsScript extends LoopingScript {
             YellowThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("YellowThemeSelected"));
             GreenThemeSelected = Boolean.parseBoolean(this.configuration.getProperty("GreenThemeSelected"));
             isSiftSoilActive = Boolean.parseBoolean(this.configuration.getProperty("isSiftSoilActive"));
+            chargeThreshold = Integer.parseInt(this.configuration.getProperty("chargeThreshold"));
+            equipChargeThreshold = Integer.parseInt(this.configuration.getProperty("equipChargeThreshold"));
             String loadedItemToDisassemble = this.configuration.getProperty("selectedItemToDisassemble");
             if (loadedItemToDisassemble != null && !loadedItemToDisassemble.isEmpty()) {
                 Item = loadedItemToDisassemble;

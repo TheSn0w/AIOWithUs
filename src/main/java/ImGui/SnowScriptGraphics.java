@@ -46,15 +46,49 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
     boolean showLogs = false;
     public static boolean scrollToBottom = false;
 
+    private String filterText = "";
+    private NativeInteger selectedItemIndex = new NativeInteger(0);
+    private List<String> allItems;
+    private List<String> filteredItems;
+
     public SnowScriptGraphics(ScriptConsole scriptConsole, SnowsScript script) {
         super(scriptConsole);
         this.script = script;
         this.startTime = Instant.now();
-        System.currentTimeMillis();
+        this.allItems = new ArrayList<>(predefinedNames);
+        this.filteredItems = new ArrayList<>(predefinedNames);
     }
+
     public static void setScriptStatus(boolean status) {
         ScriptisOn = status;
     }
+    public static int chargeThreshold = 200;
+    public static int equipChargeThreshold = 0;
+
+    public static int getChargeThreshold() {
+        return chargeThreshold;
+    }
+    public static int getEquipChargeThreshold() {
+        return equipChargeThreshold;
+    }
+
+    public static void setEquipChargeThreshold(int equipChargeThreshold) {
+        SnowScriptGraphics.equipChargeThreshold = equipChargeThreshold;
+    }
+
+    public static void setChargeThreshold(int chargeThreshold) {
+        SnowScriptGraphics.chargeThreshold = chargeThreshold;
+    }
+
+    private void filterItems() {
+        filteredItems.clear();
+        for (String item : allItems) {
+            if (item.toLowerCase().contains(filterText.toLowerCase())) {
+                filteredItems.add(item);
+            }
+        }
+    }
+
 
 
     @Override
@@ -1165,8 +1199,9 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                         "Have restore potions in preset if using familiar",
                                         "Soul altar will only work with protean essence",
                                         "if soul altar, start next to it",
+                                        "YOU MUST HAVE - RING OF DUELING + PASSING BRACELET",
                                         "you have to choose a ring choice",
-                                        "meaning you need passing bracelet for this to work",
+                                        "either keep passing bracelet in backpack or wear it",
                                         "unless your doing soul altar",
                                         "if you like this script, consider looking at RCWithUs",
                                 };
@@ -1262,53 +1297,39 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         ImGui.SeparatorText("Archaeology Options");
 
+                        ImGui.SetItemWidth(200.0F);
+                        filterText = ImGui.InputText("##FilterAndName", filterText);
+                        setName(filterText);
+
+                        filterItems();
+
+                        ImGui.SameLine();
                         if (ImGui.Button("Enter Excavation Name")) {
                             addName(getName());
-                            ScriptConsole.println("Excavation added: " + getName());
+                            log("Excavation added: " + getName());
                             setName("");
+                            filterText = "";
                         }
-                        ImGui.SameLine();
-                        ImGui.SetItemWidth(200.0F);
-                        Rock1 = ImGui.InputText("##Excavation Name", getName());
 
-                        List<String> comboItemsList = new ArrayList<>(predefinedNames);
-                        comboItemsList.add(0, "                          Select Excavation Name");
-                        String[] comboItems = comboItemsList.toArray(new String[0]);
+                        List<String> combinedFilteredItems = new ArrayList<>();
+                        combinedFilteredItems.add("Select an item...");  // Placeholder
+                        combinedFilteredItems.addAll(filteredItems);
+                        if (MaterialCache) {
+                            for (String item : predefinedCacheNames) {
+                                if (item.toLowerCase().contains(filterText.toLowerCase())) {
+                                    combinedFilteredItems.add(item);
+                                }
+                            }
+                        }
+                        String[] comboItems = combinedFilteredItems.toArray(new String[0]);
 
-                        List<String> cacheItemsList = new ArrayList<>(predefinedCacheNames);
-                        cacheItemsList.add(0, "                            Select Material Cache");
-                        String[] Caches = cacheItemsList.toArray(new String[0]);
-
-                        NativeInteger excavationItemIndex = new NativeInteger(0);
-                        NativeInteger cacheItemIndex = new NativeInteger(0);
-
-                        ImGui.SetItemWidth(362.0F);
-                        setStyleColor(ImGuiCol.CheckMark, 32, 77, 30, 200);
-
-                        if (ImGui.Combo("##excavationCombo", excavationItemIndex, comboItems)) {
-                            int selectedIndex = excavationItemIndex.get();
+                        if (ImGui.Combo("##DynamicComboBox", selectedItemIndex, comboItems)) {
+                            int selectedIndex = selectedItemIndex.get();
                             if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                                 String selectedName = comboItems[selectedIndex];
                                 addName(selectedName);
-                                ScriptConsole.println("Predefined excavation added: " + selectedName);
-                                excavationItemIndex.set(0);
-                            } else {
-                                ScriptConsole.println("Please select a valid excavation.");
-                            }
-                        }
-                        ImGui.SetItemWidth(362.0F);
-                        if (MaterialCache) {
-                            if (ImGui.Combo("##cacheCombo", cacheItemIndex, Caches)) {
-                                int selectedIndex = cacheItemIndex.get();
-                                if (selectedIndex > 0 && selectedIndex < Caches.length) {
-                                    String selectedName = Caches[selectedIndex];
-                                    addName(selectedName);
-                                    MaterialCache = true;
-                                    ScriptConsole.println("Predefined material cache added: " + selectedName);
-                                    cacheItemIndex.set(0);
-                                } else {
-                                    ScriptConsole.println("Please select a valid cache.");
-                                }
+                                log("Predefined excavation/material cache added: " + selectedName);
+                                selectedItemIndex.set(0);
                             }
                         }
 
@@ -1326,13 +1347,14 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 ImGui.TableNextColumn();
                                 if (ImGui.Button("Remove##" + name)) {
                                     removeName(name);
-                                    MaterialCache = false;
-                                    ScriptConsole.println("Excavation name removed: " + name);
+                                    log("Excavation name removed: " + name);
                                 }
                             }
                             ImGui.EndTable();
                         }
+
                         if (useGote) {
+                            ImGui.SeparatorText("GOTE/Porter Options");
                             ImGui.SetItemWidth(200.0F);
                             if (ImGui.Combo("Type of Porter", currentPorterType, porterTypes)) {
                                 int selectedIndex = currentPorterType.get();
@@ -1353,6 +1375,33 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 } else {
                                     ScriptConsole.println("Please select a valid quantity.");
                                 }
+                            }
+                            ImGui.SeparatorText("Set Porter Withdraw Threshold from bank");
+                            ImGui.SetItemWidth(100.0F);
+                            int newThreshold = getChargeThreshold();
+                            newThreshold = ImGui.InputInt("##ChargeThreshold", newThreshold);
+                            if (newThreshold < 0) {
+                                newThreshold = 0;
+                            } else if (newThreshold > 2000) {
+                                newThreshold = 2000;
+                            }
+                            setChargeThreshold(newThreshold);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("if banking due to full inv, it will withdraw porters if porter count is below this threshold");
+                            }
+
+                            ImGui.SeparatorText("Set Porter Equip Charge Threshold from Inventory");
+                            ImGui.SetItemWidth(100.0F);
+                            int newEquipThreshold = getEquipChargeThreshold();
+                            newEquipThreshold = ImGui.InputInt("##EquipChargeThreshold", newEquipThreshold);
+                            if (newEquipThreshold < 0) {
+                                newEquipThreshold = 0;
+                            } else if (newEquipThreshold > 2000) {
+                                newEquipThreshold = 2000;
+                            }
+                            setEquipChargeThreshold(newEquipThreshold);
+                            if (ImGui.IsItemHovered()) {
+                                ImGui.SetTooltip("Will equip/charge porters when the current one reaches this threshold OR will bank if none are available in backpack");
                             }
                         }
 
@@ -1973,6 +2022,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     "it will manually withdraw highest tier fish",
                                     "and will save the preset",
                                     "Will use Bank chest or Bank booth to withdraw food",
+                                    "Use at a Portable Range or a cooking range such as",
+                                    "Catherby or Forts",
+                                    "if doing AIO, it will load new fish once existing fish is cooked",
+                                    "so have the right amount of fish for the levels required +5/10%",
                                     "Will use any type of Cooking potion to boost cooking level"
                             };
 
