@@ -1,4 +1,4 @@
-package net.botwithus
+package net.botwithus.Cooking
 
 import net.botwithus.CustomLogger.log
 import net.botwithus.api.game.hud.inventories.Backpack
@@ -14,7 +14,6 @@ import net.botwithus.rs3.game.scene.entities.characters.player.Player
 import net.botwithus.rs3.game.scene.entities.`object`.SceneObject
 import net.botwithus.rs3.game.skills.Skills
 import net.botwithus.rs3.script.Execution
-import net.botwithus.rs3.script.ScriptConsole
 import java.util.*
 
 class Cooking {

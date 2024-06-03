@@ -1,17 +1,11 @@
-package net.botwithus;
+package net.botwithus.Divination;
 
-import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Equipment;
-import net.botwithus.api.game.hud.inventories.EquipmentInventory;
 import net.botwithus.inventory.backpack;
-import net.botwithus.inventory.equipment;
-import net.botwithus.rs3.events.impl.ChatMessageEvent;
-import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
-import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
@@ -28,16 +22,11 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
-import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Runecrafting.ScriptState.TELEPORTING;
-import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.Variables.Variables.*;
 
 public class Divination {

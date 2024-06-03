@@ -1,9 +1,9 @@
-package net.botwithus;
+package net.botwithus.Archaeology;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.backpack;
-import net.botwithus.inventory.bank;
 import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;

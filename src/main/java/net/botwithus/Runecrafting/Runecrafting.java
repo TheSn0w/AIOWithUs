@@ -1,4 +1,4 @@
-package net.botwithus;
+package net.botwithus.Runecrafting;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Runecrafting.ScriptState.*;
+import static net.botwithus.Runecrafting.Runecrafting.ScriptState.*;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 

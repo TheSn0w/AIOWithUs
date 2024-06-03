@@ -204,7 +204,7 @@ public class PredefinedStrings {
     public static List<String> pouchName = List.of(
             "Geyser titan pouch"
     );
-    static Map<Integer, String> secondaryItemName = new HashMap<>();
+    public static Map<Integer, String> secondaryItemName = new HashMap<>();
     static {
         secondaryItemName.put(1444, "Water talisman");
     }

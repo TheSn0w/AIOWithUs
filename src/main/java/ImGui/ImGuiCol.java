@@ -1,5 +1,7 @@
 package ImGui;
 
+import net.botwithus.rs3.imgui.ImGui;
+
 public class ImGuiCol {
     public static final int  Text = 0;
     public static final int  TextDisabled = 1;
@@ -56,5 +58,19 @@ public class ImGuiCol {
     public static final int  NavWindowingHighlight = 52;
     public static final int  NavWindowingDimBg = 53;
     public static final int  ModalWindowDimBg = 54;
+
+    public static void setStyleColor(int colorEnum, int r, int g, int b, int a) {
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+        a = Math.max(0, Math.min(255, a));
+
+        float floatColorR = r / 255.0f;
+        float floatColorG = g / 255.0f;
+        float floatColorB = b / 255.0f;
+        float floatColorA = a / 255.0f;
+
+        ImGui.PushStyleColor(colorEnum, floatColorR, floatColorG, floatColorB, floatColorA);
+    }
 
 }

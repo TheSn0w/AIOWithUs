@@ -1,5 +1,6 @@
 package ImGui;
 
+import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.script.ScriptConsole;
 
 import java.io.File;
@@ -27,5 +28,15 @@ public class VersionManager {
 
         String version = versionProps.getProperty(VERSION_KEY, "1.0");
         return version;
+    }
+    public static void displayVersion(float windowWidth) {
+        String versionText = "V" + VersionManager.getVersion();
+
+        float versionTextWidth = ImGui.CalcTextSize(versionText).getX();
+        float rightAlignedX = windowWidth - versionTextWidth - 23;
+
+        ImGui.SetCursorPosX(rightAlignedX);
+        ImGui.SetCursorPosY(20);
+        ImGui.Text(versionText);
     }
 }

@@ -1,4 +1,4 @@
-package net.botwithus;
+package net.botwithus.Agility;
 
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Coordinate;

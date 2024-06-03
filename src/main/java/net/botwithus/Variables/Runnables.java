@@ -1,18 +1,24 @@
 package net.botwithus.Variables;
 
-import net.botwithus.*;
+import net.botwithus.Agility.Agility;
+import net.botwithus.Archaeology.Archeology;
+import net.botwithus.Combat.Combat;
+import net.botwithus.Cooking.Cooking;
+import net.botwithus.Divination.Divination;
+import net.botwithus.Fishing.Fishing;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Misc.*;
+import net.botwithus.Runecrafting.Runecrafting;
+import net.botwithus.Thieving.Thieving;
+import net.botwithus.Woodcutting.Woodcutting;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 
-import java.util.Collections;
 import java.util.List;
 
-import static net.botwithus.Mining.handleSkillingMining;
+import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
-import static net.botwithus.Misc.Urns.*;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.isMakeUrnsActive;
 

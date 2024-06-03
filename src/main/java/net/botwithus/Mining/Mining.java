@@ -1,4 +1,4 @@
-package net.botwithus;
+package net.botwithus.Mining;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;

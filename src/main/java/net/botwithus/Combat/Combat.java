@@ -1,5 +1,6 @@
-package net.botwithus;
+package net.botwithus.Combat;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;

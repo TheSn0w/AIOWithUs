@@ -1,6 +1,10 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
+import net.botwithus.Archaeology.Archeology;
+import net.botwithus.Combat.Combat;
+import net.botwithus.Cooking.Cooking;
+import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Bank;
@@ -23,9 +27,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 import static ImGui.Theme.*;
-import static net.botwithus.Combat.*;
+import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
+import static net.botwithus.Runecrafting.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
