@@ -10,6 +10,7 @@ import net.botwithus.rs3.script.Execution;
 import java.util.Collections;
 import java.util.List;
 
+import static net.botwithus.Mining.handleSkillingMining;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Misc.Urns.*;
 import static net.botwithus.Variables.Variables.*;
@@ -39,7 +40,7 @@ public class Runnables {
         List<String> selectedRockNames = getSelectedRockNames();
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            Execution.delay(Mining.handleMining(player, Collections.singletonList(selectedRockNames.get(0))));
+            Execution.delay(handleSkillingMining(player, selectedRockNames));
         }
     }
 

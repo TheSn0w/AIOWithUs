@@ -292,7 +292,14 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Woodcutting at any spot using any option`");
                         }
-                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Use Nearest Bank", () -> {
+                            nearestBank = !nearestBank;
+                            if (nearestBank) {
+                                log("Nearest bank enabled");
+                            } else {
+                                log("Nearest bank disabled");
+                            }
+                        }, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
@@ -526,9 +533,12 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 String[] texts = {
                                         "Currently does 1-5 @ Pompous Merchant",
                                         "Currently does 5-42 @ Bakery Stall",
-                                        "Currently does 42-99 @ Crux Druid",
+                                        "Currently does 42-82 @ Crux Druid",
+                                        "Currently does 83-99 @ Crux Knight",
                                         "Crystal Mask Support + Lightform",
+                                        "just have on action bar",
                                         "Will Bank to Load Last Preset for food",
+                                        "have 4-8 pieces of food in preset to allow space",
                                         "if you like this script, consider looking at Pzoots Thiever",
                                 };
 

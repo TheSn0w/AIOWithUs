@@ -38,6 +38,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.TaskScheduler.shutdown;
+import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
 
 
@@ -105,7 +106,7 @@ public class SnowsScript extends LoopingScript {
 
             case BANKING -> {
                 if (nearestBank) {
-                    Execution.delay(useTheNearestBank(player));
+                    Execution.delay(performBanking(player));
                 }
                 if (isArcheologyActive)
                     Execution.delay(Archeology.BankforArcheology(player, selectedArchNames));
@@ -442,33 +443,6 @@ public class SnowsScript extends LoopingScript {
         }
     }
 
-    public static class ComponentTextRetriever {
-        public String getComponentText() {
-            Component component = ComponentQuery.newQuery(1466)
-                    .componentIndex(12)
-                    .subComponentIndex(1)
-                    .results()
-                    .first();
-
-            if (component == null) {
-                return "[Main] Component not found";
-            }
-
-            return component.getText();
-        }
-    }
-    public static int getTextValue() {
-        ComponentTextRetriever textRetriever = new ComponentTextRetriever();
-        String text = textRetriever.getComponentText();
-
-        try {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            log("[Error] Could not parse text to integer.");
-            return 0;
-        }
-    }
-
     public static void setLastSkillingLocation(Coordinate location) {
         Variables.lastSkillingLocation = location;
     }
@@ -489,108 +463,23 @@ public class SnowsScript extends LoopingScript {
     }
 
 
-    public static long useTheNearestBank(LocalPlayer player) {
-        if (player.isMoving()) {
-            return random.nextLong(1500, 3000);
-        }
-
-        Coordinate nearestBank = findNearestBank(player.getCoordinate());
-        if (nearestBank != null) {
-            double distanceToBank = Distance.between(player.getCoordinate(), nearestBank);
-
-            String bankType = (nearestBank == STORMGUARD|| nearestBank == WarsRetreat || nearestBank == Anachronia || nearestBank == PrifddinasEast || nearestBank == CityOfUm || nearestBank == SmithingGuild || nearestBank == KharidEt || nearestBank == Lumbridge || nearestBank == VIP || nearestBank == prifWest) ? "Bank chest" :
-                    (nearestBank == Edgeville || nearestBank == Draynor) ? "Counter" :
-                            "Bank booth";
-            List<SceneObject> bankBooths = SceneObjectQuery.newQuery().name(bankType).results().stream()
-                    .filter(booth -> booth.getCoordinate().distanceTo(player.getCoordinate()) < 25.0D)
-                    .toList();
-
-            SceneObject randomBankBooth;
-            if (!bankBooths.isEmpty()) {
-                randomBankBooth = bankBooths.get(random.nextInt(bankBooths.size()));
-
-                if (distanceToBank < 25.0D) {
-                    log("[Main] Bank is near, interacting with nearest bank");
-                    return interactWithBank(player, randomBankBooth);
-                }
-            } else {
-                log("[Main] Bank is far, traversing to bank");
-                Movement.traverse(NavPath.resolve(nearestBank));
-            }
-        } else {
-            log("[Error] Nearest bank not found.");
-        }
-        return random.nextLong(1500, 3000);
-    }
-
-    public static Coordinate findNearestBank(Coordinate playerPosition) {
-        int textValue = getTextValue();
-
-        List<Coordinate> bankCoordinates = Arrays.asList(
-                WarsRetreat, STORMGUARD, SmithingGuild, prifWest, VIP, AlKharid, Edgeville, Burthorpe, KharidEt, Catherby, Anachronia, CityOfUm, PrifddinasCenter, PrifddinasEast, Yanille, Ooglog, ArdougneSouth, ArdougneNorth, Seers, Taverly, FaladorWest, FaladorEast, Lumbridge, Draynor, GrandExchange, VarrockEast, VarrockWest, Canafis
-        );
-
-        if (textValue >= 60) {
-            return bankCoordinates.stream()
-                    .min(Comparator.comparingDouble(bank -> Distance.between(playerPosition, bank)))
-                    .orElse(null);
-        }
-
-        List<Coordinate> otherBanks = bankCoordinates.stream()
-                .filter(bank -> !bank.equals(WarsRetreat))
-                .toList();
-
-        return otherBanks.stream()
-                .min(Comparator.comparingDouble(bank -> Distance.between(playerPosition, bank)))
-                .orElse(null);
-    }
 
 
-    private static long interactWithBank(LocalPlayer player, SceneObject nearestBankBooth) {
-        if (player.isMoving()) {
-            return random.nextLong(1500, 3000);
-        }
-        boolean actionBank = Backpack.containsItemByCategory(4448);
+    private static void depositAllExceptOreBox() {
+        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
+        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
 
-        if (actionBank) {
-            String interactionOption = "Bank";
-            boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-            log("[Main] Interacting with the bank: " + interactionSuccess);
+        if (oreBox != null) {
+            Bank.depositAllExcept(oreBoxesPattern);
+            log("[Main] Deposited everything except: " + oreBox.getName());
 
-            if (interactionSuccess) {
-                Execution.delayUntil(15000, Bank::isOpen);
-                if (Bank.isOpen()) {
-                    Execution.delay(random.nextLong(1500, 3000));
-                    Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
-                    Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
-
-                    if (oreBox != null) {
-                        Bank.depositAllExcept(oreBoxesPattern);
-                        log("[Main] Deposited everything except: " + oreBox.getName());
-
-                        if (oreBox.getSlot() >= 0) {
-                            MiniMenu.interact(ComponentAction.COMPONENT.getType(), 8, oreBox.getSlot(), 33882127);
-                            log("[Main] Emptied: " + oreBox.getName());
-                        }
-                    }
-                }
-            }
-        } else {
-            String interactionOption = "Load Last Preset from";
-            boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-            log("[Main] Interacting with the bank using Load Last Preset: " + interactionSuccess);
-
-            Execution.delayUntil(15000, () -> !Backpack.isFull());
-
-            if (!Backpack.isFull()) {
-                log("[Main] Backpack is not full, returning to last skilling location.");
-                if (Movement.traverse(NavPath.resolve(getLastSkillingLocation())) == TraverseEvent.State.FINISHED) {
-                    setBotState(SKILLING);
-                }
+            if (oreBox.getSlot() >= 0) {
+                MiniMenu.interact(ComponentAction.COMPONENT.getType(), 8, oreBox.getSlot(), 33882127);
+                log("[Main] Emptied: " + oreBox.getName());
             }
         }
-        return random.nextLong(1500, 3000);
     }
+
 
 
     public void saveConfiguration() {

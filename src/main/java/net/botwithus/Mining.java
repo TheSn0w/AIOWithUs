@@ -10,6 +10,7 @@ import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
+import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -25,8 +26,11 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 
@@ -36,118 +40,54 @@ public class Mining {
 
     public Mining(SnowsScript script) {
         this.skeletonScript = script;
-        this.coordinateMap = new HashMap<>();
-        this.methodMap = new HashMap<>();
-        this.initializeCoordinateMap();
-    }
-    Map<String, Supplier<Long>> methodMap;
-    static Map<String, Coordinate> coordinateMap;
-
-    private void initializeCoordinateMap() {
-        coordinateMap = new HashMap<>();
-
-
-        coordinateMap.put("Adamantite rock", new Coordinate(3287, 3362, 0));
-        coordinateMap.put("Mithril rock", new Coordinate(3287, 3362, 0));
-        coordinateMap.put("Tin rock", new Coordinate(3180, 3368, 0));
-        coordinateMap.put("Copper rock", new Coordinate(3180, 3368, 0));
-        coordinateMap.put("Iron rock", new Coordinate(3180, 3368, 0));
-
     }
 
 
-    public static boolean isNearPlayer(LocalPlayer player, List<String> selectedRockNames) {
-        if (selectedRockNames == null || selectedRockNames.isEmpty()) {
-            return false;
+    private static long handleBackpack(LocalPlayer player) {
+        if (!Backpack.isFull()) {
+            return 0;
         }
 
-        Coordinate playerCoordinate = player.getCoordinate();
-
-        SceneObject nearestTarget = SceneObjectQuery.newQuery()
-                .name(selectedRockNames.toArray(new String[0]))
-                .results()
-                .nearest();
-
-        if (nearestTarget == null) {
-            return false;
+        if (Backpack.containsItemByCategory(4448)) {
+            Execution.delay(fillOreBox());
+            if (Backpack.isFull()) {
+                sendToBank(player);
+                log("[Mining] Backpack is still full after filling ore box. Changing state to BANKING.");
+                return random.nextLong(1500, 3000);
+            }
+            return random.nextLong(500, 1000);
         }
 
-        Coordinate targetCoordinate = nearestTarget.getCoordinate();
-        double distance = Distance.between(playerCoordinate, targetCoordinate);
-
-        return distance <= 15.0;
-    }
-
-    public static long handleMining(LocalPlayer player, List<String> selectedRockNames) {
-        if (isNearPlayer(player, selectedRockNames)) {
-            return handleSkillingMining(player, selectedRockNames);
-        } else {
-            return handleTraversal(player, selectedRockNames);
-        }
-    }
-
-    public static long handleTraversal(LocalPlayer player, List<String> selectedRockNames) {
-        if (selectedRockNames == null || selectedRockNames.isEmpty()) {
-            log("[Error] No rock names provided.");
-            return random.nextLong(1500, 3000);
+        if (nearestBank) {
+            sendToBank(player);
+            return random.nextLong(500, 1000);
         }
 
-        String targetName = selectedRockNames.get(0);
-        Coordinate baseCoordinate = coordinateMap.get(targetName);
-
-        if (baseCoordinate == null) {
-            log("[Error] No coordinate for " + targetName);
-            return random.nextLong(1500, 3000);
-        }
-
-        log("[Mining] Moving to random location near " + targetName);
-
-        Movement.traverse(NavPath.resolve(baseCoordinate));
-
+        log("[Mining] Backpack is full. Dropping all ores.");
+        dropAllOres();
         return random.nextLong(1500, 3000);
     }
 
-    private static long handleBackpack(LocalPlayer player) {
-        if (Backpack.isFull()) {
-            if (nearestBank) {
-                if (!Backpack.containsItemByCategory(4448)) {
-                    sendToBank(player);
-                    return random.nextLong(1500, 3000);
-                }
-
-                long oreBoxDelay = fillOreBox();
-                if (oreBoxDelay > 0) {
-                    if (Backpack.isFull()) {
-                        sendToBank(player);
-                        return oreBoxDelay;
-                    } else {
-                        return random.nextLong(500, 1000);
-                    }
-                }
-            }
-
-            dropAllOres();
-            return random.nextLong(1500, 3000);
-        }
-
-        return 0;
-    }
-
     private static long fillOreBox() {
-        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
+        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
+
+        Item oreBox = InventoryItemQuery.newQuery().name(oreBoxesPattern).results().first();
 
         if (oreBox != null) {
-            boolean interactionSuccess = backpack.interact(oreBox.getName(), "Fill");
-            Execution.delay(random.nextInt(1500, 3500));
+            int oreBoxSlot = oreBox.getSlot();
 
-            if (interactionSuccess) {
+            component(1, oreBoxSlot, 96534533);
+
+            Execution.delayUntil(random.nextInt(4500, 6000), () -> !Backpack.isFull());
+
+            if (!Backpack.isFull()) {
                 log("[Mining] Filled: " + oreBox.getName());
                 return random.nextLong(1500, 3000);
             } else {
                 log("[Error] Failed to interact with the ore box.");
             }
         } else {
-            log("[Error] No ore box found.");
+            log("[Error] Ore box not found in the backpack.");
         }
 
         return 0;
@@ -157,12 +97,12 @@ public class Mining {
     private static void sendToBank(LocalPlayer player) {
         setLastSkillingLocation(player.getCoordinate());
         Execution.delay(random.nextLong(1500, 3000));
-        SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+        setBotState(BANKING);
         log("[Mining] Traversing to bank.");
     }
 
     private static void dropAllOres() {
-        log("[Mining] Backpack is full. Dropping all ores...");
+        log("[Mining] Backpack is full. Dropping all ores... its faster to drop from actionbar :)");
 
         ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
 
@@ -177,7 +117,7 @@ public class Mining {
                         log("[Mining] Dropping (ActionBar): " + itemName);
                         Execution.delay(random.nextLong(206, 405));
                     }
-                } else if (category == 91) { // Use Backpack fallback
+                } else if (category == 91) {
                     boolean success = backpack.interact(itemName, "Drop");
                     if (success) {
                         log("[Mining] Dropping (Backpack): " + itemName);
@@ -229,11 +169,13 @@ public class Mining {
         for (String rockName : selectedRockNames) {
             SceneObject nearestRock = SceneObjectQuery.newQuery().name(rockName).results().nearest();
 
-            if (nearestRock != null) {
+            if (nearestRock != null && Distance.between(player, nearestRock) <= 25.0D) {
                 if (nearestRock.interact("Mine")) {
                     log("[Mining] Interacted with: " + rockName);
                     Execution.delayUntil(RandomGenerator.nextInt(1500, 3000), () -> player.getAnimationId() == -1);
                 }
+            } else {
+                log("[Error] Rock is too far away to interact, move closer.");
             }
         }
         return random.nextLong(1500, 3000);

@@ -29,6 +29,8 @@ import net.botwithus.rs3.script.ScriptConsole;
 import java.util.*;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.logCount;
@@ -62,8 +64,142 @@ public class Woodcutting {
     private static long lastCrystalliseCast = 0;
     public static boolean crystalliseMahogany = false;
 
-
     public static long handleSkillingWoodcutting(LocalPlayer player, List<String> selectedTreeNames) {
+        if (Backpack.isFull()) {
+            return handleFullBackpack(player);
+        }
+
+        if (player.isMoving() || player.getAnimationId() != -1) {
+            return random.nextLong(1500, 7000);
+        }
+
+        if (acadiaTree || acadiaVIP) {
+            return handleAcadiaTree();
+        } else {
+            return handleOtherTrees(selectedTreeNames);
+        }
+    }
+
+    public static long handleFullBackpack(LocalPlayer player) {
+        if (nearestBank) {
+            setLastSkillingLocation(player.getCoordinate());
+            log("[Woodcutting] Backpack is full. We're banking.");
+            setBotState(BANKING);
+            return random.nextLong(1500, 3000);
+        }
+
+        log("[Woodcutting] Backpack is full. Dropping all logs...");
+        dropAllLogs();
+        return random.nextLong(1500, 3000);
+    }
+
+    public static void dropAllLogs() {
+        ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
+
+        for (Item item : allItems) {
+            if (item != null) {
+                String itemName = item.getName();
+                int category = item.getConfigType().getCategory();
+
+                if (ActionBar.containsItem(itemName)) {
+                    boolean success = ActionBar.useItem(itemName, "Drop");
+                    if (success) {
+                        log("[Woodcutting] Dropping (ActionBar): " + itemName);
+                        Execution.delay(random.nextLong(206, 405));
+                    }
+                } else if (category == 22) {
+                    boolean success = backpack.interact(itemName, "Drop");
+                    if (success) {
+                        log("[Woodcutting] Dropping (Backpack): " + itemName);
+                        Execution.delay(random.nextLong(620, 650));
+                    }
+                }
+            }
+        }
+    }
+
+    public static long handleAcadiaTree() {
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Acadia tree").option("Cut down").results();
+        if (results.isEmpty()) {
+            log("[Error] No Acadia trees found.");
+            return random.nextLong(750, 1000);
+        } else {
+            return interactWithAcadiaTree(results);
+        }
+    }
+
+    public static long interactWithAcadiaTree(EntityResultSet<SceneObject> results) {
+            if (results.isEmpty()) {
+                log("[Error] No Acadia trees found.");
+            } else {
+                SceneObject nearestTree = results.nearest();
+                if (nearestTree == null) {
+                    log("[Error] Nearest tree is null.");
+                } else {
+                    currentTreeCoordinate = nearestTree.getCoordinate();
+
+                    SceneObject treeStump = SceneObjectQuery.newQuery().name("Tree stump").results().nearestTo(currentTreeCoordinate);
+                    if (treeStump == null || !treeStump.getCoordinate().equals(currentTreeCoordinate)) {
+                        log("[Woodcutting] Interacting with the nearest tree again.");
+                        if (nearestTree.interact("Cut down")) {
+                            log("[Woodcutting] Successfully re-interacted with the nearest tree.");
+                            Execution.delay(random.nextLong(1500, 3000));
+                        } else {
+                            log("[Error] Failed to re-interact with the nearest tree.");
+                        }
+                    } else {
+                        List<Coordinate> currentTreeCoordinates = new ArrayList<>();
+                        if (acadiaVIP) {
+                            currentTreeCoordinates = vipTreeCoordinates;
+                            log("[Woodcutting] VIP mode is active. Using VIP tree coordinates.");
+                        } else if (acadiaTree) {
+                            currentTreeCoordinates = treeCoordinates;
+                            log("[Woodcutting] Acadia tree mode is active. Using regular tree coordinates.");
+                        }
+                        Collections.shuffle(currentTreeCoordinates); // Shuffle the treeCoordinates list
+                        currentTreeIndex = (currentTreeIndex + 1) % currentTreeCoordinates.size();
+                        Coordinate nextTreeCoordinate = currentTreeCoordinates.get(currentTreeIndex);
+
+                        SceneObject nextTreeStump = SceneObjectQuery.newQuery().name("Tree stump").results().nearestTo(nextTreeCoordinate);
+                        if (nextTreeStump != null && nextTreeStump.getCoordinate().equals(nextTreeCoordinate)) {
+                            log("[Woodcutting] Tree stump found at the next tree coordinate. Skipping this coordinate.");
+                        } else {
+                            SceneObject nextTree = SceneObjectQuery.newQuery().name("Acadia tree").option("Cut down").results().stream()
+                                    .filter(tree -> tree.getCoordinate().equals(nextTreeCoordinate))
+                                    .findFirst()
+                                    .orElse(null);
+
+                            if (nextTree == null) {
+                                log("[Error] Next tree at designated coordinates not found.");
+                            } else if (!nextTree.interact("Cut down")) {
+                                log("[Error] Failed to interact with the next tree.");
+                            } else {
+                                log("[Woodcutting] Interacted with another tree at: " + nextTreeCoordinate);
+                                Execution.delay(random.nextLong(1500, 3000));
+                            }
+                        }
+                    }
+                }
+            }
+        return random.nextLong(750, 1000);
+    }
+
+    public static long handleOtherTrees(List<String> selectedTreeNames) {
+        for (String treeName : selectedTreeNames) {
+            SceneObject nearestTree = SceneObjectQuery.newQuery().name(treeName).option("Chop down").hidden(false).results().nearest();
+            if (nearestTree != null) {
+                boolean Success = nearestTree.interact("Chop down");
+                if (Success) {
+                    log("[Woodcutting] Interacted with: " + treeName);
+                    return random.nextLong(750, 1000);
+                }
+            }
+        }
+        return random.nextLong(750, 1000);
+    }
+
+
+    /*public static long handleSkillingWoodcutting(LocalPlayer player, List<String> selectedTreeNames) {
         if (Backpack.isFull()) {
             if (nearestBank) {
                 setLastSkillingLocation(player.getCoordinate());
@@ -175,7 +311,8 @@ public class Woodcutting {
             }
         }
         return random.nextLong(750, 1000);
-    }
+    }*/
+
     private static final int TREE_OBJECT_ID = 109007; // Acadia in VIP
     static Player player = Client.getLocalPlayer();
 

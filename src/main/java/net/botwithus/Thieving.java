@@ -22,15 +22,12 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.useTheNearestBank;
+import static net.botwithus.Variables.BankInteractions.performBanking;
 
 public class Thieving {
     private static final Random random = new Random();
@@ -271,14 +268,15 @@ public class Thieving {
 
 
     private static void activateLightForm() {
-        if(ActionBar.useAbility("Light Form")) {
+        if (ActionBar.useAbility("Light Form")) {
             log("[Thieving] Light Form activated.");
         }
     }
+
     public static void eatFood(LocalPlayer player) {
         boolean isPlayerEating = player.getAnimationId() == 18001;
         double healthPercentage = calculateHealthPercentage(player);
-        boolean isHealthAboveThreshold = healthPercentage > 5;
+        boolean isHealthAboveThreshold = healthPercentage > 99;
 
 
         if (isPlayerEating || isHealthAboveThreshold) {
@@ -301,9 +299,9 @@ public class Thieving {
         Item food = foodItems.isEmpty() ? null : foodItems.first();
 
         if (food == null) {
-                log("[EatFood] No food found. Banking for food.");
-                Execution.delay(bankForfood(player));
-                return random.nextLong(1500, 3000);
+            log("[Error] No food found. Banking for food.");
+            Execution.delay(bankForfood(player));
+            return random.nextLong(1500, 3000);
         }
 
         boolean eatSuccess = backpack.interact(food.getName(), "Eat");
@@ -316,25 +314,9 @@ public class Thieving {
         }
         return 0;
     }
+
     public static long bankForfood(LocalPlayer player) {
-        SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").option("Bank").results().nearest();
-        if (bankChest != null) {
-            boolean bankInteractionSuccess = bankChest.interact("Load Last Preset from");
-            if (bankInteractionSuccess) {
-                log("[Thieving] Interacted with Bank chest.");
-                Execution.delayUntil(15000, () -> Backpack.containsItemByCategory(58));
-                if (Backpack.containsItemByCategory(58)) {
-                    log("[Thieving] Food found in backpack.");
-                    handleThieving(player);
-                }
-            } else {
-                log("[Error] Bank chest interaction failed.");
-            }
-        } else {
-            log("[Error] BankChest not found, traversing to bank to withdraw food from load last preset");
-            useTheNearestBank(player);
-            Execution.delay(random.nextLong(7000, 7500));
-        }
-        return random.nextLong(1500, 3000);
+        performBanking(player);
+        return random.nextLong(1500, 3000);  // Return a delay
     }
 }
