@@ -111,8 +111,9 @@ public class SnowsScript extends LoopingScript {
                 if (nearestBank) {
                     Execution.delay(performBanking(player));
                 }
-                if (isArcheologyActive)
+                if (isArcheologyActive) {
                     Execution.delay(BankforArcheology(player, selectedArchNames));
+                }
                 if (isCombatActive) {
                         Execution.delay(bankToWars(player));
                 }
@@ -330,6 +331,9 @@ public class SnowsScript extends LoopingScript {
                 itemType = itemType.replace(".", "");
                 int count = portersMade.getOrDefault(itemType, 0);
                 portersMade.put(itemType, count + 1);
+
+                // Decrease task count
+                TaskScheduler.decreaseTaskCount("Porter Making");
             }
         }
         if (isRunecraftingActive) {

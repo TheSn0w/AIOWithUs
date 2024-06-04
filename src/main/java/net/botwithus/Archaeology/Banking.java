@@ -1,7 +1,9 @@
 package net.botwithus.Archaeology;
 
+import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -29,6 +31,7 @@ import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Banking {
 
@@ -69,13 +72,13 @@ public class Banking {
     }
 
     public static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
         interactWithBankChest();
         log("[Archaeology] Waiting for bank to open.");
         waitForBankToOpen();
 
         ResultSet<Item> soilBox = findSoilBoxInInventory();
         if (Interfaces.isOpen(517)) {
-            log("[Archaeology] Bank is open.");
 
             delayRandomly();
             log("[Archaeology] Depositing all items except selected.");
@@ -90,9 +93,16 @@ public class Banking {
                     component(1, -1, 33882270);
                     Execution.delay(random.nextLong(1000, 2000));
                 } else {
-                    log("[Combat] Bank Tab value is already 1");
+                    log("[Archaeology] Bank Tab value is already 1");
                 }
                 handleGoteCharges();
+                Bank.close();
+                Execution.delay(random.nextLong(1500, 2500));
+                useBankingPorter();
+                Execution.delay(random.nextLong(1500, 2500));
+                if (varbitValue < getChargeThreshold()) {
+                    Execution.delay(handleBankingInteractionforPorter());
+                }
             }
 
             delayRandomly();
@@ -101,6 +111,83 @@ public class Banking {
         } else {
             log("[Error] Bank did not open.");
             return random.nextLong(750, 1250);
+        }
+    }
+
+    public static long handleBankingInteractionforPorter() {
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+
+        interactWithBankChestAndOpen();
+
+        if (Interfaces.isOpen(517)) {
+            handleBankInteraction(varbitValue);
+        }
+
+        return random.nextLong(1500, 2500);
+    }
+
+    private static void interactWithBankChestAndOpen() {
+        interactWithBankChest();
+        waitForBankToOpen();
+    }
+
+    private static void handleBankInteraction(int varbitValue) {
+        delayRandomly();
+
+        checkVarbitAndHandleGoteCharges();
+
+        closeBankAndUsePorter();
+
+        checkVarbitAndReturnOrRetry(varbitValue);
+    }
+
+    private static void checkVarbitAndHandleGoteCharges() {
+        if (VarManager.getVarbitValue(45141) != 1) {
+            component(1, -1, 33882270);
+            Execution.delay(random.nextLong(1000, 2000));
+        }
+        handleGoteCharges();
+    }
+
+    private static void closeBankAndUsePorter() {
+        Bank.close();
+        Execution.delay(random.nextLong(1500, 2500));
+        useBankingPorter();
+        Execution.delay(random.nextLong(1500, 2500));
+    }
+
+    private static void checkVarbitAndReturnOrRetry(int varbitValue) {
+        if (varbitValue >= getChargeThreshold()) {
+            log("[Success] we are above out theshold");
+        } else {
+            log("[Archaeology] Porters have " + varbitValue + " charges, but we need atleast: " + getChargeThreshold());
+            handleBankingInteractionforPorter();
+        }
+    }
+    public static void useBankingPorter() {
+        String currentPorter = porterTypes[currentPorterType.get()];
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+
+        if (Backpack.contains(currentPorter) && varbitValue <= getChargeThreshold()) {
+            if (equipment.contains("Grace of the elves")) {
+                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                if (interactionResult) {
+                    log("[Success] Interaction with Equipment was successful.");
+                } else {
+                    log("[Error] Interaction with Equipment failed.");
+                }
+            } else {
+                if (Backpack.contains(currentPorter)) {
+                    boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                    if (interactionResult) {
+                        log("[Success] Interaction with " + currentPorter + " was successful.");
+                    } else {
+                        log("[Error] Interaction with Backpack failed.");
+                    }
+                } else {
+                    log("[Error] No '" + currentPorter + "' found in the Backpack.");
+                }
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package ImGui.Skills;
 
+import net.botwithus.Misc.PorterMaker;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
@@ -15,11 +16,27 @@ import static ImGui.PredefinedStrings.pouchName;
 import static ImGui.PredefinedStrings.secondaryItemName;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
+import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.SnowsScript.*;
+import static net.botwithus.TaskScheduler.getTaskCount;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.tasks;
 
 public class MiscImGui {
+
+    private static int amount = 0;
+
+    // Getter for amount
+    public static int getAmount() {
+        return amount;
+    }
+
+    // Setter for amount
+    public static void setAmount(int newAmount) {
+        amount = newAmount;
+    }
+
+
 
     public static void renderMisc() {
         if (isMiscActive && !isDissasemblerActive && !showLogs) {
@@ -277,9 +294,7 @@ public class MiscImGui {
             if (isportermakerActive) {
                 if (tooltipsEnabled) {
                     String[] texts = {
-                            "Will only work with Sign of the Porter VII",
-                            "Needs Incandescent Energy to make Porters",
-                            "Need Dragonstone Necklace to make Porters",
+                            "Have Preset Ready Saved",
                             "Will use `Bank chest` or `Banker`"
                     };
 
@@ -296,7 +311,72 @@ public class MiscImGui {
 
                     ImGui.PopStyleColor(1);
                 }
-                ImGui.SeparatorText("Porters Made Count");
+                ImGui.SetCursorPosX(spacing);
+                MakePorterVII = ImGui.Checkbox("Porter VII", MakePorterVII);
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                MakePorterVI = ImGui.Checkbox("Porter VI", MakePorterVI);
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                MakePorterV = ImGui.Checkbox("Porter V", MakePorterV);
+
+                ImGui.SetCursorPosX(spacing);
+                MakePorterIV = ImGui.Checkbox("Porter IV", MakePorterIV);
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                MakePorterIII = ImGui.Checkbox("Porter III", MakePorterIII);
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                MakePorterII = ImGui.Checkbox("Porter II", MakePorterII);
+
+                ImGui.SetCursorPosX(spacing);
+                MakePorterI = ImGui.Checkbox("Porter I", MakePorterI);
+
+               /* ImGui.Text("Task");
+                ImGui.SameLine();
+                ImGui.Text("Amount to Create");
+                ImGui.SameLine();
+                ImGui.Text("Number Remaining");
+
+                for (String task : TaskScheduler.getTasks().keySet()) {
+                    ImGui.Text(task);
+                    ImGui.SameLine();
+                    ImGui.Text(String.valueOf(getTaskCount(task)));
+                    ImGui.SameLine();
+                    ImGui.Text(String.valueOf(getTaskCount(task) - portersMade.getOrDefault(task, 0)));
+                }
+
+
+                ImGui.InputInt("Set Amount", getTaskCount("Porters"), 1, 100, ImGuiWindowFlag.None.getValue());
+                if (ImGui.Button("Set")) {
+                    setAmount(amount);
+                    PorterMaker.userTaskCount = getAmount();
+                    log("[ImGui] User set a task with count: " + PorterMaker.userTaskCount);
+
+                    TaskScheduler.addTask("Porters", getAmount());
+                }
+
+                if (TaskScheduler.isTaskComplete("Porters")) {
+                    log("[ImGui] Task is complete.");
+                }
+
+// Display the tasks and their remaining counts
+                for (String task : PorterMaker.taskScheduler.getTasks().keySet()) {
+                    ImGui.Text(task);
+                    ImGui.SameLine();
+                    int remainingCount = getTaskCount(task);
+                    ImGui.Text("Remaining: " + remainingCount);
+                }*/
+
+
+
+
+
+                    ImGui.SeparatorText("Porters Made Count");
                 for (Map.Entry<String, Integer> entry : portersMade.entrySet()) {
                     ImGui.Text(entry.getKey() + ": " + entry.getValue());
                 }

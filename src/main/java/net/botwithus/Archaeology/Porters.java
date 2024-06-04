@@ -11,6 +11,7 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.getEquipChargeThreshold;
 import static net.botwithus.inventory.equipment.Slot.NECK;
@@ -27,7 +28,7 @@ public class Porters {
         String currentPorter = porterTypes[currentPorterType.get()];
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
-        if (net.botwithus.api.game.hud.inventories.Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+        if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
             log("[Archaeology] Porters have " + varbitValue + " charges. Charging.");
             log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
             if (equipment.contains("Grace of the elves")) {
@@ -38,7 +39,7 @@ public class Porters {
                     log("[Error] Interaction with Equipment failed.");
                 }
             } else {
-                if (net.botwithus.api.game.hud.inventories.Backpack.contains(currentPorter)) {
+                if (Backpack.contains(currentPorter)) {
                     boolean interactionResult = backpack.interact(currentPorter, "Wear");
                     if (interactionResult) {
                         log("[Archaeology] Interaction with Backpack was successful.");
@@ -70,6 +71,7 @@ public class Porters {
                 log("[Archaeology] Withdrew: " + selectedPorter + ".");
             } else {
                 log("[Error] Failed to withdraw " + selectedPorter + ".");
+                useGote = false;
             }
         }
     }
