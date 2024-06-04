@@ -2,6 +2,7 @@ package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
 import net.botwithus.Combat.Combat;
+import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Variables.Runnables;
@@ -27,7 +28,13 @@ import java.util.*;
 import java.util.regex.Pattern;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
+import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
+import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
+import static net.botwithus.Combat.Banking.bankToWars;
+import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Radius.enableRadiusTracking;
+import static net.botwithus.Combat.Radius.radius;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.TaskScheduler.shutdown;
@@ -106,6 +113,9 @@ public class SnowsScript extends LoopingScript {
                 }
                 if (isArcheologyActive)
                     Execution.delay(BankforArcheology(player, selectedArchNames));
+                if (isCombatActive) {
+                        Execution.delay(bankToWars(player));
+                }
             }
         }
     }
@@ -580,6 +590,11 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("isSiftSoilActive", String.valueOf(isSiftSoilActive));
         this.configuration.addProperty("chargeThreshold", String.valueOf(chargeThreshold));
         this.configuration.addProperty("equipChargeThreshold", String.valueOf(equipChargeThreshold));
+        this.configuration.addProperty("handleMultitarget", String.valueOf(handleMultitarget));
+        this.configuration.addProperty("targetThreshold", String.valueOf(getHealthThreshold()));
+        this.configuration.addProperty("PrayerPointsThreshold", String.valueOf(getPrayerPointsThreshold()));
+        this.configuration.addProperty("HealthPointsThreshold", String.valueOf(getHealthPointsThreshold()));
+
 
 
         this.configuration.save();
@@ -664,6 +679,25 @@ public class SnowsScript extends LoopingScript {
             isSiftSoilActive = Boolean.parseBoolean(this.configuration.getProperty("isSiftSoilActive"));
             chargeThreshold = Integer.parseInt(this.configuration.getProperty("chargeThreshold"));
             equipChargeThreshold = Integer.parseInt(this.configuration.getProperty("equipChargeThreshold"));
+            handleMultitarget = Boolean.parseBoolean(this.configuration.getProperty("handleMultitarget"));
+            String prayerPointsThresholdValue = this.configuration.getProperty("PrayerPointsThreshold");
+            if (prayerPointsThresholdValue != null && !prayerPointsThresholdValue.isEmpty()) {
+                int prayerPointsThreshold = Integer.parseInt(prayerPointsThresholdValue);
+                setPrayerPointsThreshold(prayerPointsThreshold);
+            }
+
+            String healthPointsThresholdValue = this.configuration.getProperty("HealthPointsThreshold");
+            if (healthPointsThresholdValue != null && !healthPointsThresholdValue.isEmpty()) {
+                int healthPointsThreshold = Integer.parseInt(healthPointsThresholdValue);
+                setHealthThreshold(healthPointsThreshold);
+            }
+            String targetThresholdValue = this.configuration.getProperty("targetThreshold");
+            if (targetThresholdValue != null && !targetThresholdValue.isEmpty()) {
+                double targetThreshold = Double.parseDouble(targetThresholdValue);
+                if (targetThreshold < 0.0) targetThreshold = 0.0;
+                else if (targetThreshold > 1.0) targetThreshold = 1.0;
+                setHealthThreshold(targetThreshold);
+            }
             String loadedItemToDisassemble = this.configuration.getProperty("selectedItemToDisassemble");
             if (loadedItemToDisassemble != null && !loadedItemToDisassemble.isEmpty()) {
                 Item = loadedItemToDisassemble;
@@ -688,7 +722,7 @@ public class SnowsScript extends LoopingScript {
                 int radius = Integer.parseInt(radiusValue);
                 if (radius < 0) radius = 0;
                 else if (radius > 25) radius = 25;
-                Combat.radius = radius;
+                Radius.radius = radius;
             }
             String necrosisThresholdValue = this.configuration.getProperty("NecrosisStacksThreshold");
             if (necrosisThresholdValue != null && !necrosisThresholdValue.isEmpty()) {

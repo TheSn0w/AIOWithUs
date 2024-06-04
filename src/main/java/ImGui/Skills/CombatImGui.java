@@ -2,6 +2,8 @@ package ImGui.Skills;
 
 import net.botwithus.Combat.Combat;
 import ImGui.*;
+import net.botwithus.Combat.*;
+import net.botwithus.Variables.*;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.NativeInteger;
@@ -15,8 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 import static ImGui.PredefinedStrings.*;
-import static net.botwithus.Combat.Combat.enableRadiusTracking;
-import static net.botwithus.Combat.Combat.radius;
+import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
+import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
+import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Radius.*;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.removeFoodName;
@@ -76,28 +81,28 @@ public class CombatImGui {
 
             ImGui.SetCursorPosX(spacing);
             ImGui.SetItemWidth(110.0F);
-            Combat.setHealthThreshold(ImGui.InputInt("      Health : Prayer  ", Combat.getHealthPointsThreshold()));
-            if (Combat.getHealthPointsThreshold() < 0) {
-                Combat.setHealthThreshold(0);
-            } else if (Combat.getHealthPointsThreshold() > 100) {
-                Combat.setHealthThreshold(100);
+            setHealthThreshold(ImGui.InputInt("      Health : Prayer  ", getHealthPointsThreshold()));
+            if (getHealthPointsThreshold() < 0) {
+                setHealthThreshold(0);
+            } else if (getHealthPointsThreshold() > 100) {
+                setHealthThreshold(100);
             }
 
             ImGui.SameLine();
             ImGui.SetCursorPosX(spacing * 10 + checkboxWidth * 1);
             ImGui.SameLine();
             ImGui.SetItemWidth(110.0F);
-            if (Combat.getPrayerPointsThreshold() < 0) {
-                Combat.setPrayerPointsThreshold(0);
-            } else if (Combat.getPrayerPointsThreshold() > 9900) {
-                Combat.setPrayerPointsThreshold(9900);
+            if (getPrayerPointsThreshold() < 0) {
+                setPrayerPointsThreshold(0);
+            } else if (getPrayerPointsThreshold() > 9900) {
+                setPrayerPointsThreshold(9900);
             }
 
-            int displayedThreshold = Combat.getPrayerPointsThreshold() / 10;
+            int displayedThreshold = getPrayerPointsThreshold() / 10;
 
             int inputThreshold = ImGui.InputInt("", displayedThreshold);
 
-            Combat.setPrayerPointsThreshold(inputThreshold * 10);
+            setPrayerPointsThreshold(inputThreshold * 10);
 
 
             ImGui.SetCursorPosX(spacing);
@@ -153,45 +158,99 @@ public class CombatImGui {
 
             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
             KeepArmyup = ImGui.Checkbox("Army 24/7", KeepArmyup);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have on Action Bar");
+            }
 
             ImGui.SetCursorPosX(spacing);
             animateDead = ImGui.Checkbox("Animate Dead", animateDead);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have on Action Bar");
+            }
 
             ImGui.SameLine();
 
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
             usequickPrayers = ImGui.Checkbox("Quick Prayers", usequickPrayers);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Quick Prayers 1 on Action bar");
+            }
 
             ImGui.SameLine();
             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
             useScrimshaws = ImGui.Checkbox("Scrimshaws", useScrimshaws);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Activates and Deactivates in/out of combat");
+            }
 
             ImGui.SetCursorPosX(spacing);
             enableRadiusTracking = ImGui.Checkbox("Enable Radius", enableRadiusTracking);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("sets a radius around current player location, and moves inside if walks out");
+            }
+
+            ImGui.SameLine();
+
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            handleMultitarget = ImGui.Checkbox("Multi Target", handleMultitarget);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Attacks multiple targets when current target is below health threshold");
+            }
+
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useVulnerabilityBombs = ImGui.Checkbox("Vuln Bombs", useVulnerabilityBombs);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Vulnerability Bombs on Action bar");
+            }
+
+            if (handleMultitarget) {
+                ImGui.SetCursorPosX(spacing);
+                ImGui.SetItemWidth(110.0F);
+
+                int displayedHealthThreshold = (int) (getHealthThreshold() * 100);
+                int inputHealthThreshold = ImGui.InputInt("target Threshold", displayedHealthThreshold);
+                double newHealthThreshold = inputHealthThreshold / 100.0;
+
+
+                if (newHealthThreshold != getHealthThreshold()) {
+                    setHealthThreshold(newHealthThreshold);
+                    ScriptConsole.println("Health threshold changed to: " + newHealthThreshold);
+                }
+                setHealthThreshold(inputHealthThreshold / 100.0);
+                if (getHealthThreshold() < 0.0) {
+                    setHealthThreshold(0.0);
+                } else if (getHealthThreshold() > 1.0) {
+                    setHealthThreshold(1.0);
+                }
+            }
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("If target health is below this %, finds a new target to attack.");
+            }
 
             if (VolleyofSouls) {
                 ImGui.SetCursorPosX(spacing);
                 ImGui.SetItemWidth(85.0F);
-                Combat.VolleyOfSoulsThreshold = ImGui.InputInt("       Volley Stacks", Combat.VolleyOfSoulsThreshold);
+                VolleyOfSoulsThreshold = ImGui.InputInt("       Volley Stacks", VolleyOfSoulsThreshold);
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Stacks to cast at");
                 }
-                if (Combat.VolleyOfSoulsThreshold < 0) {
-                    Combat.VolleyOfSoulsThreshold = 0;
-                } else if (Combat.VolleyOfSoulsThreshold > 5) {
-                    Combat.VolleyOfSoulsThreshold = 5;
+                if (VolleyOfSoulsThreshold < 0) {
+                    VolleyOfSoulsThreshold = 0;
+                } else if (VolleyOfSoulsThreshold > 5) {
+                    VolleyOfSoulsThreshold = 5;
                 }
             }
             if (DeathGrasp) {
                 ImGui.SetItemWidth(85.0F);
-                Combat.NecrosisStacksThreshold = ImGui.InputInt("     Necrosis Stacks", Combat.NecrosisStacksThreshold);
+                NecrosisStacksThreshold = ImGui.InputInt("     Necrosis Stacks", NecrosisStacksThreshold);
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Stacks to cast at");
                 }
-                if (Combat.NecrosisStacksThreshold < 0) {
-                    Combat.NecrosisStacksThreshold = 0;
-                } else if (Combat.NecrosisStacksThreshold > 12) {
-                    Combat.NecrosisStacksThreshold = 12;
+                if (NecrosisStacksThreshold < 0) {
+                    NecrosisStacksThreshold = 0;
+                } else if (NecrosisStacksThreshold > 12) {
+                    NecrosisStacksThreshold = 12;
                 }
             }
             if (enableRadiusTracking) {
@@ -204,11 +263,11 @@ public class CombatImGui {
                 }
                 if (newRadius != radius) {
                     radius = newRadius;
-                    ScriptConsole.println("Radius distance changed to: " + radius);
+                   log("Radius distance changed to: " + radius);
                 }
                 ImGui.SameLine();
                 if (ImGui.Button("Set Center")) {
-                    Combat.setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
+                    setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
                 }
             }
             ImGui.SeparatorText("Target Options");
@@ -237,10 +296,10 @@ public class CombatImGui {
                 if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                     String selectedName = comboItems[selectedIndex];
                     addTargetName(selectedName);
-                    ScriptConsole.println("Predefined Enemy added: " + selectedName);
+                    log("Predefined Enemy added: " + selectedName);
                     selectedItemIndex.set(0);
                 } else {
-                    ScriptConsole.println("Please select a valid enemy.");
+                    log("Please select a valid enemy.");
                 }
             }
 
@@ -271,9 +330,9 @@ public class CombatImGui {
         if (isCombatActive && useLoot && !showLogs) {
             ImGui.SeparatorText("Loot Options");
 
-            if (ImGui.Button("Add Item") && !Combat.getSelectedItem().isEmpty()) {
-                Combat.getTargetItemNames().add(Combat.getSelectedItem());
-                Combat.setSelectedItem("");
+            if (ImGui.Button("Add Item") && !getSelectedItem().isEmpty()) {
+                getTargetItemNames().add(getSelectedItem());
+                setSelectedItem("");
             }
 
             if (ImGui.IsItemHovered()) {
@@ -281,7 +340,7 @@ public class CombatImGui {
             }
             ImGui.SameLine();
             ImGui.SetItemWidth(284.0F);
-            Combat.setSelectedItem(ImGui.InputText("##Itemname", Combat.getSelectedItem()));
+            setSelectedItem(ImGui.InputText("##Itemname", getSelectedItem()));
 
             List<String> comboItemsList = new ArrayList<>(LootList);
             comboItemsList.add(0, "                          Select Loot to Add");
@@ -295,17 +354,17 @@ public class CombatImGui {
 
                 if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                     String selectedName = comboItems[selectedIndex];
-                    Combat.getTargetItemNames().add(selectedName);
-                    ScriptConsole.println("Predefined Loot added: " + selectedName);
+                    getTargetItemNames().add(selectedName);
+                    log("Predefined Loot added: " + selectedName);
                     selectedItemIndex.set(0);
                 } else {
-                    ScriptConsole.println("Please select a valid loot.");
+                    log("Please select a valid loot.");
                 }
             }
 
             if (ImGui.BeginChild("Item List", 360, 100, true, 0)) {
                 int count = 0;
-                for (String itemName : new ArrayList<>(Combat.getTargetItemNames())) {
+                for (String itemName : new ArrayList<>(getTargetItemNames())) {
                     if (count > 0 && count % 5 == 0) {
                         ImGui.Text("");
                     } else if (count > 0) {
@@ -313,7 +372,7 @@ public class CombatImGui {
                     }
 
                     if (ImGui.Button(itemName)) {
-                        Combat.getTargetItemNames().remove(itemName);
+                        getTargetItemNames().remove(itemName);
                         break;
                     }
 
@@ -354,10 +413,10 @@ public class CombatImGui {
                 if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                     String selectedName = comboItems[selectedIndex];
                     addFoodName(selectedName);
-                    ScriptConsole.println("Predefined Food added: " + selectedName);
+                    log("Predefined Food added: " + selectedName);
                     selectedItemIndex.set(0);
                 } else {
-                    ScriptConsole.println("Please select a valid food.");
+                    log("Please select a valid food.");
                 }
             }
 

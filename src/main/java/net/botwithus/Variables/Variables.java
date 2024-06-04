@@ -1,5 +1,6 @@
 package net.botwithus.Variables;
 
+import net.botwithus.Combat.Combat;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Herblore.SharedState;
 import net.botwithus.SnowsScript;
@@ -109,6 +110,7 @@ public class Variables {
 // =====================
     public static boolean isCombatActive = false;
     public static boolean interactWithLootAll = false;
+    public static boolean useVulnerabilityBombs = false;
     public static boolean useLoot = false;
     public static boolean useOverloads = false;
     public static boolean usePrayerPots = false;
@@ -128,6 +130,18 @@ public class Variables {
     public static boolean usequickPrayers = false;
     public static boolean useScrimshaws = false;
     public static boolean KeepArmyup = false;
+    public static void setPrayerPointsThreshold(int threshold) {
+        prayerPointsThreshold = threshold;
+    }
+    public static void setHealthThreshold(int healthThreshold) {
+        healthPointsThreshold = healthThreshold;
+    }
+    public static int getPrayerPointsThreshold() {
+        return prayerPointsThreshold;
+    }
+    public static int getHealthPointsThreshold() {
+        return healthPointsThreshold;
+    }
     public static int prayerPointsThreshold = 5000;
     public static int healthPointsThreshold = 50;
     public static String targetName = "";
@@ -191,6 +205,20 @@ public class Variables {
                         .orElse(""),
                 Pattern.CASE_INSENSITIVE
         );
+    }
+    public static List<String> targetItemNames = new ArrayList<>();
+    public static String selectedItem = "";
+
+    public static List<String> getTargetItemNames() {
+        return targetItemNames;
+    }
+
+    public static String getSelectedItem() {
+        return selectedItem;
+    }
+
+    public static void setSelectedItem(String selectedItem) {
+        Variables.selectedItem = selectedItem;
     }
 
 

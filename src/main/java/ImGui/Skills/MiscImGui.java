@@ -13,6 +13,7 @@ import java.util.Map;
 import static ImGui.PredefinedStrings.*;
 import static ImGui.PredefinedStrings.pouchName;
 import static ImGui.PredefinedStrings.secondaryItemName;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -243,9 +244,9 @@ public class MiscImGui {
                         if (selectedIndex >= 0 && selectedIndex < spiritStone.size()) {
                             String selectedName = spiritStone.get(selectedIndex);
                             setSpiritStoneName(selectedName);
-                            ScriptConsole.println("Spirit Stone selected: " + selectedName);
+                            log("Spirit Stone selected: " + selectedName);
                         } else {
-                            ScriptConsole.println("Please select a valid Spirit Stone.");
+                            log("Please select a valid Spirit Stone.");
                         }
                     }
                 }
@@ -255,9 +256,9 @@ public class MiscImGui {
                     if (selectedIndex >= 0 && selectedIndex < pouchName.size()) {
                         String selectedName = pouchName.get(selectedIndex);
                         setPouchName(selectedName);
-                        ScriptConsole.println("Pouch Name selected: " + selectedName);
+                        log("Pouch Name selected: " + selectedName);
                     } else {
-                        ScriptConsole.println("Please select a valid Pouch Name.");
+                        log("Please select a valid Pouch Name.");
                     }
                 }
                 ImGui.SetItemWidth(150.0F);
@@ -267,9 +268,9 @@ public class MiscImGui {
                         int selectedId = (int) secondaryItemName.keySet().toArray()[selectedIndex];
                         String selectedItemName = secondaryItemName.get(selectedId);
                         setSecondaryItem(selectedId);
-                        ScriptConsole.println("Secondary Item selected: " + selectedItemName + " (" + selectedId + ")");
+                        log("Secondary Item selected: " + selectedItemName + " (" + selectedId + ")");
                     } else {
-                        ScriptConsole.println("Please select a valid Secondary Item.");
+                        log("Please select a valid Secondary Item.");
                     }
                 }
             }

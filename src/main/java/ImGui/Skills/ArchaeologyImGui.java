@@ -109,9 +109,9 @@ public class ArchaeologyImGui {
                     int selectedIndex = currentPorterType.get();
                     if (selectedIndex >= 0 && selectedIndex < porterTypes.length) {
                         String selectedPorterType = porterTypes[selectedIndex];
-                        ScriptConsole.println("Selected porter type: " + selectedPorterType);
+                        log("Selected porter type: " + selectedPorterType);
                     } else {
-                        ScriptConsole.println("Please select a valid porter type.");
+                        log("Please select a valid porter type.");
                     }
                 }
                 ImGui.SetItemWidth(200.0F);
@@ -120,9 +120,9 @@ public class ArchaeologyImGui {
                     int selectedIndex = currentQuantity.get();
                     if (selectedIndex >= 0 && selectedIndex < quantities.length) {
                         String selectedQuantity = quantities[selectedIndex];
-                        ScriptConsole.println("Selected quantity: " + selectedQuantity);
+                        log("Selected quantity: " + selectedQuantity);
                     } else {
-                        ScriptConsole.println("Please select a valid quantity.");
+                        log("Please select a valid quantity.");
                     }
                 }
                 ImGui.SeparatorText("Set Porter Withdraw Threshold from bank");

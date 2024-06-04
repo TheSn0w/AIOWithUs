@@ -1,0 +1,75 @@
+package net.botwithus.Combat;
+
+import net.botwithus.SnowsScript;
+import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
+import net.botwithus.rs3.game.queries.results.ResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.util.RandomGenerator;
+
+import static net.botwithus.Combat.Banking.bankToWars;
+import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.setBotState;
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.healthPointsThreshold;
+
+public class Food {
+    public static void eatFood(LocalPlayer player) {
+        boolean isPlayerEating = player.getAnimationId() == 18001;
+        double healthPercentage = calculateHealthPercentage(player);
+        boolean isHealthAboveThreshold = healthPercentage > healthPointsThreshold;
+
+
+        if (isPlayerEating || isHealthAboveThreshold) {
+            return;
+        }
+
+        Execution.delay(healHealth(player));
+
+    }
+
+    public static double calculateHealthPercentage(LocalPlayer player) {
+        double currentHealth = player.getCurrentHealth();
+        double maximumHealth = player.getMaximumHealth();
+
+        if (maximumHealth == 0) {
+            throw new ArithmeticException("Maximum health cannot be zero.");
+        }
+
+        return (currentHealth / maximumHealth) * 100;
+    }
+
+    private static long healHealth(LocalPlayer player) {
+        ResultSet<Item> foodItems = InventoryItemQuery.newQuery(93).option("Eat").results();
+        Item food = foodItems.isEmpty() ? null : foodItems.first();
+
+        if (food == null) {
+            if (BankforFood) {
+                setBotState(BANKING);
+                return random.nextLong(1500, 3000);
+            } else {
+                log("[Error] No food found and banking for food is disabled.");
+                return 0;
+            }
+        }
+
+        boolean eatSuccess = backpack.interact(food.getName(), "Eat");
+
+        if (eatSuccess) {
+            log("[Combat] Successfully ate " + food.getName());
+            Execution.delay(RandomGenerator.nextInt(250, 450));
+        } else {
+            log("[Error] Failed to eat.");
+        }
+        return 0;
+    }
+
+    static boolean isHealthLow(LocalPlayer player) {
+        double healthPercentage = calculateHealthPercentage(player);
+        return healthPercentage < healthPointsThreshold;
+    }
+}

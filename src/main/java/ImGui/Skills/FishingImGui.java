@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.fishCaughtCount;
@@ -46,10 +47,10 @@ public class FishingImGui {
                 String actionInput = getFishingAction();
                 if (actionInput != null && !actionInput.trim().isEmpty()) {
                     addFishingAction(actionInput);
-                    ScriptConsole.println("Fishing action added: " + actionInput);
+                    log("Fishing action added: " + actionInput);
                     setFishingAction("");
                 } else {
-                    ScriptConsole.println("Invalid fishing action.");
+                    log("Invalid fishing action.");
                 }
             }
             if (ImGui.IsItemHovered()) {
@@ -66,10 +67,10 @@ public class FishingImGui {
                 String locationInput = getFishingLocation();
                 if (locationInput != null && !locationInput.trim().isEmpty()) {
                     addFishingLocation(locationInput);
-                    ScriptConsole.println("Fishing location added: " + locationInput);
+                    log("Fishing location added: " + locationInput);
                     setFishingLocation("");
                 } else {
-                    ScriptConsole.println("Invalid fishing location.");
+                    log("Invalid fishing location.");
                 }
             }
             if (ImGui.IsItemHovered()) {
@@ -99,11 +100,11 @@ public class FishingImGui {
                     ImGui.TableNextColumn();
                     if (i < selectedActions.size() && ImGui.Button("Remove Action##" + selectedActions.get(i))) {
                         removeFishingAction(selectedActions.get(i));
-                        ScriptConsole.println("Fishing action removed: " + selectedActions.get(i));
+                        log("Fishing action removed: " + selectedActions.get(i));
                     }
                     if (i < selectedLocations.size() && ImGui.Button("Remove Location##" + selectedLocations.get(i))) {
                         removeFishingLocation(selectedLocations.get(i));
-                        ScriptConsole.println("Fishing location removed: " + selectedLocations.get(i));
+                        log("Fishing location removed: " + selectedLocations.get(i));
                     }
                 }
                 ImGui.EndTable();

@@ -80,7 +80,6 @@ public class BottomChild {
             }
 
             ImGui.PopStyleVar(2);
-            ImGui.PopStyleColor(5);
             float windowWidth = 577.0f;
             float textWidth = ImGui.CalcTextSize("" + botState).getX();
             float centeredX = (windowWidth - textWidth) / 2;
@@ -89,13 +88,11 @@ public class BottomChild {
             ImGui.SetCursorPosY(10);
             ImGui.SetCursorPosX(centeredX);
             ImGui.Text("" + botState);
-            ImGui.PopStyleColor(1);
 
             long elapsedTime = ScriptisOn ? Duration.between(startTime, Instant.now()).getSeconds() + totalElapsedTime : totalElapsedTime;
             String elapsedTimeText = String.format("%02d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, elapsedTime % 60);
             textWidth = ImGui.CalcTextSize(elapsedTimeText).getX();
             centeredX = (windowWidth - textWidth) / 2;
-            ImGui.PopStyleColor(1);
 
             ImGui.SetCursorPosX(0);
             ImGui.SetCursorPosY(27);
@@ -103,8 +100,8 @@ public class BottomChild {
             ImGui.Text(elapsedTimeText);
 
             displayVersion(577.0f);
-            ImGui.PopStyleColor();
-            ImGui.PopStyleVar(1);
+            ImGui.PopStyleVar(2);
+            ImGui.PopStyleColor(3);
             ImGui.EndChild();
         }
     }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ImGui.PredefinedStrings.TreeList;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.logCount;
 
@@ -47,7 +48,7 @@ public class WoodcuttingImGui {
             ImGui.SeparatorText("Woodcutting Options");
             if (ImGui.Button("Add Tree Name")) {
                 addTreeName(getTreeName());
-                ScriptConsole.println("Tree added: " + getTreeName());
+                log("Tree added: " + getTreeName());
                 setTreeName("");
             }
             ImGui.SameLine();
@@ -66,10 +67,10 @@ public class WoodcuttingImGui {
                 if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                     String selectedName = comboItems[selectedIndex];
                     addTreeName(selectedName);
-                    ScriptConsole.println("Predefined Tree added: " + selectedName);
+                    log("Predefined Tree added: " + selectedName);
                     selectedItemIndex.set(0);
                 } else {
-                    ScriptConsole.println("Please select a valid tree.");
+                    log("Please select a valid tree.");
                 }
             }
 
@@ -87,7 +88,7 @@ public class WoodcuttingImGui {
                     ImGui.TableNextColumn();
                     if (ImGui.Button("Remove##" + tree)) {
                         removeTreeName(tree);
-                        ScriptConsole.println("Tree removed: " + tree);
+                        log("Tree removed: " + tree);
                     }
                 }
                 ImGui.EndTable();

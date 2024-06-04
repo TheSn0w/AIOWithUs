@@ -55,6 +55,22 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
     @Override
     public void drawSettings() {
         setDefaultTheme();
+        applyGreenTheme();
+
+        if (PurpleThemeSelected) {
+            applyPurpleTheme();
+        } else if (BlueThemeSelected) {
+            applyBlueTheme();
+        } else if (RedThemeSelected) {
+            applyRedTheme();
+        } else if (YellowThemeSelected) {
+            applyYellowTheme();
+        } else if (GreenThemeSelected) {
+            applyGreenTheme();
+        } else if (OrangeThemeSelected) {
+            applyOrangeTheme();
+        }
+
         float columnWidth = 180;
         float childWidth = columnWidth - 10;
 
@@ -231,6 +247,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
+                        }
+                        createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("will go wars to bank and withdraw fish food and go back to combat");
                         }
                         createCenteredButton("Loot", () -> useLoot = !useLoot, useLoot);
                         if (ImGui.IsItemHovered()) {
@@ -425,6 +445,20 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 if (message.contains("[Error]")) {
                                     String[] parts = message.split(" ", 2);
                                     ImGui.PushStyleColor(ImGuiCol.Text, 1.0f, 0.0f, 0.0f, 1.0f);
+                                    ImGui.Text(parts[0]);
+                                    ImGui.SameLine();
+                                    ImGui.Text(parts[1]);
+                                    ImGui.PopStyleColor();
+                                } else if (message.contains("[Loot]")) {
+                                    String[] parts = message.split(" ", 2);
+                                    setStyleColor(ImGuiCol.Text, 0, 255, 0, 255);
+                                    ImGui.Text(parts[0]);
+                                    ImGui.SameLine();
+                                    ImGui.Text(parts[1]);
+                                    ImGui.PopStyleColor();
+                                } else if (message.contains("[Success]")) {
+                                    String[] parts = message.split(" ", 2);
+                                    setStyleColor(ImGuiCol.Text, 0, 255, 0, 255);
                                     ImGui.Text(parts[0]);
                                     ImGui.SameLine();
                                     ImGui.Text(parts[1]);

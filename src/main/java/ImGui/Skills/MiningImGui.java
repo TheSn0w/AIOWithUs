@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ImGui.PredefinedStrings.MiningList;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class MiningImGui {
@@ -43,7 +44,7 @@ public class MiningImGui {
             ImGui.SeparatorText("Mining Options");
             if (ImGui.Button("Add Rock Name")) {
                 addRockName(getRockName());
-                ScriptConsole.println("Rock name added: " + getRockName());
+                log("Rock name added: " + getRockName());
                 setRockName("");
             }
             ImGui.SameLine();
@@ -63,10 +64,10 @@ public class MiningImGui {
                 if (selectedIndex > 0 && selectedIndex < comboItems.length) {
                     String selectedName = comboItems[selectedIndex];
                     addRockName(selectedName);
-                    ScriptConsole.println("Predefined Rock added: " + selectedName);
+                    log("Predefined Rock added: " + selectedName);
                     selectedItemIndex.set(0);
                 } else {
-                    ScriptConsole.println("Please select a valid rock.");
+                    log("Please select a valid rock.");
                 }
             }
 
@@ -100,7 +101,7 @@ public class MiningImGui {
 
                     if (ImGui.Button(rock)) {
                         removeRockName(rock);
-                        ScriptConsole.println("Rock name removed: " + rock);
+                        log("Rock name removed: " + rock);
                     }
 
                     ImGui.PopStyleVar(2);

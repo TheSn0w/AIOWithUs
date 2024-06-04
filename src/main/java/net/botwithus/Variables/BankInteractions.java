@@ -21,11 +21,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.setBotState;
-import static net.botwithus.Variables.Variables.component;
-import static net.botwithus.Variables.Variables.random;
+import static net.botwithus.Variables.Variables.*;
 
 public class BankInteractions {
     public static final Coordinate VarrockWest = new Coordinate(3182, 3436, 0);
@@ -65,7 +65,7 @@ public class BankInteractions {
             Anachronia, Edgeville, KharidEt, VIP, STORMGUARD
     );
 
-    public static final List<String> BANK_TYPES = Arrays.asList("Bank chest", "Bank booth", "Counter");
+    public static final List<String> BANK_TYPES = Arrays.asList("Bank chest", "Bank booth", "Counter, Banker");
 
     public static Coordinate findNearestBank(Coordinate playerPosition) {
         return BANK_COORDINATES.stream()
@@ -109,13 +109,14 @@ public class BankInteractions {
     }
 
     public static long interactWithBank(LocalPlayer player, SceneObject nearestBankBooth) {
-        Item oreBox = InventoryItemQuery.newQuery().category(4448).results().first();
+        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
 
         if (oreBox != null) {
             return handleOreBoxBanking(player, nearestBankBooth, oreBox);
-        } else {
-            return handleNormalBanking(player, nearestBankBooth);
+        } else if (BankforFood) {
+            return handleBankforFood(player, nearestBankBooth);
         }
+        return handleNormalBanking(player, nearestBankBooth);
     }
 
     public static long handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {

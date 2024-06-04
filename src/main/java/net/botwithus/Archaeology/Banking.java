@@ -16,6 +16,7 @@ import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
@@ -27,19 +28,18 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
-import static net.botwithus.Variables.Variables.random;
-import static net.botwithus.Variables.Variables.useGote;
+import static net.botwithus.Variables.Variables.*;
 
 public class Banking {
 
     public static long backpackIsFull(LocalPlayer player) {
-        if (net.botwithus.api.game.hud.inventories.Backpack.contains("Archaeological soil box")) {
+        if (backpack.contains("Archaeological soil box")) {
             backpack.interact("Archaeological soil box", "Fill");
             log("[Archaeology] Filling soil box.");
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
 
-        if (net.botwithus.api.game.hud.inventories.Backpack.isFull()) {
+        if (backpack.isFull()) {
             setBotState(BANKING);
         }
 
@@ -86,6 +86,12 @@ public class Banking {
             interactWithSoilBoxIfPresent(soilBox);
 
             if (useGote) {
+                if (VarManager.getVarbitValue(45141) != 1) {
+                    component(1, -1, 33882270);
+                    Execution.delay(random.nextLong(1000, 2000));
+                } else {
+                    log("[Combat] Bank Tab value is already 1");
+                }
                 handleGoteCharges();
             }
 

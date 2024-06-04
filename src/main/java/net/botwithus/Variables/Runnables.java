@@ -17,6 +17,12 @@ import net.botwithus.rs3.script.Execution;
 
 import java.util.List;
 
+import static net.botwithus.Combat.ArchGlacor.handleArchGlacor;
+import static net.botwithus.Combat.Combat.attackTarget;
+import static net.botwithus.Combat.Loot.LootEverything;
+import static net.botwithus.Combat.POD.handlePOD;
+import static net.botwithus.Combat.Radius.enableRadiusTracking;
+import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Variables.Variables.*;
@@ -90,20 +96,20 @@ public class Runnables {
     public static  void handleCombat() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            if (Combat.enableRadiusTracking) {
-                Execution.delay(Combat.ensureWithinRadius(player));
+            if (enableRadiusTracking) {
+                Execution.delay(ensureWithinRadius(player));
             }
             if (usePOD) {
-                Combat.handlePOD();
+                handlePOD();
             }
             if (!usePOD && !handleArchGlacor) {
-                Execution.delay(Combat.attackTarget(player));
+                Execution.delay(attackTarget(player));
             }
             if (handleArchGlacor) {
-                Execution.delay(Combat.handleArchGlacor());
+                Execution.delay(handleArchGlacor());
             }
             if (interactWithLootAll) {
-                Combat.LootEverything();
+                LootEverything();
             }
         }
     }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public final class backpack {
     private static final Pattern SELECTED_ITEM_PATTERN = Pattern.compile("^Use\\s.*?(\\s->\\s).*$");
 
-    static final backpackInventory backpack = new backpackInventory();
+    public static final backpackInventory backpack = new backpackInventory();
 
     private backpack() {
     }
