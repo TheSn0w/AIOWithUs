@@ -463,6 +463,13 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     ImGui.SameLine();
                                     ImGui.Text(parts[1]);
                                     ImGui.PopStyleColor();
+                                } else if (message.contains("[Caution]")) {
+                                    String[] parts = message.split(" ", 2);
+                                    setStyleColor(ImGuiCol.Text, 242, 140, 40, 255);
+                                    ImGui.Text(parts[0]);
+                                    ImGui.SameLine();
+                                    ImGui.Text(parts[1]);
+                                    ImGui.PopStyleColor();
                                 } else {
                                     ImGui.Text(message);
                                 }

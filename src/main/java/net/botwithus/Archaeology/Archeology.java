@@ -112,7 +112,7 @@ public class Archeology {
                 .nearest();
 
         if (currentSpotAnimation == null) {
-            log("[Error] No spot animation found.");
+            log("[Caution] No spot animation found.");
             return interactWithDefaultObjects(selectedArchNames, checkInterval);
         }
 

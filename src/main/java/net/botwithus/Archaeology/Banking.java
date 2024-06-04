@@ -37,11 +37,17 @@ public class Banking {
 
     public static long backpackIsFull(LocalPlayer player) {
         if (backpack.contains("Archaeological soil box")) {
-            backpack.interact("Archaeological soil box", "Fill");
-            log("[Archaeology] Filling soil box.");
+            boolean success = backpack.interact("Archaeological soil box", "Fill");
+            Execution.delay(random.nextLong(1500, 3000));
+            log("[Archaeology] Attempting to fill soil box.");
+            if (!Backpack.isFull() == success) {
+                log("[Success] Soil box filled.");
+            } else {
+                log("[Caution] Soil box Full.");
+            }
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
-
+        log("[Caution] Going to the bank.");
         if (backpack.isFull()) {
             setBotState(BANKING);
         }
@@ -95,13 +101,17 @@ public class Banking {
                 } else {
                     log("[Archaeology] Bank Tab value is already 1");
                 }
-                handleGoteCharges();
-                Bank.close();
-                Execution.delay(random.nextLong(1500, 2500));
-                useBankingPorter();
-                Execution.delay(random.nextLong(1500, 2500));
-                if (varbitValue < getChargeThreshold()) {
-                    Execution.delay(handleBankingInteractionforPorter());
+                Execution.delay(handleGoteCharges());
+                if (useGote) {
+                    Bank.close();
+                    Execution.delay(random.nextLong(1500, 2500));
+                    useBankingPorter();
+                    Execution.delay(random.nextLong(1500, 2500));
+                    if (varbitValue < getChargeThreshold()) {
+                        Execution.delay(handleBankingInteractionforPorter());
+                    }
+                } else {
+                    log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
                 }
             }
 
@@ -115,6 +125,10 @@ public class Banking {
     }
 
     public static long handleBankingInteractionforPorter() {
+        if (!useGote) {
+            return random.nextLong(1500, 2500);
+        }
+
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
         interactWithBankChestAndOpen();
@@ -158,36 +172,40 @@ public class Banking {
 
     private static void checkVarbitAndReturnOrRetry(int varbitValue) {
         if (varbitValue >= getChargeThreshold()) {
-            log("[Success] we are above out theshold");
+            log("[Success] we are above our theshold");
         } else {
-            log("[Archaeology] Porters have " + varbitValue + " charges, but we need atleast: " + getChargeThreshold());
+            log("[Caution] Porters have " + varbitValue + " charges, but we need atleast: " + getChargeThreshold());
             handleBankingInteractionforPorter();
         }
     }
     public static void useBankingPorter() {
         String currentPorter = porterTypes[currentPorterType.get()];
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+        if (useGote) {
 
-        if (Backpack.contains(currentPorter) && varbitValue <= getChargeThreshold()) {
-            if (equipment.contains("Grace of the elves")) {
-                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
-                if (interactionResult) {
-                    log("[Success] Interaction with Equipment was successful.");
-                } else {
-                    log("[Error] Interaction with Equipment failed.");
-                }
-            } else {
-                if (Backpack.contains(currentPorter)) {
-                    boolean interactionResult = backpack.interact(currentPorter, "Wear");
+            if (Backpack.contains(currentPorter) && varbitValue <= getChargeThreshold()) {
+                if (equipment.contains("Grace of the elves")) {
+                    boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                     if (interactionResult) {
-                        log("[Success] Interaction with " + currentPorter + " was successful.");
+                        log("[Success] Interaction with Equipment was successful.");
                     } else {
-                        log("[Error] Interaction with Backpack failed.");
+                        log("[Error] Interaction with Equipment failed.");
                     }
                 } else {
-                    log("[Error] No '" + currentPorter + "' found in the Backpack.");
+                    if (Backpack.contains(currentPorter)) {
+                        boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                        if (interactionResult) {
+                            log("[Success] Interaction with " + currentPorter + " was successful.");
+                        } else {
+                            log("[Error] Interaction with Backpack failed.");
+                        }
+                    } else {
+                        log("[Error] No '" + currentPorter + "' found in the Backpack.");
+                    }
                 }
             }
+        } else {
+            log("[Error] No " + currentPorter + " found in the Backpack.");
         }
     }
 

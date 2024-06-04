@@ -4,6 +4,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.backpack;
 import net.botwithus.inventory.equipment;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
@@ -56,25 +57,30 @@ public class Porters {
             Execution.delay(BankforArcheology((LocalPlayer) player, selectedArchNames));
         }
     }
-    public static void handleGoteCharges() {
-        int charges = VarManager.getInvVarbit(94, 2, 30214);
-        log("[Archaeology] Charges remaining: " + charges);
-        if (charges < getChargeThreshold()) {
-            String selectedPorter = porterTypes[currentPorterType.get()];
-            int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
-            boolean withdrew;
-            if (VarManager.getVarbitValue(45189) != 7) {
-                component(1, -1, 33882215);
-            }
-            withdrew = Bank.withdraw(selectedPorter, quantity);
-            if (withdrew) {
-                log("[Archaeology] Withdrew: " + selectedPorter + ".");
-            } else {
-                log("[Error] Failed to withdraw " + selectedPorter + ".");
-                useGote = false;
+    public static long handleGoteCharges() {
+        if (useGote) {
+            int charges = VarManager.getInvVarbit(94, 2, 30214);
+            if (charges < getChargeThreshold()) {
+                String selectedPorter = porterTypes[currentPorterType.get()];
+                int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
+                boolean withdrew;
+                if (VarManager.getVarbitValue(45189) != 7) {
+                    component(1, -1, 33882215);
+                }
+                withdrew = Bank.withdraw(selectedPorter, quantity);
+                if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
+                    log("[Archaeology] Withdrew: " + selectedPorter + ".");
+                } else {
+                    log("[Error] Failed to withdraw " + selectedPorter + ".");
+                    log("[Caution] use Gote/Porter has been disabled.");
+                    useGote = false;
+                    return random.nextLong(1500, 2500);
+                }
             }
         }
+        return random.nextLong(1500, 2500);
     }
+
 
     public static int getQuantityFromOption(String option) {
         return switch (option) {
