@@ -160,7 +160,6 @@ public class SnowsScript extends LoopingScript {
 
     @Override
     public void onActivation() {
-        loadConfiguration();
         subscribeToEvents();
         super.initialize();
     }

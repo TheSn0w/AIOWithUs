@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import static ImGui.PredefinedStrings.predefinedNames;
 import static ImGui.PredefinedStrings.recipeNamesList;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.IDLE;
 
 public class Variables {
@@ -56,7 +57,7 @@ public class Variables {
     public static final String[] quantities = {"ALL", "1", "5", "10"};
     public static final NativeInteger currentPorterType = new NativeInteger(0);
     public static final NativeInteger currentQuantity = new NativeInteger(0);
-    public static int chargeThreshold = 200;
+    public static int chargeThreshold = 300;
     public static int equipChargeThreshold = 0;
     public static void removeName(String name) {
         selectedArchNames.remove(name);
@@ -174,7 +175,7 @@ public class Variables {
         selectedFoodNames.remove(name);
     }
     public static void addTargetName(String targetName) {
-        ScriptConsole.println("[Combat] Adding target name: " + targetName);
+        log("[Combat] Adding target name: " + targetName);
         String lowerCaseName = targetName.toLowerCase();
         synchronized (targetNames) {
             if (!targetNames.contains(lowerCaseName)) {

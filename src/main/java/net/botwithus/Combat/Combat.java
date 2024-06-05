@@ -60,11 +60,12 @@ public class Combat {
             eatFood(player);
             return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
         }
-
-        if (System.currentTimeMillis() - lastClearTime > random.nextLong(10000, 15000)) {
-            /*log("[Combat] Clearing recently attacked targets.");*/
-            recentlyAttackedTargets.clear();
-            lastClearTime = System.currentTimeMillis();
+        if(handleMultitarget) {
+            if (System.currentTimeMillis() - lastClearTime > random.nextLong(10000, 15000)) {
+                /*log("[Combat] Clearing recently attacked targets.");*/
+                recentlyAttackedTargets.clear();
+                lastClearTime = System.currentTimeMillis();
+            }
         }
 
         if (player.hasTarget()) {
@@ -75,12 +76,12 @@ public class Combat {
                     recentlyAttackedTargets.add(target.getId());
                     return findAndAttackNewTarget(player);
                 } else {
-                    /*log("[Combat] Target health above threshold. Attacking.");*/
+                    log("[Combat] Target health above threshold. Attacking.");
                     manageCombatAbilities();
                     return random.nextLong(1000, 1500);
                 }
             } else {
-                /*log("[Combat] Single-target handling. Attacking.");*/
+                log("[Combat] Single-target handling. Attacking.");
                 manageCombatAbilities();
                 return random.nextLong(1000, 1500);
             }

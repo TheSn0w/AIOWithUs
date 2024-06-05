@@ -106,10 +106,13 @@ public class Divination {
             return random.nextLong(1500, 3000);
         }
 
-        log("[Divination] Navigating to: " + destination);
-        Movement.traverse(NavPath.resolve(destination));
-
-        Execution.delayUntil(360000, () -> player.getCoordinate().equals(destination));
+        log("[Divination] Navigating to wisp coordinates");
+        if (Movement.traverse(NavPath.resolve(destination)) == TraverseEvent.State.FINISHED) {
+            log("[Divination] Arrived at wisp Destination");
+            return random.nextLong(1500, 3000);
+        } else {
+            log("[Error] Failed to navigate to wisp coordinates");
+        }
 
         return random.nextLong(1500, 3000);
     }
@@ -336,7 +339,7 @@ public class Divination {
         } else if (divinationLevel >= 90 && divinationLevel <= 94) {
             return new Coordinate(3310, 2665, 0); // Luminous Wisps
         } else if (divinationLevel >= 95 && divinationLevel <= 99) {
-            return new Coordinate(2288, 3049, 0); // Incandescent Wisps
+            return new Coordinate(2285, 3047, 0); // Incandescent Wisps
         }
 
         return null;
@@ -359,37 +362,14 @@ public class Divination {
                     } else {
                         log("[Error] Failed to add all to vacuum.");
                     }
-                }
-            }
-        }
-    }
-
-    private static void divvineoMatic() { // 37521 = empty charges // 37522 = filled charges
-        ResultSet<Item> divineomaticvacuum = InventoryItemQuery.newQuery(94).ids(41083).results();
-        if (!divineomaticvacuum.isEmpty()) {
-            log("[Divination] Divine-o-matic found in inventory.");
-            int emptyCharges = VarManager.getInvVarbit(94, 3, 37521);
-            int filledCharges = VarManager.getInvVarbit(94, 3, 37522);
-            log("[Divination] Empty Charges: " + emptyCharges + " - Filled Charges: " + filledCharges);
-
-            if (filledCharges == 100 && Equipment.interact(Equipment.Slot.WEAPON, "Withdraw")) {
-                log("[Divination] Divine-o-matic is full, withdrawing.");
-                Execution.delayUntil(30000, () -> VarManager.getInvVarbit(94, 3, 37521) + VarManager.getInvVarbit(94, 3, 37522) < 100);
-                log("[Divination] After withdrawal, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
-            }
-
-            if (emptyCharges == 0) {
-                log("[Divination] Adding all to vacuum.");
-                if (backpack.interact("Divine charge (empty)", "Add all to vacuum")) {
-                    log("[Divination] After adding to vacuum, Empty Charges: " + VarManager.getInvVarbit(94, 3, 37521) + " - Filled Charges: " + VarManager.getInvVarbit(94, 3, 37522));
                 } else {
-                    log("[Error] Failed to add all to vacuum.");
+                    log("[Error] No empty charges found in backpack, turning option off");
+                    useDivineoMatic = false;
                 }
             }
-        } else {
-            log("[Divination] Divine-o-matic not found in inventory.");
         }
     }
+
     public static int initialValue = VarManager.getInvVarbit(94, 3, 37522);
     public static int count = 0;
 
@@ -403,67 +383,53 @@ public class Divination {
         initialValue = currentValue;
     }
 
+    private static int randomValue = 0;
+
+
     public static void checkAndPerformActions(LocalPlayer player) {
-        if (shouldInteractWithAltar()) {
-            performAltarInteractions(player);
-        }
-    }
+        randomValue = random.nextInt(2, 5);
+        int familiarTime = VarManager.getVarbitValue(6055);
 
-    private static boolean shouldInteractWithAltar() {
-        return !isFamiliarSummoned() || VarManager.getVarbitValue(6055) <= 5;
-    }
+        if (familiarTime <= randomValue) {
+            log("[Caution] Familiar time is " + familiarTime + ", we're going to summon.");
 
-    private static void performAltarInteractions(LocalPlayer player) {
-        log("[Divination] Conditions met for Summoning pouch.");
-        Execution.delay(interactWithAltarOfWar(player));
-        summonFamiliar(player);
-    }
+            ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();
+            Item restorePotion = items.stream()
+                    .filter(item -> item.getName() != null &&
+                            (item.getName().toLowerCase().contains("restore")))
+                    .findFirst()
+                    .orElse(null);
 
-    private static boolean isFamiliarSummoned() {
-        Component familiarComponent = ComponentQuery.newQuery(284).spriteId(26095).results().first();
-        return familiarComponent != null;
-    }
-
-    private static void summonFamiliar(LocalPlayer player) {
-        ResultSet<Item> results = InventoryItemQuery.newQuery(93).ids(31328).option("Summon").results();
-        if (VarManager.getVarbitValue(6055) > 5) {
-            log("[Error] Familiar is already summoned.");
-        } else {
-            if (!results.isEmpty()) {
-                backpack.interact("Nightmare muspah pouch", "Summon");
-                Execution.delayUntil(5000, () -> VarManager.getVarbitValue(6055) > 5);
+            if (restorePotion == null) {
+                log("[Error]  No restore potions found in the backpack, teleporting to Prif.");
+                Execution.delay(useBank(player));
             } else {
-                log("[Error] Pouch is empty, using bank.");
-                useBank(player);
+                boolean success = backpack.interact(restorePotion.getName(), "Drink");
+                if (success) {
+                    log("[Success] Successfully drank " + restorePotion.getName());
+                    long delay = random.nextLong(1500, 3000);
+                    Execution.delay(delay);
+                } else {
+                    log("[Error]  Failed to interact with " + restorePotion.getName());
+                }
             }
-        }
-    }
 
-    static long interactWithAltarOfWar(LocalPlayer player) {
-        ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();
-
-        Item prayerOrRestorePot = items.stream()
-                .filter(item -> item.getName() != null &&
-                        (item.getName().toLowerCase().contains("prayer") ||
-                                item.getName().toLowerCase().contains("restore")))
-                .findFirst()
-                .orElse(null);
-
-        if (prayerOrRestorePot == null) {
-            log("[Error]  No prayer or restore potions found in the backpack.");
-            return useBank(player);
-        }
-
-        log("[Divination] Drinking " + prayerOrRestorePot.getName());
-        boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
-        if (success) {
-            log("[Divination] Successfully drank " + prayerOrRestorePot.getName());
-            long delay = random.nextLong(1500, 3000);
-            Execution.delay(delay);
-            return delay;
-        } else {
-            log("[Error]  Failed to interact with " + prayerOrRestorePot.getName());
-            return 0;
+            ResultSet<Item> results = InventoryItemQuery.newQuery(93).option("Summon").results();
+            if (VarManager.getVarbitValue(6055) <= randomValue) {
+                log("[Error] Familiar is already summoned.");
+            } else {
+                if (!results.isEmpty()) {
+                    Item summonItem = results.first();
+                    if (summonItem != null) {
+                        String itemName = summonItem.getName();
+                        backpack.interact(itemName, "Summon");
+                        Execution.delayUntil(5000, () -> VarManager.getVarbitValue(6055) > 10);
+                    }
+                } else {
+                    log("[Error] No Pouches found, using bank.");
+                    Execution.delay(useBank(player));
+                }
+            }
         }
     }
 
@@ -484,12 +450,14 @@ public class Divination {
                     return random.nextLong(1500, 3000);
                 }
                 Npc nearestBanker = bankers.nearest();
-                if (nearestBanker.interact("Load Last Preset from")) {
-                    Execution.delay(random.nextLong(2500, 3500));
-                    return handleDivination(player);
-                } else {
-                    log("[Error] Failed to interact with banker.");
-                    return random.nextLong(1500, 3000);
+                if (nearestBanker != null) {
+                    if (nearestBanker.interact("Load Last Preset from")) {
+                        Execution.delay(random.nextLong(4500, 6000));
+                        return handleDivination(player);
+                    } else {
+                        log("[Error] Failed to interact with banker.");
+                        return random.nextLong(1500, 3000);
+                    }
                 }
             }
         }

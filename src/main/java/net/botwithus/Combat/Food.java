@@ -1,6 +1,5 @@
 package net.botwithus.Combat;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
@@ -9,7 +8,6 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
-import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
