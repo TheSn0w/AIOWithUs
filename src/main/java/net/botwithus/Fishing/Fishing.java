@@ -3,6 +3,7 @@ package net.botwithus.Fishing;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -14,20 +15,30 @@ import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Fishing {
 
     public static long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
         if (backpack.isFull()) {
+            log("[Fishing] Backpack is full. Handling full backpack.");
             return handleFullBackpack(player);
+        }
+        if(useGote) {
+            setLastSkillingLocation(player.getCoordinate());
+            Execution.delay(random.nextLong(1500, 3000));
+            usePorter();
         }
         if (player.isMoving() || (AnimationCheck && player.getAnimationId() == -1)) {
             return random.nextLong(1500, 3000);
@@ -38,6 +49,7 @@ public class Fishing {
             return interactWithFishingSpot(player, nearestFishingSpot, fishingAction);
         }
 
+        log("[Fishing] No nearest fishing spot found. Returning.");
         return random.nextLong(3500, 5000);
     }
 
@@ -153,5 +165,40 @@ public class Fishing {
             Execution.delay(1000);
         }
         return true;
+    }
+    private static void usePorter() {
+        String currentPorter = porterTypes[currentPorterType.get()];
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+
+        if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+            log("[Mining] Porters have " + varbitValue + " charges. Charging.");
+            log("[Caution] Interacting with Equipment - Equipment needs to be OPEN.");
+            if (equipment.contains("Grace of the elves")) {
+                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                if (interactionResult) {
+                    log("[Success] Interaction with Equipment was successful.");
+                } else {
+                    log("[Error] Interaction with Equipment failed.");
+                }
+            } else {
+                if (Backpack.contains(currentPorter)) {
+                    boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                    if (interactionResult) {
+                        log("[Success] Interaction with Backpack was successful.");
+                    } else {
+                        log("[Error] Interaction with Backpack failed.");
+                    }
+                }
+            }
+            Execution.delay(random.nextLong(1500, 3000));
+        } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+            if (nearestBank) {
+                log("[Error] No " + currentPorter + " found in the Backpack");
+                setBotState(BANKING);
+            } else {
+                log("[Error] No " + currentPorter + " found in the Backpack, and Banking is Disabled");
+                useGote = false;
+            }
+        }
     }
 }

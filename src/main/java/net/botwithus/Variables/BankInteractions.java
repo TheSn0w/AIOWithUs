@@ -35,7 +35,7 @@ import static net.botwithus.inventory.equipment.Slot.NECK;
 public class BankInteractions {
     public static final Coordinate VarrockWest = new Coordinate(3182, 3436, 0);
     public static final Coordinate VarrockEast = new Coordinate(3252, 3420, 0);
-    public static final Coordinate GrandExchange = new Coordinate(3162, 3484, 0);
+   /* public static final Coordinate GrandExchange = new Coordinate(3162, 3484, 0);*/
     public static final Coordinate Canafis = new Coordinate(3512, 3480, 0);
     public static final Coordinate AlKharid = new Coordinate(3271, 3168, 0);
     public static final Coordinate Lumbridge = new Coordinate(3214, 3257, 0);
@@ -57,20 +57,21 @@ public class BankInteractions {
     public static final Coordinate PrifddinasEast = new Coordinate(2232, 3310, 1);
     public static final Coordinate WarsRetreat = new Coordinate(3299, 10131, 0);
     public static final Coordinate Anachronia = new Coordinate(5465, 2342, 0);
-    public static final Coordinate Edgeville = new Coordinate(3096, 3496, 0);
+  /*  public static final Coordinate Edgeville = new Coordinate(3096, 3496, 0);*/
     public static final Coordinate KharidEt = new Coordinate(3356, 3197, 0);
     public static final Coordinate VIP = new Coordinate(3182, 2742, 0);
     public static final Coordinate STORMGUARD = new Coordinate(2675, 3404, 0);
 
     public static final List<Coordinate> BANK_COORDINATES = Arrays.asList(
-            VarrockWest, VarrockEast, GrandExchange, Canafis, AlKharid, Lumbridge,
+            VarrockWest, VarrockEast,/* GrandExchange,*/ Canafis, AlKharid, Lumbridge,
             Draynor, FaladorEast, SmithingGuild, FaladorWest, Burthorpe, Taverly,
             Catherby, Seers, ArdougneSouth, ArdougneNorth, Yanille, Ooglog,
             CityOfUm, prifWest, PrifddinasCenter, PrifddinasEast, WarsRetreat,
-            Anachronia, Edgeville, KharidEt, VIP, STORMGUARD
+            Anachronia, /*Edgeville, */KharidEt, VIP, STORMGUARD
     );
 
-    public static final List<String> BANK_TYPES = Arrays.asList("Bank chest", "Bank booth", "Counter, Banker");
+    public static List<String> BANK_TYPES = Arrays.asList("Bank chest", "Bank booth", "Counter");
+
 
     public static Coordinate findNearestBank(Coordinate playerPosition) {
         return BANK_COORDINATES.stream()
@@ -92,9 +93,8 @@ public class BankInteractions {
             for (Coordinate nearbyCoordinate : nearbyCoordinates) {
                 if (nearbyCoordinate.isWalkable()) {
                     Movement.walkTo(nearbyCoordinate.getX(), nearbyCoordinate.getY(), true);
-                    Execution.delay(random.nextLong(1500, 2500)); // Add delay here
+                    Execution.delay(random.nextLong(1500, 2500));
 
-                    // Check if player has moved to the desired coordinate
                     if (player.getCoordinate().equals(nearbyCoordinate)) {
                         log("[Success] Player has moved to the desired coordinate.");
                         break;
@@ -108,11 +108,12 @@ public class BankInteractions {
         Coordinate nearestBank = findNearestBank(player.getCoordinate());
         if (nearestBank != null) {
             if (Movement.traverse(NavPath.resolve(nearestBank)) == TraverseEvent.State.FINISHED) {
+                Execution.delay(random.nextLong(1500, 3000));
                 SceneObject nearestBankBooth = findNearestBankBooth(player, nearestBank);
                 if (nearestBankBooth != null) {
                     return interactWithBank(player, nearestBankBooth);
                 } else {
-                    log("[Banking] No bank booth found at the bank location.");
+                    log("[Banking] No bank found at the bank location.");
                 }
             } else {
                 log("[Banking] Failed to traverse to the nearest bank.");
@@ -134,8 +135,7 @@ public class BankInteractions {
                 return bankBooths.get(0);
             }
         }
-
-        log("[Banking] No bank booth found at the bank location.");
+        log("[Banking] No " + BANK_TYPES + " found at the bank location.");
         return null;
     }
 
@@ -169,7 +169,14 @@ public class BankInteractions {
                         Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
                         if (Bank.isOpen()) {
                             log("[Banking] Bank is open. Depositing items.");
-                            Bank.depositAll();
+
+                            if (isFishingActive) {
+                                log("[Banking] Bank is open. Depositing all items, Except for Feathers.");
+                                Bank.depositAllExcept(314);
+                            } else {
+                                log("[Banking] Bank is open. Depositing items.");
+                                Bank.depositAll();
+                            }
                             Execution.delay(random.nextLong(1500, 3000));
 
                             handleGote(varbitValue, player, nearestBankBooth);
@@ -194,7 +201,7 @@ public class BankInteractions {
         }
 
         log("[Error] Failed to interact with the bank using all available options.");
-        return random.nextLong(1500, 3000); // Random delay time
+        return random.nextLong(1500, 3000);
     }
 
     private static void handleGote(int varbitValue, LocalPlayer player, SceneObject nearestBankBooth) {
@@ -270,7 +277,7 @@ public class BankInteractions {
         }
 
         log("[Error] Failed to interact with the bank using all available options.");
-        return random.nextLong(1500, 3000); // Random delay time
+        return random.nextLong(1500, 3000);
     }
 
     private static long handleGoteWithdrawing() {

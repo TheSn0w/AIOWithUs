@@ -22,6 +22,7 @@ import static net.botwithus.Combat.Loot.LootEverything;
 import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Variables.Variables.*;
