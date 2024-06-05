@@ -400,34 +400,37 @@ public class Divination {
                     .findFirst()
                     .orElse(null);
 
-            if (restorePotion == null) {
-                log("[Error]  No restore potions found in the backpack, teleporting to Prif.");
-                Execution.delay(useBank(player));
-            } else {
-                boolean success = backpack.interact(restorePotion.getName(), "Drink");
-                if (success) {
-                    log("[Success] Successfully drank " + restorePotion.getName());
-                    long delay = random.nextLong(1500, 3000);
-                    Execution.delay(delay);
-                } else {
-                    log("[Error]  Failed to interact with " + restorePotion.getName());
-                }
-            }
-
-            ResultSet<Item> results = InventoryItemQuery.newQuery(93).option("Summon").results();
-            if (VarManager.getVarbitValue(6055) <= randomValue) {
-                log("[Error] Familiar is already summoned.");
-            } else {
-                if (!results.isEmpty()) {
-                    Item summonItem = results.first();
-                    if (summonItem != null) {
-                        String itemName = summonItem.getName();
-                        backpack.interact(itemName, "Summon");
-                        Execution.delayUntil(5000, () -> VarManager.getVarbitValue(6055) > 10);
+            if (player.getSummoningPoints() <= 1000) {
+                if (restorePotion != null) {
+                    boolean success = backpack.interact(restorePotion.getName(), "Drink");
+                    if (success) {
+                        log("[Success] Successfully drank " + restorePotion.getName());
+                        long delay = random.nextLong(1500, 3000);
+                        Execution.delay(delay);
+                    } else {
+                        log("[Error]  Failed to interact with " + restorePotion.getName());
                     }
                 } else {
-                    log("[Error] No Pouches found, using bank.");
+                    log("[Error]  No restore potions found in the backpack, teleporting to Prif.");
                     Execution.delay(useBank(player));
+                }
+            } else {
+                ResultSet<Item> results = InventoryItemQuery.newQuery(93).option("Summon").results();
+                if (VarManager.getVarbitValue(6055) >= randomValue) {
+                    log("[Error] Familiar is already summoned.");
+                } else {
+                    if (!results.isEmpty()) {
+                        Item summonItem = results.first();
+                        if (summonItem != null) {
+                            String itemName = summonItem.getName();
+                            backpack.interact(itemName, "Summon");
+                            Execution.delayUntil(5000, () -> VarManager.getVarbitValue(6055) > 10);
+                            log("[Success] Summoned familiar: " + itemName);
+                        }
+                    } else {
+                        log("[Error] No Pouches found, using bank.");
+                        Execution.delay(useBank(player));
+                    }
                 }
             }
         }
@@ -442,7 +445,6 @@ public class Divination {
         EntityResultSet<Npc> bankers = NpcQuery.newQuery().name("Banker").option("Bank").results();
 
         if (bankers.isEmpty()) {
-            log("[Error] No banker found to interact with.");
             if (Movement.traverse(NavPath.resolve(BANK_COORDINATE)) == TraverseEvent.State.FINISHED) {
                 bankers = NpcQuery.newQuery().name("Banker").option("Bank").results();
                 if (bankers.isEmpty()) {
@@ -452,6 +454,7 @@ public class Divination {
                 Npc nearestBanker = bankers.nearest();
                 if (nearestBanker != null) {
                     if (nearestBanker.interact("Load Last Preset from")) {
+                        log("[Success] Interacted with banker.");
                         Execution.delay(random.nextLong(4500, 6000));
                         return handleDivination(player);
                     } else {
