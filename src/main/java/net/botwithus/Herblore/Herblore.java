@@ -1,14 +1,11 @@
 package net.botwithus.Herblore;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.bank;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
-import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -23,8 +20,6 @@ import net.botwithus.rs3.script.Execution;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.AbstractMap.SimpleEntry;
 
 
@@ -33,13 +28,6 @@ import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 public class Herblore {
-    public SnowsScript skeletonScript;
-
-    public Herblore(SnowsScript script) {
-        this.skeletonScript = script;
-    }
-
-
 
     private static final Map<HerbloreRecipe, List<String>> potionMap = Map.ofEntries(
             new SimpleEntry<>(HerbloreRecipe.SUPREME_OVERLOADS, List.of("Overload (4)", "Crystal flask", "Super attack (4)", "Super strength (4)", "Super defence (4)", "Super ranging potion (4)", "Super magic potion (4)", "Super necromancy (4)")),

@@ -46,25 +46,18 @@ public class PorterMaker {
         }
         if (MakePorterVII) {
             porterVII();
-            taskScheduler.decreaseTaskCount("Porter VII");
         } else if (MakePorterVI) {
             porterVI();
-            taskScheduler.decreaseTaskCount("Porter VI");
         } else if (MakePorterV) {
             porterV();
-            taskScheduler.decreaseTaskCount("Porter V");
         } else if (MakePorterIV) {
             porterIV();
-            taskScheduler.decreaseTaskCount("Porter IV");
         } else if (MakePorterIII) {
             porterIII();
-            taskScheduler.decreaseTaskCount("Porter III");
         } else if (MakePorterII) {
             porterII();
-            taskScheduler.decreaseTaskCount("Porter II");
         } else if (MakePorterI) {
             porterI();
-            taskScheduler.decreaseTaskCount("Porter I");
         }
         return random.nextLong(750, 1050);
     }

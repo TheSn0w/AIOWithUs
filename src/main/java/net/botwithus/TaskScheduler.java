@@ -41,26 +41,4 @@ public class TaskScheduler {
         LoginManager.setAutoLogin(false);
         MiniMenu.interact(14, 1, -1, 93913156);
     }
-
-    private static HashMap<String, Integer> tasks = new HashMap<>();
-
-    public static void addTask(String task, int count) {
-        tasks.put(task, count);
-    }
-
-    public static boolean isTaskComplete(String task) {
-        return tasks.getOrDefault(task, 0) <= 0;
-    }
-
-    public static void decreaseTaskCount(String task) {
-        tasks.put(task, tasks.getOrDefault(task, 0) - 1);
-    }
-
-    public static int getTaskCount(String task) {
-        return tasks.getOrDefault(task, 0);
-    }
-
-    public static HashMap<String, Integer> getTasks() {
-        return tasks;
-    }
 }

@@ -332,9 +332,6 @@ public class SnowsScript extends LoopingScript {
                 itemType = itemType.replace(".", "");
                 int count = portersMade.getOrDefault(itemType, 0);
                 portersMade.put(itemType, count + 1);
-
-                // Decrease task count
-                TaskScheduler.decreaseTaskCount("Porter Making");
             }
         }
         if (isRunecraftingActive) {

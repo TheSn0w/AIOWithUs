@@ -110,6 +110,58 @@ public class WoodcuttingImGui {
                 ImGui.Text(entry.getKey() + ": " + entry.getValue());
             }
             ImGui.Text("Average logs cut per hour: " + (int) averageLogsPerHour);
+
+            if (useGote) {
+                ImGui.SeparatorText("GOTE/Porter Options");
+                ImGui.SetItemWidth(200.0F);
+                if (ImGui.Combo("Type of Porter", currentPorterType, porterTypes)) {
+                    int selectedIndex = currentPorterType.get();
+                    if (selectedIndex >= 0 && selectedIndex < porterTypes.length) {
+                        String selectedPorterType = porterTypes[selectedIndex];
+                        log("Selected porter type: " + selectedPorterType);
+                    } else {
+                        log("Please select a valid porter type.");
+                    }
+                }
+                ImGui.SetItemWidth(200.0F);
+
+                if (ImGui.Combo("# of Porters to withdraw", currentQuantity, quantities)) {
+                    int selectedIndex = currentQuantity.get();
+                    if (selectedIndex >= 0 && selectedIndex < quantities.length) {
+                        String selectedQuantity = quantities[selectedIndex];
+                        log("Selected quantity: " + selectedQuantity);
+                    } else {
+                        log("Please select a valid quantity.");
+                    }
+                }
+                ImGui.SeparatorText("Set Porter Withdraw Threshold from bank");
+                ImGui.SetItemWidth(100.0F);
+                int newThreshold = getChargeThreshold();
+                newThreshold = ImGui.InputInt("##ChargeThreshold", newThreshold);
+                if (newThreshold < 0) {
+                    newThreshold = 0;
+                } else if (newThreshold > 2000) {
+                    newThreshold = 2000;
+                }
+                setChargeThreshold(newThreshold);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("if banking due to full inv, it will withdraw porters if porter count is below this threshold");
+                }
+
+                ImGui.SeparatorText("Set Porter Equip Charge Threshold from Inventory");
+                ImGui.SetItemWidth(100.0F);
+                int newEquipThreshold = getEquipChargeThreshold();
+                newEquipThreshold = ImGui.InputInt("##EquipChargeThreshold", newEquipThreshold);
+                if (newEquipThreshold < 0) {
+                    newEquipThreshold = 0;
+                } else if (newEquipThreshold > 2000) {
+                    newEquipThreshold = 2000;
+                }
+                setEquipChargeThreshold(newEquipThreshold);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will equip/charge porters when the current one reaches this threshold OR will bank if none are available in backpack");
+                }
+            }
         }
     }
 }

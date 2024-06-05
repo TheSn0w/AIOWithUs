@@ -30,6 +30,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
@@ -47,8 +48,8 @@ public class Banking {
             }
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
-        log("[Caution] Going to the bank.");
         if (backpack.isFull()) {
+            log("[Caution] Going to the bank.");
             setBotState(BANKING);
         }
 
@@ -78,49 +79,81 @@ public class Banking {
     }
 
     public static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
-        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-        interactWithBankChest();
-        log("[Archaeology] Waiting for bank to open.");
-        waitForBankToOpen();
-
+        int varbitValue = getVarbitValue();
+        openBank();
         ResultSet<Item> soilBox = findSoilBoxInInventory();
-        if (Interfaces.isOpen(517)) {
-
+        if (isBankOpen()) {
             delayRandomly();
-            log("[Archaeology] Depositing all items except selected.");
-            depositAllExceptSelectedItems();
-            logItemsDeposited();
-
-            delayRandomly();
+            depositItems();
             interactWithSoilBoxIfPresent(soilBox);
-
-            if (useGote) {
-                if (VarManager.getVarbitValue(45141) != 1) {
-                    component(1, -1, 33882270);
-                    Execution.delay(random.nextLong(1000, 2000));
-                } else {
-                    log("[Archaeology] Bank Tab value is already 1");
-                }
-                Execution.delay(handleGoteCharges());
-                if (useGote) {
-                    Bank.close();
-                    Execution.delay(random.nextLong(1500, 2500));
-                    useBankingPorter();
-                    Execution.delay(random.nextLong(1500, 2500));
-                    if (varbitValue < getChargeThreshold()) {
-                        Execution.delay(handleBankingInteractionforPorter());
-                    }
-                } else {
-                    log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
-                }
-            }
-
-            delayRandomly();
+            handleGoteChargesAndPorter(varbitValue);
             returnToLastLocation(player, selectedArchNames);
             return random.nextLong(1500, 2500);
         } else {
             log("[Error] Bank did not open.");
             return random.nextLong(750, 1250);
+        }
+    }
+
+    public static int getVarbitValue() {
+        return VarManager.getInvVarbit(94, 2, 30214);
+    }
+
+    public static void openBank() {
+        interactWithBankChest();
+        log("[Archaeology] Waiting for bank to open.");
+        waitForBankToOpen();
+    }
+
+    public static boolean isBankOpen() {
+        return Interfaces.isOpen(517);
+    }
+
+    public static void depositItems() {
+        log("[Archaeology] Depositing all items except selected.");
+        int attempts = 0;
+
+        while (attempts < 5) {
+            depositAllExceptSelectedItems();
+            Execution.delay(random.nextLong(1000, 1500)); // Delay for 500-1000 milliseconds
+
+            if (Backpack.isFull()) {
+                log("[Error] Failed to deposit items. Attempting again...");
+                attempts++;
+            } else {
+                log("[Success] Successfully deposited items.");
+                break;
+            }
+        }
+
+        if (Backpack.isFull()) {
+            log("[Error] Failed to deposit items after 3 attempts. Shutting down...");
+            shutdown();
+        } else {
+            logItemsDeposited();
+        }
+    }
+
+    public static void handleGoteChargesAndPorter(int varbitValue) {
+        if (useGote) {
+            if (VarManager.getVarbitValue(45141) != 1) {
+                component(1, -1, 33882270);
+                Execution.delay(random.nextLong(1000, 2000));
+            } else {
+                log("[Archaeology] Bank Tab value is already 1");
+            }
+            Execution.delay(handleGoteCharges());
+            if (useGote) {
+                Bank.close();
+                Execution.delay(random.nextLong(1500, 2500));
+                useBankingPorter();
+                Execution.delay(random.nextLong(1500, 2500));
+                if (varbitValue < getChargeThreshold()) {
+                    Execution.delay(handleBankingInteractionforPorter());
+                }
+            } else {
+                log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
+            }
         }
     }
 
@@ -244,24 +277,25 @@ public class Banking {
         }
     }
 
-    private static ResultSet<Item> findSoilBoxInInventory() {
+    public static ResultSet<Item> findSoilBoxInInventory() {
         return InventoryItemQuery.newQuery(93).name("Archaeological soil box").results();
     }
 
-    private static void delayRandomly() {
+    public static void delayRandomly() {
         Execution.delay(RandomGenerator.nextInt(1500, 3000));
     }
 
-    private static void depositAllExceptSelectedItems() {
+    private static boolean depositAllExceptSelectedItems() {
         int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753};
         Bank.depositAllExcept(itemIdsToKeep);
+        return false;
     }
 
     private static void logItemsDeposited() {
         log("[Archaeology] Deposited all items except selected.");
     }
 
-    private static void interactWithSoilBoxIfPresent(ResultSet<Item> soilBox) {
+    public static void interactWithSoilBoxIfPresent(ResultSet<Item> soilBox) {
         if (soilBox != null && !soilBox.isEmpty()) {
             int slotIndex = soilBox.first().getSlot();
             if (slotIndex >= 0) {

@@ -2,7 +2,6 @@ package net.botwithus.Variables;
 
 import net.botwithus.Agility.Agility;
 import net.botwithus.Archaeology.Archeology;
-import net.botwithus.Combat.Combat;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Fishing.Fishing;

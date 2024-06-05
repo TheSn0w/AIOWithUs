@@ -109,6 +109,7 @@ public class MiningImGui {
                 }
                 ImGui.EndChild();
             }
+
             ImGui.SeparatorText("Ores Mined Count");
             for (Map.Entry<String, Integer> entry : types.entrySet()) {
                 String itemName = entry.getKey();

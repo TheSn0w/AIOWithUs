@@ -2,6 +2,7 @@ package net.botwithus.Mining;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -14,15 +15,18 @@ import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
 import net.botwithus.rs3.game.scene.entities.characters.Headbar;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 import java.util.*;
 import java.util.regex.Pattern;
+
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Mining {
 
@@ -30,16 +34,15 @@ public class Mining {
         if (!Backpack.isFull()) {
             return 0;
         }
-
         if (Backpack.containsItemByCategory(4448)) {
             Execution.delay(fillOreBox());
             if (Backpack.isFull()) {
-                sendToBank(player);
                 log("[Mining] Backpack is still full after filling ore box. Changing state to BANKING.");
                 return random.nextLong(1500, 3000);
             }
             return random.nextLong(500, 1000);
         }
+
 
         if (nearestBank) {
             sendToBank(player);
@@ -117,9 +120,14 @@ public class Mining {
             return backpackDelay;
         }
 
-
         if (player.isMoving()) {
             return random.nextLong(1500, 3000);
+        }
+
+        if(useGote) {
+            setLastSkillingLocation(player.getCoordinate());
+            Execution.delay(random.nextLong(1500, 3000));
+            usePorter();
         }
 
         long headbarDelay = handleHeadbars(player, selectedRockNames);
@@ -191,5 +199,40 @@ public class Mining {
         }
 
         return random.nextLong(1500, 3000);
+    }
+    private static void usePorter() {
+        String currentPorter = porterTypes[currentPorterType.get()];
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+
+        if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+            log("[Mining] Porters have " + varbitValue + " charges. Charging.");
+            log("[Caution] Interacting with Equipment - Equipment needs to be OPEN.");
+            if (equipment.contains("Grace of the elves")) {
+                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                if (interactionResult) {
+                    log("[Success] Interaction with Equipment was successful.");
+                } else {
+                    log("[Error] Interaction with Equipment failed.");
+                }
+            } else {
+                if (Backpack.contains(currentPorter)) {
+                    boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                    if (interactionResult) {
+                        log("[Success] Interaction with Backpack was successful.");
+                    } else {
+                        log("[Error] Interaction with Backpack failed.");
+                    }
+                }
+            }
+            Execution.delay(random.nextLong(1500, 3000));
+        } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+            if (nearestBank) {
+                log("[Error] No " + currentPorter + " found in the Backpack");
+                setBotState(BANKING);
+            } else {
+                log("[Error] No " + currentPorter + " found in the Backpack, and Banking is Disabled");
+                useGote = false;
+            }
+        }
     }
 }

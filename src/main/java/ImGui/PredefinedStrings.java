@@ -85,7 +85,6 @@ public class PredefinedStrings {
             "Warforge weapon rack",
             "Flight research debris",
             "Aetherium forge",
-            "Xolo mine",
             "Praetorian remains",
             "Bandos's sanctum debris",
             "Tsutsaroth remains",
@@ -93,7 +92,9 @@ public class PredefinedStrings {
             "War table debris",
             "Howl's workshop debris",
             "Makeshift pie oven",
-            "Xolo remains"
+            "Xolo mine",
+            "Xolo remains",
+            "Saurthen debris"
     );
     public static List<String> predefinedCacheNames = List.of(
             "Material cache (third Age iron)",

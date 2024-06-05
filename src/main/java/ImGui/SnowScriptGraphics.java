@@ -281,6 +281,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
+                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Gote/Porter");
+                        }
                     } else if (isMiningActive) {
                         createCenteredButton("Mining", () -> isMiningActive = !isMiningActive, true);
                         if (ImGui.IsItemHovered()) {
@@ -289,6 +293,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
+                        }
+                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Gote/Porter");
                         }
                     } else if (isWoodcuttingActive) {
                         createCenteredButton("Woodcutting", () -> isWoodcuttingActive = !isWoodcuttingActive, true);
@@ -321,6 +329,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Crystallise Mahogany", () -> crystalliseMahogany = !crystalliseMahogany, crystalliseMahogany);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Crystallise Mahogany Trees");
+                        }
+                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Gote/Porter");
                         }
                     } else if (isRunecraftingActive) {
                         createCenteredButton("Runecrafting", () -> isRunecraftingActive = !isRunecraftingActive, true);

@@ -68,13 +68,14 @@ public class Porters {
                     component(1, -1, 33882215);
                 }
                 withdrew = Bank.withdraw(selectedPorter, quantity);
+                Execution.delay(random.nextLong(1500, 3000));
                 if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
                     log("[Archaeology] Withdrew: " + selectedPorter + ".");
                 } else {
                     log("[Error] Failed to withdraw " + selectedPorter + ".");
                     log("[Caution] use Gote/Porter has been disabled.");
                     useGote = false;
-                    return random.nextLong(1500, 2500);
+                    return random.nextLong(1500, 3000);
                 }
             }
         }

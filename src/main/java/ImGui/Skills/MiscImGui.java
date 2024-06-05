@@ -18,7 +18,6 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.SnowsScript.*;
-import static net.botwithus.TaskScheduler.getTaskCount;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.tasks;
 

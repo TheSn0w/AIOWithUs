@@ -3,7 +3,7 @@ package net.botwithus.Variables;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.backpack;
-import net.botwithus.rs3.game.Client;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -14,6 +14,7 @@ import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.Arrays;
@@ -21,11 +22,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Archaeology.Banking.*;
+import static net.botwithus.Archaeology.Porters.getQuantityFromOption;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
+import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class BankInteractions {
     public static final Coordinate VarrockWest = new Coordinate(3182, 3436, 0);
@@ -74,6 +79,32 @@ public class BankInteractions {
     }
 
     public static long performBanking(LocalPlayer player) {
+        if (player.getAnimationId() != -1) {
+            log("[Caution] Player is currently performing an action. moving away to be able to teleport.");
+            Coordinate playerCoordinate = player.getCoordinate();
+            List<Coordinate> nearbyCoordinates = Arrays.asList(
+                    new Coordinate(playerCoordinate.getX() + 1, playerCoordinate.getY(), playerCoordinate.getZ()),
+                    new Coordinate(playerCoordinate.getX() - 1, playerCoordinate.getY(), playerCoordinate.getZ()),
+                    new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() + 1, playerCoordinate.getZ()),
+                    new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() - 1, playerCoordinate.getZ())
+            );
+
+            for (Coordinate nearbyCoordinate : nearbyCoordinates) {
+                if (nearbyCoordinate.isWalkable()) {
+                    Movement.walkTo(nearbyCoordinate.getX(), nearbyCoordinate.getY(), true);
+                    Execution.delay(random.nextLong(1500, 2500)); // Add delay here
+
+                    // Check if player has moved to the desired coordinate
+                    if (player.getCoordinate().equals(nearbyCoordinate)) {
+                        log("[Success] Player has moved to the desired coordinate.");
+                        break;
+                    } else {
+                        log("[Caution] Player has not moved to the desired coordinate. Trying the next one.");
+                    }
+                }
+            }
+        }
+
         Coordinate nearestBank = findNearestBank(player.getCoordinate());
         if (nearestBank != null) {
             if (Movement.traverse(NavPath.resolve(nearestBank)) == TraverseEvent.State.FINISHED) {
@@ -81,13 +112,13 @@ public class BankInteractions {
                 if (nearestBankBooth != null) {
                     return interactWithBank(player, nearestBankBooth);
                 } else {
-                    log("[Main] No bank booth found at the bank location.");
+                    log("[Banking] No bank booth found at the bank location.");
                 }
             } else {
-                log("[Main] Failed to traverse to the nearest bank.");
+                log("[Banking] Failed to traverse to the nearest bank.");
             }
         } else {
-            log("[Main] No nearby banks found.");
+            log("[Banking] No nearby banks found.");
         }
         return 1500;
     }
@@ -99,52 +130,58 @@ public class BankInteractions {
                     .toList();
 
             if (!bankBooths.isEmpty()) {
-                log("[Main] Found " + bankType + " at the bank location.");
+                log("[Banking] Found " + bankType + " at the bank location.");
                 return bankBooths.get(0);
             }
         }
 
-        log("[Main] No bank booth found at the bank location.");
+        log("[Banking] No bank booth found at the bank location.");
         return null;
     }
 
     public static long interactWithBank(LocalPlayer player, SceneObject nearestBankBooth) {
         Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
 
-        if (oreBox != null) {
+        if (oreBox != null || isMiningActive && useGote) {
             return handleOreBoxBanking(player, nearestBankBooth, oreBox);
         } else if (BankforFood) {
             return handleBankforFood(player, nearestBankBooth);
+        } else if (useGote && nearestBank) {
+            Execution.delay(handleGoteBanking(player, nearestBankBooth));
         }
         return handleNormalBanking(player, nearestBankBooth);
     }
 
-    public static long handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
-        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
+    public static long handleGoteBanking(LocalPlayer player, SceneObject nearestBankBooth) {
+        int varbitValue = getVarbitValue();
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
         String bankType = nearestBankBooth.getName();
 
         if (BANK_TYPES.contains(bankType)) {
             for (String interactionOption : interactionOptions) {
-                log("[Main] Ore box detected. Trying interaction option: " + interactionOption + " on " + bankType);
+                log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
 
-                for (int i = 0; i < 1; i++) { // tries to interact with the bank 1 time for each option
+                for (int i = 0; i < 1; i++) {
                     boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-                    log("[Main] Trying to interact with bank using " + interactionOption + " on " + bankType + ": " + interactionSuccess);
+                    log("[Banking] Trying to interact with bank using " + interactionOption + " on " + bankType + ": " + interactionSuccess);
 
                     if (interactionSuccess) {
                         Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
                         if (Bank.isOpen()) {
-                            log("[Main] Bank is open. Depositing items except ore box.");
-                            Bank.depositAllExcept(oreBoxesPattern);
-                            log("[Main] Deposited everything except: " + oreBox.getName());
+                            log("[Banking] Bank is open. Depositing items.");
+                            Bank.depositAll();
+                            Execution.delay(random.nextLong(1500, 3000));
 
-                            if (oreBox.getSlot() >= 0) {
-                                component(8, oreBox.getSlot(), 33882127);
-                                log("[Main] Emptied: " + oreBox.getName());
-                                setBotState(SKILLING);
+                            handleGote(varbitValue, player, nearestBankBooth);
+                            if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+                                log("[Porter] Traversing to last skilling location.");
+                                Execution.delay(random.nextLong(1500, 3000));
+                                if (getBotState() != SKILLING) {
+                                    setBotState(SKILLING);
+                                }
                             }
-                            return random.nextLong(1500, 3000); // Random delay time
+
+                            return random.nextLong(1500, 3000);
                         }
                     } else {
                         log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");
@@ -160,28 +197,165 @@ public class BankInteractions {
         return random.nextLong(1500, 3000); // Random delay time
     }
 
+    private static void handleGote(int varbitValue, LocalPlayer player, SceneObject nearestBankBooth) {
+        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
+        if (useGote) {
+            if (VarManager.getVarbitValue(45141) != 1) {
+                component(1, -1, 33882270);
+                Execution.delay(random.nextLong(1000, 2000));
+            }
+            Execution.delay(handleGoteWithdrawing());
+            if (useGote) {
+                Bank.close();
+                Execution.delay(random.nextLong(1500, 2500));
+                interactWithPorter();
+                Execution.delay(random.nextLong(1500, 2500));
+                if (varbitValue < getChargeThreshold()) {
+                    handleOreBoxBanking(player, nearestBankBooth, oreBox);
+                } else {
+                    log("[Banking] Grace of the Elves is charged, Going back to skilling.");
+                    if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+                        log("[Porter] Traversing to last skilling location.");
+                        Execution.delay(random.nextLong(1500, 3000));
+                        setBotState(SKILLING);
+                    }
+                }
+            } else {
+                log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
+            }
+        }
+    }
+
+    public static long handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
+        int varbitValue = getVarbitValue();
+        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
+        List<String> interactionOptions = Arrays.asList("Bank", "Use");
+        String bankType = nearestBankBooth.getName();
+
+        if (BANK_TYPES.contains(bankType)) {
+            for (String interactionOption : interactionOptions) {
+                log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
+
+                for (int i = 0; i < 1; i++) {
+                    boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
+                    log("[Banking] Trying to interact with bank using " + interactionOption + " on " + bankType + ": " + interactionSuccess);
+
+                    if (interactionSuccess) {
+                        Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
+                        if (Bank.isOpen()) {
+                            log("[Banking] Bank is open. Depositing items.");
+                            Bank.depositAllExcept(oreBoxesPattern);
+                            Execution.delay(random.nextLong(1500, 3000));
+
+                            if (useGote) {
+                                handleGote(varbitValue, player, nearestBankBooth);
+                            }
+                            Execution.delay(random.nextLong(1500, 3000));
+
+                            if (oreBox.getSlot() >= 0) {
+                                component(8, oreBox.getSlot(), 33882127);
+                                log("[Banking] Emptied: " + oreBox.getName());
+                                setBotState(SKILLING);
+                            }
+                            return random.nextLong(1500, 3000);
+                        }
+                    } else {
+                        log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");
+                        Execution.delay(random.nextLong(1500, 3000));
+                    }
+                }
+            }
+        } else {
+            log("[Error] Bank type " + bankType + " not recognized.");
+        }
+
+        log("[Error] Failed to interact with the bank using all available options.");
+        return random.nextLong(1500, 3000); // Random delay time
+    }
+
+    private static long handleGoteWithdrawing() {
+        if (useGote) {
+            int charges = VarManager.getInvVarbit(94, 2, 30214);
+
+            if (charges < getChargeThreshold()) {
+                String selectedPorter = porterTypes[currentPorterType.get()];
+                int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
+                boolean withdrew;
+                if (VarManager.getVarbitValue(45189) != 7) {
+                    component(1, -1, 33882215);
+                }
+                withdrew = Bank.withdraw(selectedPorter, quantity);
+                Execution.delay(random.nextLong(1500, 3000));
+                if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
+                    log("[Banking] Withdrew: " + selectedPorter + ".");
+                } else {
+                    log("[Error] Failed to withdraw " + selectedPorter + ".");
+                    log("[Caution] use Gote/Porter has been disabled.");
+                    useGote = false;
+                    return random.nextLong(1500, 3000);
+                }
+            }
+        }
+        return random.nextLong(1500, 2500);
+    }
+
+    private static void interactWithPorter() {
+        String currentPorter = porterTypes[currentPorterType.get()];
+        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+        if (useGote) {
+            if (Backpack.contains(currentPorter) && varbitValue <= getChargeThreshold()) {
+                if (equipment.contains("Grace of the elves")) {
+                    boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                    if (interactionResult) {
+                        log("[Success] Interaction with Equipment was successful.");
+                    } else {
+                        log("[Error] Interaction with Equipment failed.");
+                    }
+                } else {
+                    if (Backpack.contains(currentPorter)) {
+                        boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                        if (interactionResult) {
+                            log("[Success] Interaction with " + currentPorter + " was successful.");
+                        } else {
+                            log("[Error] Interaction with Backpack failed.");
+                        }
+                    } else {
+                        log("[Error] No '" + currentPorter + "' found in the Backpack.");
+                        if (!nearestBank) {
+                            log("[Error] No " + currentPorter + " found in the Backpack, and Banking is disabled");
+                            useGote = false;
+                        }
+                    }
+                }
+            }
+        } else {
+            log("[Error] No " + currentPorter + " found in the Backpack.");
+        }
+    }
+
+
     public static long handleNormalBanking(LocalPlayer player, SceneObject nearestBankBooth) {
         String bankType = nearestBankBooth.getName();
         if (BANK_TYPES.contains(bankType)) {
             String interactionOption = "Load Last Preset from";
-            log("[Main] Trying interaction option: " + interactionOption + " on " + bankType);
+            log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
 
-            for (int i = 0; i < 1; i++) {  // Retry 3 times
+            for (int i = 0; i < 1; i++) {
                 boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-                log("[Main] Trying to interact with " + bankType + ": " + interactionSuccess);
+                log("[Banking] Trying to interact with " + bankType + ": " + interactionSuccess);
 
                 if (interactionSuccess) {
                     Execution.delay(random.nextLong(3000, 5000));
                     setBotState(SKILLING);
-                    return random.nextLong(1500, 3000); // Random delay time
+                    return random.nextLong(1500, 3000);
                 } else {
                     log("[Error] Failed to interact with " + bankType + ". Retrying...");
-                    Execution.delay(random.nextLong(1500, 3000));  // Wait 1 second before retrying
+                    Execution.delay(random.nextLong(1500, 3000));
                 }
             }
         }
 
         log("[Error] Failed to interact with the bank using all available options.");
-        return random.nextLong(1500, 3000); // Random delay time
+        return random.nextLong(1500, 3000);
     }
 }
