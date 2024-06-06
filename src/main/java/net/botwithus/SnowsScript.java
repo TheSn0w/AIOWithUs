@@ -451,40 +451,7 @@ public class SnowsScript extends LoopingScript {
     }
 
     public static void setLastSkillingLocation(Coordinate location) {
-        Variables.lastSkillingLocation = location;
-    }
-
-    public static Area.Rectangular getLastSkillingLocation() {
-        if (lastSkillingLocation != null) {
-            int x = lastSkillingLocation.getX();
-            int y = lastSkillingLocation.getY();
-            int z = lastSkillingLocation.getZ();
-
-            Area.Rectangular area = new Area.Rectangular(
-                    new Coordinate(x - 2, y - 2, z),
-                    new Coordinate(x + 2, y + 2, z)
-            );
-            return area;
-        }
-        return null;
-    }
-
-
-
-
-    private static void depositAllExceptOreBox() {
-        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
-        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
-
-        if (oreBox != null) {
-            Bank.depositAllExcept(oreBoxesPattern);
-            log("[Main] Deposited everything except: " + oreBox.getName());
-
-            if (oreBox.getSlot() >= 0) {
-                MiniMenu.interact(ComponentAction.COMPONENT.getType(), 8, oreBox.getSlot(), 33882127);
-                log("[Main] Emptied: " + oreBox.getName());
-            }
-        }
+        lastSkillingLocation = location;
     }
 
 

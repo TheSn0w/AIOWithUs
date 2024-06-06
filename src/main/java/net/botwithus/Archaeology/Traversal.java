@@ -15,9 +15,9 @@ import static net.botwithus.Archaeology.TraversetoWarforge.shouldTraverseToWarfo
 import static net.botwithus.Archaeology.TraversetoWarforge.traverseToWarforge;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
-import static net.botwithus.SnowsScript.getLastSkillingLocation;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.Variables.Variables.dialog;
+import static net.botwithus.Variables.Variables.lastSkillingLocation;
 
 public class Traversal {
 
@@ -62,7 +62,7 @@ public class Traversal {
     }
 
     public static void traverseToLastSkillingLocation() {
-        if (Movement.traverse(NavPath.resolve(getLastSkillingLocation())) == TraverseEvent.State.FINISHED) {
+        if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
             log("[Archaeology] Finished traversing to last location.");
             setBotState(SKILLING);
         } else {

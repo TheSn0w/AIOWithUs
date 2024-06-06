@@ -65,7 +65,7 @@ public class Banking {
                         Execution.delayUntil(random.nextLong(2000, 3000), player::isMoving);
                         if (player.isMoving()) {
                             Execution.delay(random.nextLong(5000, 7500));
-                            NavPath path = NavPath.resolve(getLastSkillingLocation());
+                            NavPath path = NavPath.resolve(lastSkillingLocation);
                             if (Movement.traverse(path) == TraverseEvent.State.FINISHED) {
                                 setBotState(SKILLING);
                             }
@@ -119,7 +119,7 @@ public class Banking {
                             Execution.delay(random.nextLong(1000, 2000));
                             if (Backpack.containsItemByCategory(58)) {
                                 log("[Success] Food withdrawn from the bank, going back to last location");
-                                NavPath path = NavPath.resolve(getLastSkillingLocation());
+                                NavPath path = NavPath.resolve(lastSkillingLocation);
                                 if (Movement.traverse(path) == TraverseEvent.State.FINISHED) {
                                     setBotState(SKILLING);
                                 }

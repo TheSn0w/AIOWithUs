@@ -26,9 +26,8 @@ import static net.botwithus.Archaeology.Banking.*;
 import static net.botwithus.Archaeology.Porters.getQuantityFromOption;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
-import static net.botwithus.SnowsScript.getBotState;
-import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
@@ -351,7 +350,11 @@ public class BankInteractions {
 
                 if (interactionSuccess) {
                     Execution.delay(random.nextLong(3000, 5000));
-                    setBotState(SKILLING);
+                    if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+                        log("[Porter] Traversing to last skilling location.");
+                        Execution.delay(random.nextLong(1500, 3000));
+                        setBotState(SKILLING);
+                    }
                     return random.nextLong(1500, 3000);
                 } else {
                     log("[Error] Failed to interact with " + bankType + ". Retrying...");
