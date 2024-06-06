@@ -376,7 +376,7 @@ public class Woodcutting {
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
         if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
-            log("[Mining] Porters have " + varbitValue + " charges. Charging.");
+            log("[Woodcutting] Porters have " + varbitValue + " charges. Charging.");
             log("[Caution] Interacting with Equipment - Equipment needs to be OPEN.");
             if (equipment.contains("Grace of the elves")) {
                 boolean interactionResult = equipment.interact(NECK, "Charge all porters");

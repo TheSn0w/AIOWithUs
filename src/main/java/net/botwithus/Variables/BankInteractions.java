@@ -183,9 +183,7 @@ public class BankInteractions {
                             if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
                                 log("[Porter] Traversing to last skilling location.");
                                 Execution.delay(random.nextLong(1500, 3000));
-                                if (getBotState() != SKILLING) {
-                                    setBotState(SKILLING);
-                                }
+                                setBotState(SKILLING);
                             }
 
                             return random.nextLong(1500, 3000);

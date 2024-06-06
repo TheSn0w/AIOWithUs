@@ -11,6 +11,8 @@ import static net.botwithus.Archaeology.TraverseHellfire.shouldTraverseToHellfir
 import static net.botwithus.Archaeology.TraverseHellfire.traverseToHellfireLift;
 import static net.botwithus.Archaeology.TraverseKharidEt.shouldTraverseToKharidEt;
 import static net.botwithus.Archaeology.TraverseKharidEt.traverseToKharidEt;
+import static net.botwithus.Archaeology.TraversetoWarforge.shouldTraverseToWarforge;
+import static net.botwithus.Archaeology.TraversetoWarforge.traverseToWarforge;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.getLastSkillingLocation;
@@ -27,6 +29,9 @@ public class Traversal {
         }
         if (shouldTraverseToKharidEt(selectedArchNames)) {
             traverseToKharidEt(selectedArchNames);
+        }
+        if (shouldTraverseToWarforge(selectedArchNames)) {
+            traverseToWarforge(selectedArchNames);
         } else {
             traverseToLastSkillingLocation();
         }
@@ -45,6 +50,12 @@ public class Traversal {
         } else if (selectedArchNames.contains("Praesidio remains") || selectedArchNames.contains("Carcerem debris")) {
             dialog(0, -1, 47185940);
             log("[Archaeology] Selecting: Prison block.");
+        } else if (selectedArchNames.contains("Gladiatorial goblin remains") || selectedArchNames.contains("Crucible stands debris")) {
+            dialog(0, -1, 47185921);
+            log("[Archaeology] Selecting: Crucible.");
+        } else if (selectedArchNames.contains("Goblin dorm debris") || selectedArchNames.contains("Big High War God shrine") || selectedArchNames.contains("Yu'biusk animal pen") || selectedArchNames.contains("Yu'biusk clay pit") || selectedArchNames.contains("Goblin trainee remains") || selectedArchNames.contains("Kyzaj champion's boudoir") || selectedArchNames.contains("Warforge scrap pile") || selectedArchNames.contains("Warforge weapon rack") || selectedArchNames.contains("Makeshift pie oven")) {
+            dialog(0, -1, 47185940);
+            log("[Archaeology] Selecting: Warforge tunnels.");
         } else {
             log("[Error] No valid dialog option found.");
         }
