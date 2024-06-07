@@ -62,7 +62,6 @@ public class Combat {
             return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
         }
         if (handleMultitarget) {
-            // Refresh the recentlyAttackedTargets set every 10 seconds
             if (System.currentTimeMillis() - lastClearTime > 10000) {
                 recentlyAttackedTargets.clear();
                 lastClearTime = System.currentTimeMillis();
@@ -74,20 +73,15 @@ public class Combat {
         if (player.hasTarget()) {
             PathingEntity<?> target = player.getTarget();
             if (!handleMultitarget) {
-                // If multitarget is not enabled, return early if player has a target
                 return logAndDelay("[Combat] Player already has a target.", 400, 500);
             } else {
-                // If multitarget is enabled, check the health of the current target
                 if (target.getCurrentHealth() > target.getMaximumHealth() * healthThreshold) {
-                    // If current target's health is above the threshold, return early
                     return logAndDelay("[Combat] Current target's health is above threshold.", 400, 500);
                 } else {
-                    // If the current target's health is below the threshold, find a different target
                     Npc newTarget = findDifferentTarget(player, target.getId());
                     if (newTarget != null) {
                         return attackMonster(player, newTarget);
                     } else {
-                        // If no new target is found, return early
                         return logAndDelay("[Combat] No new target found.", 400, 500);
                     }
                 }
@@ -107,7 +101,6 @@ public class Combat {
 
         Pattern monsterPattern = generateRegexPattern(targetNames);
 
-        // Try to find a target with health above the threshold
         Npc newTarget = NpcQuery.newQuery()
                 .name(monsterPattern)
                 .isReachable()
@@ -119,7 +112,6 @@ public class Combat {
                 .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
                 .orElse(null);
 
-        // If no such target is found, try to find any target that is not the current target
         if (newTarget == null) {
             newTarget = NpcQuery.newQuery()
                     .name(monsterPattern)
