@@ -190,7 +190,7 @@ public class ArchaeologyImGui {
 
             ImGui.Text("Material Types Per Hour: " + materialTypesPerHourInt);
 
-                ImGui.SeparatorText("Whitelisted Excavation sites");
+            /*    ImGui.SeparatorText("Whitelisted Excavation sites");
                 for (CoordinateSceneObject obj : whitelistedSceneObjects) {
                     ImGui.Text(obj.getSceneObject().getName() + " at " + obj.getSceneObject().getCoordinate());
                 }
@@ -198,7 +198,7 @@ public class ArchaeologyImGui {
                 ImGui.SeparatorText("Blacklisted Excavation sites");
                 for (CoordinateSceneObject obj : blacklistedSceneObjects) {
                     ImGui.Text(obj.getSceneObject().getName() + " at " + obj.getSceneObject().getCoordinate());
-            }
+            }*/
         }
     }
 }

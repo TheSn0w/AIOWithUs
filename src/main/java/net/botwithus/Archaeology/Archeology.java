@@ -2,13 +2,18 @@ package net.botwithus.Archaeology;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
@@ -16,6 +21,7 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 import java.util.*;
 import java.util.function.Supplier;
+import net.botwithus.rs3.game.Item;
 
 import static net.botwithus.Archaeology.Banking.backpackIsFull;
 import static net.botwithus.Archaeology.Buffs.*;
@@ -30,6 +36,7 @@ public class Archeology {
     public SnowsScript script;
     final Map<String, Supplier<Long>> methodMap;
     static Map<String, Coordinate> coordinateMap = Map.of();
+    public static boolean dropSoil = false;
 
 
     public Archeology(SnowsScript script) {
@@ -92,12 +99,46 @@ public class Archeology {
             }
         }
     }
+    static void dropAllSoil() {
+        log("[Archaeology] Backpack is full. Dropping all soil...");
+
+        ResultSet<Item> allItems = InventoryItemQuery.newQuery(93).results();
+
+        for (Item item : allItems) {
+            if (item != null && item.getConfigType().getCategory() == 4603) {
+                dropItem(item);
+            }
+        }
+    }
+
+    static void dropItem(Item item) {
+        String itemName = item.getName();
+
+        if (ActionBar.containsItem(itemName)) {
+            boolean success = ActionBar.useItem(itemName, "Drop");
+            if (success) {
+                log("[Archaeology] Dropping (ActionBar): " + itemName);
+                Execution.delay(random.nextLong(206, 405));
+            }
+        } else { // Use Backpack fallback
+            boolean success = backpack.interact(itemName, "Drop");
+            if (success) {
+                log("[Archaeology] Dropping (Backpack): " + itemName);
+                Execution.delay(random.nextLong(620, 650));
+            }
+        }
+    }
 
     public static long doSomeArch(LocalPlayer player, List<String> selectedArchNames) {
         if (Backpack.isFull()) {
-            backpackIsFull(player);
-            return random.nextLong(1500, 3000);
+            if (dropSoil) {
+                dropAllSoil();
+            } else {
+                backpackIsFull(player);
+                return random.nextLong(1500, 3000);
+            }
         }
+
         useGrace();
         useBuffs();
 

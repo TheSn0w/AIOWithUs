@@ -27,6 +27,7 @@ import static ImGui.Skills.RunecraftingImGui.renderRunecrafting;
 import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
+import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -238,6 +239,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Upkeep Grace of the Elves");
+                        }
+                        createCenteredButton("Drop soil", () -> dropSoil = !dropSoil, dropSoil);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will drop soil instead of banking to deposit");
                         }
                     } else if (isCombatActive) {
                         createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, true);
