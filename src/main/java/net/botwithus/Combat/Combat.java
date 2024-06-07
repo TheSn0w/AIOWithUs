@@ -68,8 +68,6 @@ public class Combat {
             }
         }
 
-
-
         if (player.hasTarget()) {
             PathingEntity<?> target = player.getTarget();
             if (!handleMultitarget) {

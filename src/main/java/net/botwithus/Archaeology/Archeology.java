@@ -29,27 +29,26 @@ import static net.botwithus.Variables.Variables.*;
 public class Archeology {
     public SnowsScript script;
     final Map<String, Supplier<Long>> methodMap;
-    static Map<String, Coordinate> coordinateMap = initializeCoordinateMap();
+    static Map<String, Coordinate> coordinateMap = Map.of();
+
 
     public Archeology(SnowsScript script) {
         this.script = script;
+        coordinateMap = new HashMap<>();
         this.methodMap = new HashMap<>();
+        this.initializeCoordinateMap();
     }
 
 
-    private static Map<String, Coordinate> initializeCoordinateMap() {
-        Map<String, Coordinate> map = new HashMap<>();
-        map.put("Administratum debris", new Coordinate(2448, 7569, 0));
-        map.put("Castra debris", new Coordinate(2444, 7585, 0));
-        map.put("Legionary remains", new Coordinate(2437, 7596, 0));
-        map.put("Venator remains", new Coordinate(3373, 3190, 0));
-        map.put("Lodge art storage", new Coordinate(2589, 7331, 0));
-        map.put("Lodge bar storage", new Coordinate(2589, 7331, 0));
-        map.put("Material cache (samite silk)", new Coordinate(3373, 3200, 0));
-        map.put("Ikovian memorial", new Coordinate(2681, 3397, 0));
-        map.put("Saurthen debris", new Coordinate(1247, 230, 0));
-        map.put("Amphitheatre debris", new Coordinate(3750, 3299, 0));
-        return map;
+    private void initializeCoordinateMap() {
+        coordinateMap.put("Administratum debris", new Coordinate(2448, 7569, 0));
+        coordinateMap.put("Castra debris", new Coordinate(2444, 7585, 0));
+        coordinateMap.put("Legionary remains", new Coordinate(2437, 7596, 0));
+        coordinateMap.put("Venator remains", new Coordinate(3373, 3190, 0));
+        coordinateMap.put("Lodge art storage", new Coordinate(2589, 7331, 0));
+        coordinateMap.put("Lodge bar storage", new Coordinate(2589, 7331, 0));
+        coordinateMap.put("Material cache (samite silk)", new Coordinate(3373, 3200, 0));
+        coordinateMap.put("Ikovian memorial", new Coordinate(2681, 3397, 0));
     }
 
 
@@ -63,35 +62,23 @@ public class Archeology {
         double closestDistance = Double.MAX_VALUE;
 
         for (String name : selectedArchNames) {
-            if (name == null || name.isEmpty()) {
-                continue;
-            }
+            if (name != null && !name.isEmpty()) {
+                SceneObject nearestObject = SceneObjectQuery.newQuery()
+                        .name(name)
+                        .results()
+                        .nearest();
 
-            Coordinate targetCoordinate = coordinateMap.get(name);
-            if (targetCoordinate == null) {
-                log("[Debug] No coordinate found for name: " + name);
-                continue;
-            }
-
-            double distance = player.getCoordinate().distanceTo(targetCoordinate);
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestName = name;
-            }
-
-            if (distance > 25.0D) {
-                log("[Caution] attempting to traverse");
-                if (Movement.traverse(NavPath.resolve(targetCoordinate)) == TraverseEvent.State.FINISHED) {
-                    log("[Success] Finished traversing to: " + name);
-                } else {
-                    log("[Error] Failed to traverse to: " + name);
+                if (nearestObject != null) {
+                    double distance = player.getCoordinate().distanceTo(nearestObject.getCoordinate());
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestName = name;
+                    }
                 }
-                return handleExcavation(closestName);
             }
         }
 
         if (closestName == null) {
-            log("[Error] No valid excavation names found.");
             return random.nextLong(1500, 3000);
         }
 
@@ -99,14 +86,14 @@ public class Archeology {
             return MaterialCaches(player, selectedArchNames);
         } else {
             if (closestDistance <= 25.0D) {
-                return Excavation(player, selectedArchNames);
+                return doSomeArch(player, selectedArchNames);
+            } else {
+                return handleExcavation(closestName);
             }
         }
-
-        return random.nextLong(1500, 3000);
     }
 
-    public static long Excavation(LocalPlayer player, List<String> selectedArchNames) {
+    public static long doSomeArch(LocalPlayer player, List<String> selectedArchNames) {
         if (Backpack.isFull()) {
             backpackIsFull(player);
             return random.nextLong(1500, 3000);
@@ -114,56 +101,66 @@ public class Archeology {
         useGrace();
         useBuffs();
 
-
         long checkInterval = RandomGenerator.nextInt(3000, 10000);
-
         boolean playerIdle = (player == null || player.getAnimationId() == -1);
-
-
-        SpotAnimation currentSpotAnimation = SpotAnimationQuery.newQuery()
-                .ids(7307)
-                .results()
-                .nearest();
+        SpotAnimation currentSpotAnimation = SpotAnimationQuery.newQuery().ids(7307).results().nearest();
 
         if (currentSpotAnimation == null) {
-            log("[Caution] No spot animation found.");
+            log("[Error] No spot animation found.");
             return interactWithDefaultObjects(selectedArchNames, checkInterval);
         }
 
         Coordinate currentCoord = currentSpotAnimation.getCoordinate();
-
         boolean spotAnimationMoved = (lastSpotAnimationCoordinate == null || !lastSpotAnimationCoordinate.equals(currentCoord));
 
         if (spotAnimationMoved) {
-            log("[Archaeology] Spot animation has moved.");
-            Execution.delay(RandomGenerator.nextInt(1500, 3000));
+            Execution.delay(RandomGenerator.nextInt(1500, 5000));
             lastSpotAnimationCoordinate = currentCoord;
+            log("[Caution] Spot animation has moved.");
         }
 
         String[] archNamesArray = selectedArchNames.toArray(new String[0]);
-        SceneObjectQuery query = SceneObjectQuery.newQuery()
-                .name(archNamesArray)
-                .hidden(false);
+        SceneObjectQuery query = SceneObjectQuery.newQuery().name(archNamesArray).hidden(false);
+        SceneObject nearestSceneObject = query.results().nearestTo(currentCoord);
+        CoordinateSceneObject coordinateSceneObject = new CoordinateSceneObject(nearestSceneObject);
 
-        SceneObject matchingArchObject = query.results()
-                .nearestTo(currentCoord);
-
-        if (matchingArchObject != null && matchingArchObject.getCoordinate().equals(currentCoord)) {
+        if (nearestSceneObject != null && !blacklistedSceneObjects.contains(coordinateSceneObject)) {
             if (spotAnimationMoved || playerIdle) {
-                if (selectedArchNames.contains(matchingArchObject.getName())) {
-                    matchingArchObject.interact("Excavate");
-                    log("[Archaeology] Interacting with: " + matchingArchObject.getName());
-                    return checkInterval;
+                if (selectedArchNames.contains(nearestSceneObject.getName())) {
+                    nearestSceneObject.interact("Excavate");
+                    whitelistedSceneObjects.add(coordinateSceneObject);
+
+                    int currentAnimationId = player.getAnimationId();
+                    for (int i = 0; i < 5; ) {
+                        Execution.delay(1000);
+
+                        if (player.isMoving()) {
+                            continue;
+                        }
+                        log("[Debug] Waiting for " + (i + 1) + " seconds.");
+
+                        if (player.getAnimationId() != currentAnimationId) {
+                            return checkInterval;
+                        }
+
+                        i++;
+                    }
+
+                    if (!whitelistedSceneObjects.contains(coordinateSceneObject)) {
+                        blacklistedSceneObjects.add(coordinateSceneObject);
+                        log("[Debug] Blacklisted: " + nearestSceneObject.getName());
+                    }
                 }
             }
         }
-        if (playerIdle) {
-            SceneObject nearestObject = query.results()
-                    .nearestTo(currentCoord);
 
-            if (nearestObject != null && selectedArchNames.contains(nearestObject.getName())) {
+        if (playerIdle) {
+            SceneObject nearestObject = query.results().nearestTo(currentCoord);
+            coordinateSceneObject = new CoordinateSceneObject(nearestObject);
+
+            if (nearestObject != null && selectedArchNames.contains(nearestObject.getName()) && !blacklistedSceneObjects.contains(coordinateSceneObject)) {
                 nearestObject.interact("Excavate");
-                log("[Archaeology] Interacting with: " + nearestObject.getName());
+                whitelistedSceneObjects.add(coordinateSceneObject);
                 return checkInterval;
             }
         }
@@ -188,11 +185,17 @@ public class Archeology {
 
         return checkInterval;
     }
+    public static final Set<CoordinateSceneObject> blacklistedSceneObjects = new HashSet<>();
+    public static final Set<CoordinateSceneObject> whitelistedSceneObjects = new HashSet<>();
+
+
+
+
 
     public static long MaterialCaches(LocalPlayer player, List<String> selectedArchNames) {
+
         if (Backpack.isFull()) {
-            setLastSkillingLocation(player.getCoordinate());
-            setBotState(BANKING);
+            backpackIsFull(player);
             return random.nextLong(1500, 3000);
         }
 
@@ -201,19 +204,52 @@ public class Archeology {
         }
 
         for (String excavationName : selectedArchNames) {
+
             SceneObject nearestSceneObject = SceneObjectQuery.newQuery()
                     .name(excavationName)
                     .hidden(false)
                     .results()
                     .nearest();
 
-            if (nearestSceneObject != null) {
-                nearestSceneObject.interact("Excavate");
-                log("[Archaeology] Interacting with: " + nearestSceneObject.getName());
-                return random.nextLong(1500, 3000);
-            }
-        }
+            CoordinateSceneObject coordinateSceneObject = new CoordinateSceneObject(nearestSceneObject);
 
+
+            if (nearestSceneObject != null && !blacklistedSceneObjects.contains(coordinateSceneObject)) {
+                log("[Debug] Found: " + excavationName);
+                log("[Debug] Attempting to interact.");
+                nearestSceneObject.interact("Excavate");
+
+                int currentAnimationId = player.getAnimationId();
+
+                for (int i = 0; i < 5; ) {
+                    Execution.delay(1000);
+
+                    if (player.isMoving()) {
+                        continue;
+                    }
+                    log("[Debug] Waiting for " + (i + 1) + " seconds.");
+
+
+                    if (player.getAnimationId() != currentAnimationId) {
+                        log("[Archaeology] Interacted with: " + nearestSceneObject.getName());
+                        log("[Debug] Whitelisted SceneObject: " + nearestSceneObject.getName());
+                        whitelistedSceneObjects.add(coordinateSceneObject);
+                        return random.nextLong(1500, 3000);
+                    }
+
+                    i++;
+                }
+
+                if (!whitelistedSceneObjects.contains(coordinateSceneObject)) {
+                    log("[Debug] " + excavationName + " is not reachable.");
+                    blacklistedSceneObjects.add(coordinateSceneObject);
+                    log("[Debug] Blacklisted: :" + excavationName + nearestSceneObject.getName());
+                } else {
+                    log("[Debug] No: " + excavationName + " found.");
+                }
+            }
+
+        }
         return random.nextLong(1500, 3000);
     }
 
@@ -222,26 +258,24 @@ public class Archeology {
         Coordinate targetCoordinate = coordinateMap.get(targetName);
 
         if (targetCoordinate == null) {
-            log("[Error] No coordinate for " + targetName);
             return random.nextLong(1500, 3000);
         }
 
-        EntityResultSet<SceneObject> results = SceneObjectQuery
-                .newQuery()
-                .name(targetName)
-                .option("Excavate")
-                .results();
+        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name(targetName).option("Excavate").results();
 
         if (results.isEmpty()) {
-            log("[Error] No " + targetName + " found.");
-
-            Movement.traverse(NavPath.resolve(targetCoordinate));
+            if (Movement.traverse(NavPath.resolve(targetCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("[Debug] Finished traversing to: " + targetName);
+            }
             return random.nextLong(1500, 3000);
         }
 
         SceneObject nearest = results.nearest();
-        if (nearest != null) {
+        CoordinateSceneObject coordinateSceneObject = new CoordinateSceneObject(nearest);
+
+        if (nearest != null && !blacklistedSceneObjects.contains(coordinateSceneObject)) {
             setBotState(SKILLING);
+            whitelistedSceneObjects.add(coordinateSceneObject);
             return random.nextLong(1500, 3000);
         }
 

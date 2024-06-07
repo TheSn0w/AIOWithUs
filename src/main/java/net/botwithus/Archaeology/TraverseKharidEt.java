@@ -24,7 +24,9 @@ public class TraverseKharidEt {
                 || selectedArchNames.contains("Castra debris")
                 || selectedArchNames.contains("Administratum debris")
                 || selectedArchNames.contains("Praesidio remains")
-                || selectedArchNames.contains("Carcerem debris");
+                || selectedArchNames.contains("Carcerem debris")
+                || selectedArchNames.contains("Material cache (imperial steel)")
+                || selectedArchNames.contains("Material cache (Zarosian insignia)");
 
     }
 

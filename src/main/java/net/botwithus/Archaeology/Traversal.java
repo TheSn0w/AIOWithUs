@@ -44,7 +44,7 @@ public class Traversal {
         } else if ((selectedArchNames.contains("Lodge bar storage") || selectedArchNames.contains("Lodge art storage"))) {
             dialog(0, -1, 47185921);
             log("[Archaeology] Selecting: Star Lodge cellar.");
-        } else if ((selectedArchNames.contains("Legionary remains") || selectedArchNames.contains("Castra debris") || selectedArchNames.contains("Administratum debris"))) {
+        } else if ((selectedArchNames.contains("Legionary remains") || selectedArchNames.contains("Castra debris") || selectedArchNames.contains("Administratum debris") || selectedArchNames.contains("Material cache (imperial steel)") || selectedArchNames.contains("Material cache (Zarosian insignia)"))) {
             dialog(0, -1, 47185921);
             log("[Archaeology] Selecting: Main Fortress.");
         } else if (selectedArchNames.contains("Praesidio remains") || selectedArchNames.contains("Carcerem debris")) {
@@ -53,7 +53,7 @@ public class Traversal {
         } else if (selectedArchNames.contains("Gladiatorial goblin remains") || selectedArchNames.contains("Crucible stands debris")) {
             dialog(0, -1, 47185921);
             log("[Archaeology] Selecting: Crucible.");
-        } else if (selectedArchNames.contains("Goblin dorm debris") || selectedArchNames.contains("Big High War God shrine") || selectedArchNames.contains("Yu'biusk animal pen") || selectedArchNames.contains("Yu'biusk clay pit") || selectedArchNames.contains("Goblin trainee remains") || selectedArchNames.contains("Kyzaj champion's boudoir") || selectedArchNames.contains("Warforge scrap pile") || selectedArchNames.contains("Warforge weapon rack") || selectedArchNames.contains("Makeshift pie oven")) {
+        } else if (selectedArchNames.contains("Goblin dorm debris") || selectedArchNames.contains("Big High War God shrine") || selectedArchNames.contains("Yu'biusk animal pen") || selectedArchNames.contains("Yu'biusk clay pit") || selectedArchNames.contains("Goblin trainee remains") || selectedArchNames.contains("Kyzaj champion's boudoir") || selectedArchNames.contains("Warforge scrap pile") || selectedArchNames.contains("Warforge weapon rack") || selectedArchNames.contains("Makeshift pie oven") || selectedArchNames.contains("Material cache (vulcanised rubber)")) {
             dialog(0, -1, 47185940);
             log("[Archaeology] Selecting: Warforge tunnels.");
         } else {

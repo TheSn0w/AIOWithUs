@@ -31,7 +31,8 @@ public class TraversetoWarforge {
                 || selectedArchNames.contains("Kyzaj champion's boudoir")
                 || selectedArchNames.contains("Warforge scrap pile")
                 || selectedArchNames.contains("Warforge weapon rack")
-                || selectedArchNames.contains("Makeshift pie oven");
+                || selectedArchNames.contains("Makeshift pie oven")
+                || selectedArchNames.contains("Material cache (vulcanised rubber)");
     }
 
     static void traverseToWarforge(List<String> selectedArchNames) {
