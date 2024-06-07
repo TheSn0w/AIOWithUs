@@ -128,7 +128,6 @@ public class Archeology {
             if (spotAnimationMoved || playerIdle) {
                 if (selectedArchNames.contains(nearestSceneObject.getName())) {
                     nearestSceneObject.interact("Excavate");
-                    whitelistedSceneObjects.add(coordinateSceneObject);
 
                     int currentAnimationId = player.getAnimationId();
                     for (int i = 0; i < 5; ) {
@@ -140,6 +139,7 @@ public class Archeology {
                         log("[Debug] Waiting for " + (i + 1) + " seconds.");
 
                         if (player.getAnimationId() != currentAnimationId) {
+                            whitelistedSceneObjects.add(coordinateSceneObject);
                             return checkInterval;
                         }
 

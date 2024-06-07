@@ -61,6 +61,7 @@ public class Banking {
         setLastSkillingLocation(player.getCoordinate());
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                 .name("Bank chest")
+                .isReachable()
                 .option("Use")
                 .results();
         if (!results.isEmpty()) {
