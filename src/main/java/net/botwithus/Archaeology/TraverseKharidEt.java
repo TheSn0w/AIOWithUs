@@ -52,7 +52,6 @@ public class TraverseKharidEt {
                                 log("[Archaeology] Interacting with Legatus Barrier.");
                                 if (barrier != null && barrier.interact("Pass")) {
                                     Execution.delay(random.nextLong(3500, 5000));
-                                    traverseToLastSkillingLocation();
                                 }
                             }
                         }

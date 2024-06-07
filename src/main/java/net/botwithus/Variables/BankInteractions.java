@@ -17,9 +17,12 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Archaeology.Banking.*;
@@ -61,15 +64,15 @@ public class BankInteractions {
     public static final Coordinate VIP = new Coordinate(3182, 2742, 0);
     public static final Coordinate STORMGUARD = new Coordinate(2675, 3404, 0);
 
-    public static final List<Coordinate> BANK_COORDINATES = Arrays.asList(
+    public static final List<Coordinate> BANK_COORDINATES = new ArrayList<>(Arrays.asList(
             VarrockWest, VarrockEast,/* GrandExchange,*/ Canafis, AlKharid, Lumbridge,
             Draynor, FaladorEast, SmithingGuild, FaladorWest, Burthorpe, Taverly,
             Catherby, Seers, ArdougneSouth, ArdougneNorth, Yanille, Ooglog,
             CityOfUm, prifWest, PrifddinasCenter, PrifddinasEast, WarsRetreat,
             Anachronia, /*Edgeville, */KharidEt, VIP, STORMGUARD
-    );
+    ));
 
-    public static List<String> BANK_TYPES = Arrays.asList("Bank chest", "Bank booth", "Counter");
+    public static List<String> BANK_TYPES = new ArrayList<>(Arrays.asList("Bank chest", "Bank booth", "Counter"));
 
 
     public static Coordinate findNearestBank(Coordinate playerPosition) {
@@ -77,6 +80,7 @@ public class BankInteractions {
                 .min(Comparator.comparingDouble(bank -> Distance.between(playerPosition, bank)))
                 .orElse(null);
     }
+
 
     public static long performBanking(LocalPlayer player) {
         if (player.getAnimationId() != -1) {
@@ -110,7 +114,7 @@ public class BankInteractions {
                 Execution.delay(random.nextLong(1500, 3000));
                 SceneObject nearestBankBooth = findNearestBankBooth(player, nearestBank);
                 if (nearestBankBooth != null) {
-                    return interactWithBank(player, nearestBankBooth);
+                    Execution.delay(interactWithBank(player, nearestBankBooth));
                 } else {
                     log("[Banking] No bank found at the bank location.");
                 }
@@ -120,12 +124,14 @@ public class BankInteractions {
         } else {
             log("[Banking] No nearby banks found.");
         }
+
         return 1500;
     }
 
     public static SceneObject findNearestBankBooth(LocalPlayer player, Coordinate nearestBank) {
+        SceneObjectQuery query = SceneObjectQuery.newQuery();
         for (String bankType : BANK_TYPES) {
-            List<SceneObject> bankBooths = SceneObjectQuery.newQuery().name(bankType).results().stream()
+            List<SceneObject> bankBooths = query.name(bankType).results().stream()
                     .filter(booth -> booth.getCoordinate().distanceTo(player.getCoordinate()) < 25.0D)
                     .toList();
 

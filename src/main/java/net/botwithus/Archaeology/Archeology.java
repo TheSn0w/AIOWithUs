@@ -5,6 +5,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
+import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -28,26 +29,27 @@ import static net.botwithus.Variables.Variables.*;
 public class Archeology {
     public SnowsScript script;
     final Map<String, Supplier<Long>> methodMap;
-    static Map<String, Coordinate> coordinateMap = Map.of();
-
+    static Map<String, Coordinate> coordinateMap = initializeCoordinateMap();
 
     public Archeology(SnowsScript script) {
         this.script = script;
-        coordinateMap = new HashMap<>();
         this.methodMap = new HashMap<>();
-        this.initializeCoordinateMap();
     }
 
 
-    private void initializeCoordinateMap() {
-        coordinateMap.put("Administratum debris", new Coordinate(2448, 7569, 0));
-        coordinateMap.put("Castra debris", new Coordinate(2444, 7585, 0));
-        coordinateMap.put("Legionary remains", new Coordinate(2437, 7596, 0));
-        coordinateMap.put("Venator remains", new Coordinate(3373, 3190, 0));
-        coordinateMap.put("Lodge art storage", new Coordinate(2589, 7331, 0));
-        coordinateMap.put("Lodge bar storage", new Coordinate(2589, 7331, 0));
-        coordinateMap.put("Material cache (samite silk)", new Coordinate(3373, 3200, 0));
-        coordinateMap.put("Ikovian memorial", new Coordinate(2681, 3397, 0));
+    private static Map<String, Coordinate> initializeCoordinateMap() {
+        Map<String, Coordinate> map = new HashMap<>();
+        map.put("Administratum debris", new Coordinate(2448, 7569, 0));
+        map.put("Castra debris", new Coordinate(2444, 7585, 0));
+        map.put("Legionary remains", new Coordinate(2437, 7596, 0));
+        map.put("Venator remains", new Coordinate(3373, 3190, 0));
+        map.put("Lodge art storage", new Coordinate(2589, 7331, 0));
+        map.put("Lodge bar storage", new Coordinate(2589, 7331, 0));
+        map.put("Material cache (samite silk)", new Coordinate(3373, 3200, 0));
+        map.put("Ikovian memorial", new Coordinate(2681, 3397, 0));
+        map.put("Saurthen debris", new Coordinate(1247, 230, 0));
+        map.put("Amphitheatre debris", new Coordinate(3750, 3299, 0));
+        return map;
     }
 
 
@@ -61,23 +63,35 @@ public class Archeology {
         double closestDistance = Double.MAX_VALUE;
 
         for (String name : selectedArchNames) {
-            if (name != null && !name.isEmpty()) {
-                SceneObject nearestObject = SceneObjectQuery.newQuery()
-                        .name(name)
-                        .results()
-                        .nearest();
+            if (name == null || name.isEmpty()) {
+                continue;
+            }
 
-                if (nearestObject != null) {
-                    double distance = player.getCoordinate().distanceTo(nearestObject.getCoordinate());
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        closestName = name;
-                    }
+            Coordinate targetCoordinate = coordinateMap.get(name);
+            if (targetCoordinate == null) {
+                log("[Debug] No coordinate found for name: " + name);
+                continue;
+            }
+
+            double distance = player.getCoordinate().distanceTo(targetCoordinate);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestName = name;
+            }
+
+            if (distance > 25.0D) {
+                log("[Caution] attempting to traverse");
+                if (Movement.traverse(NavPath.resolve(targetCoordinate)) == TraverseEvent.State.FINISHED) {
+                    log("[Success] Finished traversing to: " + name);
+                } else {
+                    log("[Error] Failed to traverse to: " + name);
                 }
+                return handleExcavation(closestName);
             }
         }
 
         if (closestName == null) {
+            log("[Error] No valid excavation names found.");
             return random.nextLong(1500, 3000);
         }
 
@@ -85,14 +99,14 @@ public class Archeology {
             return MaterialCaches(player, selectedArchNames);
         } else {
             if (closestDistance <= 25.0D) {
-                return doSomeArch(player, selectedArchNames);
-            } else {
-                return handleExcavation(closestName);
+                return Excavation(player, selectedArchNames);
             }
         }
+
+        return random.nextLong(1500, 3000);
     }
 
-    public static long doSomeArch(LocalPlayer player, List<String> selectedArchNames) {
+    public static long Excavation(LocalPlayer player, List<String> selectedArchNames) {
         if (Backpack.isFull()) {
             backpackIsFull(player);
             return random.nextLong(1500, 3000);

@@ -55,50 +55,87 @@ public class Combat {
 
         managePotions(player);
         manageScripturesAndScrimshaws(player);
+        manageCombatAbilities();
 
         if (isHealthLow(player)) {
             eatFood(player);
             return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
         }
-        if(handleMultitarget) {
-            if (System.currentTimeMillis() - lastClearTime > random.nextLong(10000, 15000)) {
-                /*log("[Combat] Clearing recently attacked targets.");*/
+        if (handleMultitarget) {
+            // Refresh the recentlyAttackedTargets set every 10 seconds
+            if (System.currentTimeMillis() - lastClearTime > 10000) {
                 recentlyAttackedTargets.clear();
                 lastClearTime = System.currentTimeMillis();
             }
         }
 
+
+
         if (player.hasTarget()) {
             PathingEntity<?> target = player.getTarget();
-            if (handleMultitarget) {
-                if (target.getCurrentHealth() < target.getMaximumHealth() * healthThreshold) {
-                    log("[Combat] Target health below threshold. Finding new target.");
-                    recentlyAttackedTargets.add(target.getId());
-                    return findAndAttackNewTarget(player);
-                } else {
-                    log("[Combat] Target health above threshold. Attacking.");
-                    manageCombatAbilities();
-                    return random.nextLong(1000, 1500);
-                }
+            if (!handleMultitarget) {
+                // If multitarget is not enabled, return early if player has a target
+                return logAndDelay("[Combat] Player already has a target.", 400, 500);
             } else {
-                log("[Combat] Single-target handling. Attacking.");
-                manageCombatAbilities();
-                return random.nextLong(1000, 1500);
+                // If multitarget is enabled, check the health of the current target
+                if (target.getCurrentHealth() > target.getMaximumHealth() * healthThreshold) {
+                    // If current target's health is above the threshold, return early
+                    return logAndDelay("[Combat] Current target's health is above threshold.", 400, 500);
+                } else {
+                    // If the current target's health is below the threshold, find a different target
+                    Npc newTarget = findDifferentTarget(player, target.getId());
+                    if (newTarget != null) {
+                        return attackMonster(player, newTarget);
+                    } else {
+                        // If no new target is found, return early
+                        return logAndDelay("[Combat] No new target found.", 400, 500);
+                    }
+                }
             }
-        } else {
-            log("[Combat] No target. Finding nearest monster.");
-            return attackNearestMonster(player);
         }
+
+        return attackNearestMonster(player);
     }
 
-    private static long findAndAttackNewTarget(LocalPlayer player) {
-        Npc newTarget = findTarget(player);
+
+    private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
+        List<String> targetNames = getTargetNames();
+        if (targetNames.isEmpty()) {
+            log("[Error] No target names specified.");
+            return null;
+        }
+
+        Pattern monsterPattern = generateRegexPattern(targetNames);
+
+        // Try to find a target with health above the threshold
+        Npc newTarget = NpcQuery.newQuery()
+                .name(monsterPattern)
+                .isReachable()
+                .health(100, 1_000_000)
+                .option("Attack")
+                .results()
+                .stream()
+                .filter(npc -> npc.getId() != currentTargetId && npc.getCurrentHealth() > npc.getMaximumHealth() * healthThreshold)
+                .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
+                .orElse(null);
+
+        // If no such target is found, try to find any target that is not the current target
         if (newTarget == null) {
-            return logAndDelay("[Error][MultiTarget] No valid NPC target found.", 1000, 3000);
+            newTarget = NpcQuery.newQuery()
+                    .name(monsterPattern)
+                    .isReachable()
+                    .health(100, 1_000_000)
+                    .option("Attack")
+                    .results()
+                    .stream()
+                    .filter(npc -> npc.getId() != currentTargetId)
+                    .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
+                    .orElse(null);
         }
 
-        return attackMonster(player, newTarget);
+        return newTarget;
     }
+
 
     private static long attackNearestMonster(LocalPlayer player) {
         Npc monster = findTarget(player);
@@ -133,7 +170,9 @@ public class Combat {
     private static long attackMonster(LocalPlayer player, Npc monster) {
         boolean attack = monster.interact("Attack");
         if (attack) {
-            recentlyAttackedTargets.remove(monster.getId());
+            if (handleMultitarget) {
+                recentlyAttackedTargets.add(monster.getId());
+            }
             return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 400, 500);
         } else {
             return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
