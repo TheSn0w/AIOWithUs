@@ -131,6 +131,8 @@ public class Archeology {
     }
 
     public static long doSomeArch(LocalPlayer player, List<String> selectedArchNames) {
+        useGrace();
+
         if (Backpack.isFull()) {
             if (dropSoil) {
                 dropAllSoil();
@@ -140,7 +142,6 @@ public class Archeology {
             }
         }
 
-        useGrace();
         useBuffs();
 
 
