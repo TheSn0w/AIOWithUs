@@ -26,6 +26,7 @@ import net.botwithus.rs3.game.Item;
 import static net.botwithus.Archaeology.Banking.backpackIsFull;
 import static net.botwithus.Archaeology.Buffs.*;
 import static net.botwithus.Archaeology.Porters.useGrace;
+import static net.botwithus.Archaeology.Porters.usePorter;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.BANKING;
@@ -229,6 +230,9 @@ public class Archeology {
             backpackIsFull(player);
             return random.nextLong(1500, 3000);
         }
+
+        useGrace();
+        useBuffs();
 
         if (player.isMoving() || player.getAnimationId() != -1) {
             return random.nextLong(1500, 5000);

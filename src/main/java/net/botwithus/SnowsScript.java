@@ -291,19 +291,8 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-
-        if (isHerbloreActive) {
-            String itemName = event.getNewItem().getName();
-            int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-            int newCount = event.getNewItem().getStackSize();
-            if (newCount > oldCount) {
-                int quantity = newCount - oldCount;
-
-                int currentCount = Potions.getOrDefault(itemName, 0);
-                Potions.put(itemName, currentCount + quantity);
-            }
-        }
     }
+
 
 
 

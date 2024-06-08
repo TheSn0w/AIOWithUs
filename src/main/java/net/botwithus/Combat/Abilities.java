@@ -35,7 +35,7 @@ public class Abilities {
         if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
             abilityQueue.add(() -> volleyOfSouls(player));
         }
-        if (SpecialAttack && player.getAdrenaline() >= 350 && ActionBar.getCooldown("Weapon Special Attack") == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
+        if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldown("Weapon Special Attack") == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
             abilityQueue.add(() -> DeathEssence(player));
         }
         if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {

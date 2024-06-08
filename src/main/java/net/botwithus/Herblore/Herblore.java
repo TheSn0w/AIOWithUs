@@ -18,6 +18,7 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.AbstractMap.SimpleEntry;
@@ -43,10 +44,14 @@ public class Herblore {
             new SimpleEntry<>(HerbloreRecipe.SUPER_DEFENCE, List.of("Cadantine potion (unf)", "White berries")),
             new SimpleEntry<>(HerbloreRecipe.SUPER_MAGIC, List.of("Lantadyme potion (unf)", "Potato cactus")),
             new SimpleEntry<>(HerbloreRecipe.SUPER_RANGED, List.of("Dwarf weed potion (unf)", "Wine of Zamorak")),
-            new SimpleEntry<>(HerbloreRecipe.SUPER_NECROMANCY, List.of("Spirit weed potion (unf)", "Congealed blood"))
+            new SimpleEntry<>(HerbloreRecipe.SUPER_NECROMANCY, List.of("Spirit weed potion (unf)", "Congealed blood")),
+            new SimpleEntry<>(HerbloreRecipe.ELDER_OVERLOADS, List.of("Primal extract", "Supreme overload potion (6)", "Clean fellstalk")),
+            new SimpleEntry<>(HerbloreRecipe.OVERLOAD_SALVE, List.of("Elder overload potion (6)", "Prayer renewal (4)", "Prayer potion (4)", "Super antipoison (4)", "Antifire (4)", "Super antifire (4)"))
     );
 
     public enum HerbloreRecipe {
+        OVERLOAD_SALVE,
+        ELDER_OVERLOADS,
         SUPREME_OVERLOADS,
         OVERLOADS,
         EXTREME_POTIONS,
@@ -79,24 +84,27 @@ public class Herblore {
         }
 
         switch (selectedRecipe) {
-            case SUPREME_OVERLOADS:
-                if (Backpack.getCount("Overload (4)") == 3 && Backpack.getCount("Crystal flask") == 3 && Backpack.getCount("Super attack (4)") == 3 &&
-                        Backpack.getCount("Super strength (4)") == 3 && Backpack.getCount("Super defence (4)") == 3 && Backpack.getCount("Super ranging potion (4)") == 3 &&
-                        Backpack.getCount("Super magic potion (4)") == 3 && Backpack.getCount("Super necromancy (4)") == 3) {
-                    if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
-                        log("[Herblore] Successfully interacted with portable well.");
-                        return random.nextLong(600, 800);
-                    } else {
-                        log("[Error] Failed to interact with portable well.");
-                    }
-                } else {
-                    return handleBankOperations(player);
+            case OVERLOAD_SALVE:
+                if (Backpack.getCount("Elder overload potion (6)") < 1) {
+                    log("[Herblore] Missing Elder overload potion (6).");
                 }
-                break;
-            case OVERLOADS:
-                if (Backpack.getCount("Extreme attack (3)") == 4 && Backpack.getCount("Extreme strength (3)") == 4 &&
-                        Backpack.getCount("Extreme defence (3)") == 4 && Backpack.getCount("Extreme magic (3)") == 4 &&
-                        Backpack.getCount("Extreme ranging (3)") == 4 && Backpack.getCount("Clean torstol") == 4 && Backpack.getCount("Extreme necromancy (3)") == 4) {
+                if (Backpack.getCount("Prayer renewal (4)") < 1) {
+                    log("[Herblore] Missing Prayer renewal (4).");
+                }
+                if (Backpack.getCount("Prayer potion (4)") < 1) {
+                    log("[Herblore] Missing Prayer potion (4).");
+                }
+                if (Backpack.getCount("Super antipoison (4)") < 1) {
+                    log("[Herblore] Missing Super antipoison (4).");
+                }
+                if (Backpack.getCount("Antifire (4)") < 1) {
+                    log("[Herblore] Missing Antifire (4).");
+                }
+                if (Backpack.getCount("Super antifire (4)") < 1) {
+                    log("[Herblore] Missing Super antifire (4).");
+                }
+                if (Backpack.getCount("Elder overload potion (6)") > 1 && Backpack.getCount("Prayer renewal (4)") > 1 && Backpack.getCount("Prayer potion (4)") > 1 &&
+                        Backpack.getCount("Super antipoison (4)") > 1 && Backpack.getCount("Antifire (4)") > 1 && Backpack.getCount("Super antifire (4)") > 1) {
                     if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
                         log("[Herblore] Successfully interacted with portable well.");
                         return random.nextLong(600, 800);
@@ -105,43 +113,146 @@ public class Herblore {
                         shutdown();
                     }
                 } else {
-                    return handleBankOperations(player);
+                    return handleBankInteraction(player);
+                }
+                break;
+            case ELDER_OVERLOADS:
+                if (Backpack.getCount("Primal extract") < 1) {
+                    log("[Herblore] Missing Primal extract.");
+                }
+                if (Backpack.getCount("Supreme overload potion (6)") < 1) {
+                    log("[Herblore] Missing Supreme overload potion (6).");
+                }
+                if (Backpack.getCount("Clean fellstalk") < 1) {
+                    log("[Herblore] Missing Clean fellstalk.");
+                }
+                if (Backpack.getCount("Primal extract") > 1 && Backpack.getCount("Supreme overload potion (6)") > 1  && Backpack.getCount("Clean fellstalk") > 1) {
+                    if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
+                        log("[Herblore] Successfully interacted with portable well.");
+                        return random.nextLong(600, 800);
+                    } else {
+                        log("[Error] Failed to interact with portable well.");
+                        shutdown();
+                    }
+                } else {
+                    return handleBankInteraction(player);
+                }
+                break;
+            case SUPREME_OVERLOADS:
+                if (Backpack.getCount("Overload (4)") < 1) {
+                    log("[Herblore] Missing Overload (4).");
+                }
+                if (Backpack.getCount("Crystal flask") < 1) {
+                    log("[Herblore] Missing Crystal flask.");
+                }
+                if (Backpack.getCount("Super attack (4)") < 1) {
+                    log("[Herblore] Missing Super attack (4).");
+                }
+                if (Backpack.getCount("Super strength (4)") < 1) {
+                    log("[Herblore] Missing Super strength (4).");
+                }
+                if (Backpack.getCount("Super defence (4)") < 1) {
+                    log("[Herblore] Missing Super defence (4).");
+                }
+                if (Backpack.getCount("Super ranging potion (4)") < 1) {
+                    log("[Herblore] Missing Super ranging potion (4).");
+                }
+                if (Backpack.getCount("Super magic potion (4)") < 1) {
+                    log("[Herblore] Missing Super magic potion (4).");
+                }
+                if (Backpack.getCount("Super necromancy (4)") < 1) {
+                    log("[Herblore] Missing Super necromancy (4).");
+                }
+                if (Backpack.getCount("Overload (4)") > 1 && Backpack.getCount("Crystal flask") > 1 && Backpack.getCount("Super attack (4)") > 1 &&
+                        Backpack.getCount("Super strength (4)") > 1 && Backpack.getCount("Super defence (4)") > 1 && Backpack.getCount("Super ranging potion (4)") > 1 &&
+                        Backpack.getCount("Super magic potion (4)") > 1 && Backpack.getCount("Super necromancy (4)") > 1) {
+                    if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
+                        log("[Herblore] Successfully interacted with portable well.");
+                        return random.nextLong(600, 800);
+                    } else {
+                        log("[Error] Failed to interact with portable well.");
+                        shutdown();
+                    }
+                } else {
+                    return handleBankInteraction(player);
+                }
+                break;
+            case OVERLOADS:
+                if (Backpack.getCount("Extreme attack (3)") < 1) {
+                    log("[Herblore] Missing Extreme attack (3).");
+                }
+                if (Backpack.getCount("Extreme strength (3)") < 1) {
+                    log("[Herblore] Missing Extreme strength (3).");
+                }
+                if (Backpack.getCount("Extreme defence (3)") < 1) {
+                    log("[Herblore] Missing Extreme defence (3).");
+                }
+                if (Backpack.getCount("Extreme magic (3)") < 1) {
+                    log("[Herblore] Missing Extreme magic (3).");
+                }
+                if (Backpack.getCount("Extreme ranging (3)") < 1) {
+                    log("[Herblore] Missing Extreme ranging (3).");
+                }
+                if (Backpack.getCount("Clean torstol") < 1) {
+                    log("[Herblore] Missing Clean torstol.");
+                }
+                if (Backpack.getCount("Extreme necromancy (3)") < 1) {
+                    log("[Herblore] Missing Extreme necromancy (3).");
+                }
+                if (Backpack.getCount("Extreme attack (3)") > 1 && Backpack.getCount("Extreme strength (3)") > 1 && Backpack.getCount("Extreme defence (3)") > 1 &&
+                        Backpack.getCount("Extreme magic (3)") > 1 && Backpack.getCount("Extreme ranging (3)") > 1 && Backpack.getCount("Clean torstol") > 1 &&
+                        Backpack.getCount("Extreme necromancy (3)") > 1) {
+                    if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
+                        log("[Herblore] Successfully interacted with portable well.");
+                        return random.nextLong(600, 800);
+                    } else {
+                        log("[Error] Failed to interact with portable well.");
+                        shutdown();
+                    }
+                } else {
+                    return handleBankInteraction(player);
                 }
                 break;
             case EXTREME_ATTACK:
-                if (Backpack.getCount("Super attack (3)") == 14 && Backpack.getCount("Clean avantoe") == 14) {
+                if (Backpack.contains("Super attack (3)") && Backpack.contains("Clean avantoe")) {
                     if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
                         log("[Herblore] Successfully interacted with portable well.");
                         return random.nextLong(600, 800);
                     } else {
                         log("[Error] Failed to interact with portable well.");
+                        shutdown();
+
                     }
                 } else {
-                    return handleBankOperations(player);
+                    return handleBankInteraction(player);
                 }
                 break;
             case EXTREME_STRENGTH:
-                if (Backpack.getCount("Super strength (3)") == 14 && Backpack.getCount("Clean dwarf weed") == 14) {
+                if (Backpack.contains("Super strength (3)") && Backpack.contains("Clean dwarf weed")) {
                     if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
                         log("[Herblore] Successfully interacted with portable well.");
                         return random.nextLong(600, 800);
                     } else {
                         log("[Error] Failed to interact with portable well.");
+                        shutdown();
+
                     }
                 } else {
-                    return handleBankOperations(player);
+                    return handleBankInteraction(player);
                 }
                 break;
             case EXTREME_DEFENCE:
-                if (Backpack.getCount("Super defence (3)") == 14 && Backpack.getCount("Clean lantadyme") == 14) {
+                if (Backpack.contains("Super defence (3)") && Backpack.contains("Clean lantadyme")) {
                     if (portable != null && portable.interact("Mix Potions") && portable.distanceTo(player) < 5.0D) {
                         log("[Herblore] Successfully interacted with portable well.");
                         return random.nextLong(600, 800);
                     } else {
                         log("[Error] Failed to interact with portable well.");
+                        shutdown();
+
                     }
                 } else {
-                    return handleBankOperations(player);
+                    return handleBankInteraction(player);
                 }
                 break;
             case EXTREME_MAGIC:
@@ -261,21 +372,30 @@ public class Herblore {
     }
 
 
+
     private static long handleBankInteraction(LocalPlayer player) {
-        EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Load Last Preset from").results();
-        if (!results.isEmpty()) {
-            log("[Herblore] Loading last preset from banker");
-            results.nearest().interact("Load Last Preset from");
-            return random.nextLong(750, 1050);
-        } else {
-            EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
-            if (!chestResults.isEmpty()) {
-                log("[Herblore] Loading last preset from bank chest");
-                chestResults.nearest().interact("Load Last Preset from");
-                return random.nextLong(750, 1050);
+        for (int i = 0; i < 10; i++) {
+            EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Load Last Preset from").results();
+            if (!results.isEmpty()) {
+                log("[Herblore] Loading last preset from banker");
+                if (results.nearest().interact("Load Last Preset from")) {
+                    return random.nextLong(750, 1050);
+                }
+            } else {
+                EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
+                if (!chestResults.isEmpty()) {
+                    log("[Herblore] Loading last preset from bank chest");
+                    if (chestResults.nearest().interact("Load Last Preset from")) {
+                        return random.nextLong(750, 1050);
+                    }
+                }
             }
+            log("[Herblore] Failed to interact with bank. Attempt " + (i + 1));
+            Execution.delay(random.nextLong(750, 1050));
         }
-    return random.nextLong(750, 1050);
+        log("[Error] Failed to interact with bank after 10 attempts. Shutting down.");
+        shutdown();
+        return random.nextLong(750, 1050);
     }
 
     private static long handleBankOperations(Player player) {

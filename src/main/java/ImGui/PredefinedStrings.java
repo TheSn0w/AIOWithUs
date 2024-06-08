@@ -216,7 +216,7 @@ public class PredefinedStrings {
         /*categorizedRecipes.get("Extremes").addAll(List.of("Extreme Hunter", "Extreme Divination", "Extreme Runecrafting", "Extreme Invention", "Extreme Cooking"));*/
 
       /*  categorizedRecipes.put("Super", List.of("Super Attack", "Super Strength", "Super Defence", "Super Magic", "Super Ranged", "Super Necromancy"));*/
-        categorizedRecipes.put("Combination", List.of("Supreme Overloads", "Overloads"));
+        categorizedRecipes.put("Combination", List.of("Supreme Overloads", "Overloads", "Elder Overloads", "Overload Salve"));
         // Add more categories as needed
     }
 
@@ -242,6 +242,8 @@ public class PredefinedStrings {
     }
     public static Herblore.HerbloreRecipe stringToHerbloreRecipe(String recipeName) {
         return switch (recipeName) {
+            case "Overload Salve" -> Herblore.HerbloreRecipe.OVERLOAD_SALVE;
+            case "Elder Overloads" -> Herblore.HerbloreRecipe.ELDER_OVERLOADS;
             case "Supreme Overloads" -> Herblore.HerbloreRecipe.SUPREME_OVERLOADS;
             case "Overloads" -> Herblore.HerbloreRecipe.OVERLOADS;
             case "Extreme Attack" -> Herblore.HerbloreRecipe.EXTREME_ATTACK;

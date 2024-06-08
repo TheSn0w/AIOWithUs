@@ -437,7 +437,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                     } else {
                         createCenteredButton("Cooking", () -> isCookingActive = !isCookingActive, true);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Cooking AIO with Fish, Recommended at Fort Forthry");
+                            ImGui.SetTooltip("Cooking AIO with Fish, Recommended at Fort");
                         }
                         createCenteredButton("Make Wines", () -> makeWines = !makeWines, makeWines);
                         if (ImGui.IsItemHovered()) {
