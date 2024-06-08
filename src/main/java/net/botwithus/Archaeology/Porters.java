@@ -54,7 +54,6 @@ public class Porters {
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
             log("[Error] No " + currentPorter + " found in the Backpack.");
-            Execution.delay(BankforArcheology((LocalPlayer) player, selectedArchNames));
         }
     }
     public static long handleGoteCharges() {
