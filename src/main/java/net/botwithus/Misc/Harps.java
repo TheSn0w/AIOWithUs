@@ -35,6 +35,7 @@ public class Harps {
         if (player.getAnimationId() == 25021) {
             if (harps.nearest() != null) {
                 harps.nearest().interact("Tune");
+                log("Interacting with Harp using 'Tune' option");
             } else {
                 log("No nearest harp found");
             }

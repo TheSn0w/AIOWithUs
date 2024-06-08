@@ -323,7 +323,6 @@ public class SnowsScript extends LoopingScript {
                 String percentageStr = message.substring(message.indexOf("Your harp is ") + 13, message.indexOf("% out of tune"));
                 int currentTunePercentage = Integer.parseInt(percentageStr);
                 if (currentTunePercentage >= tunePercentage) {
-                    log("[Success] Harp is " + currentTunePercentage + "% out of tune, tuning it.");
                     useHarps(player);
                 }
             }
