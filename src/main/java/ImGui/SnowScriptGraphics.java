@@ -430,10 +430,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Use at `Bank chest` with a Portable Well nearby");
                         }
-                        createCenteredButton("Make Bombs", () -> makeBombs = !makeBombs, makeBombs);
+                        /*createCenteredButton("Make Bombs", () -> makeBombs = !makeBombs, makeBombs);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will make Bombs");
-                        }
+                        }*/
                     } else {
                         createCenteredButton("Cooking", () -> isCookingActive = !isCookingActive, true);
                         if (ImGui.IsItemHovered()) {

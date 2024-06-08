@@ -142,66 +142,56 @@ public class Archeology {
         useGrace();
         useBuffs();
 
+
         long checkInterval = RandomGenerator.nextInt(3000, 10000);
+
         boolean playerIdle = (player == null || player.getAnimationId() == -1);
-        SpotAnimation currentSpotAnimation = SpotAnimationQuery.newQuery().ids(7307).results().nearest();
+
+
+        SpotAnimation currentSpotAnimation = SpotAnimationQuery.newQuery()
+                .ids(7307)
+                .results()
+                .nearest();
 
         if (currentSpotAnimation == null) {
-            log("[Error] No spot animation found.");
+            log("[Caution] No spot animation found.");
             return interactWithDefaultObjects(selectedArchNames, checkInterval);
         }
 
         Coordinate currentCoord = currentSpotAnimation.getCoordinate();
+
         boolean spotAnimationMoved = (lastSpotAnimationCoordinate == null || !lastSpotAnimationCoordinate.equals(currentCoord));
 
         if (spotAnimationMoved) {
-            Execution.delay(RandomGenerator.nextInt(1500, 5000));
+            log("[Archaeology] Spot animation has moved.");
+            Execution.delay(RandomGenerator.nextInt(1500, 3000));
             lastSpotAnimationCoordinate = currentCoord;
-            log("[Caution] Spot animation has moved.");
         }
 
         String[] archNamesArray = selectedArchNames.toArray(new String[0]);
-        SceneObjectQuery query = SceneObjectQuery.newQuery().name(archNamesArray).hidden(false);
-        SceneObject nearestSceneObject = query.results().nearestTo(currentCoord);
-        CoordinateSceneObject coordinateSceneObject = new CoordinateSceneObject(nearestSceneObject);
+        SceneObjectQuery query = SceneObjectQuery.newQuery()
+                .name(archNamesArray)
+                .hidden(false);
 
-        if (nearestSceneObject != null && !blacklistedSceneObjects.contains(coordinateSceneObject)) {
+        SceneObject matchingArchObject = query.results()
+                .nearestTo(currentCoord);
+
+        if (matchingArchObject != null && matchingArchObject.getCoordinate().equals(currentCoord)) {
             if (spotAnimationMoved || playerIdle) {
-                if (selectedArchNames.contains(nearestSceneObject.getName())) {
-                    nearestSceneObject.interact("Excavate");
-
-                    int currentAnimationId = player.getAnimationId();
-                    for (int i = 0; i < 5; ) {
-                        Execution.delay(1000);
-
-                        if (player.isMoving()) {
-                            continue;
-                        }
-                        log("[Debug] Waiting for " + (i + 1) + " seconds.");
-
-                        if (player.getAnimationId() != currentAnimationId) {
-                            whitelistedSceneObjects.add(coordinateSceneObject);
-                            return checkInterval;
-                        }
-
-                        i++;
-                    }
-
-                    if (!whitelistedSceneObjects.contains(coordinateSceneObject)) {
-                        blacklistedSceneObjects.add(coordinateSceneObject);
-                        log("[Debug] Blacklisted: " + nearestSceneObject.getName());
-                    }
+                if (selectedArchNames.contains(matchingArchObject.getName())) {
+                    matchingArchObject.interact("Excavate");
+                    log("[Archaeology] Interacting with: " + matchingArchObject.getName());
+                    return checkInterval;
                 }
             }
         }
-
         if (playerIdle) {
-            SceneObject nearestObject = query.results().nearestTo(currentCoord);
-            coordinateSceneObject = new CoordinateSceneObject(nearestObject);
+            SceneObject nearestObject = query.results()
+                    .nearestTo(currentCoord);
 
-            if (nearestObject != null && selectedArchNames.contains(nearestObject.getName()) && !blacklistedSceneObjects.contains(coordinateSceneObject)) {
+            if (nearestObject != null && selectedArchNames.contains(nearestObject.getName())) {
                 nearestObject.interact("Excavate");
-                whitelistedSceneObjects.add(coordinateSceneObject);
+                log("[Archaeology] Interacting with: " + nearestObject.getName());
                 return checkInterval;
             }
         }
