@@ -4,6 +4,7 @@ import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.script.Execution;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.random;
@@ -33,6 +34,7 @@ public class Harps {
         EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").option("Tune").results();
         if (player.getAnimationId() == 25021) {
             if (harps.nearest() != null) {
+                Execution.delay(random.nextLong(500, 2500));
                 harps.nearest().interact("Tune");
                 log("Interacting with Harp using 'Tune' option");
             } else {
