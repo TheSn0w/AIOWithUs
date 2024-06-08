@@ -14,10 +14,9 @@ public class Harps {
         if (player.getAnimationId() != -1) {
             return random.nextLong(1500, 3000);
         }
-        EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").results();
+        EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").option("play").results();
         if (player.getAnimationId() == -1 || !player.isMoving()) {
             if (harps.nearest() != null) {
-                log("Nearest harp found");
                 if (harps.nearest().interact("Play")) {
                     log("Interacting with Harp using 'Play' option");
                 } else if (harps.nearest().interact("Tune")) {
