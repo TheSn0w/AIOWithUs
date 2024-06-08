@@ -345,6 +345,7 @@ public class Variables {
 // SECTION 9: Miscellaneous
 // =====================
     public static boolean pickCaveNightshade = false;
+    public static boolean handleHarps = false;
     public static boolean isPlanksActive = false;
     public static boolean isCorruptedOreActive = false;
     public static boolean makePlanks = false;
@@ -516,6 +517,7 @@ public static void dialog(int option1, int option2, int option3) {
     public static final Map<String, Integer> GreenCharms = new HashMap<>();
     public static final Map<String, Integer> GoldCharms = new HashMap<>();
     public static final Map<String, Integer> Potions = new HashMap<>();
+    public static final Map<String, Integer> harmonicDust = new HashMap<>();
 
 
 

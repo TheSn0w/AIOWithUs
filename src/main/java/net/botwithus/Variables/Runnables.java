@@ -184,6 +184,9 @@ public class Runnables {
                 if(isMakeUrnsActive){
                     Execution.delay(craftUrns(player));
                 }
+                if (handleHarps) {
+                    Execution.delay(Harps.interactwithHarps(player));
+                }
             }
         }
     }

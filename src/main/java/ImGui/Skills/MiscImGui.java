@@ -23,19 +23,6 @@ import static net.botwithus.Variables.Variables.tasks;
 
 public class MiscImGui {
 
-    private static int amount = 0;
-
-    // Getter for amount
-    public static int getAmount() {
-        return amount;
-    }
-
-    // Setter for amount
-    public static void setAmount(int newAmount) {
-        amount = newAmount;
-    }
-
-
 
     public static void renderMisc() {
         if (isMiscActive && !isDissasemblerActive && !showLogs) {
@@ -45,7 +32,7 @@ public class MiscImGui {
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
             ImGui.SeparatorText("Miscellaneous Options");
 
-            boolean NoneSelected = isportermakerActive || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
+            boolean NoneSelected = isportermakerActive || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
             if (!NoneSelected || isportermakerActive) {
                 if (!NoneSelected) {
@@ -168,6 +155,14 @@ public class MiscImGui {
                 if (!NoneSelected) {
                     ImGui.SameLine();
                 }
+            }
+            if (!NoneSelected || handleHarps) {
+                if (!NoneSelected) {
+                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                } else {
+                    ImGui.SetCursorPosX(spacing);
+                }
+                handleHarps = ImGui.Checkbox("Prif Harps", handleHarps);
             }
             if (isMakeUrnsActive) {
                 ImGui.Text("Only works at menophos");
@@ -430,6 +425,35 @@ public class MiscImGui {
                 int gemsPerHourInt = (int) gemsPerHour;
 
                 ImGui.Text("Gems Per Hour: " + gemsPerHourInt);
+            }
+            if (handleHarps) {
+                ImGui.SeparatorText("Harmonic Dust Counts");
+                for (Map.Entry<String, Integer> entry : harmonicDust.entrySet()) {
+                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                }
+
+                int totalDust = 0;
+                for (int count : harmonicDust.values()) {
+                    totalDust += count;
+                }
+
+                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                double dustPerHour = totalDust / elapsedHours;
+                int dustPerHourInt = (int) dustPerHour;
+
+                ImGui.Text("Harmonic Dust Per Hour: " + dustPerHourInt);
+
+                ImGui.SeparatorText("Harps Tuned at %");
+
+                tunePercentage = ImGui.InputInt("Tune Harp at (%)", tunePercentage);
+
+                if (tunePercentage < 10) {
+                    tunePercentage = 10;
+                } else if (tunePercentage > 70) {
+                    tunePercentage = 70;
+                }
             }
             if (isPlanksActive) {
                 if (tooltipsEnabled) {

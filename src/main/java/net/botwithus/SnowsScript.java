@@ -36,6 +36,7 @@ import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.radius;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Runecrafting.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
@@ -291,16 +292,38 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+        if (handleHarps) {
+            String itemName = event.getNewItem().getName();
+            if (itemName != null && itemName.equals("Harmonic dust")) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+                    int currentCount = harmonicDust.getOrDefault(itemName, 0);
+                    harmonicDust.put(itemName, currentCount + quantity);
+                }
+            }
+        }
     }
+    public static int tunePercentage = 20;
+
 
 
 
 
     void onChatMessageEvent(ChatMessageEvent event) {
+        LocalPlayer player = Client.getLocalPlayer();
         if (!isActive()) {
             return;
         }
         String message = event.getMessage();
+
+        if (handleHarps) {
+            if (message.contains("Your harp is " + tunePercentage + "% out of tune")) {
+                log("[Success] Harp is " + tunePercentage + "% out of tune, tuning it.");
+                useHarps(player);
+            }
+        }
         if (isSiftSoilActive) {
             if (message.contains("Item could not be found")) {
                 log("[Error] Item could not be found, logging off");
