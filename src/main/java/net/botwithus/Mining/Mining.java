@@ -115,6 +115,11 @@ public class Mining {
     }
 
     public static long handleSkillingMining(LocalPlayer player, List<String> selectedRockNames) {
+        if(useGote) {
+            setLastSkillingLocation(player.getCoordinate());
+            Execution.delay(random.nextLong(1500, 3000));
+            usePorter();
+        }
         long backpackDelay = handleBackpack(player);
         if (backpackDelay > 0) {
             return backpackDelay;
@@ -124,11 +129,6 @@ public class Mining {
             return random.nextLong(1500, 3000);
         }
 
-        if(useGote) {
-            setLastSkillingLocation(player.getCoordinate());
-            Execution.delay(random.nextLong(1500, 3000));
-            usePorter();
-        }
 
         long headbarDelay = handleHeadbars(player, selectedRockNames);
         if (headbarDelay > 0) {
@@ -225,14 +225,6 @@ public class Mining {
                 }
             }
             Execution.delay(random.nextLong(1500, 3000));
-        } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
-            if (nearestBank) {
-                log("[Error] No " + currentPorter + " found in the Backpack");
-                setBotState(BANKING);
-            } else {
-                log("[Error] No " + currentPorter + " found in the Backpack, and Banking is Disabled");
-                useGote = false;
-            }
         }
     }
 }

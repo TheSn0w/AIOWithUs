@@ -31,14 +31,14 @@ import static net.botwithus.inventory.equipment.Slot.NECK;
 public class Fishing {
 
     public static long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
-        if (backpack.isFull()) {
-            log("[Fishing] Backpack is full. Handling full backpack.");
-            return handleFullBackpack(player);
-        }
         if(useGote) {
             setLastSkillingLocation(player.getCoordinate());
             Execution.delay(random.nextLong(1500, 3000));
             usePorter();
+        }
+        if (backpack.isFull()) {
+            log("[Fishing] Backpack is full. Handling full backpack.");
+            return handleFullBackpack(player);
         }
         if (player.isMoving() || (AnimationCheck && player.getAnimationId() == -1)) {
             return random.nextLong(1500, 3000);
@@ -171,7 +171,7 @@ public class Fishing {
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
         if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
-            log("[Mining] Porters have " + varbitValue + " charges. Charging.");
+            log("[Fishing] Porters have " + varbitValue + " charges. Charging.");
             log("[Caution] Interacting with Equipment - Equipment needs to be OPEN.");
             if (equipment.contains("Grace of the elves")) {
                 boolean interactionResult = equipment.interact(NECK, "Charge all porters");
@@ -191,14 +191,6 @@ public class Fishing {
                 }
             }
             Execution.delay(random.nextLong(1500, 3000));
-        } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
-            if (nearestBank) {
-                log("[Error] No " + currentPorter + " found in the Backpack");
-                setBotState(BANKING);
-            } else {
-                log("[Error] No " + currentPorter + " found in the Backpack, and Banking is Disabled");
-                useGote = false;
-            }
         }
     }
 }

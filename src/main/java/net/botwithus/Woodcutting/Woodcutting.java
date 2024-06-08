@@ -34,13 +34,13 @@ import static net.botwithus.inventory.equipment.Slot.NECK;
 public class Woodcutting {
 
     public static long handleSkillingWoodcutting(LocalPlayer player, List<String> selectedTreeNames) {
-        if (Backpack.isFull()) {
-            return handleFullBackpack(player);
-        }
         if(useGote) {
             setLastSkillingLocation(player.getCoordinate());
             Execution.delay(random.nextLong(1500, 3000));
             usePorter();
+        }
+        if (Backpack.isFull()) {
+            return handleFullBackpack(player);
         }
 
         if (player.isMoving() || player.getAnimationId() != -1) {
@@ -396,14 +396,6 @@ public class Woodcutting {
                 }
             }
             Execution.delay(random.nextLong(1500, 3000));
-        } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
-            if (nearestBank) {
-                log("[Error] No " + currentPorter + " found in the Backpack");
-                setBotState(BANKING);
-            } else {
-                log("[Error] No " + currentPorter + " found in the Backpack, and Banking is Disabled");
-                useGote = false;
-            }
         }
     }
 }
