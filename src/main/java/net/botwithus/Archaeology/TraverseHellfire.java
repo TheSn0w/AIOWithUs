@@ -33,7 +33,7 @@ public class TraverseHellfire {
 
         if (Movement.traverse(NavPath.resolve(hellfire)) == TraverseEvent.State.FINISHED) {
             log("[Archaeology] Finished traversing to Hellfire Lift.");
-            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(116691).option("Descend").results();
+            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Lift").option("Descend").results();
             if (!results.isEmpty()) {
                 SceneObject hellfireLift = results.first();
                 if (hellfireLift != null && hellfireLift.interact("Descend")) {

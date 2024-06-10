@@ -15,7 +15,7 @@ public class Harps {
         if (player.getAnimationId() != -1) {
             return random.nextLong(1500, 3000);
         }
-        EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").option("play").results();
+        EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").results();
         if (player.getAnimationId() == -1 || !player.isMoving()) {
             if (harps.nearest() != null) {
                 if (harps.nearest().interact("Play")) {
@@ -31,14 +31,17 @@ public class Harps {
     }
 
     public static long useHarps(LocalPlayer player) {
-        EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").option("Tune").results();
+        EntityResultSet<SceneObject> harps = SceneObjectQuery.newQuery().name("Harp").results();
         if (player.getAnimationId() == 25021) {
             if (harps.nearest() != null) {
                 Execution.delay(random.nextLong(500, 2500));
-                harps.nearest().interact("Tune");
-                log("Interacting with Harp using 'Tune' option");
-            } else {
-                log("No nearest harp found");
+                if (harps.nearest().interact("Play")) {
+                    log("Interacting with Harp using 'Play' option");
+                } else if (harps.nearest().interact("Tune")) {
+                    log("Interacting with Harp using 'Tune' option");
+                } else {
+                    log("Neither 'Play' nor 'Tune' options are available");
+                }
             }
         }
         return random.nextLong(1500, 3000);

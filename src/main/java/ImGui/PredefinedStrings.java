@@ -94,7 +94,14 @@ public class PredefinedStrings {
             "Makeshift pie oven",
             "Xolo mine",
             "Xolo remains",
-            "Saurthen debris"
+            "Saurthen debris",
+            "Tunnelling equipment repository",
+            "Castle hall rubble",
+            "Botanical reserve",
+            "Communal space",
+            "Projection space",
+            "Security booth",
+            "Traveller's station"
     );
     public static List<String> predefinedCacheNames = List.of(
             "Material cache (third Age iron)",

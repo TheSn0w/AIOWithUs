@@ -32,7 +32,11 @@ public class TraversetoWarforge {
                 || selectedArchNames.contains("Warforge scrap pile")
                 || selectedArchNames.contains("Warforge weapon rack")
                 || selectedArchNames.contains("Makeshift pie oven")
-                || selectedArchNames.contains("Material cache (vulcanised rubber)");
+                || selectedArchNames.contains("Material cache (vulcanised rubber)")
+                || selectedArchNames.contains("Material cache (malachite green)")
+                || selectedArchNames.contains("Material cache (Mark of the Kyzaj)")
+                || selectedArchNames.contains("Material cache (warforged bronze)")
+                || selectedArchNames.contains("Material cache (Yu'biusk clay)");
     }
 
     static void traverseToWarforge(List<String> selectedArchNames) {
@@ -41,18 +45,17 @@ public class TraversetoWarforge {
 
         if (Movement.traverse(NavPath.resolve(hellfire)) == TraverseEvent.State.FINISHED) {
             log("[Archaeology] Finished traversing to Warfroge digsite.");
-            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(117243).option("Descend").results();
+            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Lift").results();
             if (!results.isEmpty()) {
                 SceneObject Fort = results.first();
-                if (Fort != null && Fort.interact("Enter")) {
-                    Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
-                    log("[Archaeology] Interface is Open.");
-                    Execution.delay(random.nextLong(1000, 1500));
-                    interactWithDialogOption(selectedArchNames);
-                    // dialog(0, -1, 47185921); for Crucible
-                    // dialog(0, -1, 47185940); for Tunnels
-                    Execution.delay(random.nextLong(4500, 6000));
-                    traverseToLastSkillingLocation();
+                if (Fort != null && Fort.interact("Descend")) {
+                    Execution.delay(random.nextLong(2500, 3000));
+                    if (Interfaces.isOpen(720)) {
+                        interactWithDialogOption(selectedArchNames);
+                    } else {
+                        Execution.delay(random.nextLong(4500, 6000));
+                        traverseToLastSkillingLocation();
+                    }
                 } else {
                     log("[Error] Failed to interact with Fort Entrance.");
                 }

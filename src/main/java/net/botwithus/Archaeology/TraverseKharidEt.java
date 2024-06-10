@@ -25,8 +25,20 @@ public class TraverseKharidEt {
                 || selectedArchNames.contains("Administratum debris")
                 || selectedArchNames.contains("Praesidio remains")
                 || selectedArchNames.contains("Carcerem debris")
+                || selectedArchNames.contains("Kharid-et chapel debris")
+                || selectedArchNames.contains("Orcus altar")
+                || selectedArchNames.contains("Pontifex remains")
+                || selectedArchNames.contains("Culinarum debris")
+                || selectedArchNames.contains("Armarium debris")
+                || selectedArchNames.contains("Praetorian remains")
+                || selectedArchNames.contains("War table debris")
+                || selectedArchNames.contains("Ancient magick munitions")
                 || selectedArchNames.contains("Material cache (imperial steel)")
-                || selectedArchNames.contains("Material cache (Zarosian insignia)");
+                || selectedArchNames.contains("Material cache (Zarosian insignia)")
+                || selectedArchNames.contains("Material cache (ancient vis)")
+                || selectedArchNames.contains("Material cache (Tyrian purple)")
+                || selectedArchNames.contains("Material cache (Blood of Orcus)");
+
 
     }
 
@@ -36,7 +48,7 @@ public class TraverseKharidEt {
 
         if (Movement.traverse(NavPath.resolve(hellfire)) == TraverseEvent.State.FINISHED) {
             log("[Archaeology] Finished traversing to Fort Entrance.");
-            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(116926).option("Enter").results();
+            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Fort entrance").option("Enter").results();
             if (!results.isEmpty()) {
                 SceneObject Fort = results.first();
                 if (Fort != null && Fort.interact("Enter")) {
@@ -52,6 +64,19 @@ public class TraverseKharidEt {
                             if (!legatusBarrier.isEmpty()) {
                                 SceneObject barrier = legatusBarrier.first();
                                 log("[Archaeology] Interacting with Legatus Barrier.");
+                                if (barrier != null && barrier.interact("Pass")) {
+                                    Execution.delay(random.nextLong(3500, 5000));
+                                }
+                            }
+                        }
+                    }
+                    if (selectedArchNames.contains("Pontifex remains") || selectedArchNames.contains("Orcus altar")) {
+                        log("[Archaeology] Traversing to Pontifex barrier.");
+                        if (Movement.traverse(NavPath.resolve(new Coordinate(2476, 7570, 0))) == TraverseEvent.State.FINISHED) {
+                            EntityResultSet<SceneObject> pontifexBarrier = SceneObjectQuery.newQuery().name("Pontifex barrier").option("Pass").results();
+                            if (!pontifexBarrier.isEmpty()) {
+                                SceneObject barrier = pontifexBarrier.first();
+                                log("[Archaeology] Interacting with Pontifex Barrier.");
                                 if (barrier != null && barrier.interact("Pass")) {
                                     Execution.delay(random.nextLong(3500, 5000));
                                 }
