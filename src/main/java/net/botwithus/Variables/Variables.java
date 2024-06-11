@@ -1,9 +1,7 @@
 package net.botwithus.Variables;
 
-import net.botwithus.Combat.Combat;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Herblore.SharedState;
-import net.botwithus.SnowsScript;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -11,7 +9,6 @@ import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.imgui.NativeInteger;
-import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -20,7 +17,6 @@ import java.util.regex.Pattern;
 import static ImGui.PredefinedStrings.predefinedNames;
 import static ImGui.PredefinedStrings.recipeNamesList;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.BotState.IDLE;
 
 public class Variables {
 
@@ -53,11 +49,11 @@ public class Variables {
     public static boolean hiSpecMonocle = false;
     public static boolean materialManual = false;
     public static boolean useGote = false;
-    public static final String[] porterTypes = {"Sign of the porter I", "Sign of the porter II", "Sign of the porter III", "Sign of the porter IV", "Sign of the porter V", "Sign of the porter VI", "Sign of the porter VII"};
-    public static final String[] quantities = {"ALL", "1", "5", "10"};
+    public static final String[] porterTypes = {"Sign of the porter VII", "Sign of the porter I", "Sign of the porter II", "Sign of the porter III", "Sign of the porter IV", "Sign of the porter V", "Sign of the porter VI"};
+    public static final String[] quantities = {"5", "ALL", "1", "10"};
     public static final NativeInteger currentPorterType = new NativeInteger(0);
     public static final NativeInteger currentQuantity = new NativeInteger(0);
-    public static int chargeThreshold = 300;
+    public static int chargeThreshold = 400;
     public static int equipChargeThreshold = 0;
     public static void removeName(String name) {
         selectedArchNames.remove(name);
