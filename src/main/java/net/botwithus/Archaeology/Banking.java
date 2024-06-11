@@ -66,7 +66,7 @@ public class Banking {
     public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
         setLastSkillingLocation(player.getCoordinate());
 
-        if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) || shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+        if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) || shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) || selectedArchNames.contains("Castle hall debris") || selectedArchNames.contains("Tunnelling equipment repository")) {
             handleDaemonheim(player, selectedArchNames);
         }
 

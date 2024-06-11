@@ -50,7 +50,7 @@ public class Food {
                 setBotState(BANKING);
                 return random.nextLong(1500, 3000);
             } else {
-                log("[Error] No food found and banking for food is disabled.");
+                log("[Error] No food found");
                 return 1L;
             }
         }
