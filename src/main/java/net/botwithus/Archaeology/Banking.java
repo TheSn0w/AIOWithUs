@@ -95,18 +95,19 @@ public class Banking {
     private static void handleDaemonheim(LocalPlayer player, List<String> selectedArchNames) {
         EntityResultSet<SceneObject> imposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
         EntityResultSet<SceneObject> stairs = SceneObjectQuery.newQuery().name("Staircase").option("Climb-down").results();
-        EntityResultSet<Npc> fremennikBanker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
+        Coordinate imposingDoorCoordinate = new Coordinate(2208, 9219, 1);
 
         SceneObject door = imposingDoor.nearest();
         SceneObject stair = stairs.nearest();
-        Npc banker = fremennikBanker.nearest();
 
-        if (shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) && door != null) {
-            if (door.interact("Enter")) {
-                log("[Archaeology] Interacting with Imposing Door.");
-                Execution.delay(random.nextLong(1500, 3000));
-                Execution.delayUntil(30000, () -> !player.isMoving());
-                Execution.delay(random.nextLong(3500, 5000));
+        if (shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+            Movement.walkTo(imposingDoorCoordinate.getX(), imposingDoorCoordinate.getY(), true);
+            Execution.delayUntil(60000, () -> player.getCoordinate().equals(imposingDoorCoordinate));
+            if (player.getCoordinate().equals(imposingDoorCoordinate) && !imposingDoor.isEmpty()) {
+                if (door.interact("Enter")) {
+                    log("[Archaeology] Interacting with Imposing Door.");
+                    Execution.delay(random.nextLong(3500, 5000));
+                }
             }
         } else if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) && stair != null) {
             if (stair.interact("Climb-down")) {
