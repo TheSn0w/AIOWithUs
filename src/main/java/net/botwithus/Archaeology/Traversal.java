@@ -55,10 +55,13 @@ public class Traversal {
             if (banker.isEmpty()) {
                 if (Movement.traverse(NavPath.resolve(new Coordinate(3449, 3719, 0))) == TraverseEvent.State.FINISHED) {
                     log("[Archaeology] Arrived at banker.");
+                    Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
+                    setBotState(SKILLING);
                 }
+            } else {
+                Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
+                setBotState(SKILLING);
             }
-            Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
-            setBotState(SKILLING);
         } else {
             if (getBotState() != SKILLING) {
                 traverseToLastSkillingLocation();
