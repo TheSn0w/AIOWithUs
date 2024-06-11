@@ -1,9 +1,13 @@
 package net.botwithus.Archaeology;
 
+import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
+import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 
 import java.util.List;
@@ -47,8 +51,14 @@ public class Traversal {
             traverseToDaeminheimUpstairs(selectedArchNames);
         }
         if (selectedArchNames.contains("Castle wall rubble") || (selectedArchNames.contains("Tunnelling equipment repository"))) {
-                Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
-                setBotState(SKILLING);
+            EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
+            if (banker.isEmpty()) {
+                if (Movement.traverse(NavPath.resolve(new Coordinate(3449, 3719, 0))) == TraverseEvent.State.FINISHED) {
+                    log("[Archaeology] Arrived at banker.");
+                }
+            }
+            Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
+            setBotState(SKILLING);
         } else {
             if (getBotState() != SKILLING) {
                 traverseToLastSkillingLocation();
