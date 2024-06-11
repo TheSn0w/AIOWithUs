@@ -136,9 +136,7 @@ public class Potions {
         boolean success = backpack.interact(overloadPot.getName(), "Drink");
         if (success) {
             log("[Combat] Successfully drank " + overloadPot.getName());
-            long delay = random.nextLong(1900, 2000);
-            Execution.delay(delay);
-            return delay;
+            return 0L;
         } else {
             log("[Error] Failed to interact with overload potion.");
             return 0L;

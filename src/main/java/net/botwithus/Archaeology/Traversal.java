@@ -45,6 +45,10 @@ public class Traversal {
         }
         if (shouldTraverseToDaeminheimUpstairs(selectedArchNames)) {
             traverseToDaeminheimUpstairs(selectedArchNames);
+        }
+        if (selectedArchNames.contains("Castle wall rubble") || (selectedArchNames.contains("Tunnelling equipment repository"))) {
+                Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
+                setBotState(SKILLING);
         } else {
             if (getBotState() != SKILLING) {
                 traverseToLastSkillingLocation();
