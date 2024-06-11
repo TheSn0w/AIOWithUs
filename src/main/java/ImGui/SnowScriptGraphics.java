@@ -276,7 +276,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Arch Glacor", () -> handleArchGlacor = !handleArchGlacor, handleArchGlacor);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("start at portal and needs max guild teleport`");
+                            ImGui.SetTooltip("start anywhere, only toggle this and looting if you want to loot`");
                         }
                     } else if (isFishingActive) {
                         createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, true);
