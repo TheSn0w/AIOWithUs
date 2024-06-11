@@ -17,6 +17,7 @@ import static net.botwithus.Archaeology.TraversetoWarforge.shouldTraverseToWarfo
 import static net.botwithus.Archaeology.TraversetoWarforge.traverseToWarforge;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
+import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.Variables.Variables.dialog;
 import static net.botwithus.Variables.Variables.lastSkillingLocation;
@@ -41,7 +42,9 @@ public class Traversal {
         if (shouldTraverseToDaeminheimUpstairs(selectedArchNames)) {
             traverseToDaeminheimUpstairs(selectedArchNames);
         } else {
-            traverseToLastSkillingLocation();
+            if (getBotState() != SKILLING) {
+                traverseToLastSkillingLocation();
+            }
         }
     }
 

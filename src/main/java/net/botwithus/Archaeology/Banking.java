@@ -2,8 +2,10 @@ package net.botwithus.Archaeology;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
+import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.inventory.backpack;
 import net.botwithus.inventory.equipment;
+import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -12,10 +14,13 @@ import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
+import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
+import net.botwithus.rs3.game.scene.entities.Entity;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
@@ -24,6 +29,8 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.List;
 
+import static net.botwithus.Archaeology.Daeminheim.shouldTraverseToDaeminheimUpstairs;
+import static net.botwithus.Archaeology.Daeminheim.shouldTraverseToDaeminheimWarpedFloor;
 import static net.botwithus.Archaeology.Porters.handleGoteCharges;
 import static net.botwithus.Archaeology.Traversal.returnToLastLocation;
 import static net.botwithus.CustomLogger.log;
@@ -57,26 +64,60 @@ public class Banking {
     }
 
     public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
-        Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
         setLastSkillingLocation(player.getCoordinate());
-        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
-                .name("Bank chest")
-                .isReachable()
-                .option("Use")
-                .results();
-        if (!results.isEmpty()) {
-            Execution.delay(handleBankInteraction(player, selectedArchNames));
-        } else {
-            log("[Archaeology] Teleporting to bank.");
-            TraverseEvent.State traverseState = Movement.traverse(NavPath.resolve(bankChestCoordinate));
-            if (traverseState == TraverseEvent.State.FINISHED) {
-                log("[Archaeology] Finished traversing to bank.");
+
+        handleDaemonheim(player, selectedArchNames);
+
+        if (!shouldTraverseToDaeminheimUpstairs(selectedArchNames) && !shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+            Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
+            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
+                    .name("Bank chest")
+                    .isReachable()
+                    .option("Use")
+                    .results();
+            if (!results.isEmpty()) {
                 Execution.delay(handleBankInteraction(player, selectedArchNames));
             } else {
-                log("[Error] Failed to traverse to bank.");
+                log("[Archaeology] Teleporting to bank.");
+                TraverseEvent.State traverseState = Movement.traverse(NavPath.resolve(bankChestCoordinate));
+                if (traverseState == TraverseEvent.State.FINISHED) {
+                    log("[Archaeology] Finished traversing to bank.");
+                    Execution.delay(handleBankInteraction(player, selectedArchNames));
+                } else {
+                    log("[Error] Failed to traverse to bank.");
+                }
             }
         }
+
         return random.nextLong(1500, 3000);
+    }
+
+    private static void handleDaemonheim(LocalPlayer player, List<String> selectedArchNames) {
+        EntityResultSet<SceneObject> imposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
+        EntityResultSet<SceneObject> stairs = SceneObjectQuery.newQuery().name("Staircase").option("Climb-down").results();
+        EntityResultSet<Npc> fremennikBanker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
+
+        SceneObject door = imposingDoor.nearest();
+        SceneObject stair = stairs.nearest();
+        Npc banker = fremennikBanker.nearest();
+
+        if (shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) && door != null) {
+            if (door.interact("Enter")) {
+                log("[Archaeology] Interacting with Imposing Door.");
+                Execution.delay(random.nextLong(1500, 3000));
+                Execution.delayUntil(30000, () -> !player.isMoving());
+                Execution.delay(random.nextLong(3500, 5000));
+            }
+        } else if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) && stair != null) {
+            if (stair.interact("Climb-down")) {
+                log("[Archaeology] Interacting with Staircase.");
+                Execution.delay(random.nextLong(1500, 3000));
+                Execution.delayUntil(30000, () -> !player.isMoving());
+                Execution.delay(random.nextLong(3500, 5000));
+            }
+        }
+
+        handleBankInteraction(player, selectedArchNames);
     }
 
     public static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
@@ -101,7 +142,7 @@ public class Banking {
     }
 
     public static void openBank() {
-        interactWithBankChest();
+        interactWithBankChestOrBanker();
         log("[Archaeology] Waiting for bank to open.");
         waitForBankToOpen();
     }
@@ -175,7 +216,7 @@ public class Banking {
     }
 
     private static void interactWithBankChestAndOpen() {
-        interactWithBankChest();
+        interactWithBankChestOrBanker();
         waitForBankToOpen();
     }
 
@@ -243,31 +284,43 @@ public class Banking {
         }
     }
 
-    public static void interactWithBankChest() {
-        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
+    public static void interactWithBankChestOrBanker() {
+        EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery()
                 .name("Bank chest")
                 .option("Use")
                 .results();
 
-        if (!results.isEmpty()) {
-            SceneObject nearestBankChest = results.nearest();
+        EntityResultSet<Npc> bankerResults = NpcQuery.newQuery()
+                .name("Fremennik banker")
+                .option("Bank")
+                .results();
 
-            if (nearestBankChest != null) {
-                for (int attempts = 0; attempts < 3; attempts++) {
-                    if (nearestBankChest.interact("Use")) {
-                        log("[Archaeology] Interacted with Bank chest.");
-                        Execution.delay(random.nextLong(1500, 2500));
-                        return;
-                    } else {
-                        Execution.delay(random.nextLong(1500, 2500));
-                    }
-                }
-                log("[Error] Failed to interact with Bank chest after 3 attempts.");
-            } else {
-                log("[Error] No nearest Bank chest found.");
-            }
+        if (!chestResults.isEmpty()) {
+            interactWithEntity(chestResults, "[Archaeology] Interacted with Bank chest.", "[Error] Failed to interact with Bank chest after 3 attempts.");
+        } else if (!bankerResults.isEmpty()) {
+            interactWithEntity(bankerResults, "[Archaeology] Interacted with Fremennik banker.", "[Error] Failed to interact with Fremennik banker after 3 attempts.");
         } else {
-            log("[Error] No Bank chest found.");
+            log("[Error] No Bank chest or Fremennik banker found.");
+        }
+    }
+
+    private static void interactWithEntity(EntityResultSet<? extends Entity> results, String successLog, String failureLog) {
+        Entity nearestEntity = results.nearest();
+
+        if (nearestEntity != null) {
+            for (int attempts = 0; attempts < 3; attempts++) {
+                if ((nearestEntity instanceof SceneObject && ((SceneObject) nearestEntity).interact("Use")) ||
+                        (nearestEntity instanceof Npc && ((Npc) nearestEntity).interact("Bank"))) {
+                    log(successLog);
+                    Execution.delay(random.nextLong(1500, 2500));
+                    return;
+                } else {
+                    Execution.delay(random.nextLong(1500, 2500));
+                }
+            }
+            log(failureLog);
+        } else {
+            log("[Error] No nearest entity found.");
         }
     }
 
@@ -287,7 +340,7 @@ public class Banking {
     }
 
     private static boolean depositAllExceptSelectedItems() {
-        int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753};
+        int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753, 41092, 49429};
         Bank.depositAllExcept(itemIdsToKeep);
         return false;
     }
