@@ -15,18 +15,19 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.healthPointsThreshold;
 
 public class Food {
-    public static void eatFood(LocalPlayer player) {
+    public static long eatFood(LocalPlayer player) {
         boolean isPlayerEating = player.getAnimationId() == 18001;
         double healthPercentage = calculateHealthPercentage(player);
         boolean isHealthAboveThreshold = healthPercentage > healthPointsThreshold;
 
 
         if (isPlayerEating || isHealthAboveThreshold) {
-            return;
+            return 0;
         }
 
         Execution.delay(healHealth(player));
 
+        return 0;
     }
 
     public static double calculateHealthPercentage(LocalPlayer player) {
@@ -50,7 +51,7 @@ public class Food {
                 return random.nextLong(1500, 3000);
             } else {
                 log("[Error] No food found and banking for food is disabled.");
-                return 0;
+                return 1L;
             }
         }
 

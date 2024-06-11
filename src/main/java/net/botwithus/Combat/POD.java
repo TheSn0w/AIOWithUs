@@ -17,6 +17,8 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.Combat.Combat.attackTarget;
+import static net.botwithus.Combat.Combat.shouldEatFood;
+import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
@@ -151,10 +153,12 @@ public class POD {
         long prayerCheck = usePrayerOrRestorePots(player);
         long aggroCheck = useAggression(player);
         long weaponPoisonCheck = useWeaponPoison(player);
+        long foodCheck = eatFood(player);
 
         return (useWeaponPoison && weaponPoisonCheck == 1L) ||
                 (useOverloads && overloadCheck == 1L) ||
                 (usePrayerPots && prayerCheck == 1L) ||
+                (shouldEatFood && foodCheck == 1L) ||
                 (useAggroPots && aggroCheck == 1L);
     }
 }
