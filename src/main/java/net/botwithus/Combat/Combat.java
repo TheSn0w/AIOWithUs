@@ -25,6 +25,7 @@ public class Combat {
 
     public static boolean handleMultitarget = false;
     public static double healthThreshold = 0.8;
+    public static boolean shouldEatFood = false;
     private static final Set<Integer> recentlyAttackedTargets = new HashSet<>();
     private static long lastClearTime = System.currentTimeMillis();
 
@@ -57,7 +58,7 @@ public class Combat {
         manageScripturesAndScrimshaws(player);
         manageCombatAbilities();
 
-        if (isHealthLow(player)) {
+        if (isHealthLow(player) && shouldEatFood) {
             eatFood(player);
             return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
         }

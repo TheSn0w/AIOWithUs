@@ -11,7 +11,6 @@ import net.botwithus.rs3.util.RandomGenerator;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
-import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.healthPointsThreshold;
 

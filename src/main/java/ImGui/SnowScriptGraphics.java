@@ -28,6 +28,7 @@ import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
+import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -256,6 +257,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("will go wars to bank and withdraw fish food and go back to combat");
+                        }
+                        createCenteredButton("Eat food?", () -> shouldEatFood = !shouldEatFood, shouldEatFood);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will eat food when health is low");
                         }
                         createCenteredButton("Loot", () -> useLoot = !useLoot, useLoot);
                         if (ImGui.IsItemHovered()) {
