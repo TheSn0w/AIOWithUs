@@ -66,11 +66,11 @@ public class Banking {
     public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
         setLastSkillingLocation(player.getCoordinate());
 
-        if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) || shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) || selectedArchNames.contains("Castle hall debris") || selectedArchNames.contains("Tunnelling equipment repository")) {
+        if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) || shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) || selectedArchNames.contains("Castle hall rubble") || selectedArchNames.contains("Tunnelling equipment repository")) {
             handleDaemonheim(player, selectedArchNames);
         }
 
-        else if (!shouldTraverseToDaeminheimUpstairs(selectedArchNames) && !shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+        else if (!shouldTraverseToDaeminheimUpstairs(selectedArchNames) && !shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) && !selectedArchNames.contains("Castle hall rubble") && !selectedArchNames.contains("Tunnelling equipment repository")) {
             Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                     .name("Bank chest")
