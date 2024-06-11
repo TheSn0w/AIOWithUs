@@ -66,9 +66,11 @@ public class Banking {
     public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
         setLastSkillingLocation(player.getCoordinate());
 
-        handleDaemonheim(player, selectedArchNames);
+        if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) || shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+            handleDaemonheim(player, selectedArchNames);
+        }
 
-        if (!shouldTraverseToDaeminheimUpstairs(selectedArchNames) && !shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+        else if (!shouldTraverseToDaeminheimUpstairs(selectedArchNames) && !shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
             Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                     .name("Bank chest")
@@ -95,6 +97,7 @@ public class Banking {
     private static void handleDaemonheim(LocalPlayer player, List<String> selectedArchNames) {
         EntityResultSet<SceneObject> imposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
         EntityResultSet<SceneObject> stairs = SceneObjectQuery.newQuery().name("Staircase").option("Climb-down").results();
+        EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
         Coordinate imposingDoorCoordinate = new Coordinate(2208, 9219, 1);
 
         SceneObject door = imposingDoor.nearest();
@@ -112,9 +115,7 @@ public class Banking {
         } else if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) && stair != null) {
             if (stair.interact("Climb-down")) {
                 log("[Archaeology] Interacting with Staircase.");
-                Execution.delay(random.nextLong(1500, 3000));
-                Execution.delayUntil(30000, () -> !player.isMoving());
-                Execution.delay(random.nextLong(3500, 5000));
+                Execution.delay(random.nextLong(10000, 12500));
             }
         }
 
@@ -130,12 +131,36 @@ public class Banking {
             depositItems();
             interactWithSoilBoxIfPresent(soilBox);
             handleGoteChargesAndPorter(varbitValue);
+            if (Backpack.contains("Complete tome")) {
+                log("[Archaeology] Complete tome found, going to hand it in.");
+                Execution.delay(handleCompleteTome());
+            }
             returnToLastLocation(player, selectedArchNames);
             return random.nextLong(1500, 2500);
         } else {
             log("[Error] Bank did not open.");
             return random.nextLong(750, 1250);
         }
+    }
+    private static long handleCompleteTome() {
+        Coordinate DeskCoordinate = new Coordinate(3327, 3378, 1);
+        if (Movement.traverse(NavPath.resolve(DeskCoordinate)) == TraverseEvent.State.FINISHED) {
+            EntityResultSet<SceneObject> StudyDesk = SceneObjectQuery.newQuery().name("Desk").option("Study").results();
+            if (!StudyDesk.isEmpty()) {
+                SceneObject desk = StudyDesk.nearest();
+                if (desk.interact("Study")) {
+                    log("[Archaeology] Interacting with Study Desk.");
+                    Execution.delayUntil(15000, () -> !Backpack.contains("Complete tome"));
+                } else {
+                    log("[Error] Failed to interact with Study Desk.");
+                }
+            } else {
+                log("[Error] No Study Desk found.");
+            }
+        } else {
+            log("[Error] Failed to traverse to Study Desk.");
+        }
+        return random.nextLong(1500, 2500);
     }
 
     public static int getVarbitValue() {
