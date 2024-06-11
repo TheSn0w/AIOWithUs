@@ -9,6 +9,8 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import java.util.List;
 
 import static net.botwithus.Archaeology.Daeminheim.*;
+import static net.botwithus.Archaeology.Stormguard.shouldTraverseToStormguard;
+import static net.botwithus.Archaeology.Stormguard.traverseToStormguard;
 import static net.botwithus.Archaeology.TraverseHellfire.shouldTraverseToHellfire;
 import static net.botwithus.Archaeology.TraverseHellfire.traverseToHellfireLift;
 import static net.botwithus.Archaeology.TraverseKharidEt.shouldTraverseToKharidEt;
@@ -25,8 +27,10 @@ import static net.botwithus.Variables.Variables.lastSkillingLocation;
 public class Traversal {
 
     public static void returnToLastLocation(LocalPlayer player, List<String> selectedArchNames) {
-        log("[Archaeology] Returning to last location");
 
+        if (shouldTraverseToStormguard(selectedArchNames)) {
+            traverseToStormguard(selectedArchNames);
+        }
         if (shouldTraverseToHellfire(selectedArchNames)) {
             traverseToHellfireLift(selectedArchNames);
         }
