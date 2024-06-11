@@ -33,7 +33,7 @@ public class Daeminheim {
         EntityResultSet<SceneObject> ImposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
         Coordinate WarpedEntrance = new Coordinate(3461, 3749, 0);
         EntityResultSet<Npc> results = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
-        Coordinate banker = new Coordinate(3349, 3719, 0);
+        Coordinate banker = new Coordinate(3449, 3719, 0);
 
         if (results.isEmpty()) {
             if (Movement.traverse(NavPath.resolve(banker)) == TraverseEvent.State.FINISHED) {
