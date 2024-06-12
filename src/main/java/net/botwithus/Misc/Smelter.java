@@ -15,6 +15,9 @@ import static net.botwithus.Variables.Variables.random;
 
 public class Smelter {
 
+    public static boolean handleGoldBar;
+    public static boolean handleGoldGauntlets;
+
     public static long handleSmelter(LocalPlayer player) {
         EntityResultSet<SceneObject> furnace = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
         if (Interfaces.isOpen(1251) || player.isMoving()) {
@@ -47,6 +50,53 @@ public class Smelter {
                 }
             }
         }
+        return random.nextLong(750, 1050);
+    }
+    public static long smeltGold(LocalPlayer player) {
+        EntityResultSet<SceneObject> furnace = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
+        if (Interfaces.isOpen(1251) || player.isMoving()) {
+            return random.nextLong(700, 980);
+        }
+        if (Interfaces.isOpen(37)) {
+            component(1, -1, 2424995);
+            log("[Smelter] Selecting 'Craft'");
+            return random.nextLong(750, 1050);
+        }
+        if (Backpack.contains("Gold ore")) {
+            log("[Smelter] Backpack contains Gold ore.");
+            furnace.nearest().interact("Smelt");
+        } else {
+            log("[Error] Backpack does not contain Gold ore.");
+            EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Load Last Preset from").results();
+            if (!results.isEmpty()) {
+                log("[Smelter] Interacting with Banker.");
+                results.nearest().interact("Load Last Preset from");
+                return random.nextLong(750, 1050);
+            } else {
+                log("[Error] Banker not found.");
+                EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery().name("Bank chest").option("Load Last Preset from").results();
+                if (!chestResults.isEmpty()) {
+                    log("[Smelter] Interacting with Bank chest.");
+                    chestResults.nearest().interact("Load Last Preset from");
+                    return random.nextLong(750, 1050);
+                } else {
+                    log("[Error] Bank chest not found.");
+                }
+            }
+        }
+        return random.nextLong(750, 1050);
+    }
+    public static long smeltGoldGauntlets(LocalPlayer player) {
+        EntityResultSet<SceneObject> furnace = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
+        if (Interfaces.isOpen(1251) || player.isMoving()) {
+            return random.nextLong(700, 980);
+        }
+        if (Interfaces.isOpen(37)) {
+            component(1, -1, 2424995);
+            log("[Smelter] Selecting 'Craft'");
+            return random.nextLong(750, 1050);
+        }
+        furnace.nearest().interact("Smelt");
         return random.nextLong(750, 1050);
     }
 }

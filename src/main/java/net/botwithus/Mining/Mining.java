@@ -140,7 +140,7 @@ public class Mining {
 
     private static long handleHeadbars(LocalPlayer player, List<String> selectedRockNames) {
         Optional<Headbar> bar = player.getHeadbars().stream()
-                .filter(headbar -> headbar.getId() == 5 && headbar.getWidth() < RandomGenerator.nextInt(140, 180))
+                .filter(headbar -> headbar.getId() == 5 && headbar.getWidth() < RandomGenerator.nextInt(200, 225))
                 .findAny();
 
         EntityResultSet<SpotAnimation> animations = SpotAnimationQuery.newQuery().ids(7164, 7165).results();

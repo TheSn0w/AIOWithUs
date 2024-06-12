@@ -50,18 +50,9 @@ public class Traversal {
         if (shouldTraverseToDaeminheimUpstairs(selectedArchNames)) {
             traverseToDaeminheimUpstairs(selectedArchNames);
         }
-        if (selectedArchNames.contains("Castle wall rubble") || (selectedArchNames.contains("Tunnelling equipment repository"))) {
-            EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
-            if (banker.isEmpty()) {
-                if (Movement.traverse(NavPath.resolve(new Coordinate(3449, 3719, 0))) == TraverseEvent.State.FINISHED) {
-                    log("[Archaeology] Arrived at banker.");
-                    Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
-                    setBotState(SKILLING);
-                }
-            } else {
+        if (selectedArchNames.contains("Castle hall rubble") || (selectedArchNames.contains("Tunnelling equipment repository"))) {
                 Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
                 setBotState(SKILLING);
-            }
         } else {
             if (getBotState() != SKILLING) {
                 traverseToLastSkillingLocation();

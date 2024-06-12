@@ -151,6 +151,12 @@ public class Banking {
                 if (desk.interact("Study")) {
                     log("[Archaeology] Interacting with Study Desk.");
                     Execution.delayUntil(15000, () -> !Backpack.contains("Complete tome"));
+                    if (selectedArchNames.contains("Castle hall rubble") || selectedArchNames.contains("Tunnelling equipment repository") || selectedArchNames.contains("Botanical reserve") || selectedArchNames.contains("Communal space") || selectedArchNames.contains("Traveller's station") || selectedArchNames.contains("Security booth") || selectedArchNames.contains("Projection space")) {
+                        Coordinate bankingCoordinate = new Coordinate(3449, 3719, 0);
+                            if (Movement.traverse(NavPath.resolve(bankingCoordinate)) == TraverseEvent.State.FINISHED) {
+                                log("[Archaeology] Arrived at banker.");
+                        }
+                    }
                 } else {
                     log("[Error] Failed to interact with Study Desk.");
                 }

@@ -24,6 +24,8 @@ import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
+import static net.botwithus.Misc.GemCutter.cutGems;
+import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.isMakeUrnsActive;
@@ -167,10 +169,16 @@ public class Runnables {
                     }
                 }
                 if (isGemCutterActive) {
-                    Execution.delay(GemCutter.cutGems());
+                    Execution.delay(cutGems());
                 }
-                if (isSmeltingActive) {
-                    Execution.delay(Smelter.handleSmelter(player));
+                if (isSmeltingActive && !handleGoldBar && !handleGoldGauntlets) {
+                    Execution.delay(handleSmelter(player));
+                }
+                if (isSmeltingActive && handleGoldBar) {
+                    Execution.delay(smeltGold(player));
+                }
+                if (isSmeltingActive && handleGoldGauntlets) {
+                    Execution.delay(smeltGoldGauntlets(player));
                 }
                 if (Variables.pickCaveNightshade) {
                     CaveNightshade.runNightShadeLoop();

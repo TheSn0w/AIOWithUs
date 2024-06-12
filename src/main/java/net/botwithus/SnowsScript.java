@@ -7,6 +7,7 @@ import net.botwithus.Cooking.Cooking;
 import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
+import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
@@ -304,8 +305,18 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+        if (isSmeltingActive) {
+            String newItemName = event.getNewItem().getName();
+            List<String> excludedItems = Arrays.asList("Enchanted gem", "Dragonstone", "Sapphire", "Emerald", "Ruby", "Diamond", "Onyx", "Opal", "Jade", "Red topaz");
+            if (newItemName != null && !excludedItems.contains(newItemName)) {
+                int currentCount = smeltedItems.getOrDefault(newItemName, 0);
+                smeltedItems.put(newItemName, currentCount + 1);
+                log("[Smelter] Created " + newItemName);
+            }
+        }
     }
     public static int tunePercentage = 20;
+    public static Map<String, Integer> smeltedItems = new HashMap<>();
 
 
 

@@ -25,10 +25,12 @@ public class Daeminheim {
                 || selectedArchNames.contains("Security booth")
                 || selectedArchNames.contains("Projection space");
     }
+
     public static boolean shouldTraverseToDaeminheimUpstairs(List<String> selectedArchNames) {
         return selectedArchNames.contains("Botanical reserve")
                 || selectedArchNames.contains("Communal space");
     }
+
     public static void traverseToDaeminheimWarpedFloor(List<String> selectedArchNames) {
         EntityResultSet<SceneObject> ImposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
         Coordinate WarpedEntrance = new Coordinate(3461, 3749, 0);
@@ -64,23 +66,19 @@ public class Daeminheim {
             log("[Error] No Imposing door found.");
         }
     }
+
     public static void traverseToDaeminheimUpstairs(List<String> selectedArchNames) {
         EntityResultSet<SceneObject> Stairs = SceneObjectQuery.newQuery().name("Staircase").option("Climb-up").results();
-        Coordinate Staircase = new Coordinate(3454, 3729, 0);
 
-        if (Movement.traverse(NavPath.resolve(Staircase)) == TraverseEvent.State.FINISHED) {
-            log("[Archaeology] Interacting with Staircase.");
-            if (selectedArchNames.contains("Botanical reserve")|| selectedArchNames.contains("Communal space")) {
-                if (Stairs != null && Stairs.nearest().interact("Climb-up")) {
-                    setBotState(SKILLING);
-                } else {
-                    log("[Error] Failed to interact with Staircase.");
-                }
+        log("[Archaeology] Interacting with Staircase.");
+        if (selectedArchNames.contains("Botanical reserve") || selectedArchNames.contains("Communal space")) {
+            if (Stairs != null && Stairs.nearest().interact("Climb-up")) {
+                setBotState(SKILLING);
             } else {
-                log("[Error] No Staircase found.");
+                log("[Error] Failed to interact with Staircase.");
             }
         } else {
-            log("[Error] Failed to traverse to Staircase.");
+            log("[Error] No Staircase found.");
         }
     }
 }

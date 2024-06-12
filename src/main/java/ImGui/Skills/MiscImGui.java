@@ -17,6 +17,8 @@ import static ImGui.PredefinedStrings.secondaryItemName;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.PorterMaker.*;
+import static net.botwithus.Misc.Smelter.handleGoldBar;
+import static net.botwithus.Misc.Smelter.handleGoldGauntlets;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.tasks;
@@ -111,6 +113,9 @@ public class MiscImGui {
                 if (!NoneSelected) {
                     ImGui.SameLine();
                 }
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will only work with gems and Enchanted gems");
+                }
             }
             if (!NoneSelected || pickCaveNightshade) {
                 if (!NoneSelected) {
@@ -191,7 +196,6 @@ public class MiscImGui {
             }
 
             if (isSmeltingActive) {
-                ImGui.SeparatorText("Smelting Options");
                 if (tooltipsEnabled) {
                     String[] texts = {
                             "Load Last Preset from Bank chest",
@@ -213,6 +217,36 @@ public class MiscImGui {
 
                     ImGui.PopStyleColor(1);
                 }
+                ImGui.SetCursorPosX(spacing);
+                handleGoldBar = ImGui.Checkbox("Gold Ore", handleGoldBar);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will only work with Gold Ore from the bank and backpack");
+                }
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                handleGoldGauntlets = ImGui.Checkbox("Make Bars with Gauntlets", handleGoldGauntlets);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will work for all types of bars if you have gauntlets equipped");
+                }
+
+                ImGui.SeparatorText("Smelted Items Count");
+                for (Map.Entry<String, Integer> entry : smeltedItems.entrySet()) {
+                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
+                }
+
+                int totalSmeltedItems = 0;
+                for (int count : smeltedItems.values()) {
+                    totalSmeltedItems += count;
+                }
+
+                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
+
+                double smeltedItemsPerHour = totalSmeltedItems / elapsedHours;
+                int smeltedItemsPerHourInt = (int) smeltedItemsPerHour;
+
+                ImGui.Text("Smelted Items Per Hour: " + smeltedItemsPerHourInt);
             }
 
 
