@@ -1,5 +1,6 @@
 package net.botwithus.Archaeology;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.backpack;
@@ -12,6 +13,8 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.getEquipChargeThreshold;
@@ -55,7 +58,7 @@ public class Porters {
         } else if (!Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
             log("[Error] No " + currentPorter + " found in the Backpack.");
             if (bankwithoutPorter) {
-                Execution.delay(BankforArcheology((LocalPlayer) player, selectedArchNames));
+                setBotState(BANKING);
             }
         }
     }

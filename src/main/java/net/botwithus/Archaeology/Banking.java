@@ -29,8 +29,7 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.List;
 
-import static net.botwithus.Archaeology.Daeminheim.shouldTraverseToDaeminheimUpstairs;
-import static net.botwithus.Archaeology.Daeminheim.shouldTraverseToDaeminheimWarpedFloor;
+import static net.botwithus.Archaeology.Daeminheim.*;
 import static net.botwithus.Archaeology.Porters.handleGoteCharges;
 import static net.botwithus.Archaeology.Traversal.returnToLastLocation;
 import static net.botwithus.CustomLogger.log;
@@ -94,33 +93,6 @@ public class Banking {
         return random.nextLong(1500, 3000);
     }
 
-    private static void handleDaemonheim(LocalPlayer player, List<String> selectedArchNames) {
-        EntityResultSet<SceneObject> imposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
-        EntityResultSet<SceneObject> stairs = SceneObjectQuery.newQuery().name("Staircase").option("Climb-down").results();
-        EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
-        Coordinate imposingDoorCoordinate = new Coordinate(2208, 9219, 1);
-
-        SceneObject door = imposingDoor.nearest();
-        SceneObject stair = stairs.nearest();
-
-        if (shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
-            Movement.walkTo(imposingDoorCoordinate.getX(), imposingDoorCoordinate.getY(), true);
-            Execution.delayUntil(60000, () -> player.getCoordinate().equals(imposingDoorCoordinate));
-            if (player.getCoordinate().equals(imposingDoorCoordinate) && !imposingDoor.isEmpty()) {
-                if (door.interact("Enter")) {
-                    log("[Archaeology] Interacting with Imposing Door.");
-                    Execution.delay(random.nextLong(3500, 5000));
-                }
-            }
-        } else if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) && stair != null) {
-            if (stair.interact("Climb-down")) {
-                log("[Archaeology] Interacting with Staircase.");
-                Execution.delay(random.nextLong(10000, 12500));
-            }
-        }
-
-        handleBankInteraction(player, selectedArchNames);
-    }
 
     public static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
         int varbitValue = getVarbitValue();

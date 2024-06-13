@@ -8,11 +8,13 @@ import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.List;
 
+import static net.botwithus.Archaeology.Banking.handleBankInteraction;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.setBotState;
@@ -80,5 +82,33 @@ public class Daeminheim {
         } else {
             log("[Error] No Staircase found.");
         }
+    }
+
+    public static void handleDaemonheim(LocalPlayer player, List<String> selectedArchNames) {
+        EntityResultSet<SceneObject> imposingDoor = SceneObjectQuery.newQuery().name("Imposing door").option("Enter").results();
+        EntityResultSet<SceneObject> stairs = SceneObjectQuery.newQuery().name("Staircase").option("Climb-down").results();
+        EntityResultSet<Npc> banker = NpcQuery.newQuery().name("Fremennik banker").option("Bank").results();
+        Coordinate imposingDoorCoordinate = new Coordinate(2208, 9219, 1);
+
+        SceneObject door = imposingDoor.nearest();
+        SceneObject stair = stairs.nearest();
+
+        if (shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
+            Movement.walkTo(imposingDoorCoordinate.getX(), imposingDoorCoordinate.getY(), true);
+            Execution.delayUntil(60000, () -> player.getCoordinate().equals(imposingDoorCoordinate));
+            if (player.getCoordinate().equals(imposingDoorCoordinate) && !imposingDoor.isEmpty()) {
+                if (door.interact("Enter")) {
+                    log("[Archaeology] Interacting with Imposing Door.");
+                    Execution.delay(random.nextLong(3500, 5000));
+                }
+            }
+        } else if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) && stair != null) {
+            if (stair.interact("Climb-down")) {
+                log("[Archaeology] Interacting with Staircase.");
+                Execution.delay(random.nextLong(10000, 12500));
+            }
+        }
+
+        handleBankInteraction(player, selectedArchNames);
     }
 }
