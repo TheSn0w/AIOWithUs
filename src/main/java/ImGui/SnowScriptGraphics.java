@@ -28,6 +28,7 @@ import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
+import static net.botwithus.Archaeology.Porters.bankwithoutPorter;
 import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
@@ -244,6 +245,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Drop soil", () -> dropSoil = !dropSoil, dropSoil);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop soil instead of banking to deposit");
+                        }
+                        createCenteredButton("Bank when 0 porter", () -> bankwithoutPorter = !bankwithoutPorter, bankwithoutPorter);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will force to bank when backpack doesnt contain any porters");
                         }
                     } else if (isCombatActive) {
                         createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, true);
