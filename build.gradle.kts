@@ -60,6 +60,7 @@ kotlin {
     jvmToolchain(20)
 }
 
+/*
 tasks.register("updateVersion") {
     doLast {
         val versionPropsFile = file("C:\\Users\\Sn0w\\OneDrive\\Desktop\\AIO\\version.properties")
@@ -93,4 +94,4 @@ tasks.register("updateVersion") {
 
 tasks.named("build") {
     dependsOn("updateVersion")
-}
+}*/

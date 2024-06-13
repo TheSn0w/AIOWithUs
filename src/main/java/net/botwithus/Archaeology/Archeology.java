@@ -134,7 +134,7 @@ public class Archeology {
         useGrace();
 
         if (Backpack.isFull()) {
-            if (dropSoil) {
+            if (Backpack.containsItemByCategory(4603) && dropSoil) {
                 dropAllSoil();
             } else {
                 backpackIsFull(player);
