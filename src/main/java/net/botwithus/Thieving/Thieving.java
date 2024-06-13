@@ -164,7 +164,7 @@ public class Thieving {
                 activateLightForm();
             }
 
-            EntityResultSet<Npc> results = NpcQuery.newQuery().id(23559).option("Pickpocket").results();
+            EntityResultSet<Npc> results = NpcQuery.newQuery().name("Druid").option("Pickpocket").results();
             Coordinate druidLocation = new Coordinate(3311, 3304, 0);
             if (results.isEmpty()) {
                 if (Movement.traverse(NavPath.resolve(druidLocation)) == TraverseEvent.State.FINISHED) {
@@ -227,7 +227,7 @@ public class Thieving {
                 activateLightForm();
             }
 
-            EntityResultSet<Npc> results = NpcQuery.newQuery().id(23563).option("Pickpocket").results();
+            EntityResultSet<Npc> results = NpcQuery.newQuery().name("Crux Eqal Knight").option("Pickpocket").results();
             Coordinate druidLocation = new Coordinate(3320, 3290, 0);
             if (results.isEmpty()) {
                 log("[Thieving] Traversing to knight Location.");

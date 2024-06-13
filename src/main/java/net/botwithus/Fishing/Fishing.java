@@ -68,13 +68,13 @@ public class Fishing {
                 if (success) {
                     Execution.delayUntil(10000, () -> !Backpack.isFull());
                     if (!Backpack.isFull()) {
-                        SnowsScript.setBotState(SnowsScript.BotState.SKILLING);
+                        setBotState(SnowsScript.BotState.SKILLING);
                     }
                     return random.nextLong(1500, 3000);
                 }
             } else {
                 setLastSkillingLocation(player.getCoordinate());
-                SnowsScript.setBotState(SnowsScript.BotState.BANKING);
+                setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             }
         }

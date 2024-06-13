@@ -44,7 +44,7 @@ public class Woodcutting {
         }
 
         if (player.isMoving() || player.getAnimationId() != -1) {
-            return random.nextLong(1500, 7000);
+            return random.nextLong(750, 1250);
         }
 
         if (acadiaTree || acadiaVIP) {

@@ -4,6 +4,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.inventory.backpack;
 import net.botwithus.inventory.equipment;
+import net.botwithus.rs3.game.Area;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -17,12 +18,7 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Archaeology.Banking.*;
@@ -74,95 +70,116 @@ public class BankInteractions {
 
     public static List<String> BANK_TYPES = new ArrayList<>(Arrays.asList("Bank chest", "Bank booth", "Counter"));
 
-
     public static Coordinate findNearestBank(Coordinate playerPosition) {
         return BANK_COORDINATES.stream()
                 .min(Comparator.comparingDouble(bank -> Distance.between(playerPosition, bank)))
                 .orElse(null);
     }
 
-
     public static long performBanking(LocalPlayer player) {
         if (player.getAnimationId() != -1) {
-            log("[Caution] Player is currently performing an action. moving away to be able to teleport.");
-            Coordinate playerCoordinate = player.getCoordinate();
-            List<Coordinate> nearbyCoordinates = Arrays.asList(
-                    new Coordinate(playerCoordinate.getX() + 1, playerCoordinate.getY(), playerCoordinate.getZ()),
-                    new Coordinate(playerCoordinate.getX() - 1, playerCoordinate.getY(), playerCoordinate.getZ()),
-                    new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() + 1, playerCoordinate.getZ()),
-                    new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() - 1, playerCoordinate.getZ())
-            );
-
-            for (Coordinate nearbyCoordinate : nearbyCoordinates) {
-                if (nearbyCoordinate.isWalkable()) {
-                    Movement.walkTo(nearbyCoordinate.getX(), nearbyCoordinate.getY(), true);
-                    Execution.delay(random.nextLong(1500, 2500));
-
-                    if (player.getCoordinate().equals(nearbyCoordinate)) {
-                        log("[Success] Player has moved to the desired coordinate.");
-                        break;
-                    } else {
-                        log("[Caution] Player has not moved to the desired coordinate. Trying the next one.");
-                    }
-                }
-            }
+            log("[Caution] Player is currently performing an action. Moving away to be able to teleport.");
+            movePlayerAwayFromAction(player);
         }
 
         Coordinate nearestBank = findNearestBank(player.getCoordinate());
         if (nearestBank != null) {
             if (Movement.traverse(NavPath.resolve(nearestBank)) == TraverseEvent.State.FINISHED) {
                 Execution.delay(random.nextLong(1500, 3000));
-                SceneObject nearestBankBooth = findNearestBankBooth(player, nearestBank);
-                if (nearestBankBooth != null) {
-                    Execution.delay(interactWithBank(player, nearestBankBooth));
-                } else {
-                    log("[Banking] No bank found at the bank location.");
-                }
+                return docheck(player, nearestBank);
             } else {
                 log("[Banking] Failed to traverse to the nearest bank.");
             }
         } else {
             log("[Banking] No nearby banks found.");
         }
-
-        return 1500;
+        return 0;
     }
 
-    public static SceneObject findNearestBankBooth(LocalPlayer player, Coordinate nearestBank) {
-        SceneObjectQuery query = SceneObjectQuery.newQuery();
+    private static void movePlayerAwayFromAction(LocalPlayer player) {
+        Coordinate playerCoordinate = player.getCoordinate();
+        List<Coordinate> nearbyCoordinates = Arrays.asList(
+                new Coordinate(playerCoordinate.getX() + 1, playerCoordinate.getY(), playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX() - 1, playerCoordinate.getY(), playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() + 1, playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() - 1, playerCoordinate.getZ())
+        );
+
+        for (Coordinate nearbyCoordinate : nearbyCoordinates) {
+            if (nearbyCoordinate.isWalkable()) {
+                Movement.walkTo(nearbyCoordinate.getX(), nearbyCoordinate.getY(), true);
+                Execution.delay(random.nextLong(1500, 2500));
+
+                if (player.getCoordinate().equals(nearbyCoordinate)) {
+                    log("[Success] Player has moved to the desired coordinate.");
+                    break;
+                } else {
+                    log("[Caution] Player has not moved to the desired coordinate. Trying the next one.");
+                }
+            }
+        }
+    }
+
+    private static long docheck(LocalPlayer player, Coordinate nearestBank) {
+        if (player.getCoordinate().equals(nearestBank)) {
+            SceneObject bankObject = findNearestBankBooth(player);
+            if (bankObject != null) {
+                interactWithBank(player, bankObject);
+            } else {
+                log("[Banking] No suitable bank object found at the bank location.");
+            }
+        } else {
+            log("[Banking] Player is not at the bank coordinate.");
+        }
+        return 0; // You need to return a long value as per the method signature
+    }
+
+    public static SceneObject findNearestBankBooth(LocalPlayer player) {
+        Coordinate playerCoordinate = player.getCoordinate();
+        Area searchArea = new Area.Rectangular(
+                new Coordinate(playerCoordinate.getX() - 1, playerCoordinate.getY() - 1, playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX() + 1, playerCoordinate.getY() + 1, playerCoordinate.getZ())
+        );
+
         for (String bankType : BANK_TYPES) {
-            List<SceneObject> bankBooths = query.name(bankType).results().stream()
-                    .filter(booth -> booth.getCoordinate().distanceTo(player.getCoordinate()) < 25.0D)
-                    .toList();
+            SceneObjectQuery query = SceneObjectQuery.newQuery().name(bankType).inside(searchArea);
+            List<SceneObject> bankBooths = query.results().stream().toList();
+
+            log("[Banking] Searching for " + bankType + " within the area. Found " + bankBooths.size() + " objects.");
 
             if (!bankBooths.isEmpty()) {
                 log("[Banking] Found " + bankType + " at the bank location.");
                 return bankBooths.get(0);
             }
         }
-        log("[Banking] No " + BANK_TYPES + " found at the bank location.");
+        log("[Banking] No suitable bank object found at the bank location.");
         return null;
     }
 
-    public static long interactWithBank(LocalPlayer player, SceneObject nearestBankBooth) {
+    public static void interactWithBank(LocalPlayer player, SceneObject nearestBankBooth) {
         Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
 
         if (oreBox != null || isMiningActive && useGote) {
-            return handleOreBoxBanking(player, nearestBankBooth, oreBox);
+            handleOreBoxBanking(player, nearestBankBooth, oreBox);
         } else if (BankforFood) {
-            return handleBankforFood(player, nearestBankBooth);
+            handleBankforFood(player, nearestBankBooth);
         } else if (useGote && nearestBank) {
             Execution.delay(handleGoteBanking(player, nearestBankBooth));
+        } else if (!useGote && nearestBank) {
+            log("Handling normal Banking.");
+            handleNormalBanking(player, nearestBankBooth);
+        } else {
+            log("[Banking] No suitable banking method found.");
         }
-        return handleNormalBanking(player, nearestBankBooth);
     }
 
     public static long handleGoteBanking(LocalPlayer player, SceneObject nearestBankBooth) {
         int varbitValue = getVarbitValue();
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
         String bankType = nearestBankBooth.getName();
+        String[] bankTypes = {"Bank booth", "Bank chest", "Counter"};
 
-        if (BANK_TYPES.contains(bankType)) {
+        if (Arrays.asList(bankTypes).contains(bankType)) {
             for (String interactionOption : interactionOptions) {
                 log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
 
@@ -236,7 +253,7 @@ public class BankInteractions {
         }
     }
 
-    public static long handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
+    public static void handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
         int varbitValue = getVarbitValue();
         Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
@@ -267,7 +284,8 @@ public class BankInteractions {
                                 log("[Banking] Emptied: " + oreBox.getName());
                                 setBotState(SKILLING);
                             }
-                            return random.nextLong(1500, 3000);
+                            random.nextLong(1500, 3000);
+                            return;
                         }
                     } else {
                         log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");
@@ -280,7 +298,7 @@ public class BankInteractions {
         }
 
         log("[Error] Failed to interact with the bank using all available options.");
-        return random.nextLong(1500, 3000);
+        random.nextLong(1500, 3000);
     }
 
     private static long handleGoteWithdrawing() {
@@ -344,32 +362,35 @@ public class BankInteractions {
     }
 
 
-    public static long handleNormalBanking(LocalPlayer player, SceneObject nearestBankBooth) {
-        String bankType = nearestBankBooth.getName();
-        if (BANK_TYPES.contains(bankType)) {
-            String interactionOption = "Load Last Preset from";
-            log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
+    public static void handleNormalBanking(LocalPlayer player, SceneObject nearestBankBooth) {
+        List<String> bankTypes = Arrays.asList("Bank booth", "Bank chest", "Counter");
+        String interactionOption = "Load Last Preset from";
 
-            for (int i = 0; i < 1; i++) {
-                boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-                log("[Banking] Trying to interact with " + bankType + ": " + interactionSuccess);
+        for (String bankType : bankTypes) {
+            if (Objects.equals(nearestBankBooth.getName(), bankType)) {
+                log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
 
-                if (interactionSuccess) {
-                    Execution.delay(random.nextLong(3000, 5000));
-                    if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+                for (int i = 0; i < 1; i++) {
+                    boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
+                    log("[Banking] Trying to interact with " + bankType + ": " + interactionSuccess);
+
+                    if (interactionSuccess) {
+                        Execution.delay(random.nextLong(3000, 5000));
                         log("[Porter] Traversing to last skilling location.");
+                        if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+                            setBotState(SKILLING);
+                            random.nextLong(1500, 3000);
+                            return;
+                        }
+                    } else {
+                        log("[Error] Failed to interact with " + bankType + ". Retrying...");
                         Execution.delay(random.nextLong(1500, 3000));
-                        setBotState(SKILLING);
                     }
-                    return random.nextLong(1500, 3000);
-                } else {
-                    log("[Error] Failed to interact with " + bankType + ". Retrying...");
-                    Execution.delay(random.nextLong(1500, 3000));
                 }
             }
         }
 
-        log("[Error] Failed to interact with the bank using all available options.");
-        return random.nextLong(1500, 3000);
+        random.nextLong(1500, 3000);
     }
+
 }

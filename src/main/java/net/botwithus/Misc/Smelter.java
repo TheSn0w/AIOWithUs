@@ -2,14 +2,18 @@ package net.botwithus.Misc;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
+
 import java.util.Random;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.component;
 import static net.botwithus.Variables.Variables.random;
 
@@ -18,15 +22,22 @@ public class Smelter {
     public static boolean handleGoldBar;
     public static boolean handleGoldGauntlets;
 
+    public static int logValue = VarManager.getVarValue(VarDomainType.PLAYER, 8336);
+
+
     public static long handleSmelter(LocalPlayer player) {
         EntityResultSet<SceneObject> furnace = SceneObjectQuery.newQuery().name("Furnace").option("Smelt").results();
         if (Interfaces.isOpen(1251) || player.isMoving()) {
             return random.nextLong(700, 980);
         }
         if (Interfaces.isOpen(37)) {
-            component(1, -1, 2424995);
-            log("[Smelter] Selecting 'Craft'");
-            return random.nextLong(750, 1050);
+            if (logValue == 0) {
+                shutdown();
+            } else if (logValue >= 1) {
+                component(1, -1, 2424995);
+                log("[Smelter] Selecting 'Craft'");
+                return random.nextLong(750, 1050);
+            }
         }
         if (Backpack.containsItemByCategory(5290) || Backpack.contains("Enchanted gem")) {
             log("[Smelter] Backpack contains item by category 5290 or Enchanted gem.");
@@ -58,9 +69,13 @@ public class Smelter {
             return random.nextLong(700, 980);
         }
         if (Interfaces.isOpen(37)) {
-            component(1, -1, 2424995);
-            log("[Smelter] Selecting 'Craft'");
-            return random.nextLong(750, 1050);
+            if (logValue == 0) {
+                shutdown();
+            } else if (logValue >= 1) {
+                component(1, -1, 2424995);
+                log("[Smelter] Selecting 'Craft'");
+                return random.nextLong(750, 1050);
+            }
         }
         if (Backpack.contains("Gold ore")) {
             log("[Smelter] Backpack contains Gold ore.");
@@ -92,9 +107,13 @@ public class Smelter {
             return random.nextLong(700, 980);
         }
         if (Interfaces.isOpen(37)) {
-            component(1, -1, 2424995);
-            log("[Smelter] Selecting 'Craft'");
-            return random.nextLong(750, 1050);
+            if (logValue == 0) {
+                shutdown();
+            } else if (logValue >= 1) {
+                component(1, -1, 2424995);
+                log("[Smelter] Selecting 'Craft'");
+                return random.nextLong(750, 1050);
+            }
         }
         furnace.nearest().interact("Smelt");
         return random.nextLong(750, 1050);
