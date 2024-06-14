@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
-import static net.botwithus.Divination.Divination.count;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.energy;
@@ -70,14 +69,6 @@ public class DivinationImGui {
             int energyGatheredPerHourInt = (int) energyGatheredPerHour;
 
             ImGui.Text("Energy Gathered Per Hour: " + energyGatheredPerHourInt);
-
-            ImGui.SeparatorText("Divine Charges");
-            ImGui.Text("Divine Charges Created: " + count);
-
-            double countPerHour = count / elapsedHours;
-            int countPerHourInt = (int) countPerHour;
-
-            ImGui.Text("Per Hour: " + countPerHourInt);
         }
     }
 }

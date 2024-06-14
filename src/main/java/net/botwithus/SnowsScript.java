@@ -216,6 +216,13 @@ public class SnowsScript extends LoopingScript {
                 materialTypes.put(itemName, count + 1);
             }
         }
+        if (isThievingActive) {
+            String itemName = event.getNewItem().getName();
+            if (itemName != null) {
+                int count = materialTypes.getOrDefault(itemName, 0);
+                materialTypes.put(itemName, count + 1);
+            }
+        }
         if (isCorruptedOreActive) {
             String itemName = event.getNewItem().getName();
             if ("Corrupted ore".equals(itemName)) {

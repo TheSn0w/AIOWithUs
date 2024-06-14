@@ -36,6 +36,8 @@ public class Divination {
         String wispName = getWispName(divinationLevel);
         Coordinate wispCoordinates = getWispCoordinates(divinationLevel);
 
+        log("[Divination] Level: " + divinationLevel);
+
         if (wispCoordinates == null) {
             log("[Error] No valid wisp coordinates found for level: " + divinationLevel);
             return random.nextLong(1500, 3000);
@@ -45,8 +47,6 @@ public class Divination {
             log("[Error] No valid wisp name for level: " + divinationLevel);
             return navigateTo(player, wispCoordinates);
         }
-
-        updateCount();
 
         if (player.isMoving()) {
             return random.nextLong(1500, 3000);
@@ -370,18 +370,6 @@ public class Divination {
         }
     }
 
-    public static int initialValue = VarManager.getInvVarbit(94, 3, 37522);
-    public static int count = 0;
-
-    public static void updateCount() {
-        int currentValue = VarManager.getInvVarbit(94, 3, 37522);
-        if (currentValue > initialValue) {
-            count++;
-        } else if (currentValue < initialValue) {
-            count += 100 - initialValue + currentValue;
-        }
-        initialValue = currentValue;
-    }
 
     private static int randomValue = 0;
 

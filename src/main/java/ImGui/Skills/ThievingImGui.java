@@ -2,9 +2,15 @@ package ImGui.Skills;
 
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
+
+import java.util.Map;
+
 import static net.botwithus.Variables.Variables.*;
 
 public class ThievingImGui {
+
+    private static long startTime = System.currentTimeMillis();
+
 
     public static void renderThieving() {
         if (isThievingActive && !showLogs) {
@@ -35,6 +41,21 @@ public class ThievingImGui {
 
                 ImGui.PopStyleColor(1);
             }
+            for (Map.Entry<String, Integer> entry : materialTypes.entrySet()) {
+                ImGui.Text(entry.getKey() + ": " + entry.getValue());
+            }
+
+            int totalMaterialTypes = 0;
+            for (int count : materialTypes.values()) {
+                totalMaterialTypes += count;
+            }
+
+            double elapsedHours = (System.currentTimeMillis() - startTime) / 1000.0 / 60.0 / 60.0;
+
+            double materialTypesPerHour = totalMaterialTypes / elapsedHours;
+            int materialTypesPerHourInt = (int) materialTypesPerHour;
+
+            ImGui.Text("Items stolen Per Hour: " + materialTypesPerHourInt);
         }
     }
 }

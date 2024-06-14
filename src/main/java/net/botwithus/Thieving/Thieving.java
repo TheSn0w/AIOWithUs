@@ -30,11 +30,18 @@ import static net.botwithus.Variables.Variables.random;
 
 public class Thieving {
     private static int failedAttempts = 0;
-    static final Coordinate BakerystallLocation = new Coordinate(3208, 3257, 0);
+    static final Coordinate BakerystallLocation = new Coordinate(3209, 3266, 0);
 
     public static long interactWithBakeryStall(LocalPlayer player) {
         if (Backpack.isFull() || player.inCombat()) {
             return random.nextLong(3500, 5000);
+        }
+
+        // Check if player is at BakerystallLocation
+        if (!player.getCoordinate().equals(BakerystallLocation)) {
+            log("[Thieving] Traversing to Bakery Stall Location.");
+            Movement.traverse(NavPath.resolve(BakerystallLocation));
+            return 0;
         }
 
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().id(66692).option("Steal from").results();
