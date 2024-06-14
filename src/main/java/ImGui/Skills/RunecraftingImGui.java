@@ -24,7 +24,7 @@ public class RunecraftingImGui {
                         "Have restore potions in preset if using familiar",
                         "Soul altar will only work with protean essence",
                         "if soul altar, start next to it",
-                        "YOU MUST HAVE - RING OF DUELING + PASSING BRACELET",
+                        "YOU MUST HAVE PASSING BRACELET",
                         "you have to choose a ring choice",
                         "either keep passing bracelet in backpack or wear it",
                         "unless your doing soul altar",
@@ -82,12 +82,11 @@ public class RunecraftingImGui {
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("if you have Ring of Dueling, select this,doesnt matter where if its in backpack or not");
             }
-            ImGui.SetCursorPosX(spacing);
 
-                        /*ImGui.SameLine();
+                        ImGui.SameLine();
 
                         ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        useGraceoftheElves = ImGui.Checkbox("Grace of the Elves", useGraceoftheElves);*/
+                        useGraceoftheElves = ImGui.Checkbox("Grace of the Elves", useGraceoftheElves);
 
 
             ImGui.SeparatorText("Statistics");
