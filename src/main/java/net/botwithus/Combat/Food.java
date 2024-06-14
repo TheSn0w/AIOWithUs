@@ -11,6 +11,7 @@ import net.botwithus.rs3.util.RandomGenerator;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.healthPointsThreshold;
 
@@ -47,7 +48,13 @@ public class Food {
 
         if (food == null) {
             if (BankforFood) {
+                setLastSkillingLocation(player.getCoordinate());
                 setBotState(BANKING);
+                return random.nextLong(1500, 3000);
+            }
+            if (nearestBank) {
+                setBotState(BANKING);
+                setLastSkillingLocation(player.getCoordinate());
                 return random.nextLong(1500, 3000);
             } else {
                 log("[Error] No food found");

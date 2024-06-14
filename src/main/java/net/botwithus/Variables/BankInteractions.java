@@ -203,7 +203,7 @@ public class BankInteractions {
 
                             handleGote(varbitValue, player, nearestBankBooth);
                             if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
-                                log("[Porter] Traversing to last skilling location.");
+                                log("[Banking] Traversing to last skilling location.");
                                 Execution.delay(random.nextLong(1500, 3000));
                                 setBotState(SKILLING);
                             }
@@ -376,7 +376,7 @@ public class BankInteractions {
 
                     if (interactionSuccess) {
                         Execution.delay(random.nextLong(3000, 5000));
-                        log("[Porter] Traversing to last skilling location.");
+                        log("[Banking] Traversing to last skilling location.");
                         if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
                             setBotState(SKILLING);
                             random.nextLong(1500, 3000);
