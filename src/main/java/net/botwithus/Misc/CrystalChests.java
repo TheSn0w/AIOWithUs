@@ -64,7 +64,7 @@ public class CrystalChests {
         log("[Chests] Navigating to Chest");
         if (useTaverly) {
             if (Movement.traverse(NavPath.resolve(TaverlyChest)) == TraverseEvent.State.FINISHED) {
-                log("[Chests] Arrived at Taverly Bank");
+                log("[Chests] Arrived at Taverly Chest");
                 chestState = CrystalChestState.CHEST;
             }
         } else {
@@ -87,7 +87,7 @@ public class CrystalChests {
                 bankChest.interact("Load Last Preset from");
                 Execution.delayUntil(60000, () -> Backpack.contains("Crystal key"));
                 if (Backpack.contains("Crystal key")) {
-                    log("[Chests] Loaded preset, backpack is full. Changing bot state to CHEST.");
+                    log("[Chests] Loaded preset, backpack has crystal keys, moving to chest");
                     navigateToChest();
                 } else {
                     log("[Error] Backpack doesn't contain key after attempting to interact with bank chest.");
