@@ -15,6 +15,7 @@ import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Food.isHealthLow;
 import static net.botwithus.Combat.Loot.processLooting;
+import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.managePotions;
 import static net.botwithus.Combat.Prayers.manageQuickPrayers;
 import static net.botwithus.Combat.Prayers.manageSoulSplit;
@@ -45,6 +46,9 @@ public class Combat {
         if (useLoot) {
             processLooting();
         }
+        if (useNotepaper) {
+            useItemOnNotepaper();
+        }
 
         if (SoulSplit) {
             Execution.delay(manageSoulSplit(player));
@@ -72,16 +76,16 @@ public class Combat {
         if (player.hasTarget()) {
             PathingEntity<?> target = player.getTarget();
             if (!handleMultitarget) {
-                return logAndDelay("[Combat] Player already has a target.", 400, 500);
+                return random.nextLong(100, 200);
             } else {
                 if (target.getCurrentHealth() > target.getMaximumHealth() * healthThreshold) {
-                    return logAndDelay("[Combat] Current target's health is above threshold.", 400, 500);
+                    return random.nextLong(100, 200);
                 } else {
                     Npc newTarget = findDifferentTarget(player, target.getId());
                     if (newTarget != null) {
                         return attackMonster(player, newTarget);
                     } else {
-                        return logAndDelay("[Combat] No new target found.", 400, 500);
+                        return logAndDelay("[Combat] No new target found.", 100, 200);
                     }
                 }
             }

@@ -106,6 +106,7 @@ public class Variables {
 // SECTION 3: Combat
 // =====================
     public static boolean isCombatActive = false;
+    public static boolean useNotepaper = false;
     public static boolean interactWithLootAll = false;
     public static boolean useVulnerabilityBombs = false;
     public static boolean useLoot = false;

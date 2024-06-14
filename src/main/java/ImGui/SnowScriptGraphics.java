@@ -283,6 +283,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("start anywhere, only toggle this and looting if you want to loot`");
                         }
+                        createCenteredButton("Use Notepaper", () -> useNotepaper = !useNotepaper, useNotepaper);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Magic notepaper or Enchant notepaper");
+                        }
                     } else if (isFishingActive) {
                         createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, true);
                         if (ImGui.IsItemHovered()) {

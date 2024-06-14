@@ -14,6 +14,7 @@ import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.*;
+import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
@@ -36,6 +37,7 @@ import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.radius;
 import static net.botwithus.CustomLogger.log;
@@ -87,6 +89,13 @@ public class SnowsScript extends LoopingScript {
         skillingTasks.put(() -> Variables.isCookingActive, Runnables::handleCooking);
         skillingTasks.put(() -> Variables.isArcheologyActive, Runnables::handleArcheology);
         skillingTasks.put(() -> Variables.isMiscActive, Runnables::handleMisc);
+    }
+
+    public static void logItemNamesToUseOnNotepaper() {
+        log("[Notepaper] Item names to use on notepaper:");
+        for (String itemName : itemNamesToUseOnNotepaper) {
+            log(itemName);
+        }
     }
 
 
@@ -186,6 +195,8 @@ public class SnowsScript extends LoopingScript {
     }
     public static Map<String, Integer> divineCharges = new HashMap<>();
     public static Map<String, Integer> Gems = new HashMap<>();
+    public static Map<String, Boolean> notedItemsTracker = new HashMap<>();
+    public static List<String> itemNamesToUseOnNotepaper = new ArrayList<>();
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
@@ -265,6 +276,26 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+
+        if (useNotepaper) {
+            log("[Notepaper] Checking for new items...");
+
+            InventoryItemQuery.newQuery(93) // Assuming 93 is the backpack inventory ID
+                    .results()
+                    .forEach(item -> {
+                        String itemName = item.getName();
+                        if (itemName != null && notedItemsTracker.containsKey(itemName.toLowerCase())) {
+                            // If an unnoted version is found, unmark it in the tracker
+                            if (!Objects.requireNonNull(ConfigManager.getItemType(item.getId())).isNote()) {
+                                notedItemsTracker.put(itemName.toLowerCase(), false);
+                            }
+                        }
+                    });
+            log("[Notepaper] Finished checking for new items.");
+
+        }
+
+
         if (isRunecraftingActive) {
             String itemName = event.getNewItem().getName();
             List<String> runeNames = Arrays.asList("Miasma rune", "Flesh rune", "Spirit rune", "Bone rune");
@@ -597,6 +628,9 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("targetThreshold", String.valueOf(getHealthThreshold()));
         this.configuration.addProperty("PrayerPointsThreshold", String.valueOf(getPrayerPointsThreshold()));
         this.configuration.addProperty("HealthPointsThreshold", String.valueOf(getHealthPointsThreshold()));
+        this.configuration.addProperty("useNotepaper", String.valueOf(useNotepaper));
+        String serializedItemNamesForNotepaper = String.join(",", itemNamesToUseOnNotepaper);
+        this.configuration.addProperty("ItemNamesToUseOnNotepaper", serializedItemNamesForNotepaper);
 
 
 
@@ -605,6 +639,7 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            useNotepaper = Boolean.parseBoolean(this.configuration.getProperty("useNotepaper"));
             isdivinechargeActive = Boolean.parseBoolean(this.configuration.getProperty("isdivinechargeActive"));
             isGemCutterActive = Boolean.parseBoolean(this.configuration.getProperty("isGemCutterActive"));
             isSmeltingActive = Boolean.parseBoolean(this.configuration.getProperty("isSmeltingActive"));
@@ -802,6 +837,12 @@ public class SnowsScript extends LoopingScript {
                 for (String foodName : loadedEatingFoodNames) {
                     addFoodName(foodName);
                 }
+            }
+            String serializedItemNamesForNotepaper = this.configuration.getProperty("ItemNamesToUseOnNotepaper");
+            if (serializedItemNamesForNotepaper != null && !serializedItemNamesForNotepaper.isEmpty()) {
+                String[] loadedItemNamesForNotepaper = serializedItemNamesForNotepaper.split(",");
+                itemNamesToUseOnNotepaper.clear();
+                itemNamesToUseOnNotepaper.addAll(Arrays.asList(loadedItemNamesForNotepaper));
             }
             log("[Settings] Configuration loaded successfully.");
         } catch (Exception e) {

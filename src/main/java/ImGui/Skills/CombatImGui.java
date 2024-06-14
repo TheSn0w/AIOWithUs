@@ -6,20 +6,19 @@ import net.botwithus.Combat.*;
 import net.botwithus.Variables.*;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.imgui.ImGui;
+import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
 import net.botwithus.rs3.script.ScriptConsole;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ImGui.PredefinedStrings.*;
 import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
 import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.startTime;
@@ -27,6 +26,8 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.removeFoodName;
 
 public class CombatImGui {
+
+    private static String selectedItemToUseOnNotepaper = "";
 
     public static void renderCombat() {
         if (isCombatActive && !showLogs) {
@@ -263,7 +264,7 @@ public class CombatImGui {
                 }
                 if (newRadius != radius) {
                     radius = newRadius;
-                   log("Radius distance changed to: " + radius);
+                    log("Radius distance changed to: " + radius);
                 }
                 ImGui.SameLine();
                 if (ImGui.Button("Set Center")) {
@@ -304,28 +305,28 @@ public class CombatImGui {
             }
 
 
-            if (ImGui.BeginChild("Targets List", 360, 50, true, 0)) {
-                int count = 0;
-                for (String targetName : new ArrayList<>(getTargetNames())) {
-                    if (count > 0 && count % 5 == 0) {
-                        ImGui.Text("");
-                    } else if (count > 0) {
-                        ImGui.SameLine();
-                    }
+            if (!getTargetNames().isEmpty()) {
+                if (ImGui.BeginTable("Targets List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Target Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
 
-                    if (ImGui.Button(targetName)) {
-                        removeTargetName(targetName);
-                        break;
+                    for (String targetName : new ArrayList<>(getTargetNames())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(targetName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + targetName)) {
+                            removeTargetName(targetName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this target");
+                        }
                     }
-
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Click to remove this target");
-                    }
-                    count++;
+                    ImGui.EndTable();
                 }
             }
-
-            ImGui.EndChild();
         }
         if (isCombatActive && useLoot && !showLogs) {
             ImGui.SeparatorText("Loot Options");
@@ -362,29 +363,28 @@ public class CombatImGui {
                 }
             }
 
-            if (ImGui.BeginChild("Item List", 360, 100, true, 0)) {
-                int count = 0;
-                for (String itemName : new ArrayList<>(getTargetItemNames())) {
-                    if (count > 0 && count % 5 == 0) {
-                        ImGui.Text("");
-                    } else if (count > 0) {
-                        ImGui.SameLine();
-                    }
+            if (!getTargetItemNames().isEmpty()) {
+                if (ImGui.BeginTable("Item List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Item Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
 
-                    if (ImGui.Button(itemName)) {
-                        getTargetItemNames().remove(itemName);
-                        break;
+                    for (String itemName : new ArrayList<>(getTargetItemNames())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(itemName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + itemName)) {
+                            getTargetItemNames().remove(itemName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this item");
+                        }
                     }
-
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Click to remove this item");
-                    }
-                    count++;
+                    ImGui.EndTable();
                 }
             }
-
-
-            ImGui.EndChild();
         }
         if (isCombatActive && BankforFood && !showLogs) {
             ImGui.SeparatorText("Food Options");
@@ -420,29 +420,63 @@ public class CombatImGui {
                 }
             }
 
-            if (ImGui.BeginChild("Food List", 355, 50, true, 0)) {
-                int count = 0;
-                for (String foodName : new ArrayList<>(getSelectedFoodNames())) {
-                    if (count > 0 && count % 5 == 0) {
-                        ImGui.Text("");
-                    } else if (count > 0) {
-                        ImGui.SameLine();
-                    }
+            if (!getSelectedFoodNames().isEmpty()) {
+                if (ImGui.BeginTable("Food List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Food Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
 
-                    if (ImGui.Button(foodName)) {
-                        removeFoodName(foodName);
-                        break;
+                    for (String foodName : new ArrayList<>(getSelectedFoodNames())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(foodName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + foodName)) {
+                            removeFoodName(foodName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this food");
+                        }
                     }
+                    ImGui.EndTable();
+                }
+            }
+        }
+        if (isCombatActive && useNotepaper && !showLogs) {
+            ImGui.SeparatorText("Notepaper Settings");
+            ImGui.SetItemWidth(290.0F);
+            selectedItemToUseOnNotepaper = ImGui.InputText("Item name", selectedItemToUseOnNotepaper);
 
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Click to remove this food");
-                    }
-                    count++;
+            if (ImGui.Button("Add Item to Notepaper List") && !selectedItemToUseOnNotepaper.isEmpty()) {
+                if (!getItemNamesToUseOnNotepaper().contains(selectedItemToUseOnNotepaper)) {
+                    addItemNameToUseOnNotepaper(selectedItemToUseOnNotepaper);
+                    selectedItemToUseOnNotepaper = "";
                 }
             }
 
-            ImGui.EndChild();
-        }
+            if (!getItemNamesToUseOnNotepaper().isEmpty()) {
+                if (ImGui.BeginTable("Items to Use on Notepaper List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Item Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
 
+                    for (String itemName : new ArrayList<>(getItemNamesToUseOnNotepaper())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(itemName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + itemName)) {
+                            removeItemNameToUseOnNotepaper(itemName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this item from the list");
+                        }
+                    }
+                    ImGui.EndTable();
+                }
+            }
+        }
     }
 }
