@@ -17,7 +17,10 @@ import static net.botwithus.Variables.Variables.*;
 public class CrystalChests {
     static Coordinate Bank = new Coordinate(2154, 3340, 1);
     static Coordinate Chest = new Coordinate(2182, 3281, 1);
+    static Coordinate TaverlyBank = new Coordinate(2875, 3417, 0);
+    static Coordinate TaverlyChest = new Coordinate(2917, 3451, 0);
     static CrystalChestState chestState;
+    public static boolean useTaverly = false;
 
     enum CrystalChestState {
         BANKING,
@@ -44,34 +47,50 @@ public class CrystalChests {
 
     private static void navigateToBank() {
         log("[Chests] Navigating to Bank");
-        if (Movement.traverse(NavPath.resolve(Bank)) == TraverseEvent.State.FINISHED) {
-            log("[Chests] Arrived at Bank");
-            chestState = CrystalChestState.BANKING;
+        if (useTaverly) {
+            if (Movement.traverse(NavPath.resolve(TaverlyBank)) == TraverseEvent.State.FINISHED) {
+                log("[Chests] Arrived at Taverly Bank");
+                chestState = CrystalChestState.BANKING;
+            }
+        } else {
+            if (Movement.traverse(NavPath.resolve(Bank)) == TraverseEvent.State.FINISHED) {
+                log("[Chests] Arrived at Bank");
+                chestState = CrystalChestState.BANKING;
+            }
         }
     }
+
     private static void navigateToChest() {
         log("[Chests] Navigating to Chest");
-        if (Movement.traverse(NavPath.resolve(Chest)) == TraverseEvent.State.FINISHED) {
-            log("[Chests] Arrived at Chest");
-            chestState = CrystalChestState.CHEST;
+        if (useTaverly) {
+            if (Movement.traverse(NavPath.resolve(TaverlyChest)) == TraverseEvent.State.FINISHED) {
+                log("[Chests] Arrived at Taverly Bank");
+                chestState = CrystalChestState.CHEST;
+            }
+        } else {
+            if (Movement.traverse(NavPath.resolve(Chest)) == TraverseEvent.State.FINISHED) {
+                log("[Chests] Arrived at Chest");
+                chestState = CrystalChestState.CHEST;
+            }
         }
     }
 
     private static void handleBanking() {
-        EntityResultSet<SceneObject> BankChest = SceneObjectQuery.newQuery().id(92692).results();
+        int bankChestId = useTaverly ? 66666 : 92692;
+        EntityResultSet<SceneObject> BankChest = SceneObjectQuery.newQuery().id(bankChestId).option("Bank").results();
         if (BankChest.isEmpty()) {
-           navigateToBank();
+            navigateToBank();
         } else {
             SceneObject bankChest = BankChest.nearest();
             if (bankChest != null) {
                 log("[Chests] Interacting with bank chest to load last preset...");
                 bankChest.interact("Load Last Preset from");
-                Execution.delayUntil(15000, Backpack::isFull);
-                if (Backpack.isFull()) {
+                Execution.delayUntil(60000, () -> Backpack.contains("Crystal key"));
+                if (Backpack.contains("Crystal key")) {
                     log("[Chests] Loaded preset, backpack is full. Changing bot state to CHEST.");
                     navigateToChest();
                 } else {
-                    log("[Error] Backpack is not full after attempting to interact with bank chest.");
+                    log("[Error] Backpack doesn't contain key after attempting to interact with bank chest.");
                     shutdown();
                 }
             } else {

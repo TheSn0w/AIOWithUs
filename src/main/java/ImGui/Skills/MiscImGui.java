@@ -16,6 +16,7 @@ import static ImGui.PredefinedStrings.pouchName;
 import static ImGui.PredefinedStrings.secondaryItemName;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
+import static net.botwithus.Misc.CrystalChests.useTaverly;
 import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.Misc.Smelter.handleGoldBar;
 import static net.botwithus.Misc.Smelter.handleGoldGauntlets;
@@ -518,6 +519,33 @@ public class MiscImGui {
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
                 makeRefinedPlanks = ImGui.Checkbox("Refined Planks", makeRefinedPlanks);
+            }
+            if(isCrystalChestActive) {
+                if (tooltipsEnabled) {
+                    String[] texts = {
+                            "Have Preset Ready Saved",
+                            "will use Prif unless Taverly is enabled"
+                    };
+
+                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                    for (String text : texts) {
+                        float windowWidth = 400;
+                        float textWidth = ImGui.CalcTextSize(text).getX();
+                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                        ImGui.SetCursorPosX(centeredStartPos);
+                        ImGui.Text(text);
+                    }
+
+                    ImGui.PopStyleColor(1);
+                }
+                ImGui.SeparatorText("Crystal Chest Options");
+                ImGui.SetCursorPosX(spacing);
+                useTaverly = ImGui.Checkbox("Taverly", useTaverly);
+                if(ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Taverly instead of Prifddinas");
+                }
             }
             if (isCorruptedOreActive) {
                 if (tooltipsEnabled) {
