@@ -196,7 +196,6 @@ public class SnowsScript extends LoopingScript {
     }
     public static Map<String, Integer> divineCharges = new HashMap<>();
     public static Map<String, Integer> Gems = new HashMap<>();
-    public static Map<String, Boolean> notedItemsTracker = new HashMap<>();
     public static List<String> itemNamesToUseOnNotepaper = new ArrayList<>();
 
 
@@ -207,9 +206,6 @@ public class SnowsScript extends LoopingScript {
         if (event.getInventoryId() != 93) {
             return;
         }
-        //TODO: check the counts work properly and ajust to isArchActive
-        // Fixed Divination and Archeology
-        // Need to check divine charges > Corrupted Ores, Runecrafting and combat
         if (isdivinechargeActive) {
             String itemName = event.getNewItem().getName();
             if ("Divine charge".equals(itemName)) {
@@ -277,40 +273,6 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-
-        /*if (useNotepaper) {
-            log("[Notepaper] Checking for new items...");
-
-            InventoryItemQuery.newQuery(93) // Assuming 93 is the backpack inventory ID
-                    .results()
-                    .forEach(item -> {
-                        String itemName = item.getName();
-                        if (itemName != null && notedItemsTracker.containsKey(itemName.toLowerCase())) {
-                            // If an unnoted version is found, unmark it in the tracker
-                            if (!Objects.requireNonNull(ConfigManager.getItemType(item.getId())).isNote()) {
-                                notedItemsTracker.put(itemName.toLowerCase(), false);
-                            }
-                        }
-                    });
-            log("[Notepaper] Finished checking for new items.");
-
-        }*/
-
-
-        /*if (isRunecraftingActive) {
-            String itemName = event.getNewItem().getName();
-            List<String> runeNames = Arrays.asList("Miasma rune", "Flesh rune", "Spirit rune", "Bone rune");
-
-            if (runeNames.contains(itemName)) {
-                int newCount = event.getNewItem().getStackSize();
-                int currentCount = runeCount.getOrDefault(itemName, 0);
-                int totalRuneCount = currentCount + newCount;
-
-                runeCount.put(itemName, totalRuneCount);
-                log("[Runecrafting] Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
-                Runecrafting.setCurrentState(TELEPORTINGTOBANK);
-            }
-        }*/
         if (isDivinationActive) {
             String itemName = event.getNewItem().getName();
             if (itemName.contains("energy")) {

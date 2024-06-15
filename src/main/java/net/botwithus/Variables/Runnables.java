@@ -29,6 +29,8 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.GemCutter.cutGems;
+import static net.botwithus.Misc.Necro.handleNecro;
+import static net.botwithus.Misc.Necro.interactWithEntities;
 import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Variables.Variables.*;
@@ -205,6 +207,9 @@ public class Runnables {
                 }
                 if (handleHarps) {
                     Execution.delay(Harps.interactwithHarps(player));
+                }
+                if (handleNecro) {
+                    Execution.delay(interactWithEntities());
                 }
             }
         }

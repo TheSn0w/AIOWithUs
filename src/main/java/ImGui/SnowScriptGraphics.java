@@ -30,6 +30,7 @@ import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.Porters.bankwithoutPorter;
 import static net.botwithus.Combat.Combat.shouldEatFood;
+import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -278,6 +279,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Loot All", () -> interactWithLootAll = !interactWithLootAll, interactWithLootAll);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Items");
+                        }
+                        createCenteredButton("Loot All Noted", () -> lootNoted = !lootNoted, lootNoted);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will Loot All Noted Items in Loot Inventory");
                         }
                         createCenteredButton("Use POD", () -> usePOD = !usePOD, usePOD);
                         if (ImGui.IsItemHovered()) {

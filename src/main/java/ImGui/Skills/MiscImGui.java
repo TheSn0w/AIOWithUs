@@ -17,6 +17,7 @@ import static ImGui.PredefinedStrings.secondaryItemName;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CrystalChests.useTaverly;
+import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.Misc.Smelter.handleGoldBar;
 import static net.botwithus.Misc.Smelter.handleGoldGauntlets;
@@ -35,7 +36,7 @@ public class MiscImGui {
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
             ImGui.SeparatorText("Miscellaneous Options");
 
-            boolean NoneSelected = isportermakerActive || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
+            boolean NoneSelected = isportermakerActive || handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
             if (!NoneSelected || isportermakerActive) {
                 if (!NoneSelected) {
@@ -169,6 +170,17 @@ public class MiscImGui {
                     ImGui.SetCursorPosX(spacing);
                 }
                 handleHarps = ImGui.Checkbox("Prif Harps", handleHarps);
+            }
+            if (!NoneSelected || handleNecro) {
+                if (!NoneSelected) {
+                    ImGui.SetCursorPosX(spacing);
+                } else {
+                    ImGui.SetCursorPosX(spacing);
+                }
+                handleNecro = ImGui.Checkbox("Necro", handleNecro);
+                if (!NoneSelected) {
+                    ImGui.SameLine();
+                }
             }
             if (isMakeUrnsActive) {
                 ImGui.Text("Only works at menophos");

@@ -7,6 +7,7 @@ import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -27,6 +28,7 @@ public class Loot {
     public static boolean canLoot() {
         return !targetItemNames.isEmpty();
     }
+    public static boolean lootNoted = false;
 
     public static void LootEverything() {
         if (Interfaces.isOpen(1622)) {
@@ -124,6 +126,16 @@ public class Loot {
 
         for (Item item : inventoryItems) {
             if (item.getName() == null) {
+                continue;
+            }
+
+            var itemType = ConfigManager.getItemType(item.getId());
+            boolean isNote = itemType != null && itemType.isNote();
+
+            if (lootNoted && isNote) {
+                LootInventory.take(item.getName());
+                log("[Loot] Successfully looted noted item: " + item.getName());
+                Execution.delay(RandomGenerator.nextInt(615, 650)); // Add delay here
                 continue;
             }
 
