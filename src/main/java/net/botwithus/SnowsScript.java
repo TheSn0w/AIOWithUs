@@ -297,7 +297,7 @@ public class SnowsScript extends LoopingScript {
         }*/
 
 
-        if (isRunecraftingActive) {
+        /*if (isRunecraftingActive) {
             String itemName = event.getNewItem().getName();
             List<String> runeNames = Arrays.asList("Miasma rune", "Flesh rune", "Spirit rune", "Bone rune");
 
@@ -310,7 +310,7 @@ public class SnowsScript extends LoopingScript {
                 log("[Runecrafting] Rune count updated: " + totalRuneCount + " " + itemName + " - Traversing to bank");
                 Runecrafting.setCurrentState(TELEPORTINGTOBANK);
             }
-        }
+        }*/
         if (isDivinationActive) {
             String itemName = event.getNewItem().getName();
             if (itemName.contains("energy")) {

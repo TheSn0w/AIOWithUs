@@ -1,6 +1,7 @@
 package net.botwithus.Runecrafting;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -150,7 +151,6 @@ public class Runecrafting {
                     castleWars();
                 }
                 if (useGraceoftheElves) {
-                    updateRuneQuantities();
                     useGote();
                 }
                 ++loopCounter;
@@ -192,8 +192,15 @@ public class Runecrafting {
         Coordinate fishingHub = new Coordinate(2135, 7107, 0);
 
         if (bankChests.isEmpty()) {
-            if (Movement.traverse(NavPath.resolve(fishingHub)) == TraverseEvent.State.FINISHED) {
-                log("[Runecrafting] Traversed to Fishing hub.");
+            while (player.getAnimationId() == -1 && !player.getCoordinate().equals(fishingHub)) {
+                if (Equipment.interact(Equipment.Slot.NECK, "Deep sea fishing hub")) {
+                    log("[Runecrafting] Attempting to traverse to Fishing hub.");
+                    Execution.delay(random.nextLong(750, 999));
+                }
+                if (player.getAnimationId() != -1) {
+                    log("[Runecrafting] Player is teleporting.");
+                    break;
+                }
             }
         } else {
             interactwithBoat();
@@ -452,19 +459,23 @@ public class Runecrafting {
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
+            checkForRuneAndAnimationMiasma(System.currentTimeMillis());
         }
     }
-    private void checkForRuneAndAnimationMiasma(long startTime, long timeout) {
-        Execution.delay(RandomGenerator.nextInt(600, 1200));
-        if (Backpack.contains("Miasma rune") && player.getAnimationId() == -1) {
-            log("[Runecrafting] Miasma rune found in backpack, proceeding to next state.");
-            updateRuneQuantities();
-            Execution.delay(RandomGenerator.nextInt(650, 800));
-            lastMovedOrAnimatedTime = System.currentTimeMillis();
-            currentState = TELEPORTINGTOBANK;
-        } else if (System.currentTimeMillis() - startTime < timeout) {
-            checkForRuneAndAnimationMiasma(startTime, timeout);
-        } else {
+    private static void checkForRuneAndAnimationMiasma(long startTime) {
+        while (System.currentTimeMillis() - startTime < (long) 10000) {
+            if (Backpack.contains("Miasma rune")) {
+                log("[Runecrafting] Miasma rune found in backpack, proceeding to next state.");
+                updateRuneQuantities();
+                lastMovedOrAnimatedTime = System.currentTimeMillis();
+                currentState = TELEPORTINGTOBANK;
+                break;
+            } else {
+                Execution.delay(100);
+            }
+        }
+
+        if (currentState != TELEPORTINGTOBANK) {
             log("[Error] Condition not met within the timeout period.");
             updateRuneQuantities();
             Execution.delay(RandomGenerator.nextInt(650, 800));
@@ -497,6 +508,28 @@ public class Runecrafting {
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
+            checkForRuneAndAnimationBone(System.currentTimeMillis());
+        }
+    }
+    private static void checkForRuneAndAnimationBone(long startTime) {
+        while (System.currentTimeMillis() - startTime < (long) 10000) {
+            if (Backpack.contains("Bone rune") && player.getAnimationId() == -1) {
+                log("[Runecrafting] Bone rune found in backpack, proceeding to next state.");
+                updateRuneQuantities();
+                lastMovedOrAnimatedTime = System.currentTimeMillis();
+                currentState = TELEPORTINGTOBANK;
+                break;
+            } else {
+                Execution.delay(100);
+            }
+        }
+
+        if (currentState != TELEPORTINGTOBANK) {
+            log("[Error] Condition not met within the timeout period.");
+            updateRuneQuantities();
+            Execution.delay(RandomGenerator.nextInt(650, 800));
+            lastMovedOrAnimatedTime = System.currentTimeMillis();
+            currentState = TELEPORTINGTOBANK;
         }
     }
 
@@ -524,6 +557,28 @@ public class Runecrafting {
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
+            checkForRuneAndAnimationSpirit(System.currentTimeMillis());
+        }
+    }
+    private static void checkForRuneAndAnimationSpirit(long startTime) {
+        while (System.currentTimeMillis() - startTime < (long) 10000) {
+            if (Backpack.contains("Spirit rune") && player.getAnimationId() == -1) {
+                log("[Runecrafting] Spirit rune found in backpack, proceeding to next state.");
+                updateRuneQuantities();
+                lastMovedOrAnimatedTime = System.currentTimeMillis();
+                currentState = TELEPORTINGTOBANK;
+                break;
+            } else {
+                Execution.delay(100);
+            }
+        }
+
+        if (currentState != TELEPORTINGTOBANK) {
+            log("[Error] Condition not met within the timeout period.");
+            updateRuneQuantities();
+            Execution.delay(RandomGenerator.nextInt(650, 800));
+            lastMovedOrAnimatedTime = System.currentTimeMillis();
+            currentState = TELEPORTINGTOBANK;
         }
     }
 
@@ -552,6 +607,28 @@ public class Runecrafting {
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
+            checkForRuneAndAnimationFlesh(System.currentTimeMillis());
+        }
+    }
+    private static void checkForRuneAndAnimationFlesh(long startTime) {
+        while (System.currentTimeMillis() - startTime < (long) 10000) {
+            if (Backpack.contains("Flesh rune") && player.getAnimationId() == -1 && !player.isMoving()) {
+                log("[Runecrafting] Flesh rune found in backpack, proceeding to next state.");
+                updateRuneQuantities();
+                lastMovedOrAnimatedTime = System.currentTimeMillis();
+                currentState = TELEPORTINGTOBANK;
+                break;
+            } else {
+                Execution.delay(100);
+            }
+        }
+
+        if (currentState != TELEPORTINGTOBANK) {
+            log("[Error] Condition not met within the timeout period.");
+            updateRuneQuantities();
+            Execution.delay(RandomGenerator.nextInt(650, 800));
+            lastMovedOrAnimatedTime = System.currentTimeMillis();
+            currentState = TELEPORTINGTOBANK;
         }
     }
 
