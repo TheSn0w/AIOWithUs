@@ -94,13 +94,11 @@ public class Divination {
     public static long interactWithChronicle(EntityResultSet<Npc> chronicles) {
         Npc nearestChronicle = chronicles.nearest();
 
-        Execution.delay(random.nextLong(150, 250));
-
         log("[Divination] Interacted with Chronicle: " + nearestChronicle.interact("Capture"));
 
         Execution.delayUntil(random.nextLong(10000, 15000), () -> !nearestChronicle.validate());
 
-        return random.nextLong(150, 250);
+        return 0;
     }
 
     private static long navigateTo(LocalPlayer player, Coordinate destination) {

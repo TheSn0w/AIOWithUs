@@ -37,6 +37,7 @@ import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.radius;
@@ -277,7 +278,7 @@ public class SnowsScript extends LoopingScript {
             }
         }
 
-        if (useNotepaper) {
+        /*if (useNotepaper) {
             log("[Notepaper] Checking for new items...");
 
             InventoryItemQuery.newQuery(93) // Assuming 93 is the backpack inventory ID
@@ -293,7 +294,7 @@ public class SnowsScript extends LoopingScript {
                     });
             log("[Notepaper] Finished checking for new items.");
 
-        }
+        }*/
 
 
         if (isRunecraftingActive) {
@@ -629,8 +630,8 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("PrayerPointsThreshold", String.valueOf(getPrayerPointsThreshold()));
         this.configuration.addProperty("HealthPointsThreshold", String.valueOf(getHealthPointsThreshold()));
         this.configuration.addProperty("useNotepaper", String.valueOf(useNotepaper));
-        String serializedItemNamesForNotepaper = String.join(",", itemNamesToUseOnNotepaper);
-        this.configuration.addProperty("ItemNamesToUseOnNotepaper", serializedItemNamesForNotepaper);
+        String serializedItemNamesForNotepaper = String.join(",", selectedNotepaperNames);
+        this.configuration.addProperty("selectedNotepaperNames", serializedItemNamesForNotepaper);
         this.configuration.addProperty("handleOnlyChonicles", String.valueOf(handleOnlyChonicles));
 
 
@@ -840,11 +841,11 @@ public class SnowsScript extends LoopingScript {
                     addFoodName(foodName);
                 }
             }
-            String serializedItemNamesForNotepaper = this.configuration.getProperty("ItemNamesToUseOnNotepaper");
+            String serializedItemNamesForNotepaper = this.configuration.getProperty("selectedNotepaperNames");
             if (serializedItemNamesForNotepaper != null && !serializedItemNamesForNotepaper.isEmpty()) {
                 String[] loadedItemNamesForNotepaper = serializedItemNamesForNotepaper.split(",");
-                itemNamesToUseOnNotepaper.clear();
-                itemNamesToUseOnNotepaper.addAll(Arrays.asList(loadedItemNamesForNotepaper));
+                selectedNotepaperNames.clear();
+                selectedNotepaperNames.addAll(Arrays.asList(loadedItemNamesForNotepaper));
             }
             log("[Settings] Configuration loaded successfully.");
         } catch (Exception e) {

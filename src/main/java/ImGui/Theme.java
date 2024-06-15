@@ -10,6 +10,7 @@ public class Theme {
     public static boolean OrangeThemeSelected = true;
     public static boolean YellowThemeSelected = false;
     public static boolean GreenThemeSelected = false;
+    public static boolean GreyThemeSelected = false;
 
     public static void setDefaultTheme() {
         ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 6.0f);
@@ -78,8 +79,8 @@ public class Theme {
         setStyleColor(ImGuiCol.SliderGrab, 70, 130, 180, 200);
         setStyleColor(ImGuiCol.SliderGrabActive, 70, 130, 180, 200);
         setStyleColor(ImGuiCol.SeparatorHovered, 100, 149, 237, 200);
-        setStyleColor(ImGuiCol.Border, 70, 130, 180, 220);
-        setStyleColor(ImGuiCol.BorderShadow, 25, 25, 112, 150);
+        setStyleColor(ImGuiCol.Border, 70, 130, 180, 200);
+        setStyleColor(ImGuiCol.BorderShadow, 70, 130, 180, 200);
         setStyleColor(ImGuiCol.ScrollbarGrab, 70, 130, 180, 255);
         setStyleColor(ImGuiCol.ScrollbarGrabHovered, 100, 149, 237, 200);
         setStyleColor(ImGuiCol.ScrollbarGrabActive, 100, 149, 237, 200);

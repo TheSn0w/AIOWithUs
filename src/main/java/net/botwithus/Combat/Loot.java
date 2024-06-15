@@ -131,6 +131,7 @@ public class Loot {
             if (matcher.find()) {
                 LootInventory.take(item.getName());
                 log("[Loot] Successfully looted item: " + item.getName());
+                Execution.delay(RandomGenerator.nextInt(615, 650)); // Add delay here
             }
         }
     }

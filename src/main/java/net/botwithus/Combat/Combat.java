@@ -42,12 +42,16 @@ public class Combat {
         if (player == null || player.isMoving()) {
             return random.nextLong(1500, 3000);
         }
-
-        if (useLoot) {
-            processLooting();
-        }
-        if (useNotepaper) {
+        if (useLoot && useNotepaper) {
             useItemOnNotepaper();
+            processLooting();
+        } else {
+            if (useLoot) {
+                processLooting();
+            }
+            if (useNotepaper) {
+                useItemOnNotepaper();
+            }
         }
 
         if (SoulSplit) {
@@ -67,7 +71,7 @@ public class Combat {
             return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
         }
         if (handleMultitarget) {
-            if (System.currentTimeMillis() - lastClearTime > 10000) {
+            if (System.currentTimeMillis() - lastClearTime > random.nextLong(5000, 7500)) {
                 recentlyAttackedTargets.clear();
                 lastClearTime = System.currentTimeMillis();
             }

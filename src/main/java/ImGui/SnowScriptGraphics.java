@@ -486,7 +486,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                     ImGui.PopStyleColor();
                                 } else if (message.contains("[Loot]")) {
                                     String[] parts = message.split(" ", 2);
-                                    setStyleColor(ImGuiCol.Text, 0, 255, 0, 255);
+                                    setStyleColor(ImGuiCol.Text, 70, 130, 180, 255);
                                     ImGui.Text(parts[0]);
                                     ImGui.SameLine();
                                     ImGui.Text(parts[1]);

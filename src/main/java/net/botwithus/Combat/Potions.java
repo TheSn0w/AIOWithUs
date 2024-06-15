@@ -63,9 +63,7 @@ public class Potions {
             boolean success = backpack.interact(aggressionFlask.getName(), "Drink");
             if (success) {
                 log("[Combat] Using aggression potion: " + aggressionFlask.getName());
-                long delay = random.nextLong(1500, 3000);
-                Execution.delay(delay);
-                return delay;
+                return random.nextLong(650, 950);
             } else {
                 log("[Error] Failed to use aggression potion: " + aggressionFlask.getName());
                 return 0;
@@ -99,9 +97,7 @@ public class Potions {
         boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
             log("[Combat] Successfully drank " + prayerOrRestorePot.getName());
-            long delay = random.nextLong(1500, 3000);
-            Execution.delay(delay);
-            return delay;
+            return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
             return 0;
@@ -113,7 +109,7 @@ public class Potions {
             return 0;
         }
 
-        if (player == null || !player.inCombat() || VarManager.getVarbitValue(48834) != 0 || player.getAnimationId() == 18000) {  // Ensure there's a valid player and conditions are right
+        if (player == null || !player.inCombat() || VarManager.getVarbitValue(48834) != 0 || player.getAnimationId() == 18000) {
             return 0L;
         }
 
@@ -136,7 +132,7 @@ public class Potions {
         boolean success = backpack.interact(overloadPot.getName(), "Drink");
         if (success) {
             log("[Combat] Successfully drank " + overloadPot.getName());
-            return 0L;
+            return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to interact with overload potion.");
             return 0L;
@@ -168,9 +164,7 @@ public class Potions {
         boolean success = backpack.interact(weaponPoisonItem.getName(), "Apply");
         if (success) {
             log("[Combat] Successfully applied " + weaponPoisonItem.getName());
-            long delay = random.nextLong(1900, 2000);
-            Execution.delay(delay);
-            return delay;
+            return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to apply weapon poison.");
             return 0L;

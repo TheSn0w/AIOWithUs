@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static ImGui.PredefinedStrings.*;
+import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
 import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Combat.*;
@@ -271,6 +272,9 @@ public class CombatImGui {
                     setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
                 }
             }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
             ImGui.SeparatorText("Target Options");
             if (ImGui.Button("Add Target") && !targetName.isEmpty()) {
                 addTargetName(targetName);
@@ -327,6 +331,9 @@ public class CombatImGui {
                     ImGui.EndTable();
                 }
             }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
         }
         if (isCombatActive && useLoot && !showLogs) {
             ImGui.SeparatorText("Loot Options");
@@ -385,6 +392,9 @@ public class CombatImGui {
                     ImGui.EndTable();
                 }
             }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
         }
         if (isCombatActive && BankforFood && !showLogs) {
             ImGui.SeparatorText("Food Options");
@@ -442,41 +452,75 @@ public class CombatImGui {
                     ImGui.EndTable();
                 }
             }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
         }
         if (isCombatActive && useNotepaper && !showLogs) {
-            ImGui.SeparatorText("Notepaper Settings");
-            ImGui.SetItemWidth(290.0F);
-            selectedItemToUseOnNotepaper = ImGui.InputText("Item name", selectedItemToUseOnNotepaper);
+            ImGui.SeparatorText("Notepaper Options");
 
-            if (ImGui.Button("Add Item to Notepaper List") && !selectedItemToUseOnNotepaper.isEmpty()) {
-                if (!getItemNamesToUseOnNotepaper().contains(selectedItemToUseOnNotepaper)) {
-                    addItemNameToUseOnNotepaper(selectedItemToUseOnNotepaper);
-                    selectedItemToUseOnNotepaper = "";
+            if (ImGui.Button("Add Notepaper") && !getNotepaperName().isEmpty()) {
+                addNotepaperName(getNotepaperName());
+                predefinedNotepaperNames.add(getNotepaperName());
+                setNotepaperName("");
+            }
+
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Enter the name of the item to add to your list. Case-sensitive.");
+            }
+
+            ImGui.SameLine();
+            ImGui.SetItemWidth(248.0F);
+
+            setNotepaperName(ImGui.InputText("##Notepapername", getNotepaperName()));
+
+            List<String> comboItemsList = new ArrayList<>();
+            comboItemsList.add("Select an item...");
+            for (String item : predefinedNotepaperNames) {
+                if (item.toLowerCase().contains(getNotepaperName().toLowerCase())) {
+                    comboItemsList.add(item);
+                }
+            }
+            String[] comboItems = comboItemsList.toArray(new String[0]);
+            NativeInteger selectedItemIndex = new NativeInteger(0);
+            ImGui.SetItemWidth(361.0F);
+
+            if (ImGui.Combo("##NotepaperType", selectedItemIndex, comboItems)) {
+                int selectedIndex = selectedItemIndex.get();
+                if (selectedIndex > 0 && selectedIndex < comboItems.length) {
+                    String selectedName = comboItems[selectedIndex];
+                    addNotepaperName(selectedName);
+                    log("Predefined notepaper added: " + selectedName);
+                    selectedItemIndex.set(0);
                 }
             }
 
-            if (!getItemNamesToUseOnNotepaper().isEmpty()) {
-                if (ImGui.BeginTable("Items to Use on Notepaper List", 2, ImGuiWindowFlag.None.getValue())) {
+            if (!getSelectedNotepaperNames().isEmpty()) {
+                if (ImGui.BeginTable("Notepaper List", 2, ImGuiWindowFlag.None.getValue())) {
                     ImGui.TableNextRow();
-                    ImGui.TableSetupColumn("Item Name", 0);
+
+                    ImGui.TableSetupColumn("Notepaper Name", 0);
                     ImGui.TableSetupColumn("Action", 1);
                     ImGui.TableHeadersRow();
 
-                    for (String itemName : new ArrayList<>(getItemNamesToUseOnNotepaper())) {
+                    for (String notepaperName : new ArrayList<>(getSelectedNotepaperNames())) {
                         ImGui.TableNextRow();
                         ImGui.TableNextColumn();
-                        ImGui.Text(itemName);
+                        ImGui.Text(notepaperName);
                         ImGui.TableNextColumn();
-                        if (ImGui.Button("Remove##" + itemName)) {
-                            removeItemNameToUseOnNotepaper(itemName);
+                        if (ImGui.Button("Remove##" + notepaperName)) {
+                            removeNotepaperName(notepaperName);
                         }
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Click to remove this item from the list");
+                            ImGui.SetTooltip("Click to remove this notepaper");
                         }
                     }
                     ImGui.EndTable();
                 }
             }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
         }
     }
 }
