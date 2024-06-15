@@ -212,6 +212,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will harvest chronicles");
                         }
+                        createCenteredButton("Only Chronicles", () -> handleOnlyChonicles = !handleOnlyChonicles, handleOnlyChonicles);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will harvest chronicles ONLY, w79, incandescent energy, start near rift");
+                        }
                     } else if (isThievingActive) {
                         createCenteredButton("Thieving AIO", () -> isThievingActive = !isThievingActive, true);
                         if (ImGui.IsItemHovered()) {

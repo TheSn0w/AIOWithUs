@@ -237,6 +237,7 @@ public class Variables {
     public static boolean useDivineoMatic = false;
     public static boolean useFamiliarSummoning = false;
     public static boolean harvestChronicles = false;
+    public static boolean handleOnlyChonicles = false;
 
 
 

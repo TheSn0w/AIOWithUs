@@ -91,8 +91,10 @@ public class Divination {
     }
 
 
-    private static long interactWithChronicle(EntityResultSet<Npc> chronicles) {
+    public static long interactWithChronicle(EntityResultSet<Npc> chronicles) {
         Npc nearestChronicle = chronicles.nearest();
+
+        Execution.delay(random.nextLong(50, 250));
 
         log("[Divination] Interacted with Chronicle: " + nearestChronicle.interact("Capture"));
 

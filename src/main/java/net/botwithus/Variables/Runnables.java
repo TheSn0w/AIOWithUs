@@ -11,6 +11,9 @@ import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Thieving.Thieving;
 import net.botwithus.Woodcutting.Woodcutting;
 import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 
@@ -23,6 +26,7 @@ import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.GemCutter.cutGems;
 import static net.botwithus.Misc.Smelter.*;
@@ -82,7 +86,14 @@ public class Runnables {
     public static  void handleDivination() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            Execution.delay(Divination.handleDivination(player));
+            if (handleOnlyChonicles) {
+                EntityResultSet<Npc> chronicles = NpcQuery.newQuery().name("Chronicle fragment").results();
+                if (!chronicles.isEmpty()) {
+                    Execution.delay(interactWithChronicle(chronicles));
+                }
+            } else {
+                Execution.delay(Divination.handleDivination(player));
+            }
         }
     }
 

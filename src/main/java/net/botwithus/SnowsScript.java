@@ -631,6 +631,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("useNotepaper", String.valueOf(useNotepaper));
         String serializedItemNamesForNotepaper = String.join(",", itemNamesToUseOnNotepaper);
         this.configuration.addProperty("ItemNamesToUseOnNotepaper", serializedItemNamesForNotepaper);
+        this.configuration.addProperty("handleOnlyChonicles", String.valueOf(handleOnlyChonicles));
 
 
 
@@ -639,6 +640,7 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            handleOnlyChonicles = Boolean.parseBoolean(this.configuration.getProperty("handleOnlyChonicles"));
             useNotepaper = Boolean.parseBoolean(this.configuration.getProperty("useNotepaper"));
             isdivinechargeActive = Boolean.parseBoolean(this.configuration.getProperty("isdivinechargeActive"));
             isGemCutterActive = Boolean.parseBoolean(this.configuration.getProperty("isGemCutterActive"));
