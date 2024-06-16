@@ -18,8 +18,6 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 public class Abilities {
     public static int NecrosisStacksThreshold = 12;
     public static int VolleyOfSoulsThreshold = 5;
-
-
     private static long lastAbilityTime = 0;
 
     public static void manageCombatAbilities() {

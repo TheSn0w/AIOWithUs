@@ -109,6 +109,7 @@ public class SnowsScript extends LoopingScript {
         capturestuff();
 
 
+
         switch (botState) {
             case IDLE -> Execution.delay(random.nextLong(1500, 3000));
             case SKILLING -> skillingTasks.forEach((condition, task) -> {

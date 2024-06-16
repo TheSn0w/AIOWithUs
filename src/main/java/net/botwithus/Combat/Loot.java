@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.getBotState;
@@ -309,8 +310,8 @@ public class Loot {
     }*/
 
     public static long lootFromInventory() {
-        if (!canLoot()) {
-            log("[Error] No target items specified for looting.");
+        if (!canLoot() || Backpack.isFull()) {
+            log("[Error] Cant loot or Backpack is full.");
             return random.nextLong(1000, 2000);
         }
 
@@ -322,6 +323,9 @@ public class Loot {
                 .forEach(item -> {
                     LootInventory.take(item.getName());
                     log("[Loot] Successfully looted item: " + item.getName());
+                    if (useNotepaper) {
+                        useItemOnNotepaper();
+                    }
                 });
 
         return random.nextLong(250, 300);
