@@ -211,9 +211,9 @@ public class Runecrafting {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
         if (!bankChests.isEmpty()) {
             if (bankChests.nearest().interact("Load Last Preset from")) {
-                Execution.delayUntil(5000, Backpack::isFull);
+                Execution.delayUntil(5000, () -> Backpack.contains("Impure essence"));
 
-                if (Backpack.isFull()) {
+                if (Backpack.contains("Impure essence")) {
                     if (ManageFamiliar) {
                         checkAndPerformActions();
                     } else {
@@ -221,10 +221,8 @@ public class Runecrafting {
                         log("[Runecrafting] Changed bot state to TELEPORTING.");
                     }
                 } else {
-                    if (!Backpack.isFull()) {
-                        log("[Error] Essence not found in backpack after loading preset.");
-                        shutdown();
-                    }
+                    log("[Error] Essence not found in backpack after loading preset.");
+                    shutdown();
                 }
             }
         }
@@ -247,9 +245,9 @@ public class Runecrafting {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
         if (!bankChests.isEmpty()) {
             if (bankChests.nearest().interact("Load Last Preset from")) {
-                Execution.delayUntil(5000, Backpack::isFull);
+                Execution.delayUntil(5000, () -> Backpack.contains("Impure essence"));
 
-                if (Backpack.isFull()) {
+                if (Backpack.contains("Impure essence")) {
                     if (ManageFamiliar) {
                         checkAndPerformActions();
                     } else {
@@ -257,10 +255,8 @@ public class Runecrafting {
                         log("[Runecrafting] Changed bot state to TELEPORTING.");
                     }
                 } else {
-                    if (!Backpack.isFull()) {
-                        log("[Error] Essence not found in backpack after loading preset.");
-                        shutdown();
-                    }
+                    log("[Error] Essence not found in backpack after loading preset.");
+                    shutdown();
                 }
             }
         }
