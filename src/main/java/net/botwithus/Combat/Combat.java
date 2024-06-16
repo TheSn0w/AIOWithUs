@@ -178,7 +178,7 @@ public class Combat {
             if (handleMultitarget) {
                 recentlyAttackedTargets.add(monster.getId());
             }
-            return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 100, 200);
+            return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 300, 400);
         } else {
             return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
         }

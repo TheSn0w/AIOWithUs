@@ -17,6 +17,7 @@ import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,12 +26,14 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.api.game.hud.prayer.Prayer.isActive;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Loot {
     public static boolean canLoot() {
         return !targetItemNames.isEmpty();
     }
+
     public static boolean lootNoted = false;
 
     public static void LootEverything() {
@@ -96,6 +99,7 @@ public class Loot {
             }
         }
     }
+
     public static void processLooting() {
         if (getBotState() == SKILLING) {
             if (Backpack.isFull()) {
@@ -121,6 +125,7 @@ public class Loot {
                 Pattern.CASE_INSENSITIVE
         );
     }
+
     public static void lootNotedItemsFromInventory() {
         if (LootInventory.isOpen()) {
             List<Item> inventoryItems = LootInventory.getItems();
@@ -235,7 +240,7 @@ public class Loot {
     }*/
 
 
-    public static void lootFromInventory() {
+    /*public static void lootFromInventory() {
         if (!canLoot()) {
             log("[Error] No target items specified for looting.");
             return;
@@ -270,11 +275,29 @@ public class Loot {
 
                 Matcher matcher = lootPattern.matcher(item.getName());
                 if (matcher.find()) {
+                    // Count the number of items with the same name before attempting to take an item
+                    long countBefore = inventoryItems.stream()
+                            .filter(lootItem -> lootItem.getName().equals(item.getName()))
+                            .count();
+
                     LootInventory.take(item.getName());
-                    log("[Loot] Successfully looted item: " + item.getName());
-                    Execution.delay(random.nextLong(350, 500));
                     inventoryItems = LootInventory.getItems();
-                    itemFound = true;
+
+                    // Count the number of items with the same name after attempting to take an item
+                    long countAfter = inventoryItems.stream()
+                            .filter(lootItem -> lootItem.getName().equals(item.getName()))
+                            .count();
+
+                    // Check if the item has been successfully looted
+                    if (countBefore > countAfter) {
+                        log("[Loot] Successfully looted item: " + item.getName());
+                        itemFound = true;
+                    } else {
+                        log("[Error] Failed to loot item: " + item.getName());
+                    }
+
+                    // Break after each loot attempt
+                    break;
                 }
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
@@ -283,6 +306,32 @@ public class Loot {
                 }
             }
         } while (itemFound && System.currentTimeMillis() - startTime <= 15000);
+    }*/
+
+    public static void lootFromInventory() {
+        if (!canLoot()) {
+            log("[Error] No target items specified for looting.");
+            return;
+        }
+
+        Pattern lootPattern = generateLootPattern(targetItemNames);
+        List<Item> inventoryItems;
+
+        inventoryItems = LootInventory.getItems();
+
+        for (int i = inventoryItems.size() - 1; i >= 0; i--) {
+            Item item = inventoryItems.get(i);
+            if (item.getName() == null) {
+                continue;
+            }
+
+            Matcher matcher = lootPattern.matcher(item.getName());
+            if (matcher.find()) {
+                LootInventory.take(item.getName());
+                log("[Loot] Successfully looted item: " + item.getName());
+                return;
+            }
+        }
     }
 
     public static void lootFromGround() {
@@ -308,10 +357,10 @@ public class Loot {
             if (matcher.find()) {
                 groundItem.interact("Take");
                 log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
-                Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+                if (Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen)) {
+                    break; // Break after each interaction
+                }
             }
         }
     }
-
-
 }
