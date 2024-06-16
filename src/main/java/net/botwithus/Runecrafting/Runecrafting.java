@@ -390,14 +390,15 @@ public class Runecrafting {
         Execution.delay(RandomGenerator.nextInt(600, 800));
         SceneObject Portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
 
-        // Check if the portal is not null before interacting with it
         if (Portal != null) {
             while (!player.isMoving()) {
                 Portal.interact("Enter");
                 log("[Runecrafting] Attempting to interact with the Dark Portal.");
-
-                // Delay for a random time between 600ms and 800ms
                 Execution.delay(random.nextLong(600, 800));
+
+                if (player.isMoving()) {
+                    break;
+                }
             }
 
             if (Portal.distanceTo(player.getCoordinate()) >= 10) {
