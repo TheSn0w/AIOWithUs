@@ -19,6 +19,7 @@ import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
 import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.CustomLogger.log;
@@ -510,6 +511,47 @@ public class CombatImGui {
                         }
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Click to remove this notepaper");
+                        }
+                    }
+                    ImGui.EndTable();
+                }
+            }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
+        }
+        if (isCombatActive && isDropActive && !showLogs) {
+            ImGui.SeparatorText("Drop Options");
+            if (ImGui.Button("Add Item") && !ItemRemover.getItemName().isEmpty()) {
+                ItemRemover.addItemName(ItemRemover.getItemName());
+                ItemRemover.setItemName("");
+            }
+
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Enter the name of the item to drop. Case-insensitive, partial names allowed.");
+            }
+
+            ImGui.SameLine();
+            ImGui.SetItemWidth(273.0F);
+            ItemRemover.setItemName(ImGui.InputText("##Itemname", ItemRemover.getItemName()));
+
+            if (!ItemRemover.getSelectedItems().isEmpty()) {
+                if (ImGui.BeginTable("Items List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Item Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
+
+                    for (String itemName : new ArrayList<>(ItemRemover.getSelectedItems())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(itemName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + itemName)) {
+                            ItemRemover.removeItemName(itemName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this item");
                         }
                     }
                     ImGui.EndTable();

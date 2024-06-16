@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
+import net.botwithus.Combat.ItemRemover;
 import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
@@ -28,6 +29,8 @@ import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
 import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.ItemRemover.dropItems;
+import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
@@ -108,7 +111,9 @@ public class SnowsScript extends LoopingScript {
 
         capturestuff();
 
-
+        if (isDropActive) {
+            dropItems();
+        }
 
         switch (botState) {
             case IDLE -> Execution.delay(random.nextLong(1500, 3000));

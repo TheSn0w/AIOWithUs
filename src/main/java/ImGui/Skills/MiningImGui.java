@@ -1,7 +1,9 @@
 package ImGui.Skills;
 
+import net.botwithus.Combat.ItemRemover;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
+import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
 import net.botwithus.rs3.imgui.Vector2f;
 import net.botwithus.rs3.script.ScriptConsole;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ImGui.PredefinedStrings.MiningList;
+import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
@@ -166,6 +169,44 @@ public class MiningImGui {
                 String itemName = entry.getKey();
                 int itemCount = entry.getValue();
                 ImGui.Text(itemName + ": " + itemCount);
+            }
+        }
+        if (isMiningActive && isDropActive && !showLogs) {
+            ImGui.SeparatorText("Drop Options");
+            if (ImGui.Button("Add Item") && !ItemRemover.getItemName().isEmpty()) {
+                ItemRemover.addItemName(ItemRemover.getItemName());
+                ItemRemover.setItemName("");
+            }
+
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Enter the name of the item to drop. Case-insensitive, partial names allowed.");
+            }
+
+            ImGui.SameLine();
+            ImGui.SetItemWidth(273.0F);
+            ItemRemover.setItemName(ImGui.InputText("##Itemname", ItemRemover.getItemName()));
+
+            if (!ItemRemover.getSelectedItems().isEmpty()) {
+                if (ImGui.BeginTable("Items List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Item Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
+
+                    for (String itemName : new ArrayList<>(ItemRemover.getSelectedItems())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(itemName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + itemName)) {
+                            ItemRemover.removeItemName(itemName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this item");
+                        }
+                    }
+                    ImGui.EndTable();
+                }
             }
         }
     }

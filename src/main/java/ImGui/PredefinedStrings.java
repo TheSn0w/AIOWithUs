@@ -1,11 +1,9 @@
 package ImGui;
 
 import net.botwithus.Herblore.Herblore;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PredefinedStrings {
 
@@ -205,12 +203,10 @@ public class PredefinedStrings {
     public static List<String> CombatList = List.of(
             "Goblin",
             "Zombie",
-            "Skeleton",
-            "Giant Spider",
-            "Hill Giant",
-            "Abyssal Demon"
+            "abyssal"
 
     );
+
     public static List<String> FoodList = List.of(
             "Shark",
             "Rocktail",
