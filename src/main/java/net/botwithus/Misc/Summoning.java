@@ -2,6 +2,7 @@ package net.botwithus.Misc;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
@@ -44,8 +45,15 @@ public class Summoning {
             return random.nextLong(1250, 1500);
         }
         if (containsPouch()) {
-            backpack.interact("Attuned crystal teleport seed", "Activate");
-            log("[Summoning] Activating 'Attuned crystal teleport seed'");
+            if (Backpack.contains("Attuned crystal teleport seed")) {
+                backpack.interact("Attuned crystal teleport seed", "Activate");
+                log("[Summoning] Activating 'Attuned crystal teleport seed' from backpack");
+            } else {
+                if (Equipment.contains("Attuned crystal teleport seed")) {
+                    Equipment.interact(Equipment.Slot.POCKET, "Activate");
+                    log("[Summoning] Activating 'Attuned crystal teleport seed' from equipment");
+                }
+            }
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             if (Interfaces.isOpen(720)) {
                 dialog(0, -1, 47185955);
@@ -53,21 +61,28 @@ public class Summoning {
                 Execution.delay(random.nextLong(3500, 4000));
                 SceneObject bank = bankChest.nearest();
                 if (bank != null) {
-                    log("[Error] Bank chest is present.");
+                    log("[Summoning] Found Bank chest.");
                     bank.interact("Load Last Preset from");
                     log("[Summoning] Selecting 'Load Last Preset from'");
                     return random.nextLong(1250, 1500);
                 }
             }
         } else {
-            log("[Error] Pouch is not present.");
-            backpack.interact("Attuned crystal teleport seed", "Activate");
-            log("[Summoning] Activating 'Attuned crystal teleport seed'");
+            log("[Summoning] Going to obolisk.");
+            if (Backpack.contains("Attuned crystal teleport seed")) {
+                backpack.interact("Attuned crystal teleport seed", "Activate");
+                log("[Summoning] Activating 'Attuned crystal teleport seed from backpack'");
+            } else {
+                if (Equipment.contains("Attuned crystal teleport seed")) {
+                    Equipment.interact(Equipment.Slot.POCKET, "Activate");
+                    log("[Summoning] Activating 'Attuned crystal teleport seed from equipment'");
+                }
+            }
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
             if (Interfaces.isOpen(720)) {
                 log("[Summoning] Interface 720 is open.");
                 MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 47185940);
-                log("[Summoning] Teleporting to Obolisk'");
+                log("[Summoning] Teleported to Obolisk'");
                 Execution.delay(random.nextLong(3500, 4000));
                 SceneObject obolisk = Obolisk.nearest();
                 if (obolisk != null) {
