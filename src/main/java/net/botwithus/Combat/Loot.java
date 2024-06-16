@@ -109,9 +109,9 @@ public class Loot {
             }
 
             if (LootInventory.isOpen()) {
-                lootFromInventory();
+                Execution.delay(lootFromInventory());
             } else {
-                lootFromGround();
+                Execution.delay(lootFromGround());
             }
         }
     }
@@ -308,41 +308,34 @@ public class Loot {
         } while (itemFound && System.currentTimeMillis() - startTime <= 15000);
     }*/
 
-    public static void lootFromInventory() {
+    public static long lootFromInventory() {
         if (!canLoot()) {
             log("[Error] No target items specified for looting.");
-            return;
+            return random.nextLong(1000, 2000);
         }
 
         Pattern lootPattern = generateLootPattern(targetItemNames);
-        List<Item> inventoryItems;
+        List<Item> inventoryItems = LootInventory.getItems();
 
-        inventoryItems = LootInventory.getItems();
+        inventoryItems.stream()
+                .filter(item -> item.getName() != null && lootPattern.matcher(item.getName()).find())
+                .forEach(item -> {
+                    LootInventory.take(item.getName());
+                    log("[Loot] Successfully looted item: " + item.getName());
+                });
 
-        for (int i = inventoryItems.size() - 1; i >= 0; i--) {
-            Item item = inventoryItems.get(i);
-            if (item.getName() == null) {
-                continue;
-            }
-
-            Matcher matcher = lootPattern.matcher(item.getName());
-            if (matcher.find()) {
-                LootInventory.take(item.getName());
-                log("[Loot] Successfully looted item: " + item.getName());
-                return;
-            }
-        }
+        return random.nextLong(250, 300);
     }
 
-    public static void lootFromGround() {
+    /*public static long lootFromGround() {
         if (targetItemNames.isEmpty()) {
             log("[Error] No target items specified for looting.");
-            return;
+            return random.nextLong(1000, 2000);
         }
 
         if (LootInventory.isOpen()) {
             log("[Loot] Loot interface is open, skipping ground looting.");
-            return;
+            return 0;
         }
 
         Pattern lootPattern = generateLootPattern(targetItemNames);
@@ -358,9 +351,38 @@ public class Loot {
                 groundItem.interact("Take");
                 log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
                 if (Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen)) {
-                    break; // Break after each interaction
+                    break;
                 }
             }
         }
+        return random.nextLong(250, 300);
+    }*/
+    public static long lootFromGround() {
+        if (targetItemNames.isEmpty()) {
+            log("[Error] No target items specified for looting.");
+            return random.nextLong(1000, 2000);
+        }
+
+        if (LootInventory.isOpen()) {
+            log("[Loot] Loot interface is open, skipping ground looting.");
+            return 0;
+        }
+
+        Pattern lootPattern = generateLootPattern(targetItemNames);
+        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+
+        boolean itemInteracted = groundItems.stream()
+                .filter(groundItem -> groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find())
+                .anyMatch(groundItem -> {
+                    groundItem.interact("Take");
+                    log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
+                    return Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+                });
+
+        if (!itemInteracted) {
+            log("[Loot] No matching items found or LootInventory did not open.");
+        }
+
+        return random.nextLong(250, 300);
     }
 }

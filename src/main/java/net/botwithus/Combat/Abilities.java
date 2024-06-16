@@ -20,28 +20,35 @@ public class Abilities {
     public static int VolleyOfSoulsThreshold = 5;
 
 
+    private static long lastAbilityTime = 0;
+
     public static void manageCombatAbilities() {
         LocalPlayer player = getLocalPlayer();
         int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
 
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastAbilityTime < 3000) {
+            return;
+        }
 
-        if (DeathGrasp && player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.getCooldown("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
+        if (DeathGrasp && player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
             essenceOfFinality(player);
-        }
-        if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ActionBar.getCooldown("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death")) {
+            lastAbilityTime = currentTime;
+        } else if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death")) {
             Deathmark(player);
-        }
-        if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
+            lastAbilityTime = currentTime;
+        } else if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
             volleyOfSouls(player);
-        }
-        if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldown("Weapon Special Attack") == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
+            lastAbilityTime = currentTime;
+        } else if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
             DeathEssence(player);
-        }
-        if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
+            lastAbilityTime = currentTime;
+        } else if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
             KeepArmyup(player);
-        }
-        if (useVulnerabilityBombs) {
+            lastAbilityTime = currentTime;
+        } else if (useVulnerabilityBombs) {
             vulnerabilityBomb(player);
+            lastAbilityTime = currentTime;
         }
     }
 
