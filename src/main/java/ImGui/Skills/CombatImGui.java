@@ -226,9 +226,6 @@ public class CombatImGui {
                     setHealthThreshold(1.0);
                 }
             }
-            if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("If target health is below this %, finds a new target to attack.");
-            }
 
             if (VolleyofSouls) {
                 ImGui.SetCursorPosX(spacing);

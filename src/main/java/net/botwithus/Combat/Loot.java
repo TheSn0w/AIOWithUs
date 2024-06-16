@@ -24,8 +24,7 @@ import java.util.regex.Pattern;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.getBotState;
-import static net.botwithus.Variables.Variables.random;
-import static net.botwithus.Variables.Variables.targetItemNames;
+import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Loot {
@@ -100,7 +99,8 @@ public class Loot {
     public static void processLooting() {
         if (getBotState() == SKILLING) {
             if (Backpack.isFull()) {
-                log("[Combat] Backpack is full. Cannot loot more items.");
+                log("[Combat] Backpack is full. Cannot loot more items, turning off looting.");
+                useLoot = false;
                 return;
             }
 
@@ -135,9 +135,22 @@ public class Loot {
                 boolean isNote = itemType != null && itemType.isNote();
 
                 if (isNote) {
-                    LootInventory.take(item.getName());
-                    log("[Loot] Successfully looted noted item: " + item.getName());
-                    inventoryItems = LootInventory.getItems();
+                    if (Backpack.isFull()) {
+                        // If the backpack contains the noted item that is in the LootInventory, continue trying to interact with it
+                        if (Backpack.contains(item.getName())) {
+                            LootInventory.take(item.getName());
+                            log("[Loot] Successfully looted noted item: " + item.getName());
+                            inventoryItems = LootInventory.getItems();
+                        } else {
+                            // If the backpack is full and does not contain the noted item, stop looting
+                            log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
+                            return;
+                        }
+                    } else {
+                        LootInventory.take(item.getName());
+                        log("[Loot] Successfully looted noted item: " + item.getName());
+                        inventoryItems = LootInventory.getItems();
+                    }
                 }
             }
         } else {
@@ -225,21 +238,40 @@ public class Loot {
         }
 
         Pattern lootPattern = generateLootPattern(targetItemNames);
-        List<Item> inventoryItems = LootInventory.getItems();
+        List<Item> inventoryItems;
+        boolean itemFound;
 
-        for (int i = inventoryItems.size() - 1; i >= 0; i--) {
-            Item item = inventoryItems.get(i);
-            if (item.getName() == null) {
-                continue;
+        do {
+            itemFound = false;
+            inventoryItems = LootInventory.getItems();
+
+            if (inventoryItems.isEmpty()) {
+                break;
             }
 
-            Matcher matcher = lootPattern.matcher(item.getName());
-            if (matcher.find()) {
-                LootInventory.take(item.getName());
-                log("[Loot] Successfully looted item: " + item.getName());
-                inventoryItems = LootInventory.getItems();
+            boolean targetItemsFound = inventoryItems.stream()
+                    .anyMatch(item -> item.getName() != null && lootPattern.matcher(item.getName()).find());
+
+            if (!targetItemsFound) {
+                break;
             }
-        }
+
+            for (int i = inventoryItems.size() - 1; i >= 0; i--) {
+                Item item = inventoryItems.get(i);
+                if (item.getName() == null) {
+                    continue;
+                }
+
+                Matcher matcher = lootPattern.matcher(item.getName());
+                if (matcher.find()) {
+                    LootInventory.take(item.getName());
+                    log("[Loot] Successfully looted item: " + item.getName());
+                    Execution.delay(random.nextLong(200, 300));
+                    inventoryItems = LootInventory.getItems();
+                    itemFound = true;
+                }
+            }
+        } while (itemFound);
     }
 
     public static void lootFromGround() {

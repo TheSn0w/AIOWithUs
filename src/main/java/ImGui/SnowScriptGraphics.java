@@ -263,7 +263,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will use Nearest Bank");
+                            ImGui.SetTooltip("Will use Wars to Load Last Preset from Bank chest");
                         }
                         createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
                         if (ImGui.IsItemHovered()) {

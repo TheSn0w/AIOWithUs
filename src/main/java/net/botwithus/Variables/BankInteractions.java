@@ -59,6 +59,7 @@ public class BankInteractions {
     public static final Coordinate KharidEt = new Coordinate(3356, 3197, 0);
     public static final Coordinate VIP = new Coordinate(3182, 2742, 0);
     public static final Coordinate STORMGUARD = new Coordinate(2675, 3404, 0);
+    public static final Coordinate MAXGUILD = new Coordinate(2276, 3311, 1);
 
     public static final List<Coordinate> BANK_COORDINATES = new ArrayList<>(Arrays.asList(
             VarrockWest, VarrockEast,/* GrandExchange,*/ Canafis, AlKharid, Lumbridge,

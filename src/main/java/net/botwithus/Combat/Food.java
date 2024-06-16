@@ -1,10 +1,14 @@
 package net.botwithus.Combat;
 
+import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
+import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
@@ -47,14 +51,29 @@ public class Food {
         Item food = foodItems.isEmpty() ? null : foodItems.first();
 
         if (food == null) {
-            if (BankforFood) {
+            // Check if there are any ground items that, when picked up, would have the "Eat" option in the backpack
+            ResultSet<GroundItem> groundFoodItems = GroundItemQuery.newQuery().results();
+            GroundItem groundFood = groundFoodItems.stream()
+                    .filter(item -> {
+                        var itemType = ConfigManager.getItemType(item.getId());
+                        return itemType != null && itemType.getBackpackOptions().contains("Eat");
+                    })
+                    .findFirst()
+                    .orElse(null);
+
+            if (groundFood != null) {
+                // If LootInventory is open, interact with the item from LootInventory
+                if (LootInventory.isOpen()) {
+                    LootInventory.take(groundFood.getName());
+                } else {
+                    // If LootInventory is not open, interact with the ground item until LootInventory is open
+                    groundFood.interact("Take");
+                    Execution.delayUntil(random.nextLong(15000), LootInventory::isOpen);
+                }
+                food = InventoryItemQuery.newQuery().ids(groundFood.getId()).results().first();
+            } else if (BankforFood) {
                 setLastSkillingLocation(player.getCoordinate());
                 setBotState(BANKING);
-                return random.nextLong(1500, 3000);
-            }
-            if (nearestBank) {
-                setBotState(BANKING);
-                setLastSkillingLocation(player.getCoordinate());
                 return random.nextLong(1500, 3000);
             } else {
                 log("[Error] No food found");

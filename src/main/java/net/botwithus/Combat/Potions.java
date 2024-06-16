@@ -29,8 +29,12 @@ public class Potions {
         long weaponPoisonCheck = useWeaponPoison(player);
 
         if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L) {
-            log("[Info] One or more potions are missing, consider banking.");
-            setBotState(BANKING);
+            if (nearestBank) {
+                log("[Info] One or more potions are missing, consider banking.");
+                setBotState(BANKING);
+            } else {
+                log("[Info] One or more potions are missing, but Nearest Bank is disabled.");
+            }
         }
 
         totalDelay += aggroCheck != 1L ? aggroCheck : 0;
