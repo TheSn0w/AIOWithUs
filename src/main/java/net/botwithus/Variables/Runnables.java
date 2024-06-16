@@ -20,6 +20,7 @@ import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.botwithus.Combat.ArchGlacor.handleArchGlacor;
@@ -29,6 +30,7 @@ import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.GemCutter.cutGems;
@@ -92,13 +94,24 @@ public class Runnables {
         }
     }
 
-    public static  void handleDivination() {
+    public static void handleDivination() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
             if (handleOnlyChonicles) {
-                EntityResultSet<Npc> chronicles = NpcQuery.newQuery().name("Chronicle fragment").results();
-                if (!chronicles.isEmpty()) {
-                    Execution.delay(interactWithChronicle(chronicles));
+                List<Integer> npcTypeIds = new ArrayList<>();
+                if (checkAccountType(Divination.AccountType.REGULAR)) {
+                    npcTypeIds.add(18205);
+                    npcTypeIds.add(18204);
+                } else {
+                    npcTypeIds.add(18204);
+                }
+
+                for (Integer npcTypeId : npcTypeIds) {
+                    EntityResultSet<Npc> chronicles = NpcQuery.newQuery().byParentType(npcTypeId).results();
+                    if (!chronicles.isEmpty()) {
+                        Execution.delay(interactWithChronicle(chronicles));
+                        return;
+                    }
                 }
             } else {
                 Execution.delay(Divination.handleDivination(player));

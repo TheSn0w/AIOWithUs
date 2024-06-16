@@ -1,50 +1,40 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
-import net.botwithus.Combat.Combat;
 import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
+import net.botwithus.Divination.Divination;
 import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
-import net.botwithus.api.game.hud.inventories.Backpack;
-import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.game.*;
-import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
-import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
-import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
-import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
-import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.config.ScriptConfig;
 import java.time.Instant;
 import java.util.*;
-import java.util.regex.Pattern;
+
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
 import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Banking.bankToWars;
-import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
-import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.radius;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Misc.Harps.useHarps;
-import static net.botwithus.Runecrafting.Runecrafting.ScriptState.TELEPORTINGTOBANK;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -91,6 +81,19 @@ public class SnowsScript extends LoopingScript {
         skillingTasks.put(() -> Variables.isCookingActive, Runnables::handleCooking);
         skillingTasks.put(() -> Variables.isArcheologyActive, Runnables::handleArcheology);
         skillingTasks.put(() -> Variables.isMiscActive, Runnables::handleMisc);
+    }
+
+    public static Divination.AccountType getAccountType() {
+        if (checkAccountType(Divination.AccountType.IRONMAN)) {
+            return Divination.AccountType.IRONMAN;
+        } else if (checkAccountType(Divination.AccountType.HARDCORE)) {
+            return Divination.AccountType.HARDCORE;
+        } else if (checkAccountType(Divination.AccountType.REGULAR)) {
+            return Divination.AccountType.REGULAR;
+        } else if (checkAccountType(Divination.AccountType.HARDIRON)) {
+            return Divination.AccountType.HARDIRON;
+        }
+        return null;
     }
 
 

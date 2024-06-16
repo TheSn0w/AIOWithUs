@@ -3,6 +3,7 @@ package net.botwithus.Divination;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -31,6 +32,31 @@ import static net.botwithus.Variables.Variables.*;
 
 public class Divination {
 
+    /////////ACCOUNT|TYPE\\\\\\\\\
+    public enum AccountType {
+        IRONMAN,
+        HARDCORE,
+        REGULAR,
+        HARDIRON
+    }
+
+    public static boolean checkAccountType(AccountType type) {
+        int ironman = VarManager.getVarbitValue(20806);
+        int hardcore = VarManager.getVarbitValue(20807);
+
+        switch (type) {
+            case IRONMAN:
+                return ironman == 1 && hardcore == 0;
+            case HARDCORE:
+                return hardcore == 1;
+            case REGULAR:
+                return ironman == 0 && hardcore == 0;
+            case HARDIRON:
+                return ironman == 1 && hardcore == 1;
+        }
+        return false;
+    }
+
     public static long handleDivination(LocalPlayer player) {
         int divinationLevel = Skills.DIVINATION.getActualLevel();
         String wispName = getWispName(divinationLevel);
@@ -58,10 +84,20 @@ public class Divination {
             divineoMatic();
         }
         if(harvestChronicles) {
-            EntityResultSet<Npc> chronicles = NpcQuery.newQuery().name("Chronicle fragment").results();
-            if (!chronicles.isEmpty()) {
-                Execution.delay(interactWithChronicle(chronicles));
-                return 0;
+            List<Integer> npcTypeIds = new ArrayList<>();
+            if (checkAccountType(AccountType.REGULAR)) {
+                npcTypeIds.add(18205);
+                npcTypeIds.add(18204);
+            } else {
+                npcTypeIds.add(18204);
+            }
+
+            for (Integer npcTypeId : npcTypeIds) {
+                EntityResultSet<Npc> chronicles = NpcQuery.newQuery().byParentType(npcTypeId).results();
+                if (!chronicles.isEmpty()) {
+                    Execution.delay(interactWithChronicle(chronicles));
+                    return 0;
+                }
             }
         }
         if (offerChronicles && Backpack.getQuantity("Chronicle fragment") >= 10)

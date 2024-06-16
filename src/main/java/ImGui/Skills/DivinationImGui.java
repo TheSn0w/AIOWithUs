@@ -1,11 +1,13 @@
 package ImGui.Skills;
 
+import net.botwithus.Divination.Divination;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
+import static net.botwithus.SnowsScript.getAccountType;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.energy;
