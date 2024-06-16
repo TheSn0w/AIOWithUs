@@ -2,10 +2,12 @@ package net.botwithus.Combat;
 
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.scene.entities.Entity;
 import net.botwithus.rs3.game.scene.entities.characters.PathingEntity;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.script.ScriptConsole;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -44,6 +46,19 @@ public class Combat {
         if (player == null || player.isMoving()) {
             return random.nextLong(500, 750);
         }
+        List<String> friendlyNpcNames = Arrays.asList("Putrid Zombie", "Skeleton Warrior", "Vengeful Ghost");
+
+        int followingCount = 0;
+        for (Npc npc : net.botwithus.rs3.game.queries.builders.characters.NpcQuery.newQuery().results()) {
+            PathingEntity<?> npcFollowing = npc.getFollowing();
+            String npcName = npc.getName();
+            /*ScriptConsole.println("[Debug] NPC " + npcName + " is following: " + (npcFollowing != null ? npcFollowing.getName() : "null"));*/
+
+            if (npcFollowing != null && npcFollowing.getId() == player.getId() && !friendlyNpcNames.contains(npcName)) {
+                followingCount++;
+            }
+        }
+        log("[Info] Number of NPCs following the player: " + followingCount);
 
         if (useLoot || useNotepaper || lootNoted || isStackable) {
             if (useNotepaper) {
@@ -143,13 +158,41 @@ public class Combat {
 
 
     private static long attackNearestMonster(LocalPlayer player) {
-        Npc monster = findTarget(player);
-        if (monster == null) {
-            return logAndDelay("[Error] No valid NPC target found.", 1000, 3000);
+        PathingEntity<?> currentTarget = player.getTarget();
+        if (currentTarget == null) {
+            ScriptConsole.println("[Info] Player does not have a current target.");
+        } else {
+            ScriptConsole.println("[Info] Player's current target is: " + currentTarget.getName());
         }
 
-        return attackMonster(player, monster);
+        if (player.getFollowing() == player) {
+            ScriptConsole.println("[Info] Player is following itself.");
+            if (currentTarget instanceof Npc) {
+                return attackMonster(player, (Npc) currentTarget);
+            } else {
+                ScriptConsole.println("[Error] Player's target is not an NPC.");
+                return logAndDelay("[Error] Player's target is not an NPC.", 1000, 3000);
+            }
+        }
+
+        if (currentTarget == null) {
+            Npc monster = findTarget(player);
+            if (monster == null) {
+                return logAndDelay("[Error] No valid NPC target found.", 1000, 3000);
+            }
+            ScriptConsole.println("[Info] Attacking new target: " + monster.getName());
+            return attackMonster(player, monster);
+        }
+
+        if (currentTarget instanceof Npc) {
+            return attackMonster(player, (Npc) currentTarget);
+        } else {
+            ScriptConsole.println("[Error] Player's target is not an NPC.");
+            return logAndDelay("[Error] Player's target is not an NPC.", 1000, 3000);
+        }
     }
+
+
 
     private static Npc findTarget(LocalPlayer player) {
         List<String> targetNames = getTargetNames();

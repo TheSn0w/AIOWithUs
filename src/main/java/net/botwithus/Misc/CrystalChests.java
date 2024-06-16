@@ -77,7 +77,7 @@ public class CrystalChests {
 
     private static void handleBanking() {
         int bankChestId = useTaverly ? 66666 : 92692;
-        EntityResultSet<SceneObject> BankChest = SceneObjectQuery.newQuery().id(bankChestId).option("Bank").results();
+        EntityResultSet<SceneObject> BankChest = SceneObjectQuery.newQuery().id(bankChestId).results();
         if (BankChest.isEmpty()) {
             navigateToBank();
         } else {
