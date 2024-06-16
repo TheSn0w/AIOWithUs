@@ -8,6 +8,7 @@ import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.js5.types.ItemType;
 import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
@@ -20,13 +21,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.botwithus.Combat.Combat.hasLootedThisLoop;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.random;
 import static net.botwithus.Variables.Variables.targetItemNames;
-import static net.botwithus.api.game.hud.prayer.Prayer.isActive;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Loot {
@@ -126,7 +125,7 @@ public class Loot {
         if (LootInventory.isOpen()) {
             List<Item> inventoryItems = LootInventory.getItems();
 
-            for (int i = 0; i < inventoryItems.size(); i++) {
+            for (int i = inventoryItems.size() - 1; i >= 0; i--) {
                 Item item = inventoryItems.get(i);
                 if (item.getName() == null) {
                     continue;
@@ -139,13 +138,13 @@ public class Loot {
                     LootInventory.take(item.getName());
                     log("[Loot] Successfully looted noted item: " + item.getName());
                     inventoryItems = LootInventory.getItems();
-                    Execution.delay(random.nextLong(200, 300));
                 }
             }
         } else {
             List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
-            for (GroundItem groundItem : groundItems) {
+            for (int i = groundItems.size() - 1; i >= 0; i--) {
+                GroundItem groundItem = groundItems.get(i);
                 if (groundItem.getName() == null) {
                     continue;
                 }
@@ -161,6 +160,63 @@ public class Loot {
             }
         }
     }
+    /*public static void lootStackableItemsFromInventory() {
+        log("[Loot] Checking if LootInventory is open...");
+        if (LootInventory.isOpen()) {
+            log("[Loot] LootInventory is open. Getting items...");
+            List<Item> inventoryItems = LootInventory.getItems();
+
+            for (int i = 0; i < inventoryItems.size(); i++) {
+                Item item = inventoryItems.get(i);
+                if (item.getName() == null) {
+                    log("[Loot] Item name is null. Skipping...");
+                    continue;
+                }
+
+                log("[Loot] Getting ItemType for item: " + item.getName());
+                var itemType = ConfigManager.getItemType(item.getId());
+                if (itemType != null && isStackable(itemType)) {
+                    log("[Loot] Item is stackable. Attempting to take item...");
+                    LootInventory.take(item.getName());
+                    log("[Loot] Successfully looted stackable item: " + item.getName());
+                    inventoryItems = LootInventory.getItems();
+                    Execution.delay(random.nextLong(200, 300));
+                } else {
+                    log("[Loot] Item is not stackable or ItemType is null. Skipping...");
+                }
+            }
+        } else {
+            log("[Loot] LootInventory is not open. Getting ground items...");
+            List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+
+            for (GroundItem groundItem : groundItems) {
+                if (groundItem.getName() == null) {
+                    log("[Loot] Ground item name is null. Skipping...");
+                    continue;
+                }
+
+                log("[Loot] Getting ItemType for ground item: " + groundItem.getName());
+                var itemType = ConfigManager.getItemType(groundItem.getId());
+                if (itemType != null && isStackable(itemType)) {
+                    log("[Loot] Ground item is stackable. Attempting to take item...");
+                    groundItem.interact("Take");
+                    log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
+                    Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+                } else {
+                    log("[Loot] Ground item is not stackable or ItemType is null. Skipping...");
+                }
+            }
+        }
+    }
+
+    private static boolean isStackable(ItemType itemType) {
+        ItemType.Stackability stackability = itemType.getStackability();
+        log("[Loot] Stackability of item: " + itemType.getName() + " is " + stackability);
+        boolean isStackable = stackability == ItemType.Stackability.ALWAYS || stackability == ItemType.Stackability.SOMETIMES;
+        log("[Loot] Is item stackable? " + isStackable);
+        return isStackable;
+    }*/
+
 
     public static void lootFromInventory() {
         if (!canLoot()) {
@@ -171,7 +227,8 @@ public class Loot {
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<Item> inventoryItems = LootInventory.getItems();
 
-        for (Item item : inventoryItems) {
+        for (int i = inventoryItems.size() - 1; i >= 0; i--) {
+            Item item = inventoryItems.get(i);
             if (item.getName() == null) {
                 continue;
             }
@@ -180,8 +237,7 @@ public class Loot {
             if (matcher.find()) {
                 LootInventory.take(item.getName());
                 log("[Loot] Successfully looted item: " + item.getName());
-                LootInventory.getItems();
-                Execution.delay(RandomGenerator.nextInt(200, 300));
+                inventoryItems = LootInventory.getItems();
             }
         }
     }

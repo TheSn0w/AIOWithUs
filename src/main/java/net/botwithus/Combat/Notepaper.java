@@ -68,7 +68,7 @@ public class Notepaper {
 
                 boolean itemSelected = MiniMenu.interact(SelectableAction.SELECTABLE_COMPONENT.getType(), 0, targetItem.getSlot(), 96534533);
                 log("[Info] Item selected: " + itemSelected);
-                Execution.delay(RandomGenerator.nextInt(650, 750));
+                Execution.delay(RandomGenerator.nextInt(200, 500));
 
                 if (itemSelected) {
                     boolean notepaperSelected = MiniMenu.interact(SelectableAction.SELECT_COMPONENT_ITEM.getType(), 0, notepaper.getSlot(), 96534533);
@@ -77,7 +77,6 @@ public class Notepaper {
                     if (notepaperSelected) {
                         String notepaperName = notepaper.getName();
                         log("[Success] " + itemName + " successfully used on " + notepaperName + ".");
-                        Execution.delay(750);
                         break;
                     } else {
                         String notepaperName = notepaper.getName();

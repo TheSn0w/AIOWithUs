@@ -221,8 +221,12 @@ public class PredefinedStrings {
 
     );
     public static List<String> LootList = List.of(
-            "Charms",
-            "Coins"
+            "charm",
+            "coins",
+            "bones",
+            "grimy",
+            "rune"
+
 
 
     );

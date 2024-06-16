@@ -37,6 +37,7 @@ import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
@@ -589,6 +590,7 @@ public class SnowsScript extends LoopingScript {
         String serializedItemNamesForNotepaper = String.join(",", selectedNotepaperNames);
         this.configuration.addProperty("selectedNotepaperNames", serializedItemNamesForNotepaper);
         this.configuration.addProperty("handleOnlyChonicles", String.valueOf(handleOnlyChonicles));
+        this.configuration.addProperty("lootNoted", String.valueOf(lootNoted));
 
 
 
@@ -597,6 +599,7 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            lootNoted = Boolean.parseBoolean(this.configuration.getProperty("lootNoted"));
             handleOnlyChonicles = Boolean.parseBoolean(this.configuration.getProperty("handleOnlyChonicles"));
             useNotepaper = Boolean.parseBoolean(this.configuration.getProperty("useNotepaper"));
             isdivinechargeActive = Boolean.parseBoolean(this.configuration.getProperty("isdivinechargeActive"));

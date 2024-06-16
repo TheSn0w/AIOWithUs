@@ -37,16 +37,15 @@ public class Combat {
     public static void setHealthThreshold(double healthThreshold) {
         Combat.healthThreshold = healthThreshold;
     }
-
-    public static boolean hasLootedThisLoop = false;
+    public static boolean isStackable = false;
 
 
     public static long attackTarget(LocalPlayer player) {
         if (player == null || player.isMoving()) {
-            return random.nextLong(1500, 3000);
+            return random.nextLong(500, 750);
         }
 
-        if (useLoot || useNotepaper || lootNoted) {
+        if (useLoot || useNotepaper || lootNoted || isStackable) {
             if (useNotepaper) {
                 useItemOnNotepaper();
             }
@@ -56,6 +55,9 @@ public class Combat {
             if (lootNoted) {
                 lootNotedItemsFromInventory();
             }
+            /*if (isStackable) {
+                lootStackableItemsFromInventory();
+            }*/
         }
 
         if (SoulSplit) {

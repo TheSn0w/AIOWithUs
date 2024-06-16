@@ -29,6 +29,7 @@ import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.Porters.bankwithoutPorter;
+import static net.botwithus.Combat.Combat.isStackable;
 import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.CustomLogger.log;
@@ -284,6 +285,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Noted Items in Loot Inventory");
                         }
+                        /*createCenteredButton("Loot Stackables", () -> isStackable = !isStackable, isStackable);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will loot all stackables");
+                        }*/
                         createCenteredButton("Use POD", () -> usePOD = !usePOD, usePOD);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Player owned dungeons, first room only");
@@ -296,6 +301,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Magic notepaper or Enchant notepaper");
                         }
+
                     } else if (isFishingActive) {
                         createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, true);
                         if (ImGui.IsItemHovered()) {
