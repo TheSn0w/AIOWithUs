@@ -62,6 +62,11 @@ public class Food {
                     .orElse(null);
 
             if (groundFood != null) {
+                // If the backpack is full, return early
+                if (backpack.isFull()) {
+                    return 0;
+                }
+
                 // If LootInventory is open, interact with the item from LootInventory
                 if (LootInventory.isOpen()) {
                     LootInventory.take(groundFood.getName());

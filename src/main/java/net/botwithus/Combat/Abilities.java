@@ -19,7 +19,6 @@ public class Abilities {
     public static int NecrosisStacksThreshold = 12;
     public static int VolleyOfSoulsThreshold = 5;
 
-    private static Queue<Runnable> abilityQueue = new LinkedList<>();
 
     public static void manageCombatAbilities() {
         LocalPlayer player = getLocalPlayer();
@@ -27,27 +26,22 @@ public class Abilities {
 
 
         if (DeathGrasp && player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.getCooldown("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
-            abilityQueue.add(() -> essenceOfFinality(player));
+            essenceOfFinality(player);
         }
         if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ActionBar.getCooldown("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death")) {
-            abilityQueue.add(() -> Deathmark(player));
+            Deathmark(player);
         }
         if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
-            abilityQueue.add(() -> volleyOfSouls(player));
+            volleyOfSouls(player);
         }
         if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldown("Weapon Special Attack") == 0 && player.getFollowing() != null && player.getFollowing().getCurrentHealth() >= 500 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
-            abilityQueue.add(() -> DeathEssence(player));
+            DeathEssence(player);
         }
         if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
-            abilityQueue.add(() -> KeepArmyup(player));
+            KeepArmyup(player);
         }
         if (useVulnerabilityBombs) {
-            abilityQueue.add(() -> vulnerabilityBomb(player));
-        }
-
-        while (!abilityQueue.isEmpty()) {
-            abilityQueue.poll().run();
-            Execution.delay(random.nextLong(1900, 2000));
+            vulnerabilityBomb(player);
         }
     }
 
