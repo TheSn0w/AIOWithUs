@@ -44,6 +44,5 @@ public class TaskScheduler {
         SnowScriptGraphics.setScriptStatus(false);
         LoginManager.setAutoLogin(false);
         MiniMenu.interact(14, 1, -1, 93913156);
-        Execution.delay(random.nextLong(2500, 3000));
     }
 }

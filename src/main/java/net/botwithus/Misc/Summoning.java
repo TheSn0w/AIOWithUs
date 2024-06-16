@@ -6,13 +6,16 @@ import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -20,6 +23,7 @@ import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.HashMap;
@@ -27,6 +31,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
 public class Summoning {
@@ -157,15 +162,29 @@ public class Summoning {
     }
 
     private static boolean isInterfaceOpen() {
-        return Interfaces.isOpen(INTERFACE_ID);
+        return Interfaces.isOpen(1370);
     }
 
     private static void selectCreatingPouches() {
-        if (MiniMenu.interact(ComponentAction.DIALOGUE.getType(), 0, -1, 89784350)) {
-            Execution.delay(random.nextLong(2200, 2600));
+        Component craftPouchesInterface = ComponentQuery.newQuery(1370).results().first();
+        if (craftPouchesInterface == null) {
+            log("[Error] Craft pouches interface not found.");
+            return;
         }
-        else {
-            log("[Error] Failed to select 'Creating Pouches'");
+
+        int resourcesCanMake = VarManager.getVarValue(VarDomainType.PLAYER, 8847);
+        if (resourcesCanMake <= 0) {
+            log("[Error] No resources available to make pouches.");
+            shutdown();
+            return;
+        }
+
+        boolean interact = MiniMenu.interact(16, 0, -1, 89784350);
+        if (interact) {
+            log("[Success] Successfully created pouches!");
+            Execution.delay(random.nextLong(2200, 2600));
+        } else {
+            log("[Error] Failed to create pouches.");
         }
     }
 
@@ -175,6 +194,7 @@ public class Summoning {
     }
 
     private static void moveToObolisk() {
+        log("[Summoning] Moving to obolisk.");
         Coordinate oboliskLocation = new Coordinate(2931, 3448, 0);
         Movement.traverse(NavPath.resolve(oboliskLocation));
     }
@@ -226,6 +246,10 @@ public class Summoning {
                     Item item = items1.first();
                     int slot = item.getSlot();
                     MiniMenu.interact(ComponentAction.COMPONENT.getType(), 6, slot, 82903060);
+                } else {
+                    log("[Error] No items left to sell.");
+                    Execution.delay(random.nextLong(1000, 5000));
+                    shutdown();
                 }
                 log("[Summoning] Selling all: " + secondaryItemName.get(secondaryItem));
                 Execution.delay(random.nextLong(550, 600));
