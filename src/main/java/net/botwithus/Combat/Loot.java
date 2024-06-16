@@ -169,6 +169,10 @@ public class Loot {
                     groundItem.interact("Take");
                     log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
                     Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+
+                    if (LootInventory.isOpen()) {
+                        break;
+                    }
                 }
             }
         }
