@@ -245,6 +245,8 @@ public class Loot {
         List<Item> inventoryItems;
         boolean itemFound;
 
+        long startTime = System.currentTimeMillis();
+
         do {
             itemFound = false;
             inventoryItems = LootInventory.getItems();
@@ -270,12 +272,17 @@ public class Loot {
                 if (matcher.find()) {
                     LootInventory.take(item.getName());
                     log("[Loot] Successfully looted item: " + item.getName());
-                    Execution.delay(random.nextLong(200, 300));
+                    Execution.delay(random.nextLong(350, 500));
                     inventoryItems = LootInventory.getItems();
                     itemFound = true;
                 }
+
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                if (elapsedTime > 15000) {
+                    break;
+                }
             }
-        } while (itemFound);
+        } while (itemFound && System.currentTimeMillis() - startTime <= 15000);
     }
 
     public static void lootFromGround() {
