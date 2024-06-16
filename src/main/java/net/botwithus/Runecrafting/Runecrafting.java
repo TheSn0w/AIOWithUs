@@ -357,7 +357,7 @@ public class Runecrafting {
     }*/
 
     private static void interactWithRing() {
-        if (notWearingRing && Backpack.isFull()) {
+        if (notWearingRing && Backpack.contains("Impure essence")) {
             ActionBar.useItem("Passing bracelet", "Rub");
             Execution.delay(RandomGenerator.nextInt(600, 800));
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
@@ -370,7 +370,7 @@ public class Runecrafting {
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
                 currentState = INTERACTINGWITHPORTAL;
             }
-        } else if (WearingRing && Backpack.isFull()) {
+        } else if (WearingRing && Backpack.contains("Impure essence")) {
             ResultSet<Item> results = InventoryItemQuery.newQuery().ids(56416).option("City of Um: Haunt on the Hill").results();
             if (!results.isEmpty()) {
                 component(3, 9, 95944719);
