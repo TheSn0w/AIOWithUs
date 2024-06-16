@@ -14,7 +14,7 @@ import static net.botwithus.Combat.Abilities.*;
 import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Food.isHealthLow;
-import static net.botwithus.Combat.Loot.processLooting;
+import static net.botwithus.Combat.Loot.*;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.managePotions;
 import static net.botwithus.Combat.Prayers.manageQuickPrayers;
@@ -38,19 +38,23 @@ public class Combat {
         Combat.healthThreshold = healthThreshold;
     }
 
+    public static boolean hasLootedThisLoop = false;
+
+
     public static long attackTarget(LocalPlayer player) {
         if (player == null || player.isMoving()) {
             return random.nextLong(1500, 3000);
         }
-        if (useLoot && useNotepaper) {
-            useItemOnNotepaper();
-            processLooting();
-        } else {
+
+        if (useLoot || useNotepaper || lootNoted) {
+            if (useNotepaper) {
+                useItemOnNotepaper();
+            }
             if (useLoot) {
                 processLooting();
             }
-            if (useNotepaper) {
-                useItemOnNotepaper();
+            if (lootNoted) {
+                lootNotedItemsFromInventory();
             }
         }
 
@@ -172,7 +176,7 @@ public class Combat {
             if (handleMultitarget) {
                 recentlyAttackedTargets.add(monster.getId());
             }
-            return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 400, 500);
+            return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 100, 200);
         } else {
             return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
         }

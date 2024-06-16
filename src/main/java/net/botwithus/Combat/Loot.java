@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.rs3.game.Distance;
@@ -19,9 +20,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Combat.Combat.hasLootedThisLoop;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.SKILLING;
+import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.random;
 import static net.botwithus.Variables.Variables.targetItemNames;
+import static net.botwithus.api.game.hud.prayer.Prayer.isActive;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Loot {
@@ -94,15 +99,17 @@ public class Loot {
         }
     }
     public static void processLooting() {
-        if (Backpack.isFull()) {
-            log("[Combat] Backpack is full. Cannot loot more items.");
-            return;
-        }
+        if (getBotState() == SKILLING) {
+            if (Backpack.isFull()) {
+                log("[Combat] Backpack is full. Cannot loot more items.");
+                return;
+            }
 
-        if (LootInventory.isOpen()) {
-            lootFromInventory();
-        } else {
-            lootFromGround();
+            if (LootInventory.isOpen()) {
+                lootFromInventory();
+            } else {
+                lootFromGround();
+            }
         }
     }
 
@@ -115,6 +122,46 @@ public class Loot {
                 Pattern.CASE_INSENSITIVE
         );
     }
+    public static void lootNotedItemsFromInventory() {
+        if (LootInventory.isOpen()) {
+            List<Item> inventoryItems = LootInventory.getItems();
+
+            for (int i = 0; i < inventoryItems.size(); i++) {
+                Item item = inventoryItems.get(i);
+                if (item.getName() == null) {
+                    continue;
+                }
+
+                var itemType = ConfigManager.getItemType(item.getId());
+                boolean isNote = itemType != null && itemType.isNote();
+
+                if (isNote) {
+                    LootInventory.take(item.getName());
+                    log("[Loot] Successfully looted noted item: " + item.getName());
+                    inventoryItems = LootInventory.getItems();
+                    Execution.delay(random.nextLong(200, 300));
+                }
+            }
+        } else {
+            List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+
+            for (GroundItem groundItem : groundItems) {
+                if (groundItem.getName() == null) {
+                    continue;
+                }
+
+                var itemType = ConfigManager.getItemType(groundItem.getId());
+                boolean isNote = itemType != null && itemType.isNote();
+
+                if (isNote) {
+                    groundItem.interact("Take");
+                    log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
+                    Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+                }
+            }
+        }
+    }
+
     public static void lootFromInventory() {
         if (!canLoot()) {
             log("[Error] No target items specified for looting.");
@@ -129,21 +176,12 @@ public class Loot {
                 continue;
             }
 
-            var itemType = ConfigManager.getItemType(item.getId());
-            boolean isNote = itemType != null && itemType.isNote();
-
-            if (lootNoted && isNote) {
-                LootInventory.take(item.getName());
-                log("[Loot] Successfully looted noted item: " + item.getName());
-                Execution.delay(RandomGenerator.nextInt(615, 650)); // Add delay here
-                continue;
-            }
-
             Matcher matcher = lootPattern.matcher(item.getName());
             if (matcher.find()) {
                 LootInventory.take(item.getName());
                 log("[Loot] Successfully looted item: " + item.getName());
-                Execution.delay(RandomGenerator.nextInt(615, 650)); // Add delay here
+                LootInventory.getItems();
+                Execution.delay(RandomGenerator.nextInt(200, 300));
             }
         }
     }

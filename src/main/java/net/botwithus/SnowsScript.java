@@ -92,12 +92,6 @@ public class SnowsScript extends LoopingScript {
         skillingTasks.put(() -> Variables.isMiscActive, Runnables::handleMisc);
     }
 
-    public static void logItemNamesToUseOnNotepaper() {
-        log("[Notepaper] Item names to use on notepaper:");
-        for (String itemName : itemNamesToUseOnNotepaper) {
-            log(itemName);
-        }
-    }
 
 
 
@@ -109,6 +103,7 @@ public class SnowsScript extends LoopingScript {
         }
 
         capturestuff();
+
 
         switch (botState) {
             case IDLE -> Execution.delay(random.nextLong(1500, 3000));
@@ -196,7 +191,6 @@ public class SnowsScript extends LoopingScript {
     }
     public static Map<String, Integer> divineCharges = new HashMap<>();
     public static Map<String, Integer> Gems = new HashMap<>();
-    public static List<String> itemNamesToUseOnNotepaper = new ArrayList<>();
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
