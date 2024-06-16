@@ -468,7 +468,7 @@ public class Runecrafting {
                 currentState = TELEPORTINGTOBANK;
                 break;
             } else {
-                Execution.delay(100);
+                Execution.delay(random.nextLong(100, 200));
             }
         }
 
@@ -517,7 +517,7 @@ public class Runecrafting {
                 currentState = TELEPORTINGTOBANK;
                 break;
             } else {
-                Execution.delay(100);
+                Execution.delay(random.nextLong(100, 200));
             }
         }
 
@@ -566,7 +566,7 @@ public class Runecrafting {
                 currentState = TELEPORTINGTOBANK;
                 break;
             } else {
-                Execution.delay(100);
+                Execution.delay(random.nextLong(100, 200));
             }
         }
 
@@ -616,7 +616,7 @@ public class Runecrafting {
                 currentState = TELEPORTINGTOBANK;
                 break;
             } else {
-                Execution.delay(100);
+                Execution.delay(random.nextLong(100, 200));
             }
         }
 
