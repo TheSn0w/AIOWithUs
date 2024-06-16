@@ -208,9 +208,11 @@ public class Runecrafting {
     }
 
     private static void interactwithBoat() {
-        EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
-        if (!bankChests.isEmpty()) {
-            if (bankChests.nearest().interact("Load Last Preset from")) {
+        EntityResultSet<SceneObject> boatResults = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
+        SceneObject boat = boatResults.nearest();
+
+        if (boat != null) {
+            if (boat.interact("Load Last Preset from")) {
                 Execution.delayUntil(5000, () -> Backpack.contains("Impure essence"));
 
                 if (Backpack.contains("Impure essence")) {
@@ -242,9 +244,11 @@ public class Runecrafting {
     }
 
     private static void interactwithBankChest() {
-        EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
-        if (!bankChests.isEmpty()) {
-            if (bankChests.nearest().interact("Load Last Preset from")) {
+        EntityResultSet<SceneObject> bankChestsResults = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
+        SceneObject bankChest = bankChestsResults.nearest();
+
+        if (bankChest != null) {
+            if (bankChest.interact("Load Last Preset from")) {
                 Execution.delayUntil(5000, () -> Backpack.contains("Impure essence"));
 
                 if (Backpack.contains("Impure essence")) {
@@ -298,9 +302,11 @@ public class Runecrafting {
 
 
     private void interactAndCheckBackpack() {
-        EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
-        if (!bankChests.isEmpty()) {
-            if (bankChests.nearest().interact("Load Last Preset from")) {
+        EntityResultSet<SceneObject> bankChestsResults = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
+        SceneObject bankChest = bankChestsResults.nearest();
+
+        if (bankChest != null) {
+            if (bankChest.interact("Load Last Preset from")) {
                 Execution.delay(random.nextLong(750, 1500));
 
                 if (Backpack.isFull()) {
@@ -387,32 +393,35 @@ public class Runecrafting {
     }
 
     private static void interactWithDarkPortal() {
-        Execution.delay(RandomGenerator.nextInt(600, 800));
-        SceneObject Portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
+        LocalPlayer player = Client.getLocalPlayer();
+        if (player != null) {
+            Execution.delay(RandomGenerator.nextInt(600, 800));
+            SceneObject Portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
 
-        if (Portal != null) {
-            while (!player.isMoving()) {
-                Portal.interact("Enter");
-                log("[Runecrafting] Attempting to interact with the Dark Portal.");
-                Execution.delay(random.nextLong(600, 800));
-
-                if (player.isMoving()) {
-                    break;
-                }
-            }
-
-            if (Portal.distanceTo(player.getCoordinate()) >= 10) {
-                boolean surgeUsed = Surge();
-                if (surgeUsed) {
+            if (Portal != null) {
+                while (!player.isMoving()) {
                     Portal.interact("Enter");
-                    log("[Runecrafting] Attempting to interact with the Dark Portal after Surging.");
-                }
-            }
+                    log("[Runecrafting] Attempting to interact with the Dark Portal.");
+                    Execution.delay(random.nextLong(600, 800));
 
-            lastMovedOrAnimatedTime = System.currentTimeMillis();
-            currentState = CRAFTING;
-        } else {
-            log("[Error] Dark portal not found.");
+                    if (player.isMoving()) {
+                        break;
+                    }
+                }
+
+                if (Portal.distanceTo(player.getCoordinate()) >= 10) {
+                    boolean surgeUsed = Surge();
+                    if (surgeUsed) {
+                        Portal.interact("Enter");
+                        log("[Runecrafting] Attempting to interact with the Dark Portal after Surging.");
+                    }
+                }
+
+                lastMovedOrAnimatedTime = System.currentTimeMillis();
+                currentState = CRAFTING;
+            } else {
+                log("[Error] Dark portal not found.");
+            }
         }
     }
 
@@ -433,8 +442,10 @@ public class Runecrafting {
     }
 
     private static void handleMiasmaAltar() {
-        EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127383).option("Craft runes").results();
-        if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
+        EntityResultSet<SceneObject> altarResults = SceneObjectQuery.newQuery().id(127383).option("Craft runes").results();
+        SceneObject altar = altarResults.nearest();
+
+        if (altar != null && !player.isMoving() && player.getAnimationId() == -1) {
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
@@ -445,14 +456,14 @@ public class Runecrafting {
                 }
             }
 
-            altar.nearest().interact("Craft runes");
+            altar.interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
             log("[Runecrafting] Attempted to interact with Miasma altar.");
 
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
-                    altar.nearest().interact("Craft runes");
+                    altar.interact("Craft runes");
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
@@ -483,8 +494,10 @@ public class Runecrafting {
 
 
     private static void handleBoneAltar() {
-        EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127381).option("Craft runes").results();
-        if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
+        EntityResultSet<SceneObject> altarResults = SceneObjectQuery.newQuery().id(127381).option("Craft runes").results();
+        SceneObject altar = altarResults.nearest();
+
+        if (altar != null && !player.isMoving() && player.getAnimationId() == -1) {
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
@@ -495,13 +508,14 @@ public class Runecrafting {
                 }
             }
 
-            altar.nearest().interact("Craft runes");
+            altar.interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
             log("[Runecrafting] Attempted to interact with Bone altar.");
+
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
-                    altar.nearest().interact("Craft runes");
+                    altar.interact("Craft runes");
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
@@ -531,8 +545,10 @@ public class Runecrafting {
     }
 
     private static void handleSpiritAltar() {
-        EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127380).option("Craft runes").results();
-        if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
+        EntityResultSet<SceneObject> altarResults = SceneObjectQuery.newQuery().id(127380).option("Craft runes").results();
+        SceneObject altar = altarResults.nearest();
+
+        if (altar != null && !player.isMoving() && player.getAnimationId() == -1) {
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
@@ -543,14 +559,14 @@ public class Runecrafting {
                 }
             }
 
-            altar.nearest().interact("Craft runes");
+            altar.interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
             log("[Runecrafting] Attempted to interact with Spirit altar.");
 
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
-                    altar.nearest().interact("Craft runes");
+                    altar.interact("Craft runes");
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
@@ -581,8 +597,10 @@ public class Runecrafting {
 
 
     private static void handleFleshAltar() {
-        EntityResultSet<SceneObject> altar = SceneObjectQuery.newQuery().id(127382).option("Craft runes").results();
-        if (!altar.isEmpty() && !player.isMoving() && player.getAnimationId() == -1) {
+        EntityResultSet<SceneObject> altarResults = SceneObjectQuery.newQuery().id(127382).option("Craft runes").results();
+        SceneObject altar = altarResults.nearest();
+
+        if (altar != null && !player.isMoving() && player.getAnimationId() == -1) {
 
             if (Powerburst) {
                 if (Math.random() <= 0.85) {
@@ -593,14 +611,14 @@ public class Runecrafting {
                 }
             }
 
-            altar.nearest().interact("Craft runes");
+            altar.interact("Craft runes");
             Execution.delayUntil(5000, () -> player.isMoving());
             log("[Runecrafting] Attempted to interact with Flesh altar.");
 
             if (player.isMoving()) {
                 boolean surgeUsed = Surge();
                 if (surgeUsed) {
-                    altar.nearest().interact("Craft runes");
+                    altar.interact("Craft runes");
                     log("[Runecrafting] Attempting to interact with Spirit altar after Surging.");
                 }
             }
