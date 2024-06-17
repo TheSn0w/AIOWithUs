@@ -75,7 +75,6 @@ public class Runecrafting {
                 int waitTimeInMs = RandomGenerator.nextInt(minHopIntervalMinutes * 60 * 1000, maxHopIntervalMinutes * 60 * 1000);
                 nextWorldHopTime = System.currentTimeMillis() + waitTimeInMs;
                 log("Next hop scheduled in " + (waitTimeInMs / 60000) + " minutes.");
-                currentState = WORLDHOPPING;
                 return;
             }
 
@@ -85,7 +84,7 @@ public class Runecrafting {
                 log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
 
                 nextWorldHopTime = 0;
-                currentState = BANKING;
+                currentState = WORLDHOPPING;
                 return;
             }
         }
@@ -139,7 +138,10 @@ public class Runecrafting {
                 currentState = BANKING;
             }
             case WORLDHOPPING -> {
-                Execution.delay(random.nextLong(500, 1000));
+                if (nextWorldHopTime == 0) {
+                    Execution.delayUntil(10000, () -> Client.getGameState() == Client.GameState.LOGGED_IN);
+                    currentState = BANKING;
+                }
             }
         }
     }
