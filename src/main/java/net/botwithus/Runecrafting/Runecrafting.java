@@ -269,7 +269,6 @@ public class Runecrafting {
                     if (ManageFamiliar) {
                         checkFamiliar();
                     } else {
-                        Execution.delay(random.nextLong(300, 500));
                         currentState = TELEPORTING;
                         log("[Runecrafting] Changed bot state to TELEPORTING.");
                     }
@@ -804,7 +803,6 @@ public class Runecrafting {
 
 
     public static void HopWorlds(int world) {
-        LoginManager.hopWorld(world);
         if (Interfaces.isOpen(1431)) {
             component(1, 7, 93782016);
             boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
