@@ -57,26 +57,26 @@ public class RunecraftingImGui {
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
             Powerburst = ImGui.Checkbox("Use Powerburst", Powerburst);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Will use Powerburst of Sorcery, must have on action bar");
+                ImGui.SetTooltip("Will use Powerburst of Sorcery");
             }
 
 
             ImGui.SetCursorPosX(spacing);
             notWearingRing = ImGui.Checkbox("Passing bracelet in Backpack?", notWearingRing);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("have passing bracelet in Backpack and select this and have on actionbar");
+                ImGui.SetTooltip("Have passing bracelet in Backpack and select this");
             }
 
             ImGui.SetCursorPosX(spacing);
             WearingRing = ImGui.Checkbox("Passing bracelet is Equipped?", WearingRing);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("if you have equipped passing bracelet, select this");
+                ImGui.SetTooltip("If you have equipped passing bracelet, select this");
             }
 
             ImGui.SetCursorPosX(spacing);
             RingofDueling = ImGui.Checkbox("RoD", RingofDueling);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("if you have Ring of Dueling, select this,doesnt matter where if its in backpack or not");
+                ImGui.SetTooltip("if you have Ring of Dueling, select this,doesnt matter equipped or backpack");
             }
 
             ImGui.SameLine();
