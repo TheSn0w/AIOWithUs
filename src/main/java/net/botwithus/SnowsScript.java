@@ -37,6 +37,8 @@ import static net.botwithus.Combat.Radius.radius;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Misc.Harps.useHarps;
+import static net.botwithus.Runecrafting.Runecrafting.maxHopIntervalMinutes;
+import static net.botwithus.Runecrafting.Runecrafting.minHopIntervalMinutes;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -588,6 +590,9 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("selectedNotepaperNames", serializedItemNamesForNotepaper);
         this.configuration.addProperty("handleOnlyChonicles", String.valueOf(handleOnlyChonicles));
         this.configuration.addProperty("lootNoted", String.valueOf(lootNoted));
+        this.configuration.addProperty("useWorldhop", String.valueOf(useWorldhop));
+        this.configuration.addProperty("minHopIntervalMinutes", String.valueOf(minHopIntervalMinutes));
+        this.configuration.addProperty("maxHopIntervalMinutes", String.valueOf(maxHopIntervalMinutes));
 
 
 
@@ -677,6 +682,9 @@ public class SnowsScript extends LoopingScript {
             chargeThreshold = Integer.parseInt(this.configuration.getProperty("chargeThreshold"));
             equipChargeThreshold = Integer.parseInt(this.configuration.getProperty("equipChargeThreshold"));
             handleMultitarget = Boolean.parseBoolean(this.configuration.getProperty("handleMultitarget"));
+            useWorldhop = Boolean.parseBoolean(this.configuration.getProperty("useWorldhop"));
+            minHopIntervalMinutes = Integer.parseInt(this.configuration.getProperty("minHopIntervalMinutes"));
+            maxHopIntervalMinutes = Integer.parseInt(this.configuration.getProperty("maxHopIntervalMinutes"));
             String prayerPointsThresholdValue = this.configuration.getProperty("PrayerPointsThreshold");
             if (prayerPointsThresholdValue != null && !prayerPointsThresholdValue.isEmpty()) {
                 int prayerPointsThreshold = Integer.parseInt(prayerPointsThresholdValue);

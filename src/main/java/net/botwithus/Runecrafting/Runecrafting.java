@@ -56,6 +56,7 @@ public class Runecrafting {
         TELEPORTING,
         INTERACTINGWITHPORTAL,
         CRAFTING,
+        WORLDHOPPING,
         TELEPORTINGTOBANK, ScriptState,
     }
 
@@ -69,25 +70,25 @@ public class Runecrafting {
             return;
         }
 
-        /*if (useWorldhop) {
+        if (useWorldhop && currentState == BANKING) {
             if (nextWorldHopTime == 0) {
                 int waitTimeInMs = RandomGenerator.nextInt(minHopIntervalMinutes * 60 * 1000, maxHopIntervalMinutes * 60 * 1000);
                 nextWorldHopTime = System.currentTimeMillis() + waitTimeInMs;
-                ScriptConsole.println("Next hop scheduled in " + (waitTimeInMs / 60000) + " minutes.");
-
+                log("Next hop scheduled in " + (waitTimeInMs / 60000) + " minutes.");
+                currentState = WORLDHOPPING;
                 return;
             }
 
             if (System.currentTimeMillis() >= nextWorldHopTime) {
                 int randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
                 HopWorlds(membersWorlds[randomMembersWorldsIndex]);
-                ScriptConsole.println("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
+                log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
 
                 nextWorldHopTime = 0;
-
+                currentState = BANKING;
                 return;
             }
-        }*/
+        }
         switch (currentState) {
             case IDLE -> {
                 if (SceneObjectQuery.newQuery().name("Bank chest").results().nearest() != null || SceneObjectQuery.newQuery().name("Rowboat").results().nearest() != null) {
@@ -136,6 +137,9 @@ public class Runecrafting {
                 }
                 ++loopCounter;
                 currentState = BANKING;
+            }
+            case WORLDHOPPING -> {
+                Execution.delay(random.nextLong(500, 1000));
             }
         }
     }
@@ -336,29 +340,41 @@ public class Runecrafting {
 
 
     private static void interactWithRing() {
-        if (notWearingRing && Backpack.contains("Impure essence")) {
-            ActionBar.useItem("Passing bracelet", "Rub");
+        if (notWearingRing && Backpack.contains("Impure essence") && backpack.contains("Passing bracelet")) {
+            log("[Runecrafting] Not wearing ring, but backpack contains 'Impure essence' and 'Passing bracelet'.");
+            backpack.interact("Passing bracelet", "Rub");
+            log("[Runecrafting] Interacted with 'Passing bracelet'.");
+
             Execution.delay(RandomGenerator.nextInt(600, 800));
             Execution.delayUntil(5000, () -> Interfaces.isOpen(720));
-            log("[Runecrafting] Using Ring of Passing");
+
             if (Interfaces.isOpen(720)) {
+                log("[Runecrafting] Interface 720 is open.");
                 dialog(0, -1, 47185940);
-                log("[Runecrafting] Interacting with Haunt on the Hill");
+                log("[Runecrafting] Interacting with 'Haunt on the Hill'.");
+
                 Execution.delay(RandomGenerator.nextInt(3500, 5000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
+
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
                 currentState = INTERACTINGWITHPORTAL;
             }
-        } else if (WearingRing && Backpack.contains("Impure essence")) {
-            ResultSet<Item> results = InventoryItemQuery.newQuery().ids(56416).option("City of Um: Haunt on the Hill").results();
+        } else if (WearingRing && Backpack.contains("Impure essence") && Equipment.contains("Passing bracelet")) {
+            log("[Runecrafting] Wearing ring and backpack contains 'Impure essence' and 'Passing bracelet'.");
+
+            ResultSet<Item> results = InventoryItemQuery.newQuery().name("Passing bracelet").option("City of Um: Haunt on the Hill").results();
             if (!results.isEmpty()) {
-                component(3, 9, 95944719);
+                log("[Runecrafting] Found 'Passing bracelet' with option 'City of Um: Haunt on the Hill' in inventory.");
+                Equipment.interact(Equipment.Slot.HANDS, "City of Um: Haunt on the Hill");
+                log("[Runecrafting] Interacted with 'City of Um: Haunt on the Hill'.");
+
                 Execution.delay(RandomGenerator.nextInt(3500, 5000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
+
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
                 currentState = INTERACTINGWITHPORTAL;
             } else {
-                log("[Runecrafting] Ring of the City of Um: Haunt on the Hill not found in inventory.");
+                log("[Runecrafting] 'Passing bracelet' with option 'City of Um: Haunt on the Hill' not found in inventory.");
             }
         } else {
             log("[Error] Ring Option not chosen.");
@@ -682,7 +698,7 @@ public class Runecrafting {
         return random.nextLong(1500, 3000);
     }
 
-    /*public static long nextWorldHopTime = 0;
+    public static long nextWorldHopTime = 0;
     public static int minHopIntervalMinutes = 60; // Default minimum wait time in minutes
     public static int maxHopIntervalMinutes = 180; // Default maximum wait time in minutes
 
@@ -708,9 +724,9 @@ public class Runecrafting {
                 log("[Error] Hop Worlds Button not found.");
             }
         }
-    }*/
+    }
 
-    /*static int[] membersWorlds = new int[]{
+    static int[] membersWorlds = new int[]{
            1, 2, 4, 5, 6, 9, 10, 12, 14, 15,
            16, 21, 22, 23, 24, 25, 26, 27, 28, 31,
            32, 35, 36, 37, 39, 40, 42, 44, 45, 46,
@@ -720,6 +736,5 @@ public class Runecrafting {
            85, 87, 88, 89, 91, 92, 97, 98, 99, 100,
            102, 103, 104, 105, 106, 116, 117, 118, 119, 121,
            123, 124, 134, 138, 139, 140, 252, 257, 258};
-   */
 
 }

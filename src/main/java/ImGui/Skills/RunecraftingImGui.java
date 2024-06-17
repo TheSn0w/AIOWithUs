@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
-import static net.botwithus.Runecrafting.Runecrafting.getRuneQuantities;
+import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.RingofDueling;
@@ -87,6 +87,44 @@ public class RunecraftingImGui {
                 ImGui.SetTooltip("Have Grace of the Elves Equipped and `Deep sea fishing hub` Teleport selected");
             }
 
+            ImGui.SeparatorText("World Hopping - Experimental");
+            useWorldhop = ImGui.Checkbox("World Hop", useWorldhop);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will hop worlds randomly between the set interval");
+            }
+            if (useWorldhop) {
+
+                long timeRemaining = nextWorldHopTime - System.currentTimeMillis();
+                if (timeRemaining > 0) {
+                    String remainingTimeFormatted = formatTimeRemaining(timeRemaining);
+                    ImGui.Text("Next hop in: " + remainingTimeFormatted);
+                } else {
+                    ImGui.Text("Ready to hop worlds...");
+                }
+                ImGui.Text("World Hop Settings:");
+                ImGui.SetItemWidth(100.0f);
+                minHopIntervalMinutes = ImGui.InputInt("Min Hop Interval (Minutes)", minHopIntervalMinutes);
+                if (minHopIntervalMinutes < 1) {
+                    minHopIntervalMinutes = 1;
+                } else if (minHopIntervalMinutes > maxHopIntervalMinutes) {
+                    minHopIntervalMinutes = maxHopIntervalMinutes;
+                }
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Set the minimum interval for hopping worlds. The script will select a random time between these two values for each hop.");
+                }
+                ImGui.SetItemWidth(100.0f);
+                maxHopIntervalMinutes = ImGui.InputInt("Max Hop Interval (Minutes)", maxHopIntervalMinutes);
+                if (maxHopIntervalMinutes < minHopIntervalMinutes) {
+                    maxHopIntervalMinutes = minHopIntervalMinutes;
+                } else if (maxHopIntervalMinutes > 300) {
+                    maxHopIntervalMinutes = 300;
+                }
+
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Set the maximum interval for hopping worlds. The script will select a random time between these two values for each hop.");
+                }
+            }
+
             ImGui.SeparatorText("Statistics");
             displayLoopCountAndRunesPerHour(determineSelectedRuneType());
         }
@@ -122,5 +160,10 @@ public class RunecraftingImGui {
         if (HandleMiasmaAltar) return "Miasma Runes";
         if (HandleFleshAltar) return "Flesh Runes";
         return "None";
+    }
+    private static String formatTimeRemaining(long millis) {
+        long minutes = (millis / 1000) / 60;
+        long seconds = (millis / 1000) % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 }
