@@ -13,6 +13,7 @@ import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
+import net.botwithus.rs3.game.queries.builders.characters.PlayerQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -39,6 +40,7 @@ public class Runecrafting {
     private static final Pattern familiarPattern = Pattern.compile("Abyssal parasite|Abyssal lurker|Abyssal titan", Pattern.CASE_INSENSITIVE);
     public static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
     public static Player player = Client.getLocalPlayer();
+    public static boolean hopDuetoPlayers = false;
 
     public static Map<String, Integer> getRuneQuantities() {
         return runeQuantities;
@@ -69,6 +71,8 @@ public class Runecrafting {
             lastMovedOrAnimatedTime = System.currentTimeMillis();
             return;
         }
+
+        checkForOtherPlayersAndHopWorld();
 
         if (useWorldhop && currentState == BANKING) {
             if (nextWorldHopTime == 0) {
@@ -145,6 +149,42 @@ public class Runecrafting {
             }
         }
     }
+    public static void checkForOtherPlayersAndHopWorld() {
+        if (hopDuetoPlayers) {
+            if (currentState == INTERACTINGWITHPORTAL || currentState == CRAFTING) {
+                // Get the local player
+                Player localPlayer = Client.getLocalPlayer();
+
+                // Create a new PlayerQuery
+                PlayerQuery query = PlayerQuery.newQuery();
+
+                // Execute the query and get the results
+                EntityResultSet<Player> players = query.results();
+
+                // Check if there are other players
+                boolean otherPlayersPresent = players.stream()
+                        .anyMatch(player -> !player.equals(localPlayer)); // Exclude the local player
+
+                // If other players are present, initiate world hop and set currentState to TELEPORTINGTOBANK
+                if (otherPlayersPresent) {
+                    log("Other players found. Initiating world hop.");
+                    int randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                    HopWorlds(membersWorlds[randomMembersWorldsIndex]);
+                    log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
+                    currentState = TELEPORTINGTOBANK;
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
     private static void useGote() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
 

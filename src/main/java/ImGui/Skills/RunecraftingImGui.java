@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
+import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
@@ -88,9 +89,16 @@ public class RunecraftingImGui {
             }
 
             ImGui.SeparatorText("World Hopping - Experimental");
+            ImGui.SetCursorPosX(spacing);
             useWorldhop = ImGui.Checkbox("World Hop", useWorldhop);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Will hop worlds randomly between the set interval");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            hopDuetoPlayers = ImGui.Checkbox("Hop due to players", hopDuetoPlayers);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will hop worlds if there are any players in the current world");
             }
             if (useWorldhop) {
 
@@ -127,6 +135,29 @@ public class RunecraftingImGui {
 
             ImGui.SeparatorText("Statistics");
             displayLoopCountAndRunesPerHour(determineSelectedRuneType());
+
+            ImGui.SeparatorText("Warnings");
+
+            String[] texts = {
+                    "WARNING",
+                    "RUNECRAFTING IS VERY RISKY",
+                    "USE AT YOUR OWN RISK",
+                    "DO NOT BOT LONG PERIODS OF TIME",
+                    "PEOPLE WILL REPORT YOU",
+            };
+
+            setStyleColor(ImGuiCol.Text, 255, 0, 0, 255);
+
+            for (String text : texts) {
+                float windowWidth = 400;
+                float textWidth = ImGui.CalcTextSize(text).getX();
+                float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                ImGui.SetCursorPosX(centeredStartPos);
+                ImGui.Text(text);
+            }
+
+            ImGui.PopStyleColor(1);
         }
     }
     private static void displayLoopCountAndRunesPerHour(String selectedRuneType) {
