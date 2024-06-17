@@ -10,6 +10,8 @@ import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.login.LoginManager;
+import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -48,11 +50,12 @@ public class Runecrafting {
     public static Map<String, Integer> getRuneQuantities() {
         return runeQuantities;
     }
+
     public static ScriptState getCurrentState() {
         return currentState;
     }
-    public static ScriptState currentState = IDLE;
 
+    public static ScriptState currentState = IDLE;
 
 
     public enum ScriptState {
@@ -189,6 +192,7 @@ public class Runecrafting {
     }*/
 
     public static List<String> playerNames = new ArrayList<>();
+    public static List<PlayerInfo> playerInfo = new ArrayList<>();
 
 
     public static void checkForOtherPlayersAndHopWorld() {
@@ -214,14 +218,13 @@ public class Runecrafting {
                         })
                         .peek(player -> {
                             log("Found player within distance: " + player.getName());
-                            playerNames.add(player.getName());
+                            playerInfo.add(new PlayerInfo(player.getName(), System.currentTimeMillis(), currentWorld));
                         })
                         .findAny()
                         .isPresent();
 
                 if (otherPlayersPresent) {
                     log("Other players found within distance. Initiating world hop.");
-                    Execution.delay(random.nextLong(1005, 1640));
                     int randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
                     ScriptState previousState = currentState;
                     HopWorlds(membersWorlds[randomMembersWorldsIndex]);
@@ -231,13 +234,6 @@ public class Runecrafting {
             }
         }
     }
-
-
-
-
-
-
-
 
 
     private static void useGote() {
@@ -273,6 +269,7 @@ public class Runecrafting {
                     if (ManageFamiliar) {
                         checkFamiliar();
                     } else {
+                        Execution.delay(random.nextLong(300, 500));
                         currentState = TELEPORTING;
                         log("[Runecrafting] Changed bot state to TELEPORTING.");
                     }
@@ -319,6 +316,7 @@ public class Runecrafting {
             }
         }
     }
+
     public static void checkFamiliar() {
         if (VarManager.getVarbitValue(6055) <= 1) {
             summonFamiliar();
@@ -555,6 +553,7 @@ public class Runecrafting {
             checkForRuneAndAnimationMiasma(System.currentTimeMillis());
         }
     }
+
     private static void checkForRuneAndAnimationMiasma(long startTime) {
         while (System.currentTimeMillis() - startTime < (long) 10000) {
             if (Backpack.contains("Miasma rune")) {
@@ -607,6 +606,7 @@ public class Runecrafting {
             checkForRuneAndAnimationBone(System.currentTimeMillis());
         }
     }
+
     private static void checkForRuneAndAnimationBone(long startTime) {
         while (System.currentTimeMillis() - startTime < (long) 10000) {
             if (Backpack.contains("Bone rune") && player.getAnimationId() == -1) {
@@ -658,6 +658,7 @@ public class Runecrafting {
             checkForRuneAndAnimationSpirit(System.currentTimeMillis());
         }
     }
+
     private static void checkForRuneAndAnimationSpirit(long startTime) {
         while (System.currentTimeMillis() - startTime < (long) 10000) {
             if (Backpack.contains("Spirit rune") && player.getAnimationId() == -1) {
@@ -710,6 +711,7 @@ public class Runecrafting {
             checkForRuneAndAnimationFlesh(System.currentTimeMillis());
         }
     }
+
     private static void checkForRuneAndAnimationFlesh(long startTime) {
         while (System.currentTimeMillis() - startTime < (long) 10000) {
             if (Backpack.contains("Flesh rune") && player.getAnimationId() == -1 && !player.isMoving()) {
@@ -781,7 +783,7 @@ public class Runecrafting {
             return random.nextLong(1500, 3000);
         }
         if (Interfaces.isOpen(1370)) {
-            dialog( 0, -1, 89784350);
+            dialog(0, -1, 89784350);
             log("[Runecrafting] Selecting 'Weave'");
             return random.nextLong(1500, 3000);
         }
@@ -798,33 +800,52 @@ public class Runecrafting {
     public static long nextWorldHopTime = 0;
     public static int minHopIntervalMinutes = 60; // Default minimum wait time in minutes
     public static int maxHopIntervalMinutes = 180; // Default maximum wait time in minutes
+    public static int currentWorld = -1; // Initialize to an invalid world number
 
 
     public static void HopWorlds(int world) {
-        component(1, 7, 93782016);
-        boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
-        Execution.delay(RandomGenerator.nextInt(1000, 2000));
+        LoginManager.hopWorld(world);
+        if (Interfaces.isOpen(1431)) {
+            component(1, 7, 93782016);
+            boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
+            Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
-        if (hopperOpen) {
-            Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
-            if (HopWorldsMenu != null) {
-                component(1, -1, 93913153);
-                log("[Runecrafting] Hop Worlds Button Clicked.");
-                boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
-                Execution.delay(RandomGenerator.nextInt(1000, 2000));
+            if (hopperOpen) {
+                Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
+                if (HopWorldsMenu != null) {
+                    Execution.delay(random.nextLong(750, 1250));
+                    component(1, -1, 93913153);
+                    log("[Runecrafting] Hop Worlds Button Clicked.");
+                    boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
+                    Execution.delay(random.nextLong(750, 1250));
 
-                if (worldSelectOpen) {
-                    log("[Runecrafting] World Select Interface Open.");
-                    component(2, world, 104005640);
-                    log("[Runecrafting] Selected World: " + world);
-                    if (Client.getGameState() == Client.GameState.LOGGED_IN && player != null) {
-                        Execution.delay(random.nextLong(7548, 9879));
-                        log("[Runecrafting] Resuming script.");
+                    if (worldSelectOpen) {
+                        log("[Runecrafting] World Select Interface Open.");
+                        Execution.delay(random.nextLong(750, 1250));
+                        component(2, world, 104005640);
+                        log("[Runecrafting] Selected World: " + world);
+                        if (Client.getGameState() == Client.GameState.LOGGED_IN && player != null) {
+                            Execution.delay(random.nextLong(7548, 9879));
+                            currentWorld = world;
+                            log("[Runecrafting] Resuming script.");
+                        } else {
+                            log("[Runecrafting] Failed to resume script. GameState is not LOGGED_IN or player is null.");
+                        }
+                    } else {
+                        log("[Runecrafting] Failed to open World Select Interface.");
                     }
+                } else {
+                    log("[Runecrafting] Failed to find Hop Worlds Menu.");
                 }
+            } else {
+                log("[Runecrafting] Failed to open hopper. Retrying...");
+                HopWorlds(world);
             }
+        } else {
+            log("[Runecrafting] Interface 1431 is not open.");
         }
     }
+
 
     static int[] membersWorlds = new int[]{
            1, 2, 4, 5, 6, 9, 10, 12, 14, 15,

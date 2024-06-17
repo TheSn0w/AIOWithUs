@@ -1,14 +1,18 @@
 package ImGui.Skills;
 
+import net.botwithus.Runecrafting.PlayerInfo;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
+import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 
 import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Runecrafting.Runecrafting.*;
+import static net.botwithus.Runecrafting.Runecrafting.player;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.RingofDueling;
@@ -160,8 +164,28 @@ public class RunecraftingImGui {
             ImGui.PopStyleColor(1);
 
             ImGui.SeparatorText("Players Encountered");
-            for (String playerName : playerNames) {
-                ImGui.Text(playerName);
+
+            // Begin a table with the specified number of columns
+            if (ImGui.BeginTable("Player Info", 3, ImGuiWindowFlag.None.getValue())) {
+                ImGui.TableNextRow();
+                ImGui.TableSetupColumn("Player Name", 0);
+                ImGui.TableSetupColumn("Time", 1);
+                ImGui.TableSetupColumn("World", 2);
+                ImGui.TableHeadersRow();
+
+                for (PlayerInfo info : playerInfo) {
+                    ImGui.TableNextRow();
+                    ImGui.TableNextColumn();
+                    ImGui.Text(info.getName());
+                    ImGui.Separator();
+                    ImGui.TableNextColumn();
+                    ImGui.Text(new Date(info.getTime()).toString());
+                    ImGui.Separator();
+                    ImGui.TableNextColumn();
+                    ImGui.Text(String.valueOf(info.getWorld()));
+                    ImGui.Separator();
+                }
+                ImGui.EndTable();
             }
         }
     }
