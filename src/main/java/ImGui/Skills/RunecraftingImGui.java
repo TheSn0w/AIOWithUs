@@ -87,10 +87,6 @@ public class RunecraftingImGui {
                 ImGui.SetTooltip("Have Grace of the Elves Equipped and `Deep sea fishing hub` Teleport selected");
             }
 
-            ImGui.SeparatorText("Guide");
-
-
-
             ImGui.SeparatorText("Statistics");
             displayLoopCountAndRunesPerHour(determineSelectedRuneType());
         }
