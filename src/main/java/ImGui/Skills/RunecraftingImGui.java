@@ -158,6 +158,11 @@ public class RunecraftingImGui {
             }
 
             ImGui.PopStyleColor(1);
+
+            ImGui.SeparatorText("Players Encountered");
+            for (String playerName : playerNames) {
+                ImGui.Text(playerName);
+            }
         }
     }
     private static void displayLoopCountAndRunesPerHour(String selectedRuneType) {

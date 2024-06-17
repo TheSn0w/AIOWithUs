@@ -25,6 +25,9 @@ import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -149,29 +152,81 @@ public class Runecrafting {
             }
         }
     }
-    public static void checkForOtherPlayersAndHopWorld() {
+    /*public static void checkForOtherPlayersAndHopWorld() {
         if (hopDuetoPlayers) {
-            if (currentState == INTERACTINGWITHPORTAL || currentState == CRAFTING) {
-                // Get the local player
+            if (currentState.equals(INTERACTINGWITHPORTAL) || currentState.equals(CRAFTING)) {
                 Player localPlayer = Client.getLocalPlayer();
+                if (localPlayer == null) {
+                    log("Local player not found.");
+                    return;
+                }
+                String localPlayerName = localPlayer.getName();
+                Coordinate localPlayerLocation = localPlayer.getCoordinate();
 
-                // Create a new PlayerQuery
                 PlayerQuery query = PlayerQuery.newQuery();
 
-                // Execute the query and get the results
                 EntityResultSet<Player> players = query.results();
 
-                // Check if there are other players
                 boolean otherPlayersPresent = players.stream()
-                        .anyMatch(player -> !player.equals(localPlayer)); // Exclude the local player
+                        .filter(player -> !player.getName().equals(localPlayerName))
+                        .filter(player -> {
+                            Coordinate playerLocation = player.getCoordinate();
+                            return playerLocation != null && localPlayerLocation.distanceTo(playerLocation) <= 25.0D;
+                        })
+                        .peek(player -> log("Found player within distance: " + player.getName()))
+                        .findAny()
+                        .isPresent();
 
-                // If other players are present, initiate world hop and set currentState to TELEPORTINGTOBANK
                 if (otherPlayersPresent) {
-                    log("Other players found. Initiating world hop.");
+                    log("Other players found within distance. Initiating world hop.");
                     int randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
                     HopWorlds(membersWorlds[randomMembersWorldsIndex]);
                     log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
                     currentState = TELEPORTINGTOBANK;
+                }
+            }
+        }
+    }*/
+
+    public static List<String> playerNames = new ArrayList<>();
+
+
+    public static void checkForOtherPlayersAndHopWorld() {
+        if (hopDuetoPlayers) {
+            if (currentState.equals(INTERACTINGWITHPORTAL) || currentState.equals(CRAFTING)) {
+                Player localPlayer = Client.getLocalPlayer();
+                if (localPlayer == null) {
+                    log("Local player not found.");
+                    return;
+                }
+                String localPlayerName = localPlayer.getName();
+                Coordinate localPlayerLocation = localPlayer.getCoordinate();
+
+                PlayerQuery query = PlayerQuery.newQuery();
+
+                EntityResultSet<Player> players = query.results();
+
+                boolean otherPlayersPresent = players.stream()
+                        .filter(player -> !player.getName().equals(localPlayerName))
+                        .filter(player -> {
+                            Coordinate playerLocation = player.getCoordinate();
+                            return playerLocation != null && localPlayerLocation.distanceTo(playerLocation) <= 25.0D;
+                        })
+                        .peek(player -> {
+                            log("Found player within distance: " + player.getName());
+                            playerNames.add(player.getName());
+                        })
+                        .findAny()
+                        .isPresent();
+
+                if (otherPlayersPresent) {
+                    log("Other players found within distance. Initiating world hop.");
+                    Execution.delay(random.nextLong(1005, 1640));
+                    int randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                    ScriptState previousState = currentState;
+                    HopWorlds(membersWorlds[randomMembersWorldsIndex]);
+                    log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
+                    currentState = previousState;
                 }
             }
         }
@@ -746,24 +801,27 @@ public class Runecrafting {
 
 
     public static void HopWorlds(int world) {
-        component( 1, 7, 93782016);
+        component(1, 7, 93782016);
         boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
         Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
         if (hopperOpen) {
             Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
             if (HopWorldsMenu != null) {
-                component( 1, -1, 93913153);
+                component(1, -1, 93913153);
                 log("[Runecrafting] Hop Worlds Button Clicked.");
                 boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
                 Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
                 if (worldSelectOpen) {
+                    log("[Runecrafting] World Select Interface Open.");
                     component(2, world, 104005640);
-                    Execution.delay(RandomGenerator.nextInt(10000, 20000));
+                    log("[Runecrafting] Selected World: " + world);
+                    if (Client.getGameState() == Client.GameState.LOGGED_IN && player != null) {
+                        Execution.delay(random.nextLong(7548, 9879));
+                        log("[Runecrafting] Resuming script.");
+                    }
                 }
-            } else {
-                log("[Error] Hop Worlds Button not found.");
             }
         }
     }
