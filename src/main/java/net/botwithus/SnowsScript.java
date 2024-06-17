@@ -1,7 +1,6 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
-import net.botwithus.Combat.ItemRemover;
 import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
@@ -364,17 +363,6 @@ public class SnowsScript extends LoopingScript {
                 itemType = itemType.replace(".", "");
                 int count = portersMade.getOrDefault(itemType, 0);
                 portersMade.put(itemType, count + 1);
-            }
-        }
-        if (isRunecraftingActive) {
-            if (message.contains("The charger cannot hold any more essence.")) {
-                Execution.delay(Runecrafting.handleCharging());
-            }
-            if (message.contains("You do no have any essence to deposit")) {
-                Execution.delay(Runecrafting.handleEdgevillebanking());
-            }
-            if (message.contains("The altar is already charged to its maximum capacity")) {
-                Runecrafting.handleSoulAltar();
             }
         }
         if (isCookingActive) {

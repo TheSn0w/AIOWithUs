@@ -1,6 +1,7 @@
 package net.botwithus.Runecrafting;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Client;
@@ -12,13 +13,11 @@ import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
-import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
-import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
@@ -36,28 +35,13 @@ import static net.botwithus.Variables.Variables.*;
 public class Runecrafting {
 
     public static long lastMovedOrAnimatedTime = System.currentTimeMillis();
+    private static final Pattern superRestorePattern = Pattern.compile("Super restore.*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern familiarPattern = Pattern.compile("Abyssal parasite|Abyssal lurker|Abyssal titan", Pattern.CASE_INSENSITIVE);
     public static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
     public static Player player = Client.getLocalPlayer();
 
     public static Map<String, Integer> getRuneQuantities() {
         return runeQuantities;
-    }
-
-    private static final Pattern PowerburstPattern = Pattern.compile("Powerburst of sorcery \\([1-4]\\)", Pattern.CASE_INSENSITIVE);
-
-    static int[] membersWorlds = new int[]{
-            1, 2, 4, 5, 6, 9, 10, 12, 14, 15,
-            16, 21, 22, 23, 24, 25, 26, 27, 28, 31,
-            32, 35, 36, 37, 39, 40, 42, 44, 45, 46,
-            47, 49, 50, 51, 53, 54, 56, 58, 59, 60,
-            62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
-            72, 73, 74, 75, 76, 77, 78, 79, 82, 83,
-            85, 87, 88, 89, 91, 92, 97, 98, 99, 100,
-            102, 103, 104, 105, 106, 116, 117, 118, 119, 121,
-            123, 124, 134, 138, 139, 140, 252, 257, 258};
-
-    public static void setCurrentState(ScriptState newState) {
-        currentState = newState;
     }
     public static ScriptState getCurrentState() {
         return currentState;
@@ -120,11 +104,8 @@ public class Runecrafting {
                 if (useGraceoftheElves) {
                     useGote();
                 }
-                if (!RingofDueling && !useGraceoftheElves) {
-                    checkAndPerformActions();
-                }
                 if (RingofDueling) {
-                    castleWars();
+                    useRoD();
                 }
             }
             case TELEPORTING -> {
@@ -148,7 +129,7 @@ public class Runecrafting {
             }
             case TELEPORTINGTOBANK -> {
                 if (RingofDueling) {
-                    castleWars();
+                    useRoD();
                 }
                 if (useGraceoftheElves) {
                     useGote();
@@ -158,41 +139,13 @@ public class Runecrafting {
             }
         }
     }
-
-    public static long nextWorldHopTime = 0;
-    public static int minHopIntervalMinutes = 60; // Default minimum wait time in minutes
-    public static int maxHopIntervalMinutes = 180; // Default maximum wait time in minutes
-
-
-    public static void HopWorlds(int world) {
-        component( 1, 7, 93782016);
-        boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
-        Execution.delay(RandomGenerator.nextInt(1000, 2000));
-
-        if (hopperOpen) {
-            Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
-            if (HopWorldsMenu != null) {
-                component( 1, -1, 93913153);
-                log("[Runecrafting] Hop Worlds Button Clicked.");
-                boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
-                Execution.delay(RandomGenerator.nextInt(1000, 2000));
-
-                if (worldSelectOpen) {
-                    component(2, world, 104005640);
-                    Execution.delay(RandomGenerator.nextInt(10000, 20000));
-                }
-            } else {
-                log("[Error] Hop Worlds Button not found.");
-            }
-        }
-    }
     private static void useGote() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
 
         Coordinate fishingHub = new Coordinate(2135, 7107, 0);
 
         if (bankChests.isEmpty()) {
-            while (player.getAnimationId() == -1 && !player.getCoordinate().equals(fishingHub)) {
+            while (player.getAnimationId() == -1 && (player.getCoordinate() != null && !player.getCoordinate().equals(fishingHub))) {
                 if (Equipment.interact(Equipment.Slot.NECK, "Deep sea fishing hub")) {
                     log("[Runecrafting] Attempting to traverse to Fishing hub.");
                     Execution.delay(random.nextLong(750, 999));
@@ -217,7 +170,7 @@ public class Runecrafting {
 
                 if (Backpack.contains("Impure essence")) {
                     if (ManageFamiliar) {
-                        checkAndPerformActions();
+                        checkFamiliar();
                     } else {
                         currentState = TELEPORTING;
                         log("[Runecrafting] Changed bot state to TELEPORTING.");
@@ -230,7 +183,7 @@ public class Runecrafting {
         }
     }
 
-    private static void castleWars() {
+    private static void useRoD() {
         EntityResultSet<SceneObject> bankChests = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
         Coordinate WarsBank = new Coordinate(2446, 3085, 0);
 
@@ -253,7 +206,7 @@ public class Runecrafting {
 
                 if (Backpack.contains("Impure essence")) {
                     if (ManageFamiliar) {
-                        checkAndPerformActions();
+                        checkFamiliar();
                     } else {
                         currentState = TELEPORTING;
                         log("[Runecrafting] Changed bot state to TELEPORTING.");
@@ -265,102 +218,122 @@ public class Runecrafting {
             }
         }
     }
-
-    public static void checkAndPerformActions() {
-        if (shouldInteractWithAltar()) {
-            performAltarInteractions();
+    public static void checkFamiliar() {
+        if (VarManager.getVarbitValue(6055) <= 1) {
+            summonFamiliar();
         } else {
             currentState = TELEPORTING;
         }
     }
 
-    private static boolean shouldInteractWithAltar() {
-        return !isFamiliarSummoned() || VarManager.getVarbitValue(6055) <= 5;
-    }
-
-    private static void performAltarInteractions() {
-        log("[Runecrafting] Conditions met for interacting with Restore potion.");
-        Execution.delay(drinkRestorePotion((LocalPlayer) player));
-        summonFamiliar();
-    }
-
-    private void changeBotStateToTeleporting() {
-        currentState = TELEPORTING;
-        log("[Runecrafting] Proceeding to botState TELEPORTING.");
-    }
-
-
-    private void interactWithBankChest() {
-        if (canInteractWithBank()) {
-            interactAndCheckBackpack();
+    private static void summonFamiliar() {
+        SceneObject bank = findBank();
+        if (bank != null) {
+            interactWithBank(bank);
         }
     }
 
-    private boolean canInteractWithBank() {
-        return player.getAnimationId() == -1 && !player.isMoving();
+    private static SceneObject findBank() {
+        EntityResultSet<SceneObject> bankResults;
+        if (useGraceoftheElves) {
+            bankResults = SceneObjectQuery.newQuery().name("Rowboat").option("Bank").results();
+        } else if (RingofDueling) {
+            bankResults = SceneObjectQuery.newQuery().name("Bank chest").results();
+        } else {
+            return null;
+        }
+        SceneObject bank = bankResults.nearest();
+        if (bank != null) {
+            log("[Runecrafting] Found " + bank.getName());
+        }
+        return bank;
     }
 
-
-    private void interactAndCheckBackpack() {
-        EntityResultSet<SceneObject> bankChestsResults = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
-        SceneObject bankChest = bankChestsResults.nearest();
-
-        if (bankChest != null) {
-            if (bankChest.interact("Load Last Preset from")) {
-                Execution.delay(random.nextLong(750, 1500));
-
-                if (Backpack.isFull()) {
-                    currentState = TELEPORTING;
-                    log("[Runecrafting] Changed bot state to TELEPORTING.");
-                } else {
-                    if (!Backpack.isFull()) {
-                        log("[Error] Essence not found in backpack after loading preset.");
-                        shutdown();
-                    }
-                }
+    private static void interactWithBank(SceneObject bank) {
+        String interaction = useGraceoftheElves ? "Bank" : "Use";
+        if (bank.interact(interaction)) {
+            log("[Runecrafting] Interacting with " + bank.getName());
+            if (waitForBankInterface()) {
+                performBankingActions();
             }
         }
     }
 
-
-    /*private void checkBackpackAndLogoutIfNeeded() {
-        if (!Backpack.isFull()) {
-            performLogout();
-            log("[Error] Backpack is not full, logging out.");
+    private static boolean waitForBankInterface() {
+        Execution.delayUntil(5000, () -> Interfaces.isOpen(517));
+        if (Interfaces.isOpen(517)) {
+            log("[Runecrafting] Bank interface is open.");
+            Execution.delay(random.nextLong(600, 800));
+            return true;
         }
-    }*/
-
-    /*public static void performLogout() {
-        if (initiateLogoutSequence()) {
-            waitForLogout();
-        }
-    }*/
-
-    /*private static boolean initiateLogoutSequence() {
-        component(1, 7, 93782016);
-        return Interfaces.isOpen(1433);
+        return false;
     }
 
-    private static void waitForLogout() {
-        Component logoutButton = findLogoutButton();
-        if (logoutButton != null && logoutButton.interact(1)) {
-            log("[Error] Logout initiated.");
-        } else {
-            logLogoutFailure();
+    private static void performBankingActions() {
+        Bank.depositAll();
+        log("[Runecrafting] Deposited all items.");
+        Execution.delay(random.nextLong(600, 800));
+        interactWithComponents();
+        withdrawItems();
+        closeBank();
+    }
+
+    private static void interactWithComponents() {
+        if (VarManager.getVarbitValue(45141) != 1) {
+            component(1, -1, 33882270);
+            log("[Runecrafting] Interacting with component: " + VarManager.getVarbitValue(45141));
+            Execution.delay(random.nextLong(600, 800));
+        }
+        if (VarManager.getVarbitValue(45189) != 2) {
+            component(1, -1, 33882205);
+            log("[Runecrafting] Interacting with component: " + VarManager.getVarbitValue(45189));
+            Execution.delay(random.nextLong(600, 800));
         }
     }
 
-    private static Component findLogoutButton() {
-        return ComponentQuery.newQuery(1433).componentIndex(71).results().first();
+    private static void withdrawItems() {
+        boolean restoreWithdrawn = Bank.withdraw(superRestorePattern, 2);
+        Execution.delay(random.nextLong(600, 800));
+        log("[Runecrafting] Attempted to withdraw Super Restore.");
+
+        boolean familiarWithdrawn = Bank.withdraw(familiarPattern, 2);
+        Execution.delay(random.nextLong(600, 800));
+        log("[Runecrafting] Attempted to withdraw Familiar.");
+
+        if (!familiarWithdrawn || !restoreWithdrawn) {
+            ManageFamiliar = false;
+            log("[Runecrafting] Familiar or Super Restore not found in bank. Disabling familiar usage.");
+        }
     }
 
-    private static void logLogoutFailure() {
-        if (Interfaces.isOpen(1433)) {
-            log("[Error] Could not find or interact with the logout button.");
-        } else {
-            log("[Error] Failed to open logout menu.");
+    private static void closeBank() {
+        Bank.close();
+        Execution.delayUntil(5000, () -> !Interfaces.isOpen(517));
+        log("[Runecrafting] Closed bank.");
+        if (!Interfaces.isOpen(517)) {
+            if (!ManageFamiliar) {
+                currentState = BANKING;
+                return;
+            }
+            performPostBankingActions();
         }
-    }*/
+    }
+
+    private static void performPostBankingActions() {
+        Item superRestoreItem = backpack.getItem(superRestorePattern);
+        if (superRestoreItem != null && backpack.interact(superRestoreItem.getName(), "Drink")) {
+            log("[Runecrafting] Drinking: " + superRestoreItem.getName());
+            Execution.delay(random.nextLong(600, 800));
+        }
+
+        Item familiarItem = backpack.getItem(familiarPattern);
+        if (familiarItem != null && backpack.interact(familiarItem.getName(), "Summon")) {
+            log("[Runecrafting] Summoning: " + familiarItem.getName());
+            Execution.delay(random.nextLong(600, 800));
+        }
+        currentState = BANKING;
+    }
+
 
     private static void interactWithRing() {
         if (notWearingRing && Backpack.contains("Impure essence")) {
@@ -395,7 +368,6 @@ public class Runecrafting {
     private static void interactWithDarkPortal() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            Execution.delay(RandomGenerator.nextInt(600, 800));
             SceneObject Portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
 
             if (Portal != null) {
@@ -648,75 +620,26 @@ public class Runecrafting {
     }
 
 
-    private void useWarsRetreat() {
-        log("[Runecrafting] Using Wars Retreat: " + ActionBar.useAbility("War's Retreat Teleport"));
-        Execution.delay(RandomGenerator.nextInt(6000, 6500));
-        currentState = BANKING;
-    }
-
-
-    private static boolean isFamiliarSummoned() {
-        Component familiarComponent = ComponentQuery.newQuery(284).spriteId(26095).results().first();
-        return familiarComponent != null;
-    }
-
-    private static void summonFamiliar() {
-        if (VarManager.getVarbitValue(6055) > 5) {
-            log("[Runecrafting] Familiar is already summoned.");
-        } else {
-            ActionBar.useItem("Abyssal titan pouch", "Summon");
-            log("[Runecrafting] Summoned Abyssal Titan.");
-            Execution.delayUntil(10000, Runecrafting::isFamiliarSummoned);
-        }
-
-        lastMovedOrAnimatedTime = System.currentTimeMillis();
-    }
-
-    static long drinkRestorePotion(LocalPlayer player) {
-        ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();
-
-        Item RestorePot = items.stream()
-                .filter(item -> item.getName() != null &&
-                        (item.getName().toLowerCase().contains("restore")))
-                .findFirst()
-                .orElse(null);
-
-        if (RestorePot == null) {
-            log("[Error] No Restore potions found in the backpack.");
-            return 1L;
-        }
-
-        log("[Runecrafting] Drinking " + RestorePot.getName());
-        boolean success = backpack.interact(RestorePot.getName(), "Drink");
-        if (success) {
-            log("[Runecrafting]  Successfully drank " + RestorePot.getName());
-            long delay = random.nextLong(1500, 3000);
-            Execution.delay(delay);
-            return delay;
-        } else {
-            log("[Error] Failed to interact with " + RestorePot.getName());
-            return 0;
-        }
-    }
-
     private static void Powerburst() {
         if (!canUsePotion()) {
             log("[Runecrafting] Powerburst of sorcery is on cooldown.");
             return;
         }
 
-        String[] potionVariants = new String[]{"Powerburst of sorcery (4)", "Powerburst of sorcery (3)",
-                "Powerburst of sorcery (2)", "Powerburst of sorcery (1)"};
+        ResultSet<Item> potionItems = InventoryItemQuery.newQuery(93).option("Drink").results();
+        Item potion = potionItems.isEmpty() ? null : potionItems.first();
 
-        for (String potionName : potionVariants) {
-            if (ActionBar.containsItem(potionName)) {
-                boolean successfulDrink = ActionBar.useItem(potionName, "Drink");
-                if (successfulDrink) {
-                    log("[Runecrafting] Drank " + potionName + "!");
-                    return;
-                }
-                break;
+        if (potion != null) {
+            boolean drinkSuccess = backpack.interact(potion.getName(), "Drink");
+
+            if (drinkSuccess) {
+                log("[Combat] Successfully drank " + potion.getName());
+            } else {
+                log("[Error] Failed to drink.");
             }
+        } else {
+            log("[Error] No potion found");
+            Powerburst = false;
         }
     }
 
@@ -739,46 +662,8 @@ public class Runecrafting {
         return false;
     }
 
-    public long handleDepositing() {
-        EntityResultSet<SceneObject> Charger = SceneObjectQuery.newQuery().name("Charger").results();
-        if (Interfaces.isOpen(1251)) {
-            return random.nextLong(1500, 3000);
-        }
-        if  (!Charger.isEmpty()) {
-            if (Charger.nearest().interact("Deposit")) {
-                log("[Runecrafting] Interacted with Charger to deposit.");
-                return random.nextLong(1500, 3000);
-            }
-        }
-        return 0;
-    }
 
-    public static void handleSoulAltar() {
-        EntityResultSet<SceneObject> Soulaltar = SceneObjectQuery.newQuery().name("Soul altar").option("Craft-rune").results();
-        if (Soulaltar.isEmpty()) {
-            Soulaltar.nearest().interact("Craft-rune");
-            Execution.delayUntil(5000, () -> Backpack.contains("Soul rune"));
-            if (Backpack.contains("Soul rune")) {
-                handleEdgevillebanking();
-            }
-        }
-    }
-
-    public static long handleCharging() {
-        EntityResultSet<SceneObject> Charger = SceneObjectQuery.newQuery().name("Charger").results();
-        if (Interfaces.isOpen(1251)) {
-            return random.nextLong(1500, 3000);
-        }
-        if (!Charger.isEmpty()) {
-            if (Charger.nearest().interact("Charge altar")) {
-                log("[Runecrafting] Interacted with Charger to charge.");
-                return random.nextLong(1500, 3000);
-            }
-        }
-        return 0;
-    }
-
-    public static long handleEdgevillebanking() {
+    public static long handleSoulAltar() {
         if (Interfaces.isOpen(1251)) {
             return random.nextLong(1500, 3000);
         }
@@ -788,44 +673,53 @@ public class Runecrafting {
             return random.nextLong(1500, 3000);
         }
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Soul altar").option("Craft-rune").results();
-        if (!results.isEmpty()) {
-            results.nearest().interact("Craft-rune");
-            return random.nextLong(1500, 3000);
+        SceneObject soulAltar = results.nearest();
+        if (soulAltar != null) {
+            soulAltar.interact("Craft-rune");
+        } else {
+            log("[Runecrafting] Soul altar not found.");
         }
         return random.nextLong(1500, 3000);
     }
 
-
-    private void interactwithBanker() {
-        EntityResultSet<SceneObject> Bank = SceneObjectQuery.newQuery().id(42377).option("Bank").results();
-        if (!Bank.isEmpty()) {
-            Bank.nearest().interact("Load Last Preset from");
-            if (Backpack.isFull()) {
-                Execution.delay(Traversing());
-            }
-        }
-    }
+    /*public static long nextWorldHopTime = 0;
+    public static int minHopIntervalMinutes = 60; // Default minimum wait time in minutes
+    public static int maxHopIntervalMinutes = 180; // Default maximum wait time in minutes
 
 
-    private long Traversing() {
-        if (player.isMoving()) {
-            return random.nextLong(1500, 7000);
-        }
-        EntityResultSet<Npc> Mage = NpcQuery.newQuery().name("Mage of Zamorak").option("Teleport").results();
-        EntityResultSet<SceneObject> Soulrift = SceneObjectQuery.newQuery().name("Soul rift").option("Exit-through").results();
-        EntityResultSet<SceneObject> Charger = SceneObjectQuery.newQuery().id(109428).option("Deposit").results();
-        if (Backpack.isFull()) {
-            if (Movement.traverse(NavPath.resolve(new Coordinate(3102, 3556, 0))) == TraverseEvent.State.FINISHED) {
-                if (!Mage.isEmpty()) {
-                    Mage.nearest().interact("Teleport");
-                    Execution.delayUntil(10000, () -> Soulrift.nearest() != null);
-                    if (player.getAnimationId() == -1 && !player.isMoving() && Soulrift.nearest().interact("Exit-through")) {
-                        Execution.delayUntil(10000, () -> Charger.nearest() != null);
-                        Execution.delay(handleDepositing());
-                    }
+    public static void HopWorlds(int world) {
+        component( 1, 7, 93782016);
+        boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
+        Execution.delay(RandomGenerator.nextInt(1000, 2000));
+
+        if (hopperOpen) {
+            Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
+            if (HopWorldsMenu != null) {
+                component( 1, -1, 93913153);
+                log("[Runecrafting] Hop Worlds Button Clicked.");
+                boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
+                Execution.delay(RandomGenerator.nextInt(1000, 2000));
+
+                if (worldSelectOpen) {
+                    component(2, world, 104005640);
+                    Execution.delay(RandomGenerator.nextInt(10000, 20000));
                 }
+            } else {
+                log("[Error] Hop Worlds Button not found.");
             }
         }
-        return random.nextLong(1500, 7000);
-    }
+    }*/
+
+    /*static int[] membersWorlds = new int[]{
+           1, 2, 4, 5, 6, 9, 10, 12, 14, 15,
+           16, 21, 22, 23, 24, 25, 26, 27, 28, 31,
+           32, 35, 36, 37, 39, 40, 42, 44, 45, 46,
+           47, 49, 50, 51, 53, 54, 56, 58, 59, 60,
+           62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
+           72, 73, 74, 75, 76, 77, 78, 79, 82, 83,
+           85, 87, 88, 89, 91, 92, 97, 98, 99, 100,
+           102, 103, 104, 105, 106, 116, 117, 118, 119, 121,
+           123, 124, 134, 138, 139, 140, 252, 257, 258};
+   */
+
 }

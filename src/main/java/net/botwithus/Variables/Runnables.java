@@ -8,12 +8,9 @@ import net.botwithus.Fishing.Fishing;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Misc.*;
 import net.botwithus.Runecrafting.Runecrafting;
-import net.botwithus.SnowsScript;
 import net.botwithus.Thieving.Thieving;
 import net.botwithus.Woodcutting.Woodcutting;
-import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Client;
-import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
@@ -29,7 +26,6 @@ import static net.botwithus.Combat.Loot.LootEverything;
 import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
-import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
@@ -38,10 +34,6 @@ import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.Necro.interactWithEntities;
 import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
-import static net.botwithus.SnowsScript.BotState.BANKING;
-import static net.botwithus.SnowsScript.setBotState;
-import static net.botwithus.SnowsScript.setLastSkillingLocation;
-import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.isMakeUrnsActive;
 
@@ -60,7 +52,7 @@ public class Runnables {
                 Runecrafting.handleRunecrafting(player);
             }
             if (isRunecraftingActive && soulAltar) {
-                Execution.delay(Runecrafting.handleEdgevillebanking());
+                Execution.delay(Runecrafting.handleSoulAltar());
             }
         }
     }

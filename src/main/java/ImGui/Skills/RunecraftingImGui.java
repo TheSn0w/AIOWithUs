@@ -18,17 +18,14 @@ public class RunecraftingImGui {
         if (isRunecraftingActive && !showLogs) {
             if (tooltipsEnabled) {
                 String[] texts = {
-                        "Select your option and it will run",
-                        "Will log out if Backpack is not full after Banking",
-                        "have all stuff on action bar",
-                        "Have restore potions in preset if using familiar",
+                        "Will log out if Backpack does not contain Impure Essence",
+                        "YOU MUST HAVE PASSING BRACELET",
+                        "Must choose GOTE or Castle Wars",
+                        "If you are using familiar option",
+                        "You do not need familiar and Super restore in preset",
+                        "but you do need them in bank",
                         "Soul altar will only work with protean essence",
                         "if soul altar, start next to it",
-                        "YOU MUST HAVE PASSING BRACELET",
-                        "you have to choose a ring choice",
-                        "either keep passing bracelet in backpack or wear it",
-                        "unless your doing soul altar",
-                        "if you like this script, consider looking at RCWithUs",
                 };
 
                 ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -51,42 +48,47 @@ public class RunecraftingImGui {
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
 
             ImGui.SetCursorPosX(spacing);
-            ManageFamiliar = ImGui.Checkbox("Familiar", ManageFamiliar);
+            ManageFamiliar = ImGui.Checkbox("Use Familiar?", ManageFamiliar);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Will use level 93 Beast of Burden");
+                ImGui.SetTooltip("Will use Abyssal Titan or Abyssal lurker or Abyssal parasite");
             }
             ImGui.SameLine();
 
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-            Powerburst = ImGui.Checkbox("Powerburst", Powerburst);
+            Powerburst = ImGui.Checkbox("Use Powerburst", Powerburst);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Will use Powerburst of Sorcery, have on action bar");
+                ImGui.SetTooltip("Will use Powerburst of Sorcery, must have on action bar");
             }
-            ImGui.SameLine();
 
-            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-            notWearingRing = ImGui.Checkbox("Backpack Bracelet", notWearingRing);
+
+            ImGui.SetCursorPosX(spacing);
+            notWearingRing = ImGui.Checkbox("Passing bracelet in Backpack?", notWearingRing);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("have passing bracelet in Backpack and select this and have on actionbar");
             }
 
             ImGui.SetCursorPosX(spacing);
-            WearingRing = ImGui.Checkbox("Wearing Bracelet", WearingRing);
+            WearingRing = ImGui.Checkbox("Passing bracelet is Equipped?", WearingRing);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("if you have equipped passing bracelet, select this");
             }
-            ImGui.SameLine();
 
-            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-            RingofDueling = ImGui.Checkbox("Ring of Dueling", RingofDueling);
+            ImGui.SetCursorPosX(spacing);
+            RingofDueling = ImGui.Checkbox("RoD", RingofDueling);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("if you have Ring of Dueling, select this,doesnt matter where if its in backpack or not");
             }
 
-                        ImGui.SameLine();
+            ImGui.SameLine();
 
-                        ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                        useGraceoftheElves = ImGui.Checkbox("Grace of the Elves", useGraceoftheElves);
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useGraceoftheElves = ImGui.Checkbox("Gote", useGraceoftheElves);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Grace of the Elves Equipped and `Deep sea fishing hub` Teleport selected");
+            }
+
+            ImGui.SeparatorText("Guide");
+
 
 
             ImGui.SeparatorText("Statistics");
