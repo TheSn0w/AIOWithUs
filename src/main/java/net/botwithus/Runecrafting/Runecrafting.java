@@ -379,7 +379,7 @@ public class Runecrafting {
                 log("[Runecrafting] 'Passing bracelet' with option 'City of Um: Haunt on the Hill' not found in inventory.");
             }
         } else {
-            log("[Error] Ring Option not chosen.");
+            log("[Error] Ring Option not chosen, or wrong option chosen.");
         }
     }
 
