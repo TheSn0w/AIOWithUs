@@ -771,7 +771,7 @@ public class Runecrafting {
             log("[Runecrafting] Surge is not on cooldown. Casting Surge: " + ActionBar.useAbility("Surge"));
             return true;
         } else {
-            log("[Error] Surge is on cooldown, cannot cast.");
+            log("[Caution] Surge is on cooldown, cannot cast.");
         }
         return false;
     }
@@ -804,8 +804,10 @@ public class Runecrafting {
 
     public static void HopWorlds(int world) {
         if (Interfaces.isOpen(1431)) {
+            log("[Runecrafting] Interacting with Settings Icon.");
             component(1, 7, 93782016);
             boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
+            log("Settings Menu Open: " + hopperOpen);
             Execution.delay(RandomGenerator.nextInt(1000, 2000));
 
             if (hopperOpen) {
