@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.text.SimpleDateFormat;
 
 import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Runecrafting.Runecrafting.*;
@@ -174,13 +175,15 @@ public class RunecraftingImGui {
                 ImGui.TableSetupColumn("World", 2);
                 ImGui.TableHeadersRow();
 
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss"); // Use this to format the time
+
                 for (PlayerInfo info : playerInfo) {
                     ImGui.TableNextRow();
                     ImGui.TableNextColumn();
                     ImGui.Text(info.getName());
                     ImGui.Separator();
                     ImGui.TableNextColumn();
-                    ImGui.Text(new Date(info.getTime()).toString());
+                    ImGui.Text(timeFormat.format(new Date(info.getTime()))); // Use the formatter here
                     ImGui.Separator();
                     ImGui.TableNextColumn();
                     ImGui.Text(String.valueOf(info.getWorld()));
