@@ -24,7 +24,7 @@ public class ItemRemover {
         return droppednames;
     }
 
-    public static List<String> getSelectedItems() {
+    public static List<String> getSelectedDroppedItems() {
         return selectedDroppedItems;
     }
 

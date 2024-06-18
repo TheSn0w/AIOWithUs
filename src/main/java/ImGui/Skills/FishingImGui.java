@@ -197,14 +197,14 @@ public class FishingImGui {
             ImGui.SetItemWidth(273.0F);
             ItemRemover.setDroppednames(ImGui.InputText("##Itemname", ItemRemover.getDroppeditems()));
 
-            if (!ItemRemover.getSelectedItems().isEmpty()) {
+            if (!ItemRemover.getSelectedDroppedItems().isEmpty()) {
                 if (ImGui.BeginTable("Items List", 2, ImGuiWindowFlag.None.getValue())) {
                     ImGui.TableNextRow();
                     ImGui.TableSetupColumn("Item Name", 0);
                     ImGui.TableSetupColumn("Action", 1);
                     ImGui.TableHeadersRow();
 
-                    for (String itemName : new ArrayList<>(ItemRemover.getSelectedItems())) {
+                    for (String itemName : new ArrayList<>(ItemRemover.getSelectedDroppedItems())) {
                         ImGui.TableNextRow();
                         ImGui.TableNextColumn();
                         ImGui.Text(itemName);
