@@ -26,7 +26,7 @@ public class VersionManager {
             }
         }
 
-        String version = versionProps.getProperty(VERSION_KEY, "1.30");
+        String version = versionProps.getProperty(VERSION_KEY, "1.4");
         return version;
     }
     public static void displayVersion(float windowWidth) {
