@@ -799,40 +799,32 @@ public class Runecrafting {
     public static long nextWorldHopTime = 0;
     public static int minHopIntervalMinutes = 60; // Default minimum wait time in minutes
     public static int maxHopIntervalMinutes = 180; // Default maximum wait time in minutes
-    public static int currentWorld = -1; // Initialize to an invalid world number
 
 
     public static void HopWorlds(int world) {
         if (Interfaces.isOpen(1431)) {
             log("[Runecrafting] Interacting with Settings Icon.");
             component(1, 7, 93782016);
-            boolean hopperOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1433));
+            boolean hopperOpen = Execution.delayUntil(random.nextLong(5012, 9998), () -> Interfaces.isOpen(1433));
             log("Settings Menu Open: " + hopperOpen);
-            Execution.delay(RandomGenerator.nextInt(1000, 2000));
+            Execution.delay(random.nextLong(642, 786));
 
             if (hopperOpen) {
                 Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
                 if (HopWorldsMenu != null) {
-                    Execution.delay(random.nextLong(750, 1250));
+                    Execution.delay(random.nextLong(642, 786));
                     component(1, -1, 93913153);
                     log("[Runecrafting] Hop Worlds Button Clicked.");
-                    boolean worldSelectOpen = Execution.delayUntil(5000, () -> Interfaces.isOpen(1587));
-                    Execution.delay(random.nextLong(750, 1250));
+                    boolean worldSelectOpen = Execution.delayUntil(random.nextLong(5014, 9758), () -> Interfaces.isOpen(1587));
 
                     if (worldSelectOpen) {
                         log("[Runecrafting] World Select Interface Open.");
-                        Execution.delay(random.nextLong(750, 1250));
-
-                        /*ComponentQuery isworldactive = ComponentQuery.newQuery(1587).componentIndex(2).subComponentIndex(world);
-                        ResultSet<Component> results = isworldactive.results();*/
-
-
+                        Execution.delay(random.nextLong(642, 786));
                         component(2, world, 104005640);
                         log("[Runecrafting] Selected World: " + world);
 
                         if (Client.getGameState() == Client.GameState.LOGGED_IN && player != null) {
                             Execution.delay(random.nextLong(7548, 9879));
-                            currentWorld = world;
                             log("[Runecrafting] Resuming script.");
                         } else {
                             log("[Runecrafting] Failed to resume script. GameState is not LOGGED_IN or player is null.");
