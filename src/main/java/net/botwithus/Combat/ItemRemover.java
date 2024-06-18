@@ -1,6 +1,8 @@
 package net.botwithus.Combat;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.game.js5.types.ItemType;
+import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,20 @@ public class ItemRemover {
         return selectedDroppedItems;
     }
 
-    public static void addDroppedItemName(String name) {
-        if (!selectedDroppedItems.contains(name)) {
-            selectedDroppedItems.add(name);
+    public static void addDroppedItemName(String nameOrId) {
+        if (isNumeric(nameOrId)) {
+            // If the input is numeric, treat it as an item ID
+            int itemId = Integer.parseInt(nameOrId);
+            ItemType itemType = ConfigManager.getItemType(itemId);
+            String itemName = itemType != null ? itemType.getName() : null;
+            if (itemName != null && !selectedDroppedItems.contains(itemName)) {
+                selectedDroppedItems.add(itemName);
+            }
+        } else {
+            // If the input is not numeric, treat it as an item name
+            if (!selectedDroppedItems.contains(nameOrId)) {
+                selectedDroppedItems.add(nameOrId);
+            }
         }
     }
 
@@ -41,6 +54,14 @@ public class ItemRemover {
                 log("Dropping " + itemName);
                 break;
             }
+        }
+    }
+    public static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 }
