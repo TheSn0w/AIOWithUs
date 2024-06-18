@@ -19,7 +19,7 @@ import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
 import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Combat.*;
-import static net.botwithus.Combat.ItemRemover.isDropActive;
+import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.CustomLogger.log;
@@ -333,67 +333,6 @@ public class CombatImGui {
             ImGui.Separator();
             ImGui.Separator();
         }
-        if (isCombatActive && useLoot && !showLogs) {
-            ImGui.SeparatorText("Loot Options");
-
-            if (ImGui.Button("Add Item") && !getSelectedItem().isEmpty()) {
-                getTargetItemNames().add(getSelectedItem());
-                setSelectedItem("");
-            }
-
-            if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Enter the name of the item to add to your list. Case-insensitive.");
-            }
-            ImGui.SameLine();
-            ImGui.SetItemWidth(284.0F);
-            setSelectedItem(ImGui.InputText("##Itemname", getSelectedItem()));
-
-            List<String> comboItemsList = new ArrayList<>(LootList);
-            comboItemsList.add(0, "                          Select Loot to Add");
-            String[] comboItems = comboItemsList.toArray(new String[0]);
-
-            NativeInteger selectedItemIndex = new NativeInteger(0);
-
-            ImGui.SetItemWidth(360.0F);
-            if (ImGui.Combo("##LootType", selectedItemIndex, comboItems)) {
-                int selectedIndex = selectedItemIndex.get();
-
-                if (selectedIndex > 0 && selectedIndex < comboItems.length) {
-                    String selectedName = comboItems[selectedIndex];
-                    getTargetItemNames().add(selectedName);
-                    log("Predefined Loot added: " + selectedName);
-                    selectedItemIndex.set(0);
-                } else {
-                    log("Please select a valid loot.");
-                }
-            }
-
-            if (!getTargetItemNames().isEmpty()) {
-                if (ImGui.BeginTable("Item List", 2, ImGuiWindowFlag.None.getValue())) {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetupColumn("Item Name", 0);
-                    ImGui.TableSetupColumn("Action", 1);
-                    ImGui.TableHeadersRow();
-
-                    for (String itemName : new ArrayList<>(getTargetItemNames())) {
-                        ImGui.TableNextRow();
-                        ImGui.TableNextColumn();
-                        ImGui.Text(itemName);
-                        ImGui.TableNextColumn();
-                        if (ImGui.Button("Remove##" + itemName)) {
-                            getTargetItemNames().remove(itemName);
-                        }
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Click to remove this item");
-                        }
-                    }
-                    ImGui.EndTable();
-                }
-            }
-            ImGui.Separator();
-            ImGui.Separator();
-            ImGui.Separator();
-        }
         if (isCombatActive && BankforFood && !showLogs) {
             ImGui.SeparatorText("Food Options");
             if (ImGui.Button("Add Food") && !getFoodName().isEmpty()) {
@@ -520,11 +459,72 @@ public class CombatImGui {
             ImGui.Separator();
             ImGui.Separator();
         }
+        if (isCombatActive && useLoot && !showLogs) {
+            ImGui.SeparatorText("Loot Options");
+
+            if (ImGui.Button("Add Item") && !getSelectedItem().isEmpty()) {
+                getTargetItemNames().add(getSelectedItem());
+                setSelectedItem("");
+            }
+
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Enter the name of the item to add to your list. Case-insensitive.");
+            }
+            ImGui.SameLine();
+            ImGui.SetItemWidth(284.0F);
+            setSelectedItem(ImGui.InputText("##Itemname", getSelectedItem()));
+
+            List<String> comboItemsList = new ArrayList<>(LootList);
+            comboItemsList.add(0, "                          Select Loot to Add");
+            String[] comboItems = comboItemsList.toArray(new String[0]);
+
+            NativeInteger selectedItemIndex = new NativeInteger(0);
+
+            ImGui.SetItemWidth(360.0F);
+            if (ImGui.Combo("##LootType", selectedItemIndex, comboItems)) {
+                int selectedIndex = selectedItemIndex.get();
+
+                if (selectedIndex > 0 && selectedIndex < comboItems.length) {
+                    String selectedName = comboItems[selectedIndex];
+                    getTargetItemNames().add(selectedName);
+                    log("Predefined Loot added: " + selectedName);
+                    selectedItemIndex.set(0);
+                } else {
+                    log("Please select a valid loot.");
+                }
+            }
+
+            if (!getTargetItemNames().isEmpty()) {
+                if (ImGui.BeginTable("Item List", 2, ImGuiWindowFlag.None.getValue())) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetupColumn("Item Name", 0);
+                    ImGui.TableSetupColumn("Action", 1);
+                    ImGui.TableHeadersRow();
+
+                    for (String itemName : new ArrayList<>(getTargetItemNames())) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text(itemName);
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Remove##" + itemName)) {
+                            getTargetItemNames().remove(itemName);
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click to remove this item");
+                        }
+                    }
+                    ImGui.EndTable();
+                }
+            }
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Separator();
+        }
         if (isCombatActive && isDropActive && !showLogs) {
             ImGui.SeparatorText("Drop Options");
-            if (ImGui.Button("Add Item") && !ItemRemover.getItemName().isEmpty()) {
-                ItemRemover.addItemName(ItemRemover.getItemName());
-                ItemRemover.setItemName("");
+            if (ImGui.Button("Add Item") && !getItemName().isEmpty()) {
+                ItemRemover.addDroppedItemName(getItemName());
+                setItemName("");
             }
 
             if (ImGui.IsItemHovered()) {
@@ -533,10 +533,10 @@ public class CombatImGui {
 
             ImGui.SameLine();
             ImGui.SetItemWidth(273.0F);
-            ItemRemover.setItemName(ImGui.InputText("##Itemname", ItemRemover.getItemName()));
+            setItemName(ImGui.InputText("##DropItemname", getItemName()));
 
             if (!ItemRemover.getSelectedItems().isEmpty()) {
-                if (ImGui.BeginTable("Items List", 2, ImGuiWindowFlag.None.getValue())) {
+                if (ImGui.BeginTable("Dropped List", 2, ImGuiWindowFlag.None.getValue())) {
                     ImGui.TableNextRow();
                     ImGui.TableSetupColumn("Item Name", 0);
                     ImGui.TableSetupColumn("Action", 1);

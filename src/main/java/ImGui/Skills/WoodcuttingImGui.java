@@ -5,7 +5,6 @@ import net.botwithus.SnowsScript;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
-import net.botwithus.rs3.script.ScriptConsole;
 import ImGui.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,9 +166,9 @@ public class WoodcuttingImGui {
         }
         if (isWoodcuttingActive && isDropActive && !showLogs) {
             ImGui.SeparatorText("Drop Options");
-            if (ImGui.Button("Add Item") && !ItemRemover.getItemName().isEmpty()) {
-                ItemRemover.addItemName(ItemRemover.getItemName());
-                ItemRemover.setItemName("");
+            if (ImGui.Button("Add Item") && !ItemRemover.getDroppeditems().isEmpty()) {
+                ItemRemover.addDroppedItemName(ItemRemover.getDroppeditems());
+                ItemRemover.setDroppednames("");
             }
 
             if (ImGui.IsItemHovered()) {
@@ -178,7 +177,7 @@ public class WoodcuttingImGui {
 
             ImGui.SameLine();
             ImGui.SetItemWidth(273.0F);
-            ItemRemover.setItemName(ImGui.InputText("##Itemname", ItemRemover.getItemName()));
+            ItemRemover.setDroppednames(ImGui.InputText("##Itemname", ItemRemover.getDroppeditems()));
 
             if (!ItemRemover.getSelectedItems().isEmpty()) {
                 if (ImGui.BeginTable("Items List", 2, ImGuiWindowFlag.None.getValue())) {
