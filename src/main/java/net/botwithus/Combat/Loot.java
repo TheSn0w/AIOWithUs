@@ -128,10 +128,14 @@ public class Loot {
     }
 
     public static void lootNotedItemsFromInventory() {
+        boolean itemLooted = false;
+
         if (LootInventory.isOpen()) {
             List<Item> inventoryItems = LootInventory.getItems();
 
             for (int i = inventoryItems.size() - 1; i >= 0; i--) {
+                if (itemLooted) break;
+
                 Item item = inventoryItems.get(i);
                 if (item.getName() == null) {
                     continue;
@@ -142,13 +146,12 @@ public class Loot {
 
                 if (isNote) {
                     if (Backpack.isFull()) {
-                        // If the backpack contains the noted item that is in the LootInventory, continue trying to interact with it
                         if (Backpack.contains(item.getName())) {
                             LootInventory.take(item.getName());
                             log("[Loot] Successfully looted noted item: " + item.getName());
                             inventoryItems = LootInventory.getItems();
+                            itemLooted = true;
                         } else {
-                            // If the backpack is full and does not contain the noted item, stop looting
                             log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
                             return;
                         }
@@ -156,6 +159,7 @@ public class Loot {
                         LootInventory.take(item.getName());
                         log("[Loot] Successfully looted noted item: " + item.getName());
                         inventoryItems = LootInventory.getItems();
+                        itemLooted = true;
                     }
                 }
             }
@@ -163,6 +167,8 @@ public class Loot {
             List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
             for (int i = groundItems.size() - 1; i >= 0; i--) {
+                if (itemLooted) break;
+
                 GroundItem groundItem = groundItems.get(i);
                 if (groundItem.getName() == null) {
                     continue;
@@ -177,7 +183,7 @@ public class Loot {
                     Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
 
                     if (LootInventory.isOpen()) {
-                        break;
+                        itemLooted = true;
                     }
                 }
             }
@@ -318,15 +324,16 @@ public class Loot {
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<Item> inventoryItems = LootInventory.getItems();
 
-        inventoryItems.stream()
-                .filter(item -> item.getName() != null && lootPattern.matcher(item.getName()).find())
-                .forEach(item -> {
-                    LootInventory.take(item.getName());
-                    log("[Loot] Successfully looted item: " + item.getName());
-                    if (useNotepaper) {
-                        useItemOnNotepaper();
-                    }
-                });
+        for (Item item : inventoryItems) {
+            if (item.getName() != null && lootPattern.matcher(item.getName()).find()) {
+                LootInventory.take(item.getName());
+                log("[Loot] Successfully looted item: " + item.getName());
+                if (useNotepaper) {
+                    useItemOnNotepaper();
+                }
+                break;
+            }
+        }
 
         return random.nextLong(250, 300);
     }
