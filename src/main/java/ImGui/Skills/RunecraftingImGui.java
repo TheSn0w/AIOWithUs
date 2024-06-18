@@ -1,6 +1,7 @@
 package ImGui.Skills;
 
 import net.botwithus.Runecrafting.PlayerInfo;
+import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
@@ -164,8 +165,8 @@ public class RunecraftingImGui {
             ImGui.PopStyleColor(1);
 
             ImGui.SeparatorText("Players Encountered");
+            ImGui.Text("Current World: " + LoginManager.getWorld());
 
-            // Begin a table with the specified number of columns
             if (ImGui.BeginTable("Player Info", 3, ImGuiWindowFlag.None.getValue())) {
                 ImGui.TableNextRow();
                 ImGui.TableSetupColumn("Player Name", 0);

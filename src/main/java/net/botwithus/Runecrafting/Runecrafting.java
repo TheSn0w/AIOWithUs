@@ -218,7 +218,7 @@ public class Runecrafting {
                         })
                         .peek(player -> {
                             log("Found player within distance: " + player.getName());
-                            playerInfo.add(new PlayerInfo(player.getName(), System.currentTimeMillis(), currentWorld));
+                            playerInfo.add(new PlayerInfo(player.getName(), System.currentTimeMillis(), LoginManager.getWorld()));
                         })
                         .findAny()
                         .isPresent();
@@ -822,8 +822,14 @@ public class Runecrafting {
                     if (worldSelectOpen) {
                         log("[Runecrafting] World Select Interface Open.");
                         Execution.delay(random.nextLong(750, 1250));
+
+                        /*ComponentQuery isworldactive = ComponentQuery.newQuery(1587).componentIndex(2).subComponentIndex(world);
+                        ResultSet<Component> results = isworldactive.results();*/
+
+
                         component(2, world, 104005640);
                         log("[Runecrafting] Selected World: " + world);
+
                         if (Client.getGameState() == Client.GameState.LOGGED_IN && player != null) {
                             Execution.delay(random.nextLong(7548, 9879));
                             currentWorld = world;
@@ -851,11 +857,10 @@ public class Runecrafting {
            1, 2, 4, 5, 6, 9, 10, 12, 14, 15,
            16, 21, 22, 23, 24, 25, 26, 27, 28, 31,
            32, 35, 36, 37, 39, 40, 42, 44, 45, 46,
-           47, 49, 50, 51, 53, 54, 56, 58, 59, 60,
+           49, 50, 51, 53, 54, 56, 58, 59, 60,
            62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
            72, 73, 74, 76, 77, 78, 79, 82, 83,
-           85, 87, 88, 89, 91, 92, 97, 98, 99, 100,
-           102, 103, 104, 105, 106, 116, 117, 118, 119, 121,
-           123, 124, 134, 138, 139, 140, 252, 257, 258};
+           85, 87, 88, 89, 91, 92, 97, 98, 99, 100, 103, 104, 105, 106, 116, 117, 119,
+           123, 124, 134, 138, 139, 140, 252, 257, 258, 259};
 
 }
