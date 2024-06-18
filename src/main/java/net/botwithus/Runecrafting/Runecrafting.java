@@ -214,7 +214,7 @@ public class Runecrafting {
                         .filter(player -> !player.getName().equals(localPlayerName))
                         .filter(player -> {
                             Coordinate playerLocation = player.getCoordinate();
-                            return playerLocation != null && localPlayerLocation.distanceTo(playerLocation) <= 15.0D;
+                            return playerLocation != null && localPlayerLocation.distanceTo(playerLocation) <= 20.0D;
                         })
                         .peek(player -> {
                             log("Found player within distance: " + player.getName());
