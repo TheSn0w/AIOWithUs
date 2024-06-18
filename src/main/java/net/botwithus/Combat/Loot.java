@@ -158,6 +158,7 @@ public class Loot {
                     } else {
                         LootInventory.take(item.getName());
                         log("[Loot] Successfully looted noted item: " + item.getName());
+                        Execution.delay(random.nextLong(550, 750));
                         inventoryItems = LootInventory.getItems();
                         itemLooted = true;
                     }
@@ -335,7 +336,7 @@ public class Loot {
             }
         }
 
-        return random.nextLong(250, 300);
+        return random.nextLong(550, 650);
     }
 
     /*public static long lootFromGround() {
