@@ -43,8 +43,8 @@ public class Combat {
 
 
     public static long attackTarget(LocalPlayer player) {
-        if (player == null || player.isMoving()) {
-            return random.nextLong(500, 750);
+        if (player == null || player.isMoving() || !player.hasTarget()) {
+            return attackNearestMonster(player);
         }
         /*List<String> friendlyNpcNames = Arrays.asList("Putrid Zombie", "Skeleton Warrior", "Vengeful Ghost");
 
@@ -65,7 +65,7 @@ public class Combat {
                 useItemOnNotepaper();
             }
             if (useLoot) {
-                processLooting();
+                Execution.delay(processLooting());
             }
             if (lootNoted) {
                 lootNotedItemsFromInventory();

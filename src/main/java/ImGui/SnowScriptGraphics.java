@@ -635,10 +635,13 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
                 ImGui.End();
             }
+            ImGui.PopStyleColor(50);
+            ImGui.PopStyleVar(50);
         }
         ImGui.PopStyleColor(50);
         ImGui.PopStyleVar(50);
     }
+
     @Override
     public void drawOverlay() {
         super.drawOverlay();

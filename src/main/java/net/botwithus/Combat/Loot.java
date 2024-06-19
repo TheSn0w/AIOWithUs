@@ -102,20 +102,26 @@ public class Loot {
         }
     }
 
-    public static void processLooting() {
-        if (getBotState() == SKILLING) {
-            if (Backpack.isFull()) {
-                log("[Combat] Backpack is full. Cannot loot more items, turning off looting.");
-                useLoot = false;
-                return;
-            }
+    public static long processLooting() {
+        try {
+            if (getBotState() == SKILLING) {
+                if (Backpack.isFull()) {
+                    log("[Combat] Backpack is full. Cannot loot more items, turning off looting.");
+                    useLoot = false;
+                    return random.nextLong(1000, 2000);
+                }
 
-            if (LootInventory.isOpen()) {
-                Execution.delay(lootFromInventory());
-            } else {
-                Execution.delay(lootFromGround());
+                if (LootInventory.isOpen()) {
+                    Execution.delay(lootFromInventory());
+                } else {
+                    Execution.delay(lootFromGround());
+                }
             }
+        } catch(Exception e){
+            log("[Error] An error occurred during looting: " + e.getMessage());
+            return random.nextLong(1000, 2000);
         }
+        return 0;
     }
 
     public static Pattern generateLootPattern(List<String> names) {
