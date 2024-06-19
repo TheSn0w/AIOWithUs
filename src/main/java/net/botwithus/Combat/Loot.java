@@ -15,6 +15,7 @@ import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.Comparator;
@@ -316,7 +317,7 @@ public class Loot {
         } while (itemFound && System.currentTimeMillis() - startTime <= 15000);
     }*/
 
-    public static long lootFromInventory() {
+    /*public static long lootFromInventory() {
         if (!canLoot() || Backpack.isFull()) {
             log("[Error] Cant loot or Backpack is full.");
             return random.nextLong(1000, 2000);
@@ -337,6 +338,38 @@ public class Loot {
         }
 
         return random.nextLong(550, 650);
+    }*/
+    public static long lootFromInventory() {
+        if (Backpack.isFull()) {
+            log("[Error] Cant loot or Backpack is full.");
+            return random.nextLong(1000, 2000);
+        }
+
+        Pattern lootPattern = generateLootPattern(targetItemNames);
+        List<Item> inventoryItems = LootInventory.getItems();
+
+        for (Item item : inventoryItems) {
+            if (item.getName() != null && lootPattern.matcher(item.getName()).find()) {
+                while (LootInventory.contains(item.getName())) {
+                    log("[Loot] Attempting to loot item: " + item.getName());
+
+                    Item currentItem = LootInventory.getItems().stream()
+                            .filter(it -> it.getName().equals(item.getName()))
+                            .findFirst()
+                            .orElse(null);
+                    if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
+                        LootInventory.take(item.getName());
+                        if (useNotepaper) {
+                            useItemOnNotepaper();
+                        }
+                    } else {
+                        log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
+                        break;
+                    }
+                }
+            }
+        }
+        return random.nextLong(100, 200);
     }
 
     /*public static long lootFromGround() {

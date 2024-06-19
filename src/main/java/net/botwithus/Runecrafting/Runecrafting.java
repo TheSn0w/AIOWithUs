@@ -78,7 +78,6 @@ public class Runecrafting {
             return;
         }
 
-        checkForOtherPlayersAndHopWorld();
 
         if (useWorldhop && currentState == BANKING) {
             if (nextWorldHopTime == 0) {
@@ -98,6 +97,9 @@ public class Runecrafting {
                 return;
             }
         }
+
+        checkForOtherPlayersAndHopWorld();
+
         switch (currentState) {
             case IDLE -> {
                 if (SceneObjectQuery.newQuery().name("Bank chest").results().nearest() != null || SceneObjectQuery.newQuery().name("Rowboat").results().nearest() != null) {
@@ -853,6 +855,6 @@ public class Runecrafting {
            62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
            72, 73, 74, 76, 77, 78, 79, 82, 83,
            85, 87, 88, 89, 91, 92, 97, 98, 99, 100, 103, 104, 105, 106, 116, 117, 119,
-           123, 124, 134, 138, 139, 140, 252, 257, 258, 259};
+           123, 124, 134, 138, 139, 140, 252};
 
 }
