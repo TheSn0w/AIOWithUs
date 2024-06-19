@@ -341,15 +341,20 @@ public class Loot {
     }*/
     public static long lootFromInventory() {
         if (Backpack.isFull()) {
-            log("[Error] Cant loot or Backpack is full.");
+            log("[Error] Can't loot, Backpack is full.");
             return random.nextLong(1000, 2000);
         }
 
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<Item> inventoryItems = LootInventory.getItems();
+        boolean shouldBreak = false;
 
         for (Item item : inventoryItems) {
+            if (shouldBreak) {
+                break;
+            }
             if (item.getName() != null && lootPattern.matcher(item.getName()).find()) {
+                log("[Loot] Found item to loot: " + item.getName());
                 while (LootInventory.contains(item.getName())) {
                     log("[Loot] Attempting to loot item: " + item.getName());
 
@@ -357,20 +362,26 @@ public class Loot {
                             .filter(it -> it.getName().equals(item.getName()))
                             .findFirst()
                             .orElse(null);
-                    if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
-                        LootInventory.take(item.getName());
-                        if (useNotepaper) {
-                            useItemOnNotepaper();
-                        }
-                    } else {
+
+                    if (currentItem == null || currentItem.getSlot() != item.getSlot()) {
                         log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
+                        shouldBreak = true;
                         break;
                     }
+
+                    LootInventory.take(item.getName());
+                    if (useNotepaper) {
+                        useItemOnNotepaper();
+                    }
+
+                    Execution.delay(random.nextInt(100, 200));
                 }
             }
         }
         return random.nextLong(100, 200);
     }
+
+
 
     /*public static long lootFromGround() {
         if (targetItemNames.isEmpty()) {

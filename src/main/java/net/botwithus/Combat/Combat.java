@@ -16,8 +16,6 @@ import static net.botwithus.Combat.Abilities.*;
 import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Food.isHealthLow;
-import static net.botwithus.Combat.ItemRemover.dropItems;
-import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.*;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.managePotions;
