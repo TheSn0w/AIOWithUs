@@ -261,7 +261,20 @@ public class MiscImGui {
 
                 ImGui.Text("Smelted Items Per Hour: " + smeltedItemsPerHourInt);
             }
+            if (handleNecro) {
+                ImGui.SeparatorText("Necro Items Count");
+                long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
+                double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
 
+                for (Map.Entry<String, Integer> entry : necroItemsAdded.entrySet()) {
+                    ImGui.Text(entry.getKey() + ": " + entry.getValue());
+
+                    double itemsPerHour = entry.getValue() / elapsedHours;
+                    int itemsPerHourInt = (int) itemsPerHour;
+
+                    ImGui.Text("Items Per Hour (" + entry.getKey() + "): " + itemsPerHourInt);
+                }
+            }
 
             if (isSummoningActive) {
                 if (tooltipsEnabled) {

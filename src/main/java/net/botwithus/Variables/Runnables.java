@@ -2,6 +2,7 @@ package net.botwithus.Variables;
 
 import net.botwithus.Agility.Agility;
 import net.botwithus.Archaeology.Archeology;
+import net.botwithus.Archaeology.WorldHop;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Fishing.Fishing;
@@ -20,6 +21,7 @@ import net.botwithus.rs3.script.Execution;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.ArchGlacor.handleArchGlacor;
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.Combat.Loot.LootEverything;
@@ -157,6 +159,9 @@ public class Runnables {
     public static  void handleArcheology() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
+            if (hopWorldsforArchaeology) {
+                WorldHop.checkForOtherPlayersAndHopWorld();
+            }
             List<String> selectedArchNames = getSelectedNames();
             Execution.delay(Archeology.findSpotAnimationAndAct(player, selectedArchNames));
         }

@@ -29,6 +29,7 @@ import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.Porters.bankwithoutPorter;
+import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.Combat.isStackable;
 import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
@@ -256,6 +257,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Bank when 0 porter", () -> bankwithoutPorter = !bankwithoutPorter, bankwithoutPorter);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will force to bank when backpack doesnt contain any porters");
+                        }
+                        createCenteredButton("hop worlds", () -> hopWorldsforArchaeology = !hopWorldsforArchaeology, hopWorldsforArchaeology);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will hop worlds when player is within 8 tiles of you");
                         }
                     } else if (isCombatActive) {
                         createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, true);
