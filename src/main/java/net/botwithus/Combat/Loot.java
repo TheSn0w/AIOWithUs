@@ -347,37 +347,32 @@ public class Loot {
 
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<Item> inventoryItems = LootInventory.getItems();
-        boolean shouldBreak = false;
 
-        for (Item item : inventoryItems) {
-            if (shouldBreak) {
-                break;
-            }
-            if (item.getName() != null && lootPattern.matcher(item.getName()).find()) {
-                log("[Loot] Found item to loot: " + item.getName());
-                while (LootInventory.contains(item.getName())) {
-                    log("[Loot] Attempting to loot item: " + item.getName());
+        Item item = inventoryItems.stream()
+                .filter(it -> it.getName() != null && lootPattern.matcher(it.getName()).find())
+                .findFirst()
+                .orElse(null);
 
-                    Item currentItem = LootInventory.getItems().stream()
-                            .filter(it -> it.getName().equals(item.getName()))
-                            .findFirst()
-                            .orElse(null);
+        if (item != null) {
+            log("[Loot] Found item to loot: " + item.getName());
 
-                    if (currentItem == null || currentItem.getSlot() != item.getSlot()) {
-                        log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
-                        shouldBreak = true;
-                        break;
-                    }
+            Item currentItem = LootInventory.getItems().stream()
+                    .filter(it -> it.getName().equals(item.getName()))
+                    .findFirst()
+                    .orElse(null);
 
-                    LootInventory.take(item.getName());
-                    if (useNotepaper) {
-                        useItemOnNotepaper();
-                    }
-
-                    Execution.delay(random.nextInt(100, 200));
+            if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
+                LootInventory.take(item.getName());
+                if (useNotepaper) {
+                    useItemOnNotepaper();
                 }
+
+                Execution.delay(random.nextInt(100, 200));
+            } else {
+                log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
             }
         }
+
         return random.nextLong(100, 200);
     }
 

@@ -158,14 +158,14 @@ public class Combat {
 
 
     private static long attackNearestMonster(LocalPlayer player) {
-        List<String> friendlyNpcNames = Arrays.asList("Putrid Zombie", "Skeleton Warrior", "Vengeful Ghost");
+        String playerName = player.getName();
         Npc followingNpc = null;
 
         for (Npc npc : net.botwithus.rs3.game.queries.builders.characters.NpcQuery.newQuery().results()) {
             PathingEntity<?> npcFollowing = npc.getFollowing();
             String npcName = npc.getName();
 
-            if (npcFollowing != null && npcFollowing.getId() == player.getId() && !friendlyNpcNames.contains(npcName)) {
+            if (npcFollowing != null && npcFollowing.getId() == player.getId() && !npcName.contains(playerName)) {
                 followingNpc = npc;
                 break;
             }
