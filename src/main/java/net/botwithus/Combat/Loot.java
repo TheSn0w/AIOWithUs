@@ -129,65 +129,36 @@ public class Loot {
     }
 
     public static void lootNotedItemsFromInventory() {
-        boolean itemLooted = false;
-
         if (LootInventory.isOpen()) {
             List<Item> inventoryItems = LootInventory.getItems();
 
-            for (int i = inventoryItems.size() - 1; i >= 0; i--) {
-                if (itemLooted) break;
+            Item item = inventoryItems.stream()
+                    .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
+                    .findFirst()
+                    .orElse(null);
 
-                Item item = inventoryItems.get(i);
-                if (item.getName() == null) {
-                    continue;
+            if (item != null) {
+                if (Backpack.isFull() && !Backpack.contains(item.getName())) {
+                    log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
+                    return;
                 }
 
-                var itemType = ConfigManager.getItemType(item.getId());
-                boolean isNote = itemType != null && itemType.isNote();
-
-                if (isNote) {
-                    if (Backpack.isFull()) {
-                        if (Backpack.contains(item.getName())) {
-                            LootInventory.take(item.getName());
-                            log("[Loot] Successfully looted noted item: " + item.getName());
-                            inventoryItems = LootInventory.getItems();
-                            itemLooted = true;
-                        } else {
-                            log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
-                            return;
-                        }
-                    } else {
-                        LootInventory.take(item.getName());
-                        log("[Loot] Successfully looted noted item: " + item.getName());
-                        Execution.delay(random.nextLong(550, 750));
-                        inventoryItems = LootInventory.getItems();
-                        itemLooted = true;
-                    }
-                }
+                LootInventory.take(item.getName());
+                log("[Loot] Successfully looted noted item: " + item.getName());
+                Execution.delay(random.nextLong(550, 750));
             }
         } else {
             List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
-            for (int i = groundItems.size() - 1; i >= 0; i--) {
-                if (itemLooted) break;
+            GroundItem groundItem = groundItems.stream()
+                    .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
+                    .findFirst()
+                    .orElse(null);
 
-                GroundItem groundItem = groundItems.get(i);
-                if (groundItem.getName() == null) {
-                    continue;
-                }
-
-                var itemType = ConfigManager.getItemType(groundItem.getId());
-                boolean isNote = itemType != null && itemType.isNote();
-
-                if (isNote) {
-                    groundItem.interact("Take");
-                    log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
-                    Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
-
-                    if (LootInventory.isOpen()) {
-                        itemLooted = true;
-                    }
-                }
+            if (groundItem != null) {
+                groundItem.interact("Take");
+                log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
+                Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
             }
         }
     }
