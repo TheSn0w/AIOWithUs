@@ -26,6 +26,7 @@ import net.botwithus.rs3.util.RandomGenerator;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
+import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.random;
 
 public class Thieving {
@@ -307,6 +308,7 @@ public class Thieving {
 
         if (food == null) {
             log("[Error] No food found. Banking for food.");
+            setLastSkillingLocation(player.getCoordinate());
             setBotState(BANKING);
             return random.nextLong(1500, 3000);
         }
