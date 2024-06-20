@@ -283,7 +283,7 @@ public class Thieving {
     public static void eatFood(LocalPlayer player) {
         boolean isPlayerEating = player.getAnimationId() == 18001;
         double healthPercentage = calculateHealthPercentage(player);
-        boolean isHealthAboveThreshold = healthPercentage > 99;
+        boolean isHealthAboveThreshold = healthPercentage > 7;
 
 
         if (isPlayerEating || isHealthAboveThreshold) {

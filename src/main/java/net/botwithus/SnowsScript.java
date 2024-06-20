@@ -125,9 +125,6 @@ public class SnowsScript extends LoopingScript {
             });
 
             case BANKING -> {
-                if (isThievingActive) {
-                    Execution.delay(performBanking(player));
-                }
                 if (nearestBank) {
                     Execution.delay(performBanking(player));
                 }
@@ -292,7 +289,7 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-        if (isDissasemblerActive) {
+        /*if (isDissasemblerActive) {
             if (botState == BotState.SKILLING) {
                 TaskScheduler activeTask = getActiveTask();
                 if (activeTask != null && Objects.requireNonNull(event.getNewItem().getName()).contains(activeTask.getItemToDisassemble())) {
@@ -300,7 +297,7 @@ public class SnowsScript extends LoopingScript {
                     activeTask.incrementAmountDisassembled();
                 }
             }
-        }
+        }*/
         if (handleHarps) {
             String itemName = event.getNewItem().getName();
             if (itemName != null && itemName.equals("Harmonic dust")) {

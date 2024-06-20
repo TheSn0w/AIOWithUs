@@ -17,6 +17,7 @@ import static ImGui.PredefinedStrings.secondaryItemName;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CrystalChests.useTaverly;
+import static net.botwithus.Misc.Dissasembler.doAll;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.Misc.Smelter.handleGoldBar;
@@ -427,10 +428,7 @@ public class MiscImGui {
                 }*/
 
 
-
-
-
-                    ImGui.SeparatorText("Porters Made Count");
+                ImGui.SeparatorText("Porters Made Count");
                 for (Map.Entry<String, Integer> entry : portersMade.entrySet()) {
                     ImGui.Text(entry.getKey() + ": " + entry.getValue());
                 }
@@ -545,7 +543,7 @@ public class MiscImGui {
                 ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
                 makeRefinedPlanks = ImGui.Checkbox("Refined Planks", makeRefinedPlanks);
             }
-            if(isCrystalChestActive) {
+            if (isCrystalChestActive) {
                 if (tooltipsEnabled) {
                     String[] texts = {
                             "Have Preset Ready Saved",
@@ -568,7 +566,7 @@ public class MiscImGui {
                 ImGui.SeparatorText("Crystal Chest Options");
                 ImGui.SetCursorPosX(spacing);
                 useTaverly = ImGui.Checkbox("Taverly", useTaverly);
-                if(ImGui.IsItemHovered()) {
+                if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Will use Taverly instead of Prifddinas");
                 }
             }
@@ -615,7 +613,8 @@ public class MiscImGui {
                 String[] texts = {
                         "have Either High Alch or Disassemble on action bar",
                         "Have Enough Runes for High Alch",
-                        "Will log out once the count is finished"
+                        "Will log out once finished",
+                        "Will cast on  ALL items in backpack",
                 };
 
                 ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
@@ -635,6 +634,7 @@ public class MiscImGui {
             useDisassemble = ImGui.Checkbox("Disassemble", useDisassemble);
             ImGui.SameLine();
             useAlchamise = ImGui.Checkbox("High Alch", useAlchamise);
+           /* doAll = ImGui.Checkbox("Do all Backpack", doAll);
             ImGui.Separator();
             setItemName(ImGui.InputText("Item name", getItemName(), 100, ImGuiWindowFlag.None.getValue()));
             itemMenuSize = ImGui.InputInt("Item amount: ", itemMenuSize, 1, 100, ImGuiWindowFlag.None.getValue());
@@ -660,8 +660,7 @@ public class MiscImGui {
                         iterator.remove();
                     }
                 }
-                ImGui.EndTable();
-            }
+                ImGui.EndTable();*/
         }
     }
 }

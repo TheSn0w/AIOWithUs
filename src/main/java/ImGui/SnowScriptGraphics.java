@@ -225,6 +225,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Thieving - Read Tooltip");
                         }
+                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Bank to withdraw food");
+                        }
                     } else if (isArcheologyActive) {
                         createCenteredButton("Archeology", () -> isArcheologyActive = !isArcheologyActive, true);
                         if (ImGui.IsItemHovered()) {

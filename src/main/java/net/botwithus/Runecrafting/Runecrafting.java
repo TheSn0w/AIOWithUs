@@ -227,7 +227,11 @@ public class Runecrafting {
 
                 if (otherPlayersPresent) {
                     log("Other players found within distance. Initiating world hop.");
-                    int randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                    int currentWorld = LoginManager.getWorld();
+                    int randomMembersWorldsIndex;
+                    do {
+                        randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                    } while (membersWorlds[randomMembersWorldsIndex] == currentWorld);
                     ScriptState previousState = currentState;
                     HopWorlds(membersWorlds[randomMembersWorldsIndex]);
                     log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
