@@ -85,13 +85,13 @@ public class Necro {
             if (!Pedestal.isEmpty()) {
                 log("Interacting with Pedestal");
                 Pedestal.first().interact("Repair all");
-                Execution.delay(random.nextLong(5000, 10000));
+                Execution.delay(random.nextLong(1500, 3000));
             }
         } else {
             if (!Platform2.isEmpty()) {
                 log("Interacting with Platform");
                 Platform2.first().interact("Start ritual");
-                Execution.delay(random.nextLong(5000, 10000));
+                Execution.delay(random.nextLong(1500, 3000));
             }
         }
 

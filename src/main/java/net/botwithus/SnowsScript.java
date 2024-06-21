@@ -345,12 +345,13 @@ public class SnowsScript extends LoopingScript {
                     if (itemParts.length > 1) {
                         String itemType = itemParts[1].trim();
                         itemType = itemType.replace("</col>", ""); // Remove the </col> tag
-                        if (itemType.equals("Impure essence") || itemType.equals("Ectoplasm")) {
-                            if (lastTwoMessages.size() == 2) {
-                                lastTwoMessages.poll(); // remove the oldest message
-                            }
-                            lastTwoMessages.add(message); // add the new message
+
+                        // Always add the message to the queue, regardless of the item type
+                        if (lastTwoMessages.size() == 2) {
+                            lastTwoMessages.poll(); // remove the oldest message
                         }
+                        lastTwoMessages.add(message); // add the new message
+
                         int itemCount = Integer.parseInt(itemParts[0].trim());
                         int currentCount = necroItemsAdded.getOrDefault(itemType, 0);
                         necroItemsAdded.put(itemType, currentCount + itemCount);
