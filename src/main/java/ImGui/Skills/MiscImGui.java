@@ -265,6 +265,27 @@ public class MiscImGui {
                 ImGui.Text("Smelted Items Per Hour: " + smeltedItemsPerHourInt);
             }
             if (handleNecro) {
+                if (tooltipsEnabled) {
+                    String[] texts = {
+                            "Will only do rituals and no Disturbances",
+                            "Make sure you have all items in backpack ",
+                            "Make sure the selected Glyths are set",
+                            "Will repair using the Repair all once any 1 are depleted",
+                    };
+
+                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                    for (String text : texts) {
+                        float windowWidth = 400;
+                        float textWidth = ImGui.CalcTextSize(text).getX();
+                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                        ImGui.SetCursorPosX(centeredStartPos);
+                        ImGui.Text(text);
+                    }
+
+                    ImGui.PopStyleColor(1);
+                }
                 ImGui.SeparatorText("Necro Items Count");
                 long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                 double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
