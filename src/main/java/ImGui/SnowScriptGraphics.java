@@ -323,7 +323,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Animation Check", () -> AnimationCheck = !AnimationCheck, AnimationCheck);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Enable when fishing tune/lobsters/swordfish/sharks`");
+                            ImGui.SetTooltip("Enable when fishing Tuna/Lobsters/Swordfish/Sharks`");
                         }
                         createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
@@ -335,7 +335,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will drop certain items from backpack");
+                            ImGui.SetTooltip("Will drop certain items from backpack, not used to drop fish!");
                         }
                     } else if (isMiningActive) {
                         createCenteredButton("Mining", () -> isMiningActive = !isMiningActive, true);

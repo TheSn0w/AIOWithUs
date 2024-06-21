@@ -184,10 +184,12 @@ public class MiscImGui {
                 }
             }
             if (isMakeUrnsActive) {
-                ImGui.Text("Only works at menophos");
+                ImGui.Text("Only works at Menaphos, Working District");
+                ImGui.Text("Have one set of selected urns crafted yourself");
+                ImGui.Text("Otherwise it will craft Pot Lids instead");
             }
             if (isCrystalChestActive) {
-                ImGui.Text("Only works at prifddinas");
+                ImGui.Text("Only works at Prifddinas");
             }
             if (pickCaveNightshade) {
                 ImGui.SeparatorText("Cave Nightshade Picked Count");

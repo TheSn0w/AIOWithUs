@@ -536,7 +536,7 @@ public static void dialog(int option1, int option2, int option3) {
     public static String filterText = ""; // Archaeology
     public static boolean ScriptisOn = false;
     public static long totalElapsedTime = 0;
-    public static boolean tooltipsEnabled = false;
+    public static boolean tooltipsEnabled = true;
     public static String saveSettingsFeedbackMessage = "";
     public static boolean showLogs = false;
     public static boolean scrollToBottom = false;

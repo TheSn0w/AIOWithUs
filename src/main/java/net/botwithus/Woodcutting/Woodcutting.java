@@ -160,16 +160,16 @@ public class Woodcutting {
 
     public static long handleOtherTrees(List<String> selectedTreeNames) {
         for (String treeName : selectedTreeNames) {
-            SceneObject nearestTree = SceneObjectQuery.newQuery().name(treeName).option("Chop down").hidden(false).results().nearest();
+            SceneObject nearestTree = SceneObjectQuery.newQuery().name(treeName).hidden(false).results().nearest();
             if (nearestTree != null) {
-                boolean Success = nearestTree.interact("Chop down");
-                if (Success) {
-                    log("[Woodcutting] Interacted with: " + treeName);
-                    return random.nextLong(750, 1000);
+                if (nearestTree.interact("Chop")) {
+                    log("[Woodcutting] Interacted with: " + treeName + " using 'Chop' option");
+                } else if (nearestTree.interact("Chop down")) {
+                    log("[Woodcutting] Interacted with: " + treeName + " using 'Chop down' option");
                 }
             }
         }
-        return random.nextLong(750, 1000);
+        return random.nextLong(1467, 1985);
     }
 
 
