@@ -18,6 +18,8 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CrystalChests.useTaverly;
 import static net.botwithus.Misc.Dissasembler.doAll;
+import static net.botwithus.Misc.LeatherCrafter.*;
+import static net.botwithus.Misc.Necro.enableDisturbances;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.Misc.Smelter.handleGoldBar;
@@ -37,7 +39,7 @@ public class MiscImGui {
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
             ImGui.SeparatorText("Miscellaneous Options");
 
-            boolean NoneSelected = isportermakerActive || handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
+            boolean NoneSelected = isportermakerActive || handleLeatherCrafter|| handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
             if (!NoneSelected || isportermakerActive) {
                 if (!NoneSelected) {
@@ -183,6 +185,57 @@ public class MiscImGui {
                     ImGui.SameLine();
                 }
             }
+            if (!NoneSelected || handleLeatherCrafter) {
+                if (!NoneSelected) {
+                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                } else {
+                    ImGui.SetCursorPosX(spacing);
+                }
+                handleLeatherCrafter = ImGui.Checkbox("Leather Crafter", handleLeatherCrafter);
+                if (!NoneSelected) {
+                    ImGui.SameLine();
+                }
+            }
+            if (handleLeatherCrafter) {
+                if (tooltipsEnabled) {
+                    String[] texts = {
+                            "Uses Load Last Preset from",
+                            "Set your item before starting",
+                            "The options available dictate how many leathers",
+                            "are needed to craft the item",
+                            "Before trying to interact with bank",
+                            "Shields: 4, Body: 3, Chaps: 2, Vambraces: 1",
+                    };
+
+                    ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
+
+                    for (String text : texts) {
+                        float windowWidth = 400;
+                        float textWidth = ImGui.CalcTextSize(text).getX();
+                        float centeredStartPos = (windowWidth - textWidth) / 2;
+
+                        ImGui.SetCursorPosX(centeredStartPos);
+                        ImGui.Text(text);
+                    }
+
+                    ImGui.PopStyleColor(1);
+                }
+                ImGui.SeparatorText("Leather Crafter Options");
+                ImGui.SetCursorPosX(spacing);
+                makeBody = ImGui.Checkbox("Body", makeBody);
+                ImGui.SameLine();
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                makeChaps = ImGui.Checkbox("Chaps", makeChaps);
+                ImGui.SameLine();
+                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                makeVambraces = ImGui.Checkbox("Vambraces", makeVambraces);
+                makeShields = ImGui.Checkbox("Shields", makeShields);
+                ImGui.SeparatorText("Leather Tanning Options");
+                ImGui.SetCursorPosX(spacing);
+                tanLeather = ImGui.Checkbox("Tan Leather", tanLeather);
+
+
+            }
             if (isMakeUrnsActive) {
                 ImGui.Text("Only works at Menaphos, Working District");
                 ImGui.Text("Have one set of selected urns crafted yourself");
@@ -287,6 +340,9 @@ public class MiscImGui {
 
                     ImGui.PopStyleColor(1);
                 }
+                ImGui.SeparatorText("Necro Options");
+                ImGui.SetCursorPosX(spacing);
+                enableDisturbances = ImGui.Checkbox("Enable Disturbances", enableDisturbances);
                 ImGui.SeparatorText("Necro Items Count");
                 long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
                 double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;

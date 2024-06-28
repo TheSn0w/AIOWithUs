@@ -295,10 +295,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Noted Items in Loot Inventory");
                         }
-                        /*createCenteredButton("Loot Stackables", () -> isStackable = !isStackable, isStackable);
+                        createCenteredButton("Loot Stackables", () -> isStackable = !isStackable, isStackable);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
-                        }*/
+                        }
                         createCenteredButton("Use POD", () -> usePOD = !usePOD, usePOD);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Player owned dungeons, first room only");

@@ -16,6 +16,7 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Abilities {
+    public static boolean useThreadsofFate = false;
     public static int NecrosisStacksThreshold = 12;
     public static int VolleyOfSoulsThreshold = 5;
     private static long lastAbilityTime = 0;
@@ -46,6 +47,9 @@ public class Abilities {
             lastAbilityTime = currentTime;
         } else if (useVulnerabilityBombs) {
             vulnerabilityBomb(player);
+            lastAbilityTime = currentTime;
+        } else if (useThreadsofFate && ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0){
+            manageThreadsofFate(player);
             lastAbilityTime = currentTime;
         }
     }
@@ -103,6 +107,14 @@ public class Abilities {
             log("[Success] Cast Animate Dead: " + true);
         } else {
             log("[Error] Attempted to cast Animate Dead, but ability use failed.");
+        }
+    }
+    public static void manageThreadsofFate(LocalPlayer player) {
+        boolean success = ActionBar.useAbility("Threads of Fate");
+        if (success) {
+            log("[Success] Cast Threads of Fate: " + true);
+        } else {
+            log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
         }
     }
 }

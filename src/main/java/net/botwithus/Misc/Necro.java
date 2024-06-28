@@ -1,11 +1,18 @@
 package net.botwithus.Misc;
 
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
+import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.player;
@@ -14,8 +21,18 @@ import static net.botwithus.Variables.Variables.random;
 public class Necro {
 
     public static boolean handleNecro = false;
+    public static boolean enableDisturbances = true;
 
     public static long interactWithEntities() {
+        log("Time Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 10937) + " seconds.");
+
+        if (enableDisturbances) {
+            Execution.delay(glyths());
+            Execution.delay(soulStorm());
+            Execution.delay(sparklingglyth());
+            Execution.delay(ghost());
+        }
+
         EntityResultSet<SceneObject> Platform2 = SceneObjectQuery.newQuery().id(127315).results();
 
         if (player.isMoving() || player.getAnimationId() != -1) {
@@ -79,24 +96,171 @@ public class Necro {
         if (!ProtectionII.isEmpty()) log("Protection II is Depleted");
         if (!ProtectionIII.isEmpty()) log("Protection III is Depleted");
 
-        if (player.getAnimationId() == -1 && (!ChangeI.isEmpty() || !ChangeII.isEmpty() || !ChangeIII.isEmpty() || !ElementalI.isEmpty() || !ElementalII.isEmpty() || !ElementalIII.isEmpty() || !MultiplyI.isEmpty() || !MultiplyII.isEmpty() || !MultiplyIII.isEmpty() || !CommuneI.isEmpty() || !CommuneII.isEmpty() || !CommuneIII.isEmpty() || !ReagentI.isEmpty() || !ReagentII.isEmpty() || !ReagentIII.isEmpty() || !BasicCandle.isEmpty() || !RegularCandle.isEmpty() || !GreaterCandle.isEmpty() || !GreaterSkull.isEmpty() || !SpeedI.isEmpty() || !SpeedII.isEmpty() || !SpeedIII.isEmpty() || !AttractionI.isEmpty() || !AttractionII.isEmpty() || !AttractionIII.isEmpty() || !ProtectionI.isEmpty() || !ProtectionII.isEmpty() || !ProtectionIII.isEmpty())) {
+        if (VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0 && player.getAnimationId() == -1 && (!ChangeI.isEmpty() || !ChangeII.isEmpty() || !ChangeIII.isEmpty() || !ElementalI.isEmpty() || !ElementalII.isEmpty() || !ElementalIII.isEmpty() || !MultiplyI.isEmpty() || !MultiplyII.isEmpty() || !MultiplyIII.isEmpty() || !CommuneI.isEmpty() || !CommuneII.isEmpty() || !CommuneIII.isEmpty() || !ReagentI.isEmpty() || !ReagentII.isEmpty() || !ReagentIII.isEmpty() || !BasicCandle.isEmpty() || !RegularCandle.isEmpty() || !GreaterCandle.isEmpty() || !GreaterSkull.isEmpty() || !SpeedI.isEmpty() || !SpeedII.isEmpty() || !SpeedIII.isEmpty() || !AttractionI.isEmpty() || !AttractionII.isEmpty() || !AttractionIII.isEmpty() || !ProtectionI.isEmpty() || !ProtectionII.isEmpty() || !ProtectionIII.isEmpty())) {
 
             EntityResultSet<SceneObject> Pedestal = SceneObjectQuery.newQuery().option("Repair all").results();
             if (!Pedestal.isEmpty()) {
                 log("Interacting with Pedestal");
                 Pedestal.first().interact("Repair all");
-                Execution.delay(random.nextLong(1500, 3000));
+                Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getAnimationId() == -1 && (ChangeI.isEmpty() || ChangeII.isEmpty() || ChangeIII.isEmpty() || ElementalI.isEmpty() || ElementalII.isEmpty() || ElementalIII.isEmpty() || MultiplyI.isEmpty() || MultiplyII.isEmpty() || MultiplyIII.isEmpty() || CommuneI.isEmpty() || CommuneII.isEmpty() || CommuneIII.isEmpty() || ReagentI.isEmpty() || ReagentII.isEmpty() || ReagentIII.isEmpty() || BasicCandle.isEmpty() || RegularCandle.isEmpty() || GreaterCandle.isEmpty() || GreaterSkull.isEmpty() || SpeedI.isEmpty() || SpeedII.isEmpty() || SpeedIII.isEmpty() || AttractionI.isEmpty() || AttractionII.isEmpty() || AttractionIII.isEmpty() || ProtectionI.isEmpty() || ProtectionII.isEmpty() || ProtectionIII.isEmpty()));
             }
         } else {
-            if (!Platform2.isEmpty()) {
-                log("Interacting with Platform");
+            if (!Platform2.isEmpty() && VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0) {
+                log("Starting Ritual");
                 Platform2.first().interact("Start ritual");
                 Execution.delay(random.nextLong(1500, 3000));
+            } else {
+                EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+                if (!pedestal.isEmpty()) {
+                    log("Continuing Ritual");
+                    pedestal.first().interact("Continue ritual");
+                    Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
+                }
             }
         }
 
-        return random.nextLong(1500, 2500);
+        return random.nextLong(750, 1500);
     }
+
+    private static long glyths() {
+        List<Integer> npcTypeIds = new ArrayList<>();
+        npcTypeIds.add(30495); // Glyth 1
+        npcTypeIds.add(30496); // Glyth 2
+        npcTypeIds.add(30497); // Glyth 3
+
+        for (Integer npcTypeId : npcTypeIds) {
+            EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+
+            while (!entities.isEmpty()) {
+                log("Interacting with Glyth: " + npcTypeId);
+                entities.first().interact("Deactivate");
+                Execution.delay(random.nextLong(500, 600));
+                entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+
+                if (npcTypeId.equals(30497) && entities.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private static long ghost() {
+        int npcTypeId = 30493; // Ghost
+
+        EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+
+        while (!entities.isEmpty() && !player.isMoving()) {
+            log("Interacting with Ghost");
+            entities.first().interact("Dismiss");
+            Execution.delay(random.nextLong(500, 600));
+            entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+
+            if (entities.isEmpty()) {
+                break;
+            }
+        }
+
+        return 0;
+    }
+
+    private static long sparklingglyth() {
+        List<Integer> npcTypeIds = new ArrayList<>();
+        npcTypeIds.add(30492); // Sparkling Glyth
+
+        for (Integer npcTypeId : npcTypeIds) {
+            EntityResultSet<Npc> entities = NpcQuery.newQuery().byType(npcTypeId).results();
+
+            while (!entities.isEmpty() && !player.isMoving()) {
+                log("Interacting with Sparkling Glyth: " + npcTypeId);
+                entities.first().interact("Restore");
+                Execution.delay(random.nextLong(500, 600));
+                entities = NpcQuery.newQuery().byType(npcTypeId).results();
+
+                if (entities.isEmpty()) {
+                    break;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private static long soulStorm() {
+        List<Integer> npcTypeIds = new ArrayList<>();
+        npcTypeIds.add(30498); // Soul Storm
+        npcTypeIds.add(30499); // Soul Storm
+
+        for (Integer npcTypeId : npcTypeIds) {
+            EntityResultSet<Npc> entities = NpcQuery.newQuery().byType(npcTypeId).results();
+
+            while (!entities.isEmpty() && !player.isMoving()) {
+                log("Interacting with Soul Storm: " + npcTypeId);
+                entities.first().interact("Dissipate");
+                Execution.delay(random.nextLong(1000, 2000));
+                entities = NpcQuery.newQuery().byType(npcTypeId).results();
+
+                if (entities.isEmpty()) {
+                    break;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /*private static long shamblingHorror() {
+        if (player.isMoving()) {
+            log("Player is moving, delaying.");
+            return random.nextLong(500, 800);
+        }
+
+        Integer npcTypeId = 30494; // Shambling Horror
+        EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+        log("Queried for Shambling Horror NPCs. Found: " + entities.size());
+
+        if (!entities.isEmpty()) {
+            Npc shambingHorrorNpc = entities.first();
+
+            // Interact with the NPC
+            log("Interacting with Shambling Horror");
+            shambingHorrorNpc.interact("Sever link");
+            Execution.delay(random.nextLong(3000, 5000));
+            log("Interaction with Shambling Horror complete.");
+
+            // Check for the spot animation and get the corresponding scene object
+            EntityResultSet<SpotAnimation> spotAnimations = SpotAnimationQuery.newQuery().animations(3819).results();
+            log("Queried for Spot Animations with ID 3819. Found: " + spotAnimations.size());
+
+            if (!spotAnimations.isEmpty()) {
+                SpotAnimation currentAnimation = spotAnimations.first();
+                log("Found Spot Animation at: " + currentAnimation.getCoordinate());
+
+                SceneObject sameTileObject = SceneObjectQuery.newQuery()
+                        .inside(new net.botwithus.rs3.game.Area.Singular(currentAnimation.getCoordinate()))
+                        .results()
+                        .first();
+                if (sameTileObject != null) {
+                    log("Found Scene Object at Spot Animation location: " + sameTileObject.getName());
+                    log("Interacting with Scene Object at Spot Animation location: " + sameTileObject.getName());
+                    sameTileObject.interact(sameTileObject.getOptions().get(0)); // Interact with the first option
+                    Execution.delay(random.nextLong(1000, 2000));
+                    log("Interaction with Scene Object complete.");
+                } else {
+                    log("No Scene Object found at Spot Animation location.");
+                }
+            } else {
+                log("No Spot Animations found.");
+            }
+        } else {
+            log("No Shambling Horror NPCs found.");
+        }
+
+        return 0;
+    }*/
+
+
+
 
 }
 

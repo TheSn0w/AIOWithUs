@@ -32,6 +32,8 @@ import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
 import static net.botwithus.Misc.GemCutter.cutGems;
+import static net.botwithus.Misc.LeatherCrafter.handleLeatherCrafter;
+import static net.botwithus.Misc.LeatherCrafter.interactWithLeather;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.Necro.interactWithEntities;
 import static net.botwithus.Misc.Smelter.*;
@@ -227,6 +229,9 @@ public class Runnables {
                 }
                 if (handleNecro) {
                     Execution.delay(interactWithEntities());
+                }
+                if (handleLeatherCrafter) {
+                    Execution.delay(interactWithLeather());
                 }
             }
         }

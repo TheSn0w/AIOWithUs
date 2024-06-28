@@ -70,9 +70,9 @@ public class Combat {
             if (lootNoted) {
                 lootNotedItemsFromInventory();
             }
-            /*if (isStackable) {
+            if (isStackable) {
                 lootStackableItemsFromInventory();
-            }*/
+            }
         }
 
         if (SoulSplit) {

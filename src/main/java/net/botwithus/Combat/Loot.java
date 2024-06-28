@@ -168,7 +168,7 @@ public class Loot {
             }
         }
     }
-    /*public static void lootStackableItemsFromInventory() {
+    public static void lootStackableItemsFromInventory() {
         log("[Loot] Checking if LootInventory is open...");
         if (LootInventory.isOpen()) {
             log("[Loot] LootInventory is open. Getting items...");
@@ -220,10 +220,10 @@ public class Loot {
     private static boolean isStackable(ItemType itemType) {
         ItemType.Stackability stackability = itemType.getStackability();
         log("[Loot] Stackability of item: " + itemType.getName() + " is " + stackability);
-        boolean isStackable = stackability == ItemType.Stackability.ALWAYS || stackability == ItemType.Stackability.SOMETIMES;
+        boolean isStackable = stackability == ItemType.Stackability.ALWAYS;
         log("[Loot] Is item stackable? " + isStackable);
         return isStackable;
-    }*/
+    }
 
 
     /*public static void lootFromInventory() {
