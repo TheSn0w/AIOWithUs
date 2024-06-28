@@ -165,7 +165,8 @@ public class Combat {
             PathingEntity<?> npcFollowing = npc.getFollowing();
             String npcName = npc.getName();
 
-            if (npcFollowing != null && npcFollowing.getId() == player.getId() && !npcName.contains(playerName)) {
+            // Check if the NPC has the "Attack" option
+            if (npcFollowing != null && npcFollowing.getId() == player.getId() && !npcName.contains(playerName) && npc.getOptions().contains("Attack")) {
                 followingNpc = npc;
                 break;
             }
@@ -208,14 +209,18 @@ public class Combat {
     }
 
     private static long attackMonster(LocalPlayer player, Npc monster) {
-        boolean attack = monster.interact("Attack");
-        if (attack) {
-            if (handleMultitarget) {
-                recentlyAttackedTargets.add(monster.getId());
+        if (monster.getOptions().contains("Attack")) {
+            boolean attack = monster.interact("Attack");
+            if (attack) {
+                if (handleMultitarget) {
+                    recentlyAttackedTargets.add(monster.getId());
+                }
+                return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 300, 400);
+            } else {
+                return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
             }
-            return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 300, 400);
         } else {
-            return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
+            return logAndDelay("[Error] No attack option for " + monster.getName(), 1000, 3000);
         }
     }
 
