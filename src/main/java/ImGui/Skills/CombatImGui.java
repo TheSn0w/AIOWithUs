@@ -13,8 +13,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static ImGui.PredefinedStrings.*;
-import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
-import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
+import static net.botwithus.Combat.Abilities.*;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.Notepaper.*;
@@ -202,6 +201,18 @@ public class CombatImGui {
             useVulnerabilityBombs = ImGui.Checkbox("Vuln Bombs", useVulnerabilityBombs);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Have Vulnerability Bombs on Action bar");
+            }
+
+            ImGui.SetCursorPosX(spacing);
+            useThreadsofFate = ImGui.Checkbox("Threads of Fate", useThreadsofFate);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Threads of Fate on Action bar, will use on CD");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useDarkness = ImGui.Checkbox("Darkness", useDarkness);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Darkness on Action bar");
             }
 
             if (handleMultitarget) {

@@ -17,6 +17,7 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Abilities {
     public static boolean useThreadsofFate = false;
+    public static boolean useDarkness = false;
     public static int NecrosisStacksThreshold = 12;
     public static int VolleyOfSoulsThreshold = 5;
     private static long lastAbilityTime = 0;
@@ -50,6 +51,9 @@ public class Abilities {
             lastAbilityTime = currentTime;
         } else if (useThreadsofFate && ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0){
             manageThreadsofFate(player);
+            lastAbilityTime = currentTime;
+        } else if (useDarkness && ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
+            manageDarkness(player);
             lastAbilityTime = currentTime;
         }
     }
@@ -115,6 +119,14 @@ public class Abilities {
             log("[Success] Cast Threads of Fate: " + true);
         } else {
             log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
+        }
+    }
+    public static void manageDarkness(LocalPlayer player) {
+        boolean success = ActionBar.useAbility("Darkness");
+        if (success) {
+            log("[Success] Cast Darkness: " + true);
+        } else {
+            log("[Error] Attempted to cast Darkness, but ability use failed.");
         }
     }
 }
