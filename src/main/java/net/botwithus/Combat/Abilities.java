@@ -33,7 +33,7 @@ public class Abilities {
             Execution.delay(essenceOfFinality(player));
         } else if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget()) {
             Execution.delay(Deathmark(player));
-        } else if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() && player.getFollowing() != null && player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
+        } else if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() &&  player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
             Execution.delay(volleyOfSouls(player));
         } else if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
             Execution.delay(DeathEssence(player));
