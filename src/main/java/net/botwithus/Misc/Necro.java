@@ -222,6 +222,7 @@ public class Necro {
         EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
         if (!entities.isEmpty()) {
+            Execution.delay(random.nextLong(1025, 1500));
             Npc shambingHorrorNpc = entities.first();
 
             log("Interacting with Shambling Horror");
