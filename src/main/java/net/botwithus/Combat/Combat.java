@@ -21,12 +21,14 @@ import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.managePotions;
 import static net.botwithus.Combat.Prayers.manageQuickPrayers;
 import static net.botwithus.Combat.Prayers.manageSoulSplit;
+import static net.botwithus.Combat.RipperDemon.engageRipperDemon;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 
 public class Combat {
 
     public static boolean handleMultitarget = false;
+    public static boolean attackRipperDemon = false;
     public static double healthThreshold = 0.8;
     public static boolean shouldEatFood = false;
     private static final Set<Integer> recentlyAttackedTargets = new HashSet<>();
@@ -43,8 +45,8 @@ public class Combat {
 
 
     public static long attackTarget(LocalPlayer player) {
-        if (player == null || player.isMoving() || !player.hasTarget()) {
-            return attackNearestMonster(player);
+        if (player == null || player.isMoving()) {
+            return random.nextLong(100, 200);
         }
         /*List<String> friendlyNpcNames = Arrays.asList("Putrid Zombie", "Skeleton Warrior", "Vengeful Ghost");
 
@@ -91,6 +93,7 @@ public class Combat {
             eatFood(player);
             return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
         }
+
         if (handleMultitarget) {
             if (System.currentTimeMillis() - lastClearTime > random.nextLong(5000, 7500)) {
                 recentlyAttackedTargets.clear();

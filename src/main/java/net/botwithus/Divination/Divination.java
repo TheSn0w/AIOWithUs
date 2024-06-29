@@ -62,7 +62,6 @@ public class Divination {
         String wispName = getWispName(divinationLevel);
         Coordinate wispCoordinates = getWispCoordinates(divinationLevel);
 
-        log("[Divination] Level: " + divinationLevel);
 
         if (wispCoordinates == null) {
             log("[Error] No valid wisp coordinates found for level: " + divinationLevel);
@@ -106,9 +105,6 @@ public class Divination {
         if (Backpack.isFull()) {
             log("[Divination] Backpack is full, converting at the rift.");
             return handleFullBackpack();
-        }
-        if (!harvestChronicles) {
-            Execution.delay(attemptHarvestEnriched(player, wispName));
         }
 
         if (player.getAnimationId() == 21228 || player.getAnimationId() == 31055) {
@@ -206,24 +202,9 @@ public class Divination {
 
         return null;
     }
-    private static long attemptHarvestEnriched(LocalPlayer player, String wispName) {
-            EntityResultSet<Npc> wispsToHarvest = NpcQuery.newQuery().name("Enriched incandescent spring").results();
-
-            Npc nearestWisp = wispsToHarvest.nearest();
-            if (nearestWisp != null) {
-                Execution.delay(random.nextLong(500, 1250));
-                boolean success = nearestWisp.interact("Harvest");
-                if (success) {
-                    log("[Enriched] Harvesting: " + wispName);
-                    Execution.delayUntil(360000, () -> !wispsToHarvest.nearest().validate() || Backpack.isFull());
-                }
-            }
-
-        return random.nextLong(1500, 2500);
-    }
 
     private static long attemptHarvest(LocalPlayer player, String wispName) {
-        if (player.getAnimationId() != 21228 && player.getAnimationId() != 31055) {
+        if (player.getAnimationId() == -1) {
             EntityResultSet<Npc> wispsToHarvest = NpcQuery.newQuery().name(wispName).results();
 
             Npc nearestWisp = wispsToHarvest.nearest();

@@ -30,8 +30,7 @@ import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.Porters.bankwithoutPorter;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
-import static net.botwithus.Combat.Combat.isStackable;
-import static net.botwithus.Combat.Combat.shouldEatFood;
+import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.CustomLogger.log;
@@ -311,6 +310,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Magic notepaper or Enchant notepaper");
                         }
+                        /*createCenteredButton("Ripper Demons", () -> attackRipperDemon = !attackRipperDemon, attackRipperDemon);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will attack Ripper demons");
+                        }*/
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
