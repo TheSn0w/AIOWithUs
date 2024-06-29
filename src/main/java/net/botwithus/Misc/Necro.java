@@ -25,7 +25,7 @@ public class Necro {
     public static boolean enableDisturbances = true;
 
     public static long interactWithEntities() {
-        log("Time Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 10937) + " seconds.");
+        /*log("Time Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 10937) + " seconds.");*/
 
         if (enableDisturbances) {
             Execution.delay(defile());
@@ -39,7 +39,7 @@ public class Necro {
         EntityResultSet<SceneObject> Platform2 = SceneObjectQuery.newQuery().id(127315).results();
 
         if (player.isMoving() || player.getAnimationId() != -1) {
-            return random.nextLong(1500, 2500);
+            return random.nextLong(random.nextLong(750,1250));
         }
 
         EntityResultSet<Npc> ChangeI = NpcQuery.newQuery().name("Change I (depleted)").option("Repair").results();
@@ -122,8 +122,7 @@ public class Necro {
             }
         }
 
-        return random.nextLong(750, 1500);
-    }
+        return random.nextLong(random.nextLong(750,1250));    }
 
     private static long glyths() {
         List<Integer> npcTypeIds = new ArrayList<>();
@@ -137,12 +136,11 @@ public class Necro {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
             if (!entities.isEmpty()) {
-                Execution.delay(random.nextLong(500, 1250));
+                Execution.delay(random.nextLong(200, 400));
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
 
                 while (!entities.isEmpty()) {
-                    Execution.delay(random.nextLong(750, 1200));
                     entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
                 }
 
@@ -169,15 +167,26 @@ public class Necro {
 
         EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
-        while (!entities.isEmpty() && !player.isMoving()) {
+        while (!entities.isEmpty()) {
             Execution.delay(random.nextLong(500, 1250));
             log("Interacting with Ghost");
             entities.nearest().interact("Dismiss");
-            Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving());
+
+            Execution.delayUntil(random.nextLong(8000, 10000), () -> NpcQuery.newQuery().byParentType(npcTypeId).animation(-1).results().isEmpty());
             Execution.delay(random.nextLong(900, 1500));
             entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
-            if (entities.isEmpty() || !player.isMoving()) {
+            if (entities.nearest().getAnimationId() != -1) {
+                EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+                if (!pedestal.isEmpty()) {
+                    log("Continuing Ritual");
+                    pedestal.first().interact("Continue ritual");
+                    Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
+                    Execution.delay(random.nextLong(3000, 5000));
+                }
+            }
+
+            if (entities.nearest().getAnimationId() != -1) {
                 break;
             }
         }
@@ -197,7 +206,7 @@ public class Necro {
                 Execution.delay(random.nextLong(500, 1250));
                 log("Interacting with Sparkling Glyth: " + npcTypeId);
                 entities.first().interact("Restore");
-                Execution.delay(random.nextLong(500, 600));
+                Execution.delayUntil(random.nextLong(7500, 10000), () -> NpcQuery.newQuery().byType(npcTypeId).results().isEmpty());
                 entities = NpcQuery.newQuery().byType(npcTypeId).results();
 
                 if (entities.isEmpty()) {
@@ -299,13 +308,16 @@ public class Necro {
             defileNpc.interact("Siphon");
             Execution.delayUntil(random.nextLong(10000, 15000), () -> !player.isMoving());
 
+            boolean hasInteracted = false;
             while (!results.isEmpty()) {
                 Npc light = getLight();
-                if (light != null) {
-                    Execution.delay(random.nextLong(500, 1000));
-                    log("Spot Animation appeared, interacting with Defile again");
+                if (light != null && !hasInteracted) {
+                    Execution.delay(random.nextLong(400, 600));
+                    log("Purple Smoke appeared, interacting with Defile again");
                     defileNpc.interact("Siphon");
-                    Execution.delayUntil(random.nextLong(5000, 7500), () -> getLight() == null);
+                    hasInteracted = true;
+                } else if (light == null) {
+                    hasInteracted = false;
                 }
                 results = NpcQuery.newQuery().byType(30500).results();
                 if (results.isEmpty()) {

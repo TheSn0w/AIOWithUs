@@ -359,6 +359,11 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+        if (handleNecro) {
+            if (message.contains("You need the following materials to repair")) {
+                shutdown();
+            }
+        }
 
         if (handleHarps) {
             if (message.contains("Your harp is ")) {

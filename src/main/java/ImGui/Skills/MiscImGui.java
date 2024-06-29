@@ -320,8 +320,7 @@ public class MiscImGui {
             if (handleNecro) {
                 if (tooltipsEnabled) {
                     String[] texts = {
-                            "Will only do rituals and no Disturbances",
-                            "Check out NecroWithUs for Disturbances",
+                            "Will only do preselected rituals",
                             "Make sure you have all items in backpack ",
                             "Make sure the selected Glyths are set",
                             "Will repair using the Repair all once any 1 are depleted",
