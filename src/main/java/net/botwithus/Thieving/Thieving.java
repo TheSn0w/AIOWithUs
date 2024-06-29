@@ -2,6 +2,7 @@ package net.botwithus.Thieving;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
@@ -10,6 +11,7 @@ import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
+import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
@@ -154,6 +156,7 @@ public class Thieving {
 
             }
             eatFood(player);
+
 
             ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
             ResultSet<Component> resultsMask = query.results();
@@ -322,4 +325,5 @@ public class Thieving {
         }
         return 0;
     }
+
 }

@@ -110,6 +110,7 @@ public class SnowsScript extends LoopingScript {
             return;
         }
 
+
         capturestuff();
 
         if (isDropActive) {
@@ -358,6 +359,8 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+
+
         if (handleNecro) {
             if (message.contains("You need the following materials to repair")) {
                 log("[Error] You are missing materials to repair, logging off");

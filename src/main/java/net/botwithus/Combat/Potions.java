@@ -1,8 +1,11 @@
 package net.botwithus.Combat;
 
+import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.hud.interfaces.Component;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
@@ -44,7 +47,6 @@ public class Potions {
 
         Execution.delay(totalDelay);
     }
-
 
 
     public static long useAggression(LocalPlayer player) {
@@ -188,4 +190,5 @@ public class Potions {
         }
         return 0;
     }
+
 }
