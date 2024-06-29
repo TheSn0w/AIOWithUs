@@ -50,7 +50,7 @@ public class Necro {
         }
 
         if (!depletedNpcs.isEmpty()) {
-            log("Depleted NPCs: " + String.join(", ", depletedNpcs));
+            log("Depleted Glyths: " + String.join(", ", depletedNpcs));
         }
 
         if (VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0 && player.getAnimationId() == -1 && !depletedNpcs.isEmpty()) {
@@ -91,13 +91,13 @@ public class Necro {
 
             if (!entities.isEmpty()) {
                 Execution.delay(random.nextLong(200, 400));
-                log("Interacting with Glyth: " + npcTypeId);
+                log("Interacting with Glyth");
                 entities.first().interact("Deactivate");
 
 
                 while (!entities.isEmpty()) {
                     entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
-                    Execution.delay(random.nextLong(100, 200));
+                    Execution.delay(random.nextLong(50, 100));
 
                 }
 
@@ -106,7 +106,6 @@ public class Necro {
                 }
             }
         }
-        Execution.delay(random.nextLong(200, 300));
 
         if (interactedWithAllGlyths) {
             EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
@@ -162,7 +161,7 @@ public class Necro {
 
             while (!entities.isEmpty() && !player.isMoving()) {
                 Execution.delay(random.nextLong(500, 1250));
-                log("Interacting with Sparkling Glyth: " + npcTypeId);
+                log("Interacting with Sparkling Glyth");
                 entities.first().interact("Restore");
                 Execution.delayUntil(random.nextLong(7500, 10000), () -> NpcQuery.newQuery().byType(npcTypeId).results().isEmpty());
                 entities = NpcQuery.newQuery().byType(npcTypeId).results();
@@ -186,7 +185,7 @@ public class Necro {
 
             while (!entities.isEmpty() && !player.isMoving()) {
                 Execution.delay(random.nextLong(500, 1250));
-                log("Interacting with Soul Storm: " + npcTypeId);
+                log("Interacting with Soul Storm");
                 entities.first().interact("Dissipate");
                 Execution.delay(random.nextLong(1000, 2000));
                 entities = NpcQuery.newQuery().byType(npcTypeId).results();
