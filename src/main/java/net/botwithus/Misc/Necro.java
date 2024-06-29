@@ -140,6 +140,8 @@ public class Necro {
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
 
+                Execution.delay(random.nextLong(200, 300));
+
                 while (!entities.isEmpty()) {
                     entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
                 }
@@ -149,6 +151,7 @@ public class Necro {
                 }
             }
         }
+        Execution.delay(random.nextLong(200, 300));
 
         if (interactedWithAllGlyths) {
             EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
