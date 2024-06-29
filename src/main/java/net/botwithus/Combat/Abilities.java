@@ -18,6 +18,7 @@ import net.botwithus.rs3.script.Execution;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import static net.botwithus.Combat.Combat.attackNearestMonster;
 import static net.botwithus.Combat.Potions.vulnerabilityBomb;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
@@ -37,34 +38,45 @@ public class Abilities {
 
         if (DeathGrasp && player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && player.hasTarget() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
             Execution.delay(essenceOfFinality(player));
+            return;
         }
         if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
             Execution.delay(Deathmark(player));
+            return;
         }
         if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() &&  player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
             Execution.delay(volleyOfSouls(player));
+            return;
         }
         if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
             Execution.delay(DeathEssence(player));
+            return;
         }
         if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
             Execution.delay(KeepArmyup(player));
+            return;
         }
         if (useVulnerabilityBombs) {
             Execution.delay(vulnerabilityBomb(player));
+            return;
         }
         if (useThreadsofFate && ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
             Execution.delay(manageThreadsofFate(player));
+            return;
         }
         if (useDarkness && ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
             Execution.delay(manageDarkness(player));
+            return;
         }
         if (useElvenRitual) {
             Execution.delay(activateElvenRitual(player));
+            return;
         }
         if (useExcalibur && ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
             Execution.delay(activateExcalibur());
+            return;
         }
+        attackNearestMonster(player);
     }
 
     public static long essenceOfFinality(LocalPlayer player) {

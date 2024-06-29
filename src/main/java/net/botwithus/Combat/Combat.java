@@ -160,7 +160,7 @@ public class Combat {
     }
 
 
-    private static long attackNearestMonster(LocalPlayer player) {
+    static long attackNearestMonster(LocalPlayer player) {
         String playerName = player.getName();
         Npc followingNpc = null;
 
