@@ -2,11 +2,16 @@ package net.botwithus.Combat;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
+import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
@@ -21,6 +26,7 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 public class Abilities {
     public static boolean useThreadsofFate = false;
     public static boolean useDarkness = false;
+    public static boolean useExcalibur = false;
     public static int NecrosisStacksThreshold = 12;
     public static int VolleyOfSoulsThreshold = 5;
     public static boolean useElvenRitual = false;
@@ -47,6 +53,8 @@ public class Abilities {
             Execution.delay(manageDarkness(player));
         } else if (useElvenRitual) {
             Execution.delay(activateElvenRitual(player));
+        } else if (useExcalibur && ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
+            Execution.delay(activateExcalibur());
         }
     }
 
@@ -150,6 +158,40 @@ public class Abilities {
                 }
             }
         }
+        return 0;
+    }
+    private boolean isExcaliburActive() {
+        Component excaliburComponent = ComponentQuery.newQuery(291)
+                .spriteId(14632)
+                .results().first();
+        return excaliburComponent != null;
+    }
+
+    private static long activateExcalibur() {
+        LocalPlayer player = getLocalPlayer();
+        if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
+            log("Health is above threshold, no need to activate Excalibur.");
+            return 0;
+        }
+
+        ResultSet<Item> items = InventoryItemQuery.newQuery().results();
+        Item excaliburItem = items.stream()
+                .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("excalibur"))
+                .findFirst()
+                .orElse(null);
+
+        if (excaliburItem != null) {
+            boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
+            if (success) {
+                log("Activating " + excaliburItem.getName());
+                return random.nextLong(1900, 2000);
+            } else {
+                log("Failed to activate Excalibur.");
+            }
+        } else {
+            log("No Excalibur found!");
+        }
+
         return 0;
     }
 }

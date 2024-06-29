@@ -220,6 +220,12 @@ public class CombatImGui {
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("will use from backpack when prayer points are below threshold");
             }
+            ImGui.SetCursorPosX(spacing);
+            useExcalibur = ImGui.Checkbox("Excalibur", useExcalibur);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("will use excalibur when health below threshold");
+            }
+
 
             if (handleMultitarget) {
                 ImGui.SetCursorPosX(spacing);
