@@ -80,19 +80,17 @@ public class Combat {
         if (SoulSplit) {
             Execution.delay(manageSoulSplit(player));
         }
-
         if (usequickPrayers) {
             manageQuickPrayers(player);
+        }
+        if (shouldEatFood) {
+            eatFood(player);
         }
 
         managePotions(player);
         manageScripturesAndScrimshaws(player);
         manageCombatAbilities();
 
-        if (isHealthLow(player) && shouldEatFood) {
-            eatFood(player);
-            return logAndDelay("[Error] Health is low, won't attack until more health.", 1000, 3000);
-        }
 
         if (handleMultitarget) {
             if (System.currentTimeMillis() - lastClearTime > random.nextLong(5000, 7500)) {
