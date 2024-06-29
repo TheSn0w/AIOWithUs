@@ -169,12 +169,6 @@ public class Abilities {
         }
         return 0;
     }
-    private boolean isExcaliburActive() {
-        Component excaliburComponent = ComponentQuery.newQuery(291)
-                .spriteId(14632)
-                .results().first();
-        return excaliburComponent != null;
-    }
 
     private static long activateExcalibur() {
         LocalPlayer player = getLocalPlayer();
