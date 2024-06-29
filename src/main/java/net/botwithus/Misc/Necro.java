@@ -28,6 +28,7 @@ public class Necro {
         log("Time Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 10937) + " seconds.");
 
         if (enableDisturbances) {
+            Execution.delay(defile());
             Execution.delay(shamblingHorror());
             Execution.delay(glyths());
             Execution.delay(soulStorm());
@@ -136,6 +137,7 @@ public class Necro {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
             if (!entities.isEmpty()) {
+                Execution.delay(random.nextLong(500, 1250));
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
 
@@ -168,6 +170,7 @@ public class Necro {
         EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
         while (!entities.isEmpty() && !player.isMoving()) {
+            Execution.delay(random.nextLong(500, 1250));
             log("Interacting with Ghost");
             entities.nearest().interact("Dismiss");
             Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving());
@@ -191,6 +194,7 @@ public class Necro {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byType(npcTypeId).results();
 
             while (!entities.isEmpty() && !player.isMoving()) {
+                Execution.delay(random.nextLong(500, 1250));
                 log("Interacting with Sparkling Glyth: " + npcTypeId);
                 entities.first().interact("Restore");
                 Execution.delay(random.nextLong(500, 600));
@@ -214,6 +218,7 @@ public class Necro {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byType(npcTypeId).results();
 
             while (!entities.isEmpty() && !player.isMoving()) {
+                Execution.delay(random.nextLong(500, 1250));
                 log("Interacting with Soul Storm: " + npcTypeId);
                 entities.first().interact("Dissipate");
                 Execution.delay(random.nextLong(1000, 2000));
@@ -284,6 +289,38 @@ public class Necro {
                     .first();
         }
         return glow;
+    }
+    private static long defile() {
+        EntityResultSet<Npc> results = NpcQuery.newQuery().byType(30500).results();
+        if (!results.isEmpty()) {
+            Npc defileNpc = results.first();
+            Execution.delay(random.nextLong(500, 1000));
+            log("Siphoning the Defile");
+            defileNpc.interact("Siphon");
+            Execution.delayUntil(random.nextLong(10000, 15000), () -> !player.isMoving());
+
+            while (!results.isEmpty()) {
+                Npc light = getLight();
+                if (light != null) {
+                    Execution.delay(random.nextLong(500, 1000));
+                    log("Spot Animation appeared, interacting with Defile again");
+                    defileNpc.interact("Siphon");
+                    Execution.delayUntil(random.nextLong(5000, 7500), () -> getLight() == null);
+                }
+                results = NpcQuery.newQuery().byType(30500).results();
+                if (results.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private static Npc getLight() {
+        return NpcQuery.newQuery()
+                .spotAnimation(7930)
+                .results()
+                .first();
     }
 }
 
