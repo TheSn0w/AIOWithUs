@@ -140,7 +140,7 @@ public class Necro {
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
 
-                Execution.delay(random.nextLong(200, 300));
+                Execution.delay(random.nextLong(350, 500));
 
                 while (!entities.isEmpty()) {
                     entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
