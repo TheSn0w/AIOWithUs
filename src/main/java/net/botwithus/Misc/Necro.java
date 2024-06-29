@@ -25,8 +25,6 @@ public class Necro {
     public static boolean enableDisturbances = true;
 
     public static long interactWithEntities() {
-        /*log("Time Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 10937) + " seconds.");*/
-
         if (enableDisturbances) {
             Execution.delay(defile());
             Execution.delay(shamblingHorror());
@@ -42,70 +40,25 @@ public class Necro {
             return random.nextLong(random.nextLong(750,1250));
         }
 
-        EntityResultSet<Npc> ChangeI = NpcQuery.newQuery().name("Change I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ChangeII = NpcQuery.newQuery().name("Change II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ChangeIII = NpcQuery.newQuery().name("Change III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ElementalI = NpcQuery.newQuery().name("Elemental I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ElementalII = NpcQuery.newQuery().name("Elemental II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ElementalIII = NpcQuery.newQuery().name("Elemental III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> CommuneI = NpcQuery.newQuery().name("Commune I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> CommuneII = NpcQuery.newQuery().name("Commune II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> CommuneIII = NpcQuery.newQuery().name("Commune III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ReagentI = NpcQuery.newQuery().name("Reagent I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ReagentII = NpcQuery.newQuery().name("Reagent II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ReagentIII = NpcQuery.newQuery().name("Reagent III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> BasicCandle = NpcQuery.newQuery().name("Basic ritual candle (depleted)").option("Repair").results();
-        EntityResultSet<Npc> RegularCandle = NpcQuery.newQuery().name("Regular ritual candle (depleted)").option("Repair").results();
-        EntityResultSet<Npc> GreaterCandle = NpcQuery.newQuery().name("Greater ritual candle (depleted)").option("Repair").results();
-        EntityResultSet<Npc> GreaterSkull = NpcQuery.newQuery().name("Greater flaming skull (depleted)").option("Repair").results();
-        EntityResultSet<Npc> MultiplyI = NpcQuery.newQuery().name("Multiply I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> MultiplyII = NpcQuery.newQuery().name("Multiply II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> MultiplyIII = NpcQuery.newQuery().name("Multiply III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> SpeedI = NpcQuery.newQuery().name("Speed I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> SpeedII = NpcQuery.newQuery().name("Speed II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> SpeedIII = NpcQuery.newQuery().name("Speed III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> AttractionI = NpcQuery.newQuery().name("Attraction I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> AttractionII = NpcQuery.newQuery().name("Attraction II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> AttractionIII = NpcQuery.newQuery().name("Attraction III (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ProtectionI = NpcQuery.newQuery().name("Protection I (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ProtectionII = NpcQuery.newQuery().name("Protection II (depleted)").option("Repair").results();
-        EntityResultSet<Npc> ProtectionIII = NpcQuery.newQuery().name("Protection III (depleted)").option("Repair").results();
+        EntityResultSet<Npc> allEntities = NpcQuery.newQuery().option("Repair").results();
+        List<String> depletedNpcs = new ArrayList<>();
 
-        if (!ChangeI.isEmpty()) log("Change I is Depleted");
-        if (!ElementalI.isEmpty()) log("Elemental I is Depleted");
-        if (!ElementalII.isEmpty()) log("Elemental II is Depleted");
-        if (!MultiplyI.isEmpty()) log("Multiply I is Depleted");
-        if (!CommuneI.isEmpty()) log("Commune I is Depleted");
-        if (!ReagentI.isEmpty()) log("Reagent I is Depleted");
-        if (!ReagentII.isEmpty()) log("Reagent II is Depleted");
-        if (!ReagentIII.isEmpty()) log("Reagent III is Depleted");
-        if (!BasicCandle.isEmpty()) log("Basic Candle is Depleted");
-        if (!RegularCandle.isEmpty()) log("Regular Candle is Depleted");
-        if (!ChangeII.isEmpty()) log("Change II is Depleted");
-        if (!ChangeIII.isEmpty()) log("Change III is Depleted");
-        if (!ElementalIII.isEmpty()) log("Elemental III is Depleted");
-        if (!MultiplyIII.isEmpty()) log("Multiply III is Depleted");
-        if (!GreaterSkull.isEmpty()) log("Greater Candle is Depleted");
-        if (!MultiplyII.isEmpty()) log("Multiply II is Depleted");
-        if (!CommuneII.isEmpty()) log("Commune II is Depleted");
-        if (!CommuneIII.isEmpty()) log("Commune III is Depleted");
-        if (!SpeedI.isEmpty()) log("Speed I is Depleted");
-        if (!SpeedII.isEmpty()) log("Speed II is Depleted");
-        if (!SpeedIII.isEmpty()) log("Speed III is Depleted");
-        if (!AttractionI.isEmpty()) log("Attraction I is Depleted");
-        if (!AttractionII.isEmpty()) log("Attraction II is Depleted");
-        if (!AttractionIII.isEmpty()) log("Attraction III is Depleted");
-        if (!ProtectionI.isEmpty()) log("Protection I is Depleted");
-        if (!ProtectionII.isEmpty()) log("Protection II is Depleted");
-        if (!ProtectionIII.isEmpty()) log("Protection III is Depleted");
+        for (Npc npc : allEntities) {
+            if (npc.getName().contains("depleted")) {
+                depletedNpcs.add(npc.getName());
+            }
+        }
 
-        if (VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0 && player.getAnimationId() == -1 && (!ChangeI.isEmpty() || !ChangeII.isEmpty() || !ChangeIII.isEmpty() || !ElementalI.isEmpty() || !ElementalII.isEmpty() || !ElementalIII.isEmpty() || !MultiplyI.isEmpty() || !MultiplyII.isEmpty() || !MultiplyIII.isEmpty() || !CommuneI.isEmpty() || !CommuneII.isEmpty() || !CommuneIII.isEmpty() || !ReagentI.isEmpty() || !ReagentII.isEmpty() || !ReagentIII.isEmpty() || !BasicCandle.isEmpty() || !RegularCandle.isEmpty() || !GreaterCandle.isEmpty() || !GreaterSkull.isEmpty() || !SpeedI.isEmpty() || !SpeedII.isEmpty() || !SpeedIII.isEmpty() || !AttractionI.isEmpty() || !AttractionII.isEmpty() || !AttractionIII.isEmpty() || !ProtectionI.isEmpty() || !ProtectionII.isEmpty() || !ProtectionIII.isEmpty())) {
+        if (!depletedNpcs.isEmpty()) {
+            log("Depleted NPCs: " + String.join(", ", depletedNpcs));
+        }
 
+        if (VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0 && player.getAnimationId() == -1 && !depletedNpcs.isEmpty()) {
             EntityResultSet<SceneObject> Pedestal = SceneObjectQuery.newQuery().option("Repair all").results();
             if (!Pedestal.isEmpty()) {
                 log("Interacting with Pedestal");
                 Pedestal.first().interact("Repair all");
-                Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getAnimationId() == -1 && (ChangeI.isEmpty() || ChangeII.isEmpty() || ChangeIII.isEmpty() || ElementalI.isEmpty() || ElementalII.isEmpty() || ElementalIII.isEmpty() || MultiplyI.isEmpty() || MultiplyII.isEmpty() || MultiplyIII.isEmpty() || CommuneI.isEmpty() || CommuneII.isEmpty() || CommuneIII.isEmpty() || ReagentI.isEmpty() || ReagentII.isEmpty() || ReagentIII.isEmpty() || BasicCandle.isEmpty() || RegularCandle.isEmpty() || GreaterCandle.isEmpty() || GreaterSkull.isEmpty() || SpeedI.isEmpty() || SpeedII.isEmpty() || SpeedIII.isEmpty() || AttractionI.isEmpty() || AttractionII.isEmpty() || AttractionIII.isEmpty() || ProtectionI.isEmpty() || ProtectionII.isEmpty() || ProtectionIII.isEmpty()));
+                Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getAnimationId() == -1);
             }
         } else {
             if (!Platform2.isEmpty() && VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0) {
@@ -122,7 +75,8 @@ public class Necro {
             }
         }
 
-        return random.nextLong(random.nextLong(750,1250));    }
+        return random.nextLong(random.nextLong(750,1250));
+    }
 
     private static long glyths() {
         List<Integer> npcTypeIds = new ArrayList<>();
@@ -140,10 +94,11 @@ public class Necro {
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
 
-                Execution.delay(random.nextLong(350, 500));
 
                 while (!entities.isEmpty()) {
                     entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+                    Execution.delay(random.nextLong(100, 200));
+
                 }
 
                 if (npcTypeId.equals(30497) && entities.isEmpty()) {
