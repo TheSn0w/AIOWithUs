@@ -130,28 +130,38 @@ public class Necro {
         npcTypeIds.add(30496); // Glyth 2
         npcTypeIds.add(30497); // Glyth 3
 
+        boolean interactedWithAllGlyths = false;
+
         for (Integer npcTypeId : npcTypeIds) {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
-            while (!entities.isEmpty()) {
+            if (!entities.isEmpty()) {
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
-                Execution.delay(random.nextLong(750, 1200));
-                entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+
+                while (!entities.isEmpty()) {
+                    Execution.delay(random.nextLong(750, 1200));
+                    entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+                }
 
                 if (npcTypeId.equals(30497) && entities.isEmpty()) {
-                    EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
-                    if (!pedestal.isEmpty()) {
-                        log("Continuing Ritual");
-                        pedestal.first().interact("Continue ritual");
-                        Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
-                    }
-                    break;
+                    interactedWithAllGlyths = true;
                 }
             }
         }
+
+        if (interactedWithAllGlyths) {
+            EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+            if (!pedestal.isEmpty()) {
+                log("Continuing Ritual");
+                pedestal.first().interact("Continue ritual");
+                Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
+            }
+        }
+
         return 0;
     }
+
     private static long ghost() {
         int npcTypeId = 30493; // Ghost
 
@@ -161,6 +171,7 @@ public class Necro {
             log("Interacting with Ghost");
             entities.nearest().interact("Dismiss");
             Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving());
+            Execution.delay(random.nextLong(900, 1500));
             entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
             if (entities.isEmpty() || !player.isMoving()) {
