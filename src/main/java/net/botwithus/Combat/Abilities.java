@@ -84,7 +84,7 @@ public class Abilities {
         boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
         if (abilityUsed) {
             log("[Success] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to use Death Grasp, but ability use failed.");
         }
@@ -95,7 +95,7 @@ public class Abilities {
         boolean success = ActionBar.useAbility("Weapon Special Attack");
         if (success) {
             log("[Success] Used Death Essence: " + true);
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to use Death Essence, but ability use failed.");
         }
@@ -107,7 +107,7 @@ public class Abilities {
         boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
         if (abilityUsed) {
             log("[Success] Used Volley of Souls with " + currentResidualSouls + " residual souls.");
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to use Volley of Souls, but ability use failed.");
         }
@@ -118,7 +118,7 @@ public class Abilities {
         boolean success = ActionBar.useAbility("Invoke Death");
         if (success) {
             log("[Success] Used Invoke Death: " + true);
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to use Invoke Death, but ability use failed.");
         }
@@ -129,7 +129,7 @@ public class Abilities {
         boolean success = ActionBar.useAbility("Conjure Undead Army");
         if (success) {
             log("[Success] Cast Conjure army: " + true);
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to cast Conjure army, but ability use failed.");
         }
@@ -140,7 +140,7 @@ public class Abilities {
         boolean success = ActionBar.useAbility("Animate Dead");
         if (success) {
             log("[Success] Cast Animate Dead: " + true);
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to cast Animate Dead, but ability use failed.");
         }
@@ -150,7 +150,7 @@ public class Abilities {
         boolean success = ActionBar.useAbility("Threads of Fate");
         if (success) {
             log("[Success] Cast Threads of Fate: " + true);
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
         }
@@ -160,7 +160,7 @@ public class Abilities {
         boolean success = ActionBar.useAbility("Darkness");
         if (success) {
             log("[Success] Cast Darkness: " + true);
-            return random.nextLong(1900, 2000);
+            return random.nextLong(600);
         } else {
             log("[Error] Attempted to cast Darkness, but ability use failed.");
         }
@@ -173,7 +173,7 @@ public class Abilities {
                 boolean success = backpack.interact("Ancient elven ritual shard", "Activate");
                 if (success) {
                     log("[Success] Activated Elven Ritual Shard.");
-                    return random.nextLong(1900, 2000);
+                    return random.nextLong(600);
                 } else {
                     log("[Error] Failed to activate Elven Ritual Shard.");
                 }
@@ -198,7 +198,7 @@ public class Abilities {
             boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
             if (success) {
                 log("Activating " + excaliburItem.getName());
-                return random.nextLong(1900, 2000);
+                return random.nextLong(600);
             } else {
                 log("Failed to activate Excalibur.");
             }
