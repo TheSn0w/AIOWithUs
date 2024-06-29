@@ -37,23 +37,32 @@ public class Abilities {
 
         if (DeathGrasp && player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && player.hasTarget() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
             Execution.delay(essenceOfFinality(player));
-        } else if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
+        }
+        if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
             Execution.delay(Deathmark(player));
-        } else if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() &&  player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
+        }
+        if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() &&  player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
             Execution.delay(volleyOfSouls(player));
-        } else if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
+        }
+        if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
             Execution.delay(DeathEssence(player));
-        } else if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
+        }
+        if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
             Execution.delay(KeepArmyup(player));
-        } else if (useVulnerabilityBombs) {
+        }
+        if (useVulnerabilityBombs) {
             Execution.delay(vulnerabilityBomb(player));
-        } else if (useThreadsofFate && ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0){
+        }
+        if (useThreadsofFate && ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
             Execution.delay(manageThreadsofFate(player));
-        } else if (useDarkness && ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
+        }
+        if (useDarkness && ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
             Execution.delay(manageDarkness(player));
-        } else if (useElvenRitual) {
+        }
+        if (useElvenRitual) {
             Execution.delay(activateElvenRitual(player));
-        } else if (useExcalibur && ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
+        }
+        if (useExcalibur && ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
             Execution.delay(activateExcalibur());
         }
     }
@@ -170,7 +179,6 @@ public class Abilities {
     private static long activateExcalibur() {
         LocalPlayer player = getLocalPlayer();
         if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
-            log("Health is above threshold, no need to activate Excalibur.");
             return 0;
         }
 
