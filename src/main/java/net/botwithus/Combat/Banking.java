@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.Prayers.deactivateQuickPrayers;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.BANKING;
@@ -31,6 +32,9 @@ public class Banking {
     public static long bankToWars(LocalPlayer player) {
         if (VarManager.getVarbitValue(16779) == 1) {
             ActionBar.useAbility("Soul Split");
+        }
+        if (usequickPrayers) {
+            deactivateQuickPrayers();
         }
         setLastSkillingLocation(player.getCoordinate());
         if (ActionBar.containsAbility("War's Retreat Teleport")) {

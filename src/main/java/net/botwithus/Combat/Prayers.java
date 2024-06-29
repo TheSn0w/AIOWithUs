@@ -101,7 +101,7 @@ public class Prayers {
         }
     }
 
-    private static void deactivateQuickPrayers() {
+    public static void deactivateQuickPrayers() {
         if (quickPrayersActive) {
             log("[Combat] Deactivating Quick Prayers.");
             if (ActionBar.useAbility("Quick-prayers 1")) {
