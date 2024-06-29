@@ -136,17 +136,22 @@ public class Necro {
             while (!entities.isEmpty()) {
                 log("Interacting with Glyth: " + npcTypeId);
                 entities.first().interact("Deactivate");
-                Execution.delay(random.nextLong(500, 600));
+                Execution.delay(random.nextLong(750, 1200));
                 entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
                 if (npcTypeId.equals(30497) && entities.isEmpty()) {
+                    EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+                    if (!pedestal.isEmpty()) {
+                        log("Continuing Ritual");
+                        pedestal.first().interact("Continue ritual");
+                        Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
+                    }
                     break;
                 }
             }
         }
         return 0;
     }
-
     private static long ghost() {
         int npcTypeId = 30493; // Ghost
 
@@ -154,18 +159,18 @@ public class Necro {
 
         while (!entities.isEmpty() && !player.isMoving()) {
             log("Interacting with Ghost");
-            entities.first().interact("Dismiss");
-            Execution.delay(random.nextLong(500, 600));
+            entities.nearest().interact("Dismiss");
             Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving());
             entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
-            if (entities.isEmpty()) {
+            if (entities.isEmpty() || !player.isMoving()) {
                 break;
             }
         }
 
         return 0;
     }
+
 
     private static long sparklingglyth() {
         List<Integer> npcTypeIds = new ArrayList<>();
@@ -199,6 +204,7 @@ public class Necro {
 
             while (!entities.isEmpty() && !player.isMoving()) {
                 log("Interacting with Soul Storm: " + npcTypeId);
+                log("ID: " + entities.first().getType());
                 entities.first().interact("Dissipate");
                 Execution.delay(random.nextLong(1000, 2000));
                 entities = NpcQuery.newQuery().byType(npcTypeId).results();
@@ -213,43 +219,43 @@ public class Necro {
     }
 
     private static long shamblingHorror() {
-        if (player.isMoving()) {
-            log("Player is moving, delaying.");
-            return random.nextLong(500, 800);
-        }
-
-        Integer npcTypeId = 30494; // Shambling Horror
+        int npcTypeId = 30494; // Shambling Horror
         EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
-        /*log("Queried for Shambling Horror NPCs. Found: " + entities.size());*/
 
         if (!entities.isEmpty()) {
             Npc shambingHorrorNpc = entities.first();
 
             log("Interacting with Shambling Horror");
             shambingHorrorNpc.interact("Sever link");
-            Execution.delayUntil(random.nextLong(8000, 10000), () -> getGlow() != null);
+            Execution.delay(random.nextLong(1025, 1250));
 
             Npc glow = getGlow();
-            if (glow != null) {
-                log("Found Glow. Interacting with Glow");
-                boolean action;
-                String name = glow.getName();
-                if (name != null && name.contains("depleted")) {
-                    Execution.delay(random.nextLong(500, 800));
-                    action = glow.interact(NPCAction.NPC3);
-                } else {
-                    Execution.delay(random.nextLong(500, 800));
-                    action = glow.interact(NPCAction.NPC1);
-                }
-                if (action) {
-                    log("Interaction with Glow complete.");
-                    Execution.delay(random.nextLong(1250, 2500));
-                } else {
-                    log("Failed to interact with Glow.");
+            while (glow == null) {
+                log("Glow not found. Interacting with Shambling Horror again.");
+                shambingHorrorNpc.interact("Sever link");
+                Execution.delay(random.nextLong(1024, 1540));
+                glow = getGlow();
+            }
+
+            log("Found Glow. Interacting with Glow");
+            boolean action;
+            String name = glow.getName();
+            if (name != null && name.contains("depleted")) {
+                action = glow.interact(NPCAction.NPC3);
+            } else {
+                action = glow.interact(NPCAction.NPC1);
+            }
+            if (action) {
+                log("Interaction with Glow complete.");
+                Execution.delay(random.nextLong(600, 1250));
+                EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+                if (!pedestal.isEmpty()) {
+                    log("Continuing Ritual");
+                    pedestal.first().interact("Continue ritual");
+                    Execution.delay(random.nextLong(3000, 5000));
                 }
             } else {
-                log("Glow not found.");
-                Execution.delay(random.nextLong(100, 300));
+                log("Failed to interact with Glow.");
             }
         }
         return 0;
@@ -266,9 +272,6 @@ public class Necro {
                     .results()
                     .first();
         }
-        /*if (glow != null) {
-            *//*log("Glow found with spot animation: " + glow.getAnimationId());*//*
-        }*/
         return glow;
     }
 }
