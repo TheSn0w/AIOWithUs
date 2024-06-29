@@ -344,13 +344,12 @@ public class SnowsScript extends LoopingScript {
                     String[] itemParts = parts[1].split("x ");
                     if (itemParts.length > 1) {
                         String itemType = itemParts[1].trim();
-                        itemType = itemType.replace("</col>", ""); // Remove the </col> tag
+                        itemType = itemType.replace("</col>", "");
 
-                        // Always add the message to the queue, regardless of the item type
                         if (lastTwoMessages.size() == 2) {
-                            lastTwoMessages.poll(); // remove the oldest message
+                            lastTwoMessages.poll();
                         }
-                        lastTwoMessages.add(message); // add the new message
+                        lastTwoMessages.add(message);
 
                         int itemCount = Integer.parseInt(itemParts[0].trim());
                         int currentCount = necroItemsAdded.getOrDefault(itemType, 0);
