@@ -40,7 +40,7 @@ public class Abilities {
             Execution.delay(essenceOfFinality(player));
             return;
         }
-        if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
+        if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  player.getFollowing().getCurrentHealth() > 1000 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
             Execution.delay(Deathmark(player));
             return;
         }
