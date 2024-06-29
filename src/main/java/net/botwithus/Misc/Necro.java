@@ -204,7 +204,6 @@ public class Necro {
 
             while (!entities.isEmpty() && !player.isMoving()) {
                 log("Interacting with Soul Storm: " + npcTypeId);
-                log("ID: " + entities.first().getType());
                 entities.first().interact("Dissipate");
                 Execution.delay(random.nextLong(1000, 2000));
                 entities = NpcQuery.newQuery().byType(npcTypeId).results();
