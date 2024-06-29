@@ -34,178 +34,167 @@ public class Abilities {
 
     public static void manageCombatAbilities() {
         LocalPlayer player = getLocalPlayer();
-        int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
+        if (!player.hasTarget()) {
+            return;
+        }
 
-        if (DeathGrasp && player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && player.hasTarget() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
-            Execution.delay(essenceOfFinality(player));
-            return;
+        if (DeathGrasp) {
+            essenceOfFinality(player);
         }
-        if (InvokeDeath && VarManager.getVarbitValue(53247) == 0 &&  player.getFollowing().getCurrentHealth() > 1000 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
-            Execution.delay(Deathmark(player));
-            return;
+        if (InvokeDeath) {
+            Deathmark(player);
         }
-        if (VolleyofSouls && VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() &&  player.hasTarget() && ActionBar.containsAbility("Volley of Souls")) {
-            Execution.delay(volleyOfSouls(player));
-            return;
+        if (VolleyofSouls) {
+            volleyOfSouls(player);
         }
-        if (SpecialAttack && player.getAdrenaline() >= 300 && ActionBar.getCooldownPrecise("Weapon Special Attack") == 0 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
-            Execution.delay(DeathEssence(player));
-            return;
+        if (SpecialAttack) {
+            DeathEssence(player);
         }
-        if (KeepArmyup && VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
-            Execution.delay(KeepArmyup(player));
-            return;
+        if (KeepArmyup) {
+            KeepArmyup(player);
         }
         if (useVulnerabilityBombs) {
-            Execution.delay(vulnerabilityBomb(player));
-            return;
+            vulnerabilityBomb(player);
         }
-        if (useThreadsofFate && ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
-            Execution.delay(manageThreadsofFate(player));
-            return;
+        if (useThreadsofFate) {
+            manageThreadsofFate(player);
         }
-        if (useDarkness && ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
-            Execution.delay(manageDarkness(player));
-            return;
+        if (useDarkness) {
+            manageDarkness(player);
         }
         if (useElvenRitual) {
-            Execution.delay(activateElvenRitual(player));
-            return;
+            activateElvenRitual(player);
         }
-        if (useExcalibur && ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
-            Execution.delay(activateExcalibur());
-            return;
+        if (useExcalibur) {
+            activateExcalibur();
         }
-        attackNearestMonster(player);
     }
 
-    public static long essenceOfFinality(LocalPlayer player) {
+    public static void essenceOfFinality(LocalPlayer player) {
         int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
-        boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
-        if (abilityUsed) {
-            log("[Success] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to use Death Grasp, but ability use failed.");
+        if (player.getAdrenaline() >= 250 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty() && ActionBar.getCooldown("Essence of Finality") == 0 && player.hasTarget() && ActionBar.getCooldownPrecise("Essence of Finality") == 0 && ActionBar.containsAbility("Essence of Finality") && currentNecrosisStacks >= NecrosisStacksThreshold) {
+            boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
+            if (abilityUsed) {
+                log("[Success] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
+            } else {
+                log("[Error] Attempted to use Death Grasp, but ability use failed.");
+            }
         }
-        return 0;
     }
 
-    public static long DeathEssence(LocalPlayer player) {
-        boolean success = ActionBar.useAbility("Weapon Special Attack");
-        if (success) {
-            log("[Success] Used Death Essence: " + true);
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to use Death Essence, but ability use failed.");
+    public static void DeathEssence(LocalPlayer player) {
+        if (player.getAdrenaline() >= 300 && ActionBar.getCooldown("Weapon Special Attack") == 0 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty() && player.hasTarget() && ActionBar.containsAbility("Weapon Special Attack")) {
+            boolean success = ActionBar.useAbility("Weapon Special Attack");
+            if (success) {
+                log("[Success] Used Death Essence: " + true);
+            } else {
+                log("[Error] Attempted to use Death Essence, but ability use failed.");
+            }
         }
-        return 0;
     }
 
-    public static long volleyOfSouls(LocalPlayer player) {
-        int currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035);
-        boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
-        if (abilityUsed) {
-            log("[Success] Used Volley of Souls with " + currentResidualSouls + " residual souls.");
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to use Volley of Souls, but ability use failed.");
+    public static void volleyOfSouls(LocalPlayer player) {
+        if (VarManager.getVarValue(VarDomainType.PLAYER, 11035) >= VolleyOfSoulsThreshold && player.inCombat() && player.hasTarget() && ActionBar.containsAbility("Volley of Souls") && ActionBar.getCooldown("Volley of Souls") == 0) {
+            int currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035);
+            boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
+            if (abilityUsed) {
+                log("[Success] Used Volley of Souls with " + currentResidualSouls + " residual souls.");
+            } else {
+                log("[Error] Attempted to use Volley of Souls, but ability use failed.");
+            }
         }
-        return 0;
     }
 
-    public static long Deathmark(LocalPlayer player) {
-        boolean success = ActionBar.useAbility("Invoke Death");
-        if (success) {
-            log("[Success] Used Invoke Death: " + true);
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to use Invoke Death, but ability use failed.");
+    public static void Deathmark(LocalPlayer player) {
+        if (VarManager.getVarbitValue(53247) == 0 && player.getFollowing().getCurrentHealth() > 1000 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && ActionBar.containsAbility("Invoke Death") && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
+            boolean success = ActionBar.useAbility("Invoke Death");
+            if (success) {
+                log("[Success] Used Invoke Death: " + true);
+            } else {
+                log("[Error] Attempted to use Invoke Death, but ability use failed.");
+            }
         }
-        return 0;
     }
 
-    public static long KeepArmyup(LocalPlayer player) {
-        boolean success = ActionBar.useAbility("Conjure Undead Army");
-        if (success) {
-            log("[Success] Cast Conjure army: " + true);
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to cast Conjure army, but ability use failed.");
+    public static void KeepArmyup(LocalPlayer player) {
+        if (VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
+            boolean success = ActionBar.useAbility("Conjure Undead Army");
+            if (success) {
+                log("[Success] Cast Conjure army: " + true);
+            } else {
+                log("[Error] Attempted to cast Conjure army, but ability use failed.");
+            }
         }
-        return 0;
     }
 
-    public static long manageAnimateDead(LocalPlayer player) {
+    public static void manageAnimateDead(LocalPlayer player) {
         boolean success = ActionBar.useAbility("Animate Dead");
         if (success) {
             log("[Success] Cast Animate Dead: " + true);
-            return random.nextLong(600);
+
         } else {
             log("[Error] Attempted to cast Animate Dead, but ability use failed.");
         }
-        return 0;
     }
-    public static long manageThreadsofFate(LocalPlayer player) {
-        boolean success = ActionBar.useAbility("Threads of Fate");
-        if (success) {
-            log("[Success] Cast Threads of Fate: " + true);
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
+    public static void manageThreadsofFate(LocalPlayer player) {
+        if (ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
+            boolean success = ActionBar.useAbility("Threads of Fate");
+            if (success) {
+                log("[Success] Cast Threads of Fate: " + true);
+            } else {
+                log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
+            }
         }
-        return 0;
     }
-    public static long manageDarkness(LocalPlayer player) {
-        boolean success = ActionBar.useAbility("Darkness");
-        if (success) {
-            log("[Success] Cast Darkness: " + true);
-            return random.nextLong(600);
-        } else {
-            log("[Error] Attempted to cast Darkness, but ability use failed.");
+
+    public static void manageDarkness(LocalPlayer player) {
+        if (ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
+            boolean success = ActionBar.useAbility("Darkness");
+            if (success) {
+                log("[Success] Cast Darkness: " + true);
+            } else {
+                log("[Error] Attempted to cast Darkness, but ability use failed.");
+            }
         }
-        return 0;
     }
-    public static long activateElvenRitual(LocalPlayer player) {
-        if (player.getPrayerPoints() > prayerPointsThreshold && Backpack.contains("Ancient elven ritual shard")) {
+
+    public static void activateElvenRitual(LocalPlayer player) {
+        if (player.getPrayerPoints() < prayerPointsThreshold && Backpack.contains("Ancient elven ritual shard")) {
             Component elvenRitual = ComponentQuery.newQuery(291).spriteId(43358).results().first();
             if (elvenRitual == null) {
                 boolean success = backpack.interact("Ancient elven ritual shard", "Activate");
                 if (success) {
                     log("[Success] Activated Elven Ritual Shard.");
-                    return random.nextLong(600);
                 } else {
                     log("[Error] Failed to activate Elven Ritual Shard.");
                 }
             }
         }
-        return 0;
     }
 
-    private static long activateExcalibur() {
-        LocalPlayer player = getLocalPlayer();
-        if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
-            return 0;
-        }
-
-        ResultSet<Item> items = InventoryItemQuery.newQuery().results();
-        Item excaliburItem = items.stream()
-                .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("excalibur"))
-                .findFirst()
-                .orElse(null);
-
-        if (excaliburItem != null) {
-            boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
-            if (success) {
-                log("Activating " + excaliburItem.getName());
-                return random.nextLong(600);
-            } else {
-                log("Failed to activate Excalibur.");
+    private static void activateExcalibur() {
+        if (ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
+            LocalPlayer player = getLocalPlayer();
+            if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
+                return;
             }
-        } else {
-            log("No Excalibur found!");
-        }
 
-        return 0;
+            ResultSet<Item> items = InventoryItemQuery.newQuery().results();
+            Item excaliburItem = items.stream()
+                    .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("excalibur"))
+                    .findFirst()
+                    .orElse(null);
+
+            if (excaliburItem != null) {
+                boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
+                if (success) {
+                    log("Activating " + excaliburItem.getName());
+                } else {
+                    log("Failed to activate Excalibur.");
+                }
+            } else {
+                log("No Excalibur found!");
+            }
+        }
     }
 }
