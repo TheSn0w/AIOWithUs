@@ -1,6 +1,7 @@
 package net.botwithus.Misc;
 
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
+import net.botwithus.rs3.game.minimenu.actions.NPCAction;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -27,6 +28,7 @@ public class Necro {
         log("Time Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 10937) + " seconds.");
 
         if (enableDisturbances) {
+            Execution.delay(shamblingHorror());
             Execution.delay(glyths());
             Execution.delay(soulStorm());
             Execution.delay(sparklingglyth());
@@ -154,6 +156,7 @@ public class Necro {
             log("Interacting with Ghost");
             entities.first().interact("Dismiss");
             Execution.delay(random.nextLong(500, 600));
+            Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving());
             entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
             if (entities.isEmpty()) {
@@ -209,7 +212,7 @@ public class Necro {
         return 0;
     }
 
-    /*private static long shamblingHorror() {
+    private static long shamblingHorror() {
         if (player.isMoving()) {
             log("Player is moving, delaying.");
             return random.nextLong(500, 800);
@@ -217,51 +220,57 @@ public class Necro {
 
         Integer npcTypeId = 30494; // Shambling Horror
         EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
-        log("Queried for Shambling Horror NPCs. Found: " + entities.size());
+        /*log("Queried for Shambling Horror NPCs. Found: " + entities.size());*/
 
         if (!entities.isEmpty()) {
             Npc shambingHorrorNpc = entities.first();
 
-            // Interact with the NPC
             log("Interacting with Shambling Horror");
             shambingHorrorNpc.interact("Sever link");
-            Execution.delay(random.nextLong(3000, 5000));
-            log("Interaction with Shambling Horror complete.");
+            Execution.delayUntil(random.nextLong(8000, 10000), () -> getGlow() != null);
 
-            // Check for the spot animation and get the corresponding scene object
-            EntityResultSet<SpotAnimation> spotAnimations = SpotAnimationQuery.newQuery().animations(3819).results();
-            log("Queried for Spot Animations with ID 3819. Found: " + spotAnimations.size());
-
-            if (!spotAnimations.isEmpty()) {
-                SpotAnimation currentAnimation = spotAnimations.first();
-                log("Found Spot Animation at: " + currentAnimation.getCoordinate());
-
-                SceneObject sameTileObject = SceneObjectQuery.newQuery()
-                        .inside(new net.botwithus.rs3.game.Area.Singular(currentAnimation.getCoordinate()))
-                        .results()
-                        .first();
-                if (sameTileObject != null) {
-                    log("Found Scene Object at Spot Animation location: " + sameTileObject.getName());
-                    log("Interacting with Scene Object at Spot Animation location: " + sameTileObject.getName());
-                    sameTileObject.interact(sameTileObject.getOptions().get(0)); // Interact with the first option
-                    Execution.delay(random.nextLong(1000, 2000));
-                    log("Interaction with Scene Object complete.");
+            Npc glow = getGlow();
+            if (glow != null) {
+                log("Found Glow. Interacting with Glow");
+                boolean action;
+                String name = glow.getName();
+                if (name != null && name.contains("depleted")) {
+                    Execution.delay(random.nextLong(500, 800));
+                    action = glow.interact(NPCAction.NPC3);
                 } else {
-                    log("No Scene Object found at Spot Animation location.");
+                    Execution.delay(random.nextLong(500, 800));
+                    action = glow.interact(NPCAction.NPC1);
+                }
+                if (action) {
+                    log("Interaction with Glow complete.");
+                    Execution.delay(random.nextLong(1250, 2500));
+                } else {
+                    log("Failed to interact with Glow.");
                 }
             } else {
-                log("No Spot Animations found.");
+                log("Glow not found.");
+                Execution.delay(random.nextLong(100, 300));
             }
-        } else {
-            log("No Shambling Horror NPCs found.");
         }
-
         return 0;
-    }*/
+    }
 
-
-
-
+    private static Npc getGlow() {
+        Npc glow = NpcQuery.newQuery()
+                .spotAnimation(7977)
+                .results()
+                .first();
+        if (glow == null) {
+            glow = NpcQuery.newQuery()
+                    .spotAnimation(6861)
+                    .results()
+                    .first();
+        }
+        /*if (glow != null) {
+            *//*log("Glow found with spot animation: " + glow.getAnimationId());*//*
+        }*/
+        return glow;
+    }
 }
 
 
