@@ -205,6 +205,7 @@ public class MiscImGui {
                             "are needed to craft the item",
                             "Before trying to interact with bank",
                             "Shields: 4, Body: 3, Chaps: 2, Vambraces: 1",
+                            "for leather tanning you need to have portable",
                     };
 
                     ImGui.PushStyleColor(ImGuiCol.Text, 255, 255, 0, 1.0f);
