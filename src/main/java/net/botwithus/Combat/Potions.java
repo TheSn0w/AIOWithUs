@@ -177,16 +177,18 @@ public class Potions {
         }
     }
 
-    public static void vulnerabilityBomb(LocalPlayer player) {
+    public static long vulnerabilityBomb(LocalPlayer player) {
         int vulnDebuffVarbit = VarManager.getVarbitValue(1939);
         if (vulnDebuffVarbit == 0 && ActionBar.containsItem("Vulnerability bomb")) {
             boolean success = ActionBar.useItem("Vulnerability bomb", "Throw");
             if (success) {
                 log("[Success] Throwing Vulnerability bomb at " + player.getTarget().getName());
+                return random.nextLong(1900, 2000);
             } else {
                 log("[Error] Failed to use Vulnerability bomb!");
             }
         }
+        return 0;
     }
 
 }

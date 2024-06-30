@@ -214,7 +214,7 @@ public class CombatImGui {
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Have Darkness on Action bar");
             }
-            ImGui.SameLine();
+            /*ImGui.SameLine();
             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
             useElvenRitual = ImGui.Checkbox("Elven Ritual", useElvenRitual);
             if (ImGui.IsItemHovered()) {
@@ -224,7 +224,7 @@ public class CombatImGui {
             useExcalibur = ImGui.Checkbox("Excalibur", useExcalibur);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("will use excalibur when health below threshold");
-            }
+            }*/
 
 
             if (handleMultitarget) {
