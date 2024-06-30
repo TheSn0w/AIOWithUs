@@ -35,7 +35,7 @@ public class Abilities {
         int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
 
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastAbilityTime < 1500) {
+        if (currentTime - lastAbilityTime < random.nextLong(1800, 1850)) {
             return;
         }
 
