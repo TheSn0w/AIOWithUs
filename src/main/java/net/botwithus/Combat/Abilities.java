@@ -1,8 +1,14 @@
 package net.botwithus.Combat;
 
+import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
+import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
@@ -21,13 +27,15 @@ public class Abilities {
     public static int NecrosisStacksThreshold = 12;
     public static int VolleyOfSoulsThreshold = 5;
     private static long lastAbilityTime = 0;
+    public static boolean useExcalibur = false;
+    public static boolean useElvenRitual = false;
 
     public static void manageCombatAbilities() {
         LocalPlayer player = getLocalPlayer();
         int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
 
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastAbilityTime < 3000) {
+        if (currentTime - lastAbilityTime < 1200) {
             return;
         }
 
@@ -54,6 +62,12 @@ public class Abilities {
             lastAbilityTime = currentTime;
         } else if (useDarkness && ActionBar.containsAbility("Darkness") && ActionBar.getCooldownPrecise("Darkness") == 0 && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
             manageDarkness(player);
+            lastAbilityTime = currentTime;
+        } else if (useElvenRitual) {
+            activateElvenRitual(player);
+            lastAbilityTime = currentTime;
+        } else if (useExcalibur) {
+            activateExcalibur();
             lastAbilityTime = currentTime;
         }
     }
@@ -127,6 +141,45 @@ public class Abilities {
             log("[Success] Cast Darkness: " + true);
         } else {
             log("[Error] Attempted to cast Darkness, but ability use failed.");
+        }
+    }
+    public static void activateElvenRitual(LocalPlayer player) {
+        if (player.getPrayerPoints() < prayerPointsThreshold && Backpack.contains("Ancient elven ritual shard")) {
+            Component elvenRitual = ComponentQuery.newQuery(291).spriteId(43358).results().first();
+            if (elvenRitual == null) {
+                boolean success = backpack.interact("Ancient elven ritual shard", "Activate");
+                if (success) {
+                    log("[Success] Activated Elven Ritual Shard.");
+                } else {
+                    log("[Error] Failed to activate Elven Ritual Shard.");
+                }
+            }
+        }
+    }
+
+    private static void activateExcalibur() {
+        if (ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
+            LocalPlayer player = getLocalPlayer();
+            if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
+                return;
+            }
+
+            ResultSet<net.botwithus.rs3.game.Item> items = InventoryItemQuery.newQuery().results();
+            Item excaliburItem = items.stream()
+                    .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("excalibur"))
+                    .findFirst()
+                    .orElse(null);
+
+            if (excaliburItem != null) {
+                boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
+                if (success) {
+                    log("Activating " + excaliburItem.getName());
+                } else {
+                    log("Failed to activate Excalibur.");
+                }
+            } else {
+                log("No Excalibur found!");
+            }
         }
     }
 }
