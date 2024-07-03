@@ -107,6 +107,10 @@ public class Banking {
                 }
                 handleGoteCharges();
                 if (Equipment.contains("Grace of the elves")) {
+                    Bank.close();
+                    Execution.delay(random.nextLong(1500, 2500));
+                    usePorter();
+                    Execution.delay(random.nextLong(1500, 2500));
                     int charges = VarManager.getInvVarbit(94, 2, 30214);
                     if (charges < getChargeThreshold()) {
                         handleBankInteraction(player, selectedArchNames);
@@ -161,28 +165,6 @@ public class Banking {
         }
     }
 
-    public static void handleGoteChargesAndPorter() {
-        if (VarManager.getVarbitValue(45141) != 1) {
-            component(1, -1, 33882270);
-            Execution.delay(random.nextLong(1000, 2000));
-        } else {
-            log("[Archaeology] Bank Tab value is already 1");
-        }
-        handleGoteCharges();
-    }
-
-
-
-
-
-    private static void checkVarbitAndReturnOrRetry(int varbitValue) {
-        if (varbitValue >= getChargeThreshold()) {
-            log("[Success] we are above our theshold");
-        } else {
-            log("[Caution] Porters have " + varbitValue + " charges, but we need atleast: " + getChargeThreshold());
-            handleBankInteraction(Client.getLocalPlayer(), selectedArchNames);
-        }
-    }
 
     public static void interactWithBankChestOrBanker() {
         EntityResultSet<SceneObject> chestResults = SceneObjectQuery.newQuery()
