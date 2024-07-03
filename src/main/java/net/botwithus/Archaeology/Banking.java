@@ -158,25 +158,17 @@ public class Banking {
         } else {
             log("[Archaeology] Bank Tab value is already 1");
         }
-        if (useGote) {
-            Execution.delay(handleGoteCharges());
-            Bank.close();
-            Execution.delay(random.nextLong(1500, 2500));
-            usePorter();
-            Execution.delay(random.nextLong(1500, 2500));
-            if (Equipment.contains("Grace of the elves") && VarManager.getInvVarbit(94, 2, 30214) < getChargeThreshold()) {
+        if (Equipment.contains("Grace of the elves")) {
+            int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+            if (varbitValue < getChargeThreshold()) {
                 Execution.delay(handleBankingInteractionforPorter());
             }
         } else {
-            log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
+            log("[Error] Grace of the elves not equipped or no porter found in the Backpack.");
         }
     }
 
     public static long handleBankingInteractionforPorter() {
-        if (!useGote) {
-            return random.nextLong(1500, 2500);
-        }
-
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
         interactWithBankChestAndOpen();
