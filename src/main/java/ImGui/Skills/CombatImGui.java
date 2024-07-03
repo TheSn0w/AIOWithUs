@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static ImGui.PredefinedStrings.*;
-import static net.botwithus.Combat.Abilities.*;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.Notepaper.*;

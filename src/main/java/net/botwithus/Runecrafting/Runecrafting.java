@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Runecrafting.ScriptState.*;
+import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 
@@ -69,6 +70,9 @@ public class Runecrafting {
     }
 
     public static void handleRunecrafting(LocalPlayer player) {
+        if (useSteamRunes) {
+            return;
+        }
 
         boolean playerIsIdle = !player.isMoving() && player.getAnimationId() == -1;
         if (playerIsIdle && System.currentTimeMillis() - lastMovedOrAnimatedTime > 20000) {

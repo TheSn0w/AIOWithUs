@@ -30,9 +30,8 @@ public class Food {
             return 0;
         }
 
-        Execution.delay(healHealth(player));
 
-        return 0;
+        return healHealth(player);
     }
 
     public static double calculateHealthPercentage(LocalPlayer player) {
@@ -82,7 +81,7 @@ public class Food {
                 return random.nextLong(1500, 3000);
             } else {
                 log("[Error] No food found");
-                return 1L;
+                return -1L;
             }
         }
 

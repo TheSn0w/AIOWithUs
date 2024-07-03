@@ -1,5 +1,6 @@
 package ImGui.Skills;
 
+import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import java.time.Duration;
@@ -9,6 +10,7 @@ import static ImGui.VersionManager.displayVersion;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Misc.UrnMaker.getUrnState;
 import static net.botwithus.Runecrafting.Runecrafting.getCurrentState;
+import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
@@ -26,8 +28,10 @@ public class BottomChild {
             ImGui.SetCursorPosX(10);
 
             String botState;
-            if (isRunecraftingActive) {
+            if (isRunecraftingActive && !useSteamRunes) {
                 botState = String.valueOf(getCurrentState());
+            } else if (useSteamRunes) {
+                botState = String.valueOf(SteamRunes.getCurrentState());
             } else if (pickCaveNightshade) {
                 botState = String.valueOf(getNightShadeState());
             } else if (isHerbloreActive) {

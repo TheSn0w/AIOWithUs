@@ -8,6 +8,7 @@ import net.botwithus.rs3.game.Area;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -78,6 +79,11 @@ public class BankInteractions {
     }
 
     public static long performBanking(LocalPlayer player) {
+        if (isCombatActive) {
+            ActionBar.useAbility("War's Retreat Teleport");
+            Execution.delay(random.nextLong(6000, 7500));
+        }
+
         if (player.getAnimationId() != -1) {
             log("[Caution] Player is currently performing an action. Moving away to be able to teleport.");
             movePlayerAwayFromAction(player);
@@ -175,7 +181,6 @@ public class BankInteractions {
     }
 
     public static long handleGoteBanking(LocalPlayer player, SceneObject nearestBankBooth) {
-        int varbitValue = getVarbitValue();
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
         String bankType = nearestBankBooth.getName();
         String[] bankTypes = {"Bank booth", "Bank chest", "Counter"};
@@ -202,7 +207,6 @@ public class BankInteractions {
                             }
                             Execution.delay(random.nextLong(1500, 3000));
 
-                            handleGote(varbitValue, player, nearestBankBooth);
                             if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
                                 log("[Banking] Traversing to last skilling location.");
                                 Execution.delay(random.nextLong(1500, 3000));
@@ -255,7 +259,6 @@ public class BankInteractions {
     }
 
     public static void handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
-        int varbitValue = getVarbitValue();
         Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
         String bankType = nearestBankBooth.getName();
@@ -275,9 +278,6 @@ public class BankInteractions {
                             Bank.depositAllExcept(oreBoxesPattern);
                             Execution.delay(random.nextLong(1500, 3000));
 
-                            if (useGote) {
-                                handleGote(varbitValue, player, nearestBankBooth);
-                            }
                             Execution.delay(random.nextLong(1500, 3000));
 
                             if (oreBox.getSlot() >= 0) {

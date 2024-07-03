@@ -2,6 +2,8 @@ package net.botwithus.Combat;
 
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
@@ -10,7 +12,6 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.regex.Pattern;
 
-import static net.botwithus.Combat.Abilities.manageAnimateDead;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -118,5 +119,16 @@ public class Books {
             return RandomGenerator.nextInt(1500, 3000);
         }
         return 0L;
+    }
+    public static void manageAnimateDead(LocalPlayer player) {
+        if (ComponentQuery.newQuery(284).spriteId(14764).results() == null) {
+
+            boolean success = ActionBar.useAbility("Animate Dead");
+            if (!success) {
+                log("[Error] Attempted to cast Animate Dead, but ability use failed.");
+            }
+
+            log("[Success] Cast Animate Dead: " + true);
+        }
     }
 }

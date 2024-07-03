@@ -138,7 +138,8 @@ public class Potions {
         boolean success = backpack.interact(overloadPot.getName(), "Drink");
         if (success) {
             log("[Combat] Successfully drank " + overloadPot.getName());
-            return random.nextLong(650, 950);
+            Execution.delayUntil(5000, () -> VarManager.getVarbitValue(48834) != 0);
+            return random.nextLong(100, 200);
         } else {
             log("[Error] Failed to interact with overload potion.");
             return 0L;
@@ -177,18 +178,5 @@ public class Potions {
         }
     }
 
-    public static long vulnerabilityBomb(LocalPlayer player) {
-        int vulnDebuffVarbit = VarManager.getVarbitValue(1939);
-        if (vulnDebuffVarbit == 0 && ActionBar.containsItem("Vulnerability bomb")) {
-            boolean success = ActionBar.useItem("Vulnerability bomb", "Throw");
-            if (success) {
-                log("[Success] Throwing Vulnerability bomb at " + player.getTarget().getName());
-                return random.nextLong(1900, 2000);
-            } else {
-                log("[Error] Failed to use Vulnerability bomb!");
-            }
-        }
-        return 0;
-    }
 
 }

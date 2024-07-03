@@ -34,6 +34,7 @@ import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 
@@ -332,10 +333,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
-                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
+                        /*createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
-                        }
+                        }*/
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack, not used to drop fish!");
@@ -349,10 +350,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
-                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
+                        /*createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
-                        }
+                        }*/
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
@@ -389,10 +390,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Crystallise Mahogany Trees");
                         }
-                        createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
+                        /*createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
-                        }
+                        }*/
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
@@ -410,6 +411,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will do Soul Altar with Protean Essence");
                         }
+                        /*createCenteredButton("Steam Runes", () -> useSteamRunes = !useSteamRunes, useSteamRunes);*/
                     } else if (isMiscActive) {
                         createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, true);
                         if (ImGui.IsItemHovered()) {

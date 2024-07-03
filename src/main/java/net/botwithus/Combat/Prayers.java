@@ -5,44 +5,47 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Variables.Variables.SoulSplit;
 import static net.botwithus.Variables.Variables.random;
 
 public class Prayers {
 
     public static long manageSoulSplit(LocalPlayer player) {
-        if (player == null) {
-            return 0;
-        }
-        if (!ActionBar.containsAbility("Soul Split")) {
-            return 0;
-        }
+        if (SoulSplit) {
+            if (player == null) {
+                return 0;
+            }
+            if (!ActionBar.containsAbility("Soul Split")) {
+                return 0;
+            }
 
-        boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
+            boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
 
-        if (player.inCombat()) {
-            if (!isSoulSplitActive && player.getPrayerPoints() > 1) {
-                boolean success = ActionBar.useAbility("Soul Split");
-                if (success) {
-                    log("[Combat] Activating Soul Split.");
-                    return random.nextLong(600, 1500);
-                } else {
-                    log("[Error] Failed to activate Soul Split.");
-                    return 0;
+            if (player.inCombat()) {
+                if (!isSoulSplitActive && player.getPrayerPoints() > 1) {
+                    boolean success = ActionBar.useAbility("Soul Split");
+                    if (success) {
+                        log("[Combat] Activating Soul Split.");
+                        return random.nextLong(600, 1500);
+                    } else {
+                        log("[Error] Failed to activate Soul Split.");
+                        return 0;
+                    }
+                }
+            } else {
+                if (isSoulSplitActive) {
+                    boolean success = ActionBar.useAbility("Soul Split");
+                    if (success) {
+                        log("[Combat] Deactivating Soul Split.");
+                        return random.nextLong(600, 1500);
+                    } else {
+                        log("[Error] Failed to deactivate Soul Split.");
+                        return 0;
+                    }
                 }
             }
-        } else {
-            if (isSoulSplitActive) {
-                boolean success = ActionBar.useAbility("Soul Split");
-                if (success) {
-                    log("[Combat] Deactivating Soul Split.");
-                    return random.nextLong(600, 1500);
-                } else {
-                    log("[Error] Failed to deactivate Soul Split.");
-                    return 0;
-                }
-            }
-        }
 
+        }
         return 0L;
     }
     private static boolean isQuickPrayersActive() {

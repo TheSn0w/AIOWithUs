@@ -2,11 +2,9 @@ package net.botwithus.Misc;
 
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.minimenu.actions.NPCAction;
-import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
-import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
@@ -25,7 +23,7 @@ public class Necro {
     public static boolean enableDisturbances = true;
 
     public static long interactWithEntities() {
-        if (enableDisturbances) {
+        if (enableDisturbances && VarManager.getVarValue(VarDomainType.PLAYER, 10937) >= 5) {
             Execution.delay(defile());
             Execution.delay(shamblingHorror());
             Execution.delay(glyths());
@@ -58,12 +56,15 @@ public class Necro {
             if (!Pedestal.isEmpty()) {
                 log("Interacting with Pedestal");
                 Pedestal.first().interact("Repair all");
-                Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getAnimationId() == -1);
+                Execution.delay(random.nextLong(1500, 3000));
+                Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getAnimationId() == 21234);
             }
         } else {
             if (!Platform2.isEmpty() && VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0) {
                 log("Starting Ritual");
                 Platform2.first().interact("Start ritual");
+                Execution.delay(random.nextLong(1500, 3000));
+                Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
                 Execution.delay(random.nextLong(1500, 3000));
             } else {
                 EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
@@ -90,15 +91,18 @@ public class Necro {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
             if (!entities.isEmpty()) {
+                Npc glythNpc = entities.first();
+                if (glythNpc == null) {
+                    continue;
+                }
+
                 Execution.delay(random.nextLong(200, 400));
                 log("Interacting with Glyth");
-                entities.first().interact("Deactivate");
-
+                glythNpc.interact("Deactivate");
 
                 while (!entities.isEmpty()) {
                     entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
                     Execution.delay(random.nextLong(50, 100));
-
                 }
 
                 if (npcTypeId.equals(30497) && entities.isEmpty()) {
@@ -108,11 +112,14 @@ public class Necro {
         }
 
         if (interactedWithAllGlyths) {
-            EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
-            if (!pedestal.isEmpty()) {
-                log("Continuing Ritual");
-                pedestal.first().interact("Continue ritual");
-                Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
+            EntityResultSet<SceneObject> pedestalEntities = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+            if (!pedestalEntities.isEmpty()) {
+                SceneObject pedestal = pedestalEntities.first();
+                if (pedestal != null) {
+                    log("Continuing Ritual");
+                    pedestal.interact("Continue ritual");
+                    Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() == 35520);
+                }
             }
         }
 
@@ -122,31 +129,34 @@ public class Necro {
     private static long ghost() {
         int npcTypeId = 30493; // Ghost
 
-        EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+        while (true) {
+            EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+            if (entities.isEmpty()) {
+                break;
+            }
 
-        while (!entities.isEmpty()) {
-            Execution.delay(random.nextLong(500, 1250));
+            Npc ghostNpc = entities.nearest();
+            if (ghostNpc == null) {
+                break;
+            }
+            Execution.delay(random.nextLong(1025, 1300));
+
             log("Interacting with Ghost");
-            entities.nearest().interact("Dismiss");
+            boolean interacted = ghostNpc.interact("Dismiss");
 
-            Execution.delayUntil(random.nextLong(8000, 10000), () -> NpcQuery.newQuery().byParentType(npcTypeId).animation(-1).results().isEmpty());
-            Execution.delay(random.nextLong(900, 1500));
-            entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+            if (interacted) {
+                Execution.delay(random.nextLong(1250, 1500)); // Delay for 1 second after interaction
+                Execution.delayUntil(random.nextLong(10000, 12000),() -> !player.isMoving()); // Delay until player stops moving
+            }
 
-            if (entities.nearest().getAnimationId() != -1) {
                 EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
                 if (!pedestal.isEmpty()) {
                     log("Continuing Ritual");
                     pedestal.first().interact("Continue ritual");
-                    Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
+                    Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() == 35520);
                     Execution.delay(random.nextLong(3000, 5000));
                 }
             }
-
-            if (entities.nearest().getAnimationId() != -1) {
-                break;
-            }
-        }
 
         return 0;
     }
@@ -158,16 +168,25 @@ public class Necro {
 
         for (Integer npcTypeId : npcTypeIds) {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byType(npcTypeId).results();
+            if (!entities.isEmpty()) {
+                Npc sparklingGlythNpc = entities.first();
+                if (sparklingGlythNpc != null) {
+                    Execution.delay(random.nextLong(605, 989));
+                    log("Interacting with Sparkling Glyth");
+                    boolean interacted = sparklingGlythNpc.interact("Restore");
 
-            while (!entities.isEmpty() && !player.isMoving()) {
-                Execution.delay(random.nextLong(500, 1250));
-                log("Interacting with Sparkling Glyth");
-                entities.first().interact("Restore");
-                Execution.delayUntil(random.nextLong(7500, 10000), () -> NpcQuery.newQuery().byType(npcTypeId).results().isEmpty());
-                entities = NpcQuery.newQuery().byType(npcTypeId).results();
+                    if (interacted) {
+                        Execution.delay(random.nextLong(1250, 1500));
+                        Execution.delayUntil(random.nextLong(10000, 12000),() -> player.getAnimationId() == 29914 || !player.isMoving());
 
-                if (entities.isEmpty()) {
-                    break;
+                        EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
+                        if (!pedestal.isEmpty()) {
+                            log("Continuing Ritual");
+                            pedestal.first().interact("Continue ritual");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getAnimationId() == 35520);
+                            Execution.delay(random.nextLong(3000, 5000));
+                        }
+                    }
                 }
             }
         }
@@ -184,10 +203,9 @@ public class Necro {
             EntityResultSet<Npc> entities = NpcQuery.newQuery().byType(npcTypeId).results();
 
             while (!entities.isEmpty() && !player.isMoving()) {
-                Execution.delay(random.nextLong(500, 1250));
                 log("Interacting with Soul Storm");
                 entities.first().interact("Dissipate");
-                Execution.delay(random.nextLong(1000, 2000));
+                Execution.delay(random.nextLong(1800, 2200));
                 entities = NpcQuery.newQuery().byType(npcTypeId).results();
 
                 if (entities.isEmpty()) {
@@ -199,24 +217,45 @@ public class Necro {
         return 0;
     }
 
+    private static Npc getSoulstorm() {
+        List<Integer> spotAnimations = List.of(7915, 7916, 7917);
+        Npc soulStorm = null;
+
+        for (Integer spotAnimation : spotAnimations) {
+            soulStorm = NpcQuery.newQuery()
+                    .spotAnimation(spotAnimation)
+                    .results()
+                    .first();
+            if (soulStorm != null) {
+                break;
+            }
+        }
+
+        return soulStorm;
+    }
+
     private static long shamblingHorror() {
         int npcTypeId = 30494; // Shambling Horror
-        EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
 
-        if (!entities.isEmpty()) {
-            Execution.delay(random.nextLong(1025, 1500));
+        while (true) {
+            EntityResultSet<Npc> entities = NpcQuery.newQuery().byParentType(npcTypeId).results();
+            if (entities.isEmpty()) {
+                break;
+            }
+
+            Execution.delay(random.nextLong(1025, 1300));
             Npc shambingHorrorNpc = entities.first();
 
             log("Interacting with Shambling Horror");
             shambingHorrorNpc.interact("Sever link");
-            Execution.delay(random.nextLong(1025, 1250));
+
+            Execution.delay(random.nextLong(1000, 1500));
+            Execution.delayUntil(random.nextLong(10000, 12000), () -> !player.isMoving());
 
             Npc glow = getGlow();
-            while (glow == null) {
+            if (glow == null) {
                 log("Glow not found. Interacting with Shambling Horror again.");
-                shambingHorrorNpc.interact("Sever link");
-                Execution.delay(random.nextLong(1024, 1540));
-                glow = getGlow();
+                continue;
             }
 
             log("Found Glow. Interacting with Glow");
@@ -234,12 +273,18 @@ public class Necro {
                 if (!pedestal.isEmpty()) {
                     log("Continuing Ritual");
                     pedestal.first().interact("Continue ritual");
-                    Execution.delay(random.nextLong(3000, 5000));
+                    Execution.delayUntil(random.nextLong(8000, 10000), () -> {
+                        if (!player.isMoving()) {
+                            player.getAnimationId();
+                        }
+                        return false;
+                    });
                 }
             } else {
                 log("Failed to interact with Glow.");
             }
         }
+
         return 0;
     }
 
@@ -260,6 +305,10 @@ public class Necro {
         EntityResultSet<Npc> results = NpcQuery.newQuery().byType(30500).results();
         if (!results.isEmpty()) {
             Npc defileNpc = results.first();
+            if (defileNpc == null) {
+                return 0;
+            }
+
             Execution.delay(random.nextLong(500, 1000));
             log("Siphoning the Defile");
             defileNpc.interact("Siphon");
@@ -273,13 +322,11 @@ public class Necro {
                     log("Purple Smoke appeared, interacting with Defile again");
                     defileNpc.interact("Siphon");
                     hasInteracted = true;
+                    Execution.delayUntil(random.nextLong(10000, 15000), () -> false);
                 } else if (light == null) {
                     hasInteracted = false;
                 }
                 results = NpcQuery.newQuery().byType(30500).results();
-                if (results.isEmpty()) {
-                    break;
-                }
             }
         }
         return 0;

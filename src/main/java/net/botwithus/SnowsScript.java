@@ -24,8 +24,6 @@ import java.util.*;
 
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
-import static net.botwithus.Combat.Abilities.NecrosisStacksThreshold;
-import static net.botwithus.Combat.Abilities.VolleyOfSoulsThreshold;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.dropItems;
@@ -39,6 +37,7 @@ import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Runecrafting.Runecrafting.*;
+import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -200,6 +199,7 @@ public class SnowsScript extends LoopingScript {
     }
     public static Map<String, Integer> divineCharges = new HashMap<>();
     public static Map<String, Integer> Gems = new HashMap<>();
+    public static Map<String, Integer> steamRunes = new HashMap<>();
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {

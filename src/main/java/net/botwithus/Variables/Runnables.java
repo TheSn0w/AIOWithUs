@@ -9,6 +9,7 @@ import net.botwithus.Fishing.Fishing;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Misc.*;
 import net.botwithus.Runecrafting.Runecrafting;
+import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Thieving.Thieving;
 import net.botwithus.Woodcutting.Woodcutting;
 import net.botwithus.rs3.game.Client;
@@ -38,6 +39,7 @@ import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.Necro.interactWithEntities;
 import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
+import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.isMakeUrnsActive;
 
@@ -57,6 +59,9 @@ public class Runnables {
             }
             if (isRunecraftingActive && soulAltar) {
                 Execution.delay(Runecrafting.handleSoulAltar());
+            }
+            if (isRunecraftingActive && useSteamRunes) {
+                SteamRunes.run();
             }
         }
     }

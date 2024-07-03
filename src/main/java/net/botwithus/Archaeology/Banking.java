@@ -2,6 +2,7 @@ package net.botwithus.Archaeology;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
+import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.inventory.backpack;
 import net.botwithus.inventory.equipment;
@@ -31,6 +32,7 @@ import java.util.List;
 
 import static net.botwithus.Archaeology.Daeminheim.*;
 import static net.botwithus.Archaeology.Porters.handleGoteCharges;
+import static net.botwithus.Archaeology.Porters.usePorter;
 import static net.botwithus.Archaeology.Traversal.returnToLastLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
@@ -67,13 +69,10 @@ public class Banking {
 
         if (shouldTraverseToDaeminheimUpstairs(selectedArchNames) || shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) || selectedArchNames.contains("Castle hall rubble") || selectedArchNames.contains("Tunnelling equipment repository")) {
             handleDaemonheim(player, selectedArchNames);
-        }
-
-        else if (!shouldTraverseToDaeminheimUpstairs(selectedArchNames) && !shouldTraverseToDaeminheimWarpedFloor(selectedArchNames) && !selectedArchNames.contains("Castle hall rubble") && !selectedArchNames.contains("Tunnelling equipment repository")) {
+        } else {
             Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                     .name("Bank chest")
-                    .isReachable()
                     .option("Use")
                     .results();
             if (!results.isEmpty()) {
@@ -95,55 +94,27 @@ public class Banking {
 
 
     public static long handleBankInteraction(LocalPlayer player, List<String> selectedArchNames) {
-        int varbitValue = getVarbitValue();
         openBank();
         ResultSet<Item> soilBox = findSoilBoxInInventory();
         if (isBankOpen()) {
             delayRandomly();
             depositItems();
             interactWithSoilBoxIfPresent(soilBox);
-            handleGoteChargesAndPorter(varbitValue);
+            if (useGote) {
+                handleGoteChargesAndPorter();
+            }
             if (Backpack.contains("Complete tome")) {
                 log("[Archaeology] Complete tome found, going to hand it in.");
                 Execution.delay(handleCompleteTome());
             }
             returnToLastLocation(player, selectedArchNames);
-            return random.nextLong(1500, 2500);
+            return 0;
         } else {
             log("[Error] Bank did not open.");
             return random.nextLong(750, 1250);
         }
     }
-    private static long handleCompleteTome() {
-        Coordinate DeskCoordinate = new Coordinate(3327, 3378, 1);
-        if (Movement.traverse(NavPath.resolve(DeskCoordinate)) == TraverseEvent.State.FINISHED) {
-            EntityResultSet<SceneObject> StudyDesk = SceneObjectQuery.newQuery().name("Desk").option("Study").results();
-            if (!StudyDesk.isEmpty()) {
-                SceneObject desk = StudyDesk.nearest();
-                if (desk.interact("Study")) {
-                    log("[Archaeology] Interacting with Study Desk.");
-                    Execution.delayUntil(15000, () -> !Backpack.contains("Complete tome"));
-                    if (selectedArchNames.contains("Castle hall rubble") || selectedArchNames.contains("Tunnelling equipment repository") || selectedArchNames.contains("Botanical reserve") || selectedArchNames.contains("Communal space") || selectedArchNames.contains("Traveller's station") || selectedArchNames.contains("Security booth") || selectedArchNames.contains("Projection space")) {
-                        Coordinate bankingCoordinate = new Coordinate(3449, 3719, 0);
-                            if (Movement.traverse(NavPath.resolve(bankingCoordinate)) == TraverseEvent.State.FINISHED) {
-                                log("[Archaeology] Arrived at banker.");
-                        }
-                    }
-                } else {
-                    log("[Error] Failed to interact with Study Desk.");
-                }
-            } else {
-                log("[Error] No Study Desk found.");
-            }
-        } else {
-            log("[Error] Failed to traverse to Study Desk.");
-        }
-        return random.nextLong(1500, 2500);
-    }
 
-    public static int getVarbitValue() {
-        return VarManager.getInvVarbit(94, 2, 30214);
-    }
 
     public static void openBank() {
         interactWithBankChestOrBanker();
@@ -180,26 +151,24 @@ public class Banking {
         }
     }
 
-    public static void handleGoteChargesAndPorter(int varbitValue) {
+    public static void handleGoteChargesAndPorter() {
+        if (VarManager.getVarbitValue(45141) != 1) {
+            component(1, -1, 33882270);
+            Execution.delay(random.nextLong(1000, 2000));
+        } else {
+            log("[Archaeology] Bank Tab value is already 1");
+        }
         if (useGote) {
-            if (VarManager.getVarbitValue(45141) != 1) {
-                component(1, -1, 33882270);
-                Execution.delay(random.nextLong(1000, 2000));
-            } else {
-                log("[Archaeology] Bank Tab value is already 1");
-            }
             Execution.delay(handleGoteCharges());
-            if (useGote) {
-                Bank.close();
-                Execution.delay(random.nextLong(1500, 2500));
-                useBankingPorter();
-                Execution.delay(random.nextLong(1500, 2500));
-                if (varbitValue < getChargeThreshold()) {
-                    Execution.delay(handleBankingInteractionforPorter());
-                }
-            } else {
-                log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
+            Bank.close();
+            Execution.delay(random.nextLong(1500, 2500));
+            usePorter();
+            Execution.delay(random.nextLong(1500, 2500));
+            if (Equipment.contains("Grace of the elves") && VarManager.getInvVarbit(94, 2, 30214) < getChargeThreshold()) {
+                Execution.delay(handleBankingInteractionforPorter());
             }
+        } else {
+            log("[Error] No " + porterTypes[currentPorterType.get()] + " found in the Backpack.");
         }
     }
 
@@ -245,7 +214,7 @@ public class Banking {
     private static void closeBankAndUsePorter() {
         Bank.close();
         Execution.delay(random.nextLong(1500, 2500));
-        useBankingPorter();
+        usePorter();
         Execution.delay(random.nextLong(1500, 2500));
     }
 
@@ -255,36 +224,6 @@ public class Banking {
         } else {
             log("[Caution] Porters have " + varbitValue + " charges, but we need atleast: " + getChargeThreshold());
             handleBankingInteractionforPorter();
-        }
-    }
-    public static void useBankingPorter() {
-        String currentPorter = porterTypes[currentPorterType.get()];
-        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-        if (useGote) {
-
-            if (Backpack.contains(currentPorter) && varbitValue <= getChargeThreshold()) {
-                if (equipment.contains("Grace of the elves")) {
-                    boolean interactionResult = equipment.interact(NECK, "Charge all porters");
-                    if (interactionResult) {
-                        log("[Success] Interaction with Equipment was successful.");
-                    } else {
-                        log("[Error] Interaction with Equipment failed.");
-                    }
-                } else {
-                    if (Backpack.contains(currentPorter)) {
-                        boolean interactionResult = backpack.interact(currentPorter, "Wear");
-                        if (interactionResult) {
-                            log("[Success] Interaction with " + currentPorter + " was successful.");
-                        } else {
-                            log("[Error] Interaction with Backpack failed.");
-                        }
-                    } else {
-                        log("[Error] No '" + currentPorter + "' found in the Backpack.");
-                    }
-                }
-            }
-        } else {
-            log("[Error] No " + currentPorter + " found in the Backpack.");
         }
     }
 
@@ -344,7 +283,7 @@ public class Banking {
     }
 
     private static boolean depositAllExceptSelectedItems() {
-        int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753, 41092, 49429};
+        int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753, 41092, 49429, 50161};
         Bank.depositAllExcept(itemIdsToKeep);
         return false;
     }
@@ -369,5 +308,31 @@ public class Banking {
         } else {
             log("[Error] No Archaeological soil box found in inventory.");
         }
+    }
+    private static long handleCompleteTome() {
+        Coordinate DeskCoordinate = new Coordinate(3327, 3378, 1);
+        if (Movement.traverse(NavPath.resolve(DeskCoordinate)) == TraverseEvent.State.FINISHED) {
+            EntityResultSet<SceneObject> StudyDesk = SceneObjectQuery.newQuery().name("Desk").option("Study").results();
+            if (!StudyDesk.isEmpty()) {
+                SceneObject desk = StudyDesk.nearest();
+                if (desk.interact("Study")) {
+                    log("[Archaeology] Interacting with Study Desk.");
+                    Execution.delayUntil(15000, () -> !Backpack.contains("Complete tome"));
+                    if (selectedArchNames.contains("Castle hall rubble") || selectedArchNames.contains("Tunnelling equipment repository") || selectedArchNames.contains("Botanical reserve") || selectedArchNames.contains("Communal space") || selectedArchNames.contains("Traveller's station") || selectedArchNames.contains("Security booth") || selectedArchNames.contains("Projection space")) {
+                        Coordinate bankingCoordinate = new Coordinate(3449, 3719, 0);
+                        if (Movement.traverse(NavPath.resolve(bankingCoordinate)) == TraverseEvent.State.FINISHED) {
+                            log("[Archaeology] Arrived at banker.");
+                        }
+                    }
+                } else {
+                    log("[Error] Failed to interact with Study Desk.");
+                }
+            } else {
+                log("[Error] No Study Desk found.");
+            }
+        } else {
+            log("[Error] Failed to traverse to Study Desk.");
+        }
+        return random.nextLong(1500, 2500);
     }
 }
