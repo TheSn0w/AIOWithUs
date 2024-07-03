@@ -101,7 +101,11 @@ public class Banking {
             depositItems();
             interactWithSoilBoxIfPresent(soilBox);
             if (useGote) {
-                handleGoteChargesAndPorter();
+                if (VarManager.getVarbitValue(45141) != 1) {
+                    component(1, -1, 33882270);
+                    Execution.delay(random.nextLong(1000, 2000));
+                }
+                handleGoteCharges();
             }
             if (Backpack.contains("Complete tome")) {
                 log("[Archaeology] Complete tome found, going to hand it in.");
@@ -158,64 +162,19 @@ public class Banking {
         } else {
             log("[Archaeology] Bank Tab value is already 1");
         }
-        if (Equipment.contains("Grace of the elves")) {
-            int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-            if (varbitValue < getChargeThreshold()) {
-                Execution.delay(handleBankingInteractionforPorter());
-            }
-        } else {
-            log("[Error] Grace of the elves not equipped or no porter found in the Backpack.");
-        }
-    }
-
-    public static long handleBankingInteractionforPorter() {
-        int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-
-        interactWithBankChestAndOpen();
-
-        if (Interfaces.isOpen(517)) {
-            handleBankInteraction(varbitValue);
-        }
-
-        return random.nextLong(1500, 2500);
-    }
-
-    private static void interactWithBankChestAndOpen() {
-        interactWithBankChestOrBanker();
-        waitForBankToOpen();
-    }
-
-    private static void handleBankInteraction(int varbitValue) {
-        delayRandomly();
-
-        checkVarbitAndHandleGoteCharges();
-
-        closeBankAndUsePorter();
-
-        checkVarbitAndReturnOrRetry(varbitValue);
-    }
-
-    private static void checkVarbitAndHandleGoteCharges() {
-        if (VarManager.getVarbitValue(45141) != 1) {
-            component(1, -1, 33882270);
-            Execution.delay(random.nextLong(1000, 2000));
-        }
         handleGoteCharges();
     }
 
-    private static void closeBankAndUsePorter() {
-        Bank.close();
-        Execution.delay(random.nextLong(1500, 2500));
-        usePorter();
-        Execution.delay(random.nextLong(1500, 2500));
-    }
+
+
+
 
     private static void checkVarbitAndReturnOrRetry(int varbitValue) {
         if (varbitValue >= getChargeThreshold()) {
             log("[Success] we are above our theshold");
         } else {
             log("[Caution] Porters have " + varbitValue + " charges, but we need atleast: " + getChargeThreshold());
-            handleBankingInteractionforPorter();
+            handleBankInteraction(Client.getLocalPlayer(), selectedArchNames);
         }
     }
 

@@ -68,7 +68,7 @@ public class Porters {
     public static boolean bankwithoutPorter = false;
 
     public static long handleGoteCharges() {
-        if (useGote && Equipment.contains("Grace of the elves")) {
+        if (Equipment.contains("Grace of the elves")) {
             int charges = VarManager.getInvVarbit(94, 2, 30214);
             if (charges < getChargeThreshold()) {
                 String selectedPorter = porterTypes[currentPorterType.get()];
@@ -82,6 +82,7 @@ public class Porters {
                 if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
                     log("[Archaeology] Withdrew: " + selectedPorter + ".");
                     Bank.close();
+                    Execution.delay(random.nextLong(1500, 3000));
                     usePorter();
                 } else {
                     log("[Error] Failed to withdraw " + selectedPorter + ".");
