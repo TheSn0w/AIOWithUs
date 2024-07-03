@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.Variables.Variables.*;
@@ -170,7 +169,7 @@ public class Fishing {
         String currentPorter = porterTypes[currentPorterType.get()];
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
-        if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+        if (Backpack.contains(currentPorter) && varbitValue <= getGraceChargesThreshold()) {
             log("[Fishing] Porters have " + varbitValue + " charges. Charging.");
             log("[Caution] Interacting with Equipment - Equipment needs to be OPEN.");
             if (equipment.contains("Grace of the elves")) {

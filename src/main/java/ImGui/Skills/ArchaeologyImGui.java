@@ -1,10 +1,8 @@
 package ImGui.Skills;
 
-import net.botwithus.Archaeology.CoordinateSceneObject;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
-import net.botwithus.rs3.script.ScriptConsole;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -13,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import static ImGui.PredefinedStrings.predefinedCacheNames;
-import static net.botwithus.Archaeology.Archeology.blacklistedSceneObjects;
-import static net.botwithus.Archaeology.Archeology.whitelistedSceneObjects;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
@@ -130,7 +126,7 @@ public class ArchaeologyImGui {
                 }
                 ImGui.SeparatorText("Set Porter Withdraw Threshold from bank");
                 ImGui.SetItemWidth(100.0F);
-                int newThreshold = getChargeThreshold();
+                int newThreshold = getBankingThreshold();
                 newThreshold = ImGui.InputInt("##ChargeThreshold", newThreshold);
                 if (newThreshold < 0) {
                     newThreshold = 0;
@@ -144,7 +140,7 @@ public class ArchaeologyImGui {
 
                 ImGui.SeparatorText("Set Porter Equip Charge Threshold from Inventory");
                 ImGui.SetItemWidth(100.0F);
-                int newEquipThreshold = getEquipChargeThreshold();
+                int newEquipThreshold = getGraceChargesThreshold();
                 newEquipThreshold = ImGui.InputInt("##EquipChargeThreshold", newEquipThreshold);
                 if (newEquipThreshold < 0) {
                     newEquipThreshold = 0;

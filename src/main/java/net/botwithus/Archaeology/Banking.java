@@ -31,7 +31,6 @@ import java.util.List;
 
 import static net.botwithus.Archaeology.Daeminheim.*;
 import static net.botwithus.Archaeology.Porters.handleGoteCharges;
-import static net.botwithus.Archaeology.Porters.usePorter;
 import static net.botwithus.Archaeology.Traversal.returnToLastLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
@@ -113,14 +112,11 @@ public class Banking {
                         Execution.delay(random.nextLong(1500, 2500));
                         useBankingPorter();
                         Execution.delay(random.nextLong(1500, 2500));
-                    } else {
-                        log("[Error] No porters found in backpack, and we've run out, Banking.");
                     }
-                    int charges = VarManager.getInvVarbit(94, 2, 30214);
-                    if (charges < getChargeThreshold()) {
+                    int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
+                    if (CurrentGraceCharges <= getBankingThreshold()) {
                         log("[Archaeology] Charges are below threshold, Banking again to withdraw more");
-                        openBank();
-                        Execution.delay(handleGoteCharges());
+                        handleBankInteraction(player, selectedArchNames);
                     } else {
                         log("[Archaeology] Charges are above threshold, continuing.");
 
@@ -142,9 +138,9 @@ public class Banking {
         String currentPorter = porterTypes[currentPorterType.get()];
 
         if (equipment.contains("Grace of the elves")) {
-            int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-            if (varbitValue <= getChargeThreshold()) {
-                log("[Archaeology] Porters have " + varbitValue + " charges. Charging.");
+            int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
+            if (CurrentGraceCharges <= getBankingThreshold()) {
+                log("[Archaeology] Porters have " + CurrentGraceCharges + " charges. Charging.");
                 log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                 boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                 if (interactionResult) {

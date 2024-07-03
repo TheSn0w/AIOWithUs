@@ -375,7 +375,7 @@ public class Woodcutting {
         String currentPorter = porterTypes[currentPorterType.get()];
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
 
-        if (Backpack.contains(currentPorter) && varbitValue <= getEquipChargeThreshold()) {
+        if (Backpack.contains(currentPorter) && varbitValue <= getGraceChargesThreshold()) {
             log("[Woodcutting] Porters have " + varbitValue + " charges. Charging.");
             log("[Caution] Interacting with Equipment - Equipment needs to be OPEN.");
             if (equipment.contains("Grace of the elves")) {

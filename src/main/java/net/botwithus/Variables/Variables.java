@@ -63,10 +63,10 @@ public class Variables {
     }
     public static Coordinate lastSpotAnimationCoordinate = null;
 
-    public static int getChargeThreshold() {
+    public static int getBankingThreshold() {
         return chargeThreshold;
     }
-    public static int getEquipChargeThreshold() {
+    public static int getGraceChargesThreshold() {
         return equipChargeThreshold;
     }
     public static void setEquipChargeThreshold(int equipChargeThreshold) {

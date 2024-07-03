@@ -1,6 +1,5 @@
 package net.botwithus.Archaeology;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
@@ -8,18 +7,15 @@ import net.botwithus.inventory.backpack;
 import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
-import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
-import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
-import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
-import static net.botwithus.Variables.Variables.getEquipChargeThreshold;
+import static net.botwithus.Variables.Variables.getGraceChargesThreshold;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Porters {
@@ -35,9 +31,9 @@ public class Porters {
 
         if (Backpack.contains(currentPorter)) {
             if (equipment.contains("Grace of the elves")) {
-                int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-                if (varbitValue <= getEquipChargeThreshold()) {
-                    log("[Archaeology] Porters have " + varbitValue + " charges. Charging.");
+                int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
+                if (CurrentGraceCharges <= getGraceChargesThreshold()) {
+                    log("[Archaeology] Porters have " + CurrentGraceCharges + " charges. Charging.");
                     log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                     boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                     if (interactionResult) {
@@ -69,8 +65,8 @@ public class Porters {
 
     public static long handleGoteCharges() {
         if (Equipment.contains("Grace of the elves")) {
-            int charges = VarManager.getInvVarbit(94, 2, 30214);
-            if (charges < getChargeThreshold()) {
+            int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
+            if (CurrentGraceCharges < getBankingThreshold()) {
                 String selectedPorter = porterTypes[currentPorterType.get()];
                 int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
                 boolean withdrew;

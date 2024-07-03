@@ -22,7 +22,6 @@ import net.botwithus.rs3.script.Execution;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static net.botwithus.Archaeology.Banking.*;
 import static net.botwithus.Archaeology.Porters.getQuantityFromOption;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.CustomLogger.log;
@@ -242,7 +241,7 @@ public class BankInteractions {
                 Execution.delay(random.nextLong(1500, 2500));
                 interactWithPorter();
                 Execution.delay(random.nextLong(1500, 2500));
-                if (varbitValue < getChargeThreshold()) {
+                if (varbitValue < getBankingThreshold()) {
                     handleOreBoxBanking(player, nearestBankBooth, oreBox);
                 } else {
                     log("[Banking] Grace of the Elves is charged, Going back to skilling.");
@@ -306,7 +305,7 @@ public class BankInteractions {
         if (useGote) {
             int charges = VarManager.getInvVarbit(94, 2, 30214);
 
-            if (charges < getChargeThreshold()) {
+            if (charges < getBankingThreshold()) {
                 String selectedPorter = porterTypes[currentPorterType.get()];
                 int quantity = getQuantityFromOption(quantities[currentQuantity.get()]);
                 boolean withdrew;
@@ -332,7 +331,7 @@ public class BankInteractions {
         String currentPorter = porterTypes[currentPorterType.get()];
         int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
         if (useGote) {
-            if (Backpack.contains(currentPorter) && varbitValue <= getChargeThreshold()) {
+            if (Backpack.contains(currentPorter) && varbitValue <= getBankingThreshold()) {
                 if (equipment.contains("Grace of the elves")) {
                     boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                     if (interactionResult) {

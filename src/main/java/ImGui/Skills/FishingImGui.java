@@ -135,7 +135,7 @@ public class FishingImGui {
                 }
                 ImGui.SeparatorText("Set Porter Withdraw Threshold from bank");
                 ImGui.SetItemWidth(100.0F);
-                int newThreshold = getChargeThreshold();
+                int newThreshold = getBankingThreshold();
                 newThreshold = ImGui.InputInt("##ChargeThreshold", newThreshold);
                 if (newThreshold < 0) {
                     newThreshold = 0;
@@ -149,7 +149,7 @@ public class FishingImGui {
 
                 ImGui.SeparatorText("Set Porter Equip Charge Threshold from Inventory");
                 ImGui.SetItemWidth(100.0F);
-                int newEquipThreshold = getEquipChargeThreshold();
+                int newEquipThreshold = getGraceChargesThreshold();
                 newEquipThreshold = ImGui.InputInt("##EquipChargeThreshold", newEquipThreshold);
                 if (newEquipThreshold < 0) {
                     newEquipThreshold = 0;
