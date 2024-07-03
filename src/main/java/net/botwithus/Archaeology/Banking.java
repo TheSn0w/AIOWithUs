@@ -114,7 +114,7 @@ public class Banking {
                         Execution.delay(random.nextLong(1500, 2500));
                     }
                     int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
-                    if (CurrentGraceCharges <= getBankingThreshold()) {
+                    if (CurrentGraceCharges < getBankingThreshold()) {
                         log("[Archaeology] Charges are below threshold, Banking again to withdraw more");
                         handleBankInteraction(player, selectedArchNames);
                     } else {
@@ -139,7 +139,7 @@ public class Banking {
 
         if (equipment.contains("Grace of the elves")) {
             int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
-            if (CurrentGraceCharges <= getBankingThreshold()) {
+            if (CurrentGraceCharges < getBankingThreshold()) {
                 log("[Archaeology] Porters have " + CurrentGraceCharges + " charges. Charging.");
                 log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                 boolean interactionResult = equipment.interact(NECK, "Charge all porters");
