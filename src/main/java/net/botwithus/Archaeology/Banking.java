@@ -106,6 +106,12 @@ public class Banking {
                     Execution.delay(random.nextLong(1000, 2000));
                 }
                 handleGoteCharges();
+                if (Equipment.contains("Grace of the elves")) {
+                    int charges = VarManager.getInvVarbit(94, 2, 30214);
+                    if (charges < getChargeThreshold()) {
+                        handleBankInteraction(player, selectedArchNames);
+                    }
+                }
             }
             if (Backpack.contains("Complete tome")) {
                 log("[Archaeology] Complete tome found, going to hand it in.");
