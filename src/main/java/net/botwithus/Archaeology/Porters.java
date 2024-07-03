@@ -82,14 +82,14 @@ public class Porters {
                     component(1, -1, 33882215);
                 }
                 withdrew = Bank.withdraw(selectedPorter, quantity);
-                Execution.delay(random.nextLong(500, 600));
+                Execution.delay(random.nextLong(900, 1500));
                 if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
                     log("[Archaeology] Withdrew: " + selectedPorter + ".");
                 } else {
                     log("[Error] Failed to withdraw " + selectedPorter + ".");
                     log("[Caution] use Gote/Porter has been disabled.");
                     useGote = false;
-                    return random.nextLong(500, 600);
+                    return random.nextLong(900, 1500);
                 }
             }
         } else {
@@ -100,17 +100,17 @@ public class Porters {
                 component(1, -1, 33882215);
             }
             withdrew = Bank.withdraw(selectedPorter, quantity);
-            Execution.delay(random.nextLong(500, 600));
+            Execution.delay(random.nextLong(900, 1500));
             if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
                 log("[Archaeology] Withdrew: " + selectedPorter + ".");
             } else {
                 log("[Error] Failed to withdraw " + selectedPorter + ".");
                 log("[Caution] use Gote/Porter has been disabled.");
                 useGote = false;
-                return random.nextLong(500, 600);
+                return random.nextLong(900, 1500);
             }
         }
-        return random.nextLong(500, 600);
+        return random.nextLong(900, 1500);
     }
 
 

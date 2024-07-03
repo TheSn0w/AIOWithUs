@@ -131,7 +131,7 @@ public class Banking {
             return 0;
         } else {
             log("[Error] Bank did not open.");
-            return random.nextLong(500, 600);
+            return random.nextLong(900, 1500);
         }
     }
     public static void useBankingPorter() {
