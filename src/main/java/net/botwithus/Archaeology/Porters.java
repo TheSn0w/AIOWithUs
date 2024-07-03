@@ -81,6 +81,8 @@ public class Porters {
                 Execution.delay(random.nextLong(1500, 3000));
                 if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
                     log("[Archaeology] Withdrew: " + selectedPorter + ".");
+                    Bank.close();
+                    usePorter();
                 } else {
                     log("[Error] Failed to withdraw " + selectedPorter + ".");
                     log("[Caution] use Gote/Porter has been disabled.");
@@ -99,6 +101,8 @@ public class Porters {
             Execution.delay(random.nextLong(1500, 3000));
             if (withdrew && !InventoryItemQuery.newQuery(93).name(selectedPorter).results().isEmpty()) {
                 log("[Archaeology] Withdrew: " + selectedPorter + ".");
+                Bank.close();
+                usePorter();
             } else {
                 log("[Error] Failed to withdraw " + selectedPorter + ".");
                 log("[Caution] use Gote/Porter has been disabled.");
