@@ -116,7 +116,7 @@ public class Banking {
                     int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
                     if (CurrentGraceCharges < getBankingThreshold()) {
                         log("[Archaeology] Charges are below threshold, Banking again to withdraw more");
-                        handleBankInteraction(player, selectedArchNames);
+                        Execution.delay(handleBankInteractionforPorter());
                     } else {
                         log("[Archaeology] Charges are above threshold, continuing.");
 
@@ -133,6 +133,37 @@ public class Banking {
             log("[Error] Bank did not open.");
             return random.nextLong(900, 1500);
         }
+    }
+    public static long handleBankInteractionforPorter() {
+        openBank();
+        if (!isBankOpen()) {
+            log("[Error] Bank did not open.");
+            return random.nextLong(900, 1500);
+        }
+
+        delayRandomly();
+
+        if (VarManager.getVarbitValue(45141) != 1) {
+            component(1, -1, 33882270);
+            Execution.delay(random.nextLong(500, 600));
+        }
+
+        Execution.delay(handleGoteCharges());
+
+        Bank.close();
+
+        String currentPorter = porterTypes[currentPorterType.get()];
+        if (!Backpack.contains(currentPorter)) {
+            log("[Archaeology] Charges are above threshold, continuing.");
+            return 0;
+        }
+
+        log("[Archaeology] Found " + currentPorter + " in backpack, using it.");
+        Execution.delay(random.nextLong(500, 600));
+        useBankingPorter();
+        Execution.delay(random.nextLong(500, 600));
+
+        return 0;
     }
     public static void useBankingPorter() {
         String currentPorter = porterTypes[currentPorterType.get()];
