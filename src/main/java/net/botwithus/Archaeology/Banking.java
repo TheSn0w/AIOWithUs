@@ -101,7 +101,7 @@ public class Banking {
             if (useGote) {
                 if (VarManager.getVarbitValue(45141) != 1) {
                     component(1, -1, 33882270);
-                    Execution.delay(random.nextLong(1000, 2000));
+                    Execution.delay(random.nextLong(500, 600));
                 }
                 Execution.delay(handleGoteCharges());
                 if (Equipment.contains("Grace of the elves")) {
@@ -109,9 +109,9 @@ public class Banking {
                     String currentPorter = porterTypes[currentPorterType.get()];
                     if(Backpack.contains(currentPorter)) {
                         log("[Archaeology] Found " + currentPorter + " in backpack, using it.");
-                        Execution.delay(random.nextLong(1500, 2500));
+                        Execution.delay(random.nextLong(500, 600));
                         useBankingPorter();
-                        Execution.delay(random.nextLong(1500, 2500));
+                        Execution.delay(random.nextLong(500, 600));
                     }
                     int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
                     if (CurrentGraceCharges < getBankingThreshold()) {
@@ -131,7 +131,7 @@ public class Banking {
             return 0;
         } else {
             log("[Error] Bank did not open.");
-            return random.nextLong(750, 1250);
+            return random.nextLong(500, 600);
         }
     }
     public static void useBankingPorter() {
@@ -141,7 +141,6 @@ public class Banking {
             int CurrentGraceCharges = VarManager.getInvVarbit(94, 2, 30214);
             if (CurrentGraceCharges < getBankingThreshold()) {
                 log("[Archaeology] Porters have " + CurrentGraceCharges + " charges. Charging.");
-                log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                 boolean interactionResult = equipment.interact(NECK, "Charge all porters");
                 if (interactionResult) {
                     log("[Archaeology] Interaction with Equipment was successful.");

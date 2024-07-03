@@ -258,10 +258,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop soil instead of banking to deposit");
                         }
-                        createCenteredButton("Bank when 0 porter", () -> bankwithoutPorter = !bankwithoutPorter, bankwithoutPorter);
+                       /* createCenteredButton("Bank when 0 porter", () -> bankwithoutPorter = !bankwithoutPorter, bankwithoutPorter);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will force to bank when backpack doesnt contain any porters");
-                        }
+                        }*/
                         createCenteredButton("hop worlds", () -> hopWorldsforArchaeology = !hopWorldsforArchaeology, hopWorldsforArchaeology);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will hop worlds when player is within 8 tiles of you");
