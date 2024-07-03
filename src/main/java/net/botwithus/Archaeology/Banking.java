@@ -127,6 +127,7 @@ public class Banking {
                 log("[Archaeology] Complete tome found, going to hand it in.");
                 Execution.delay(handleCompleteTome());
             }
+            log("[Archaeology] Finished banking, going back to work.");
             returnToLastLocation(player, selectedArchNames);
             return 0;
         } else {
