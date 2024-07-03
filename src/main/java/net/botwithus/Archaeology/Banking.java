@@ -4,6 +4,7 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
+import net.botwithus.inventory.equipment;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -13,6 +14,7 @@ import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -37,6 +39,7 @@ import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Banking {
 
@@ -96,41 +99,32 @@ public class Banking {
             delayRandomly();
             depositItems();
             interactWithSoilBoxIfPresent(soilBox);
-            boolean continueBanking = true;
-            while (useGote && continueBanking) {
+            if (useGote) {
                 if (VarManager.getVarbitValue(45141) != 1) {
                     component(1, -1, 33882270);
                     Execution.delay(random.nextLong(1000, 2000));
                 }
-                handleGoteCharges(); // withdrawing porters
+                Execution.delay(handleGoteCharges());
                 if (Equipment.contains("Grace of the elves")) {
                     Bank.close();
                     String currentPorter = porterTypes[currentPorterType.get()];
-                    if (Backpack.contains(currentPorter)) {
+                    if(Backpack.contains(currentPorter)) {
                         log("[Archaeology] Found " + currentPorter + " in backpack, using it.");
                         Execution.delay(random.nextLong(1500, 2500));
-                        log("[Archaeology] Interacting with Porter.");
-                        usePorter(); // interacting with GOTE
+                        useBankingPorter();
                         Execution.delay(random.nextLong(1500, 2500));
-                        int charges = VarManager.getInvVarbit(94, 2, 30214);
-                        if (charges < getChargeThreshold()) {
-                            log("[Archaeology] Charges are below threshold, Banking again to withdraw more");
-                            openBank();
-                            if (!isBankOpen()) {
-                                log("[Error] Bank did not open after re-attempt.");
-                                continueBanking = false;
-                            }
-                        } else {
-                            log("[Archaeology] Charges are above threshold, continuing.");
-                            continueBanking = false;
-                        }
                     } else {
                         log("[Error] No porters found in backpack, and we've run out, Banking.");
-                        continueBanking = false;
                     }
-                } else {
-                    log("[Error] Grace of the Elves is not equipped.");
-                    continueBanking = false;
+                    int charges = VarManager.getInvVarbit(94, 2, 30214);
+                    if (charges < getChargeThreshold()) {
+                        log("[Archaeology] Charges are below threshold, Banking again to withdraw more");
+                        openBank();
+                        Execution.delay(handleGoteCharges());
+                    } else {
+                        log("[Archaeology] Charges are above threshold, continuing.");
+
+                    }
                 }
             }
             if (Backpack.contains("Complete tome")) {
@@ -142,6 +136,32 @@ public class Banking {
         } else {
             log("[Error] Bank did not open.");
             return random.nextLong(750, 1250);
+        }
+    }
+    public static void useBankingPorter() {
+        String currentPorter = porterTypes[currentPorterType.get()];
+
+        if (equipment.contains("Grace of the elves")) {
+            int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
+            if (varbitValue <= getChargeThreshold()) {
+                log("[Archaeology] Porters have " + varbitValue + " charges. Charging.");
+                log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
+                boolean interactionResult = equipment.interact(NECK, "Charge all porters");
+                if (interactionResult) {
+                    log("[Archaeology] Interaction with Equipment was successful.");
+                } else {
+                    log("[Error] Interaction with Equipment failed.");
+                }
+            }
+        } else {
+            if (ComponentQuery.newQuery(284).spriteId(51490).results().isEmpty()) {
+                boolean interactionResult = backpack.interact(currentPorter, "Wear");
+                if (interactionResult) {
+                    log("[Archaeology] Interaction with Backpack was successful.");
+                } else {
+                    log("[Error] Interaction with Backpack failed.");
+                }
+            }
         }
     }
 
