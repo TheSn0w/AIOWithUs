@@ -36,7 +36,7 @@ public class Porters {
         if (Backpack.contains(currentPorter)) {
             if (equipment.contains("Grace of the elves")) {
                 int varbitValue = VarManager.getInvVarbit(94, 2, 30214);
-                if (varbitValue <= getEquipChargeThreshold()) {
+                if (varbitValue <= getChargeThreshold()) {
                     log("[Archaeology] Porters have " + varbitValue + " charges. Charging.");
                     log("[Archaeology] Interacting with Equipment - Equipment needs to be OPEN.");
                     boolean interactionResult = equipment.interact(NECK, "Charge all porters");

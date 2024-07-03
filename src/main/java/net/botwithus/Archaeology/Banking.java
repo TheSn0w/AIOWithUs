@@ -3,10 +3,7 @@ package net.botwithus.Archaeology;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
-import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.inventory.backpack;
-import net.botwithus.inventory.equipment;
-import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -40,7 +37,6 @@ import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
-import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Banking {
 
@@ -100,21 +96,41 @@ public class Banking {
             delayRandomly();
             depositItems();
             interactWithSoilBoxIfPresent(soilBox);
-            if (useGote) {
+            boolean continueBanking = true;
+            while (useGote && continueBanking) {
                 if (VarManager.getVarbitValue(45141) != 1) {
                     component(1, -1, 33882270);
                     Execution.delay(random.nextLong(1000, 2000));
                 }
-                handleGoteCharges();
+                handleGoteCharges(); // withdrawing porters
                 if (Equipment.contains("Grace of the elves")) {
                     Bank.close();
-                    Execution.delay(random.nextLong(1500, 2500));
-                    usePorter();
-                    Execution.delay(random.nextLong(1500, 2500));
-                    int charges = VarManager.getInvVarbit(94, 2, 30214);
-                    if (charges < getChargeThreshold()) {
-                        handleBankInteraction(player, selectedArchNames);
+                    String currentPorter = porterTypes[currentPorterType.get()];
+                    if (Backpack.contains(currentPorter)) {
+                        log("[Archaeology] Found " + currentPorter + " in backpack, using it.");
+                        Execution.delay(random.nextLong(1500, 2500));
+                        log("[Archaeology] Interacting with Porter.");
+                        usePorter(); // interacting with GOTE
+                        Execution.delay(random.nextLong(1500, 2500));
+                        int charges = VarManager.getInvVarbit(94, 2, 30214);
+                        if (charges < getChargeThreshold()) {
+                            log("[Archaeology] Charges are below threshold, Banking again to withdraw more");
+                            openBank();
+                            if (!isBankOpen()) {
+                                log("[Error] Bank did not open after re-attempt.");
+                                continueBanking = false;
+                            }
+                        } else {
+                            log("[Archaeology] Charges are above threshold, continuing.");
+                            continueBanking = false;
+                        }
+                    } else {
+                        log("[Error] No porters found in backpack, and we've run out, Banking.");
+                        continueBanking = false;
                     }
+                } else {
+                    log("[Error] Grace of the Elves is not equipped.");
+                    continueBanking = false;
                 }
             }
             if (Backpack.contains("Complete tome")) {
@@ -146,7 +162,7 @@ public class Banking {
 
         while (attempts < 5) {
             depositAllExceptSelectedItems();
-            Execution.delay(random.nextLong(1000, 1500)); // Delay for 500-1000 milliseconds
+            Execution.delay(random.nextLong(1000, 1500));
 
             if (Backpack.isFull()) {
                 log("[Error] Failed to deposit items. Attempting again...");
@@ -221,10 +237,9 @@ public class Banking {
         Execution.delay(RandomGenerator.nextInt(1500, 3000));
     }
 
-    private static boolean depositAllExceptSelectedItems() {
+    private static void depositAllExceptSelectedItems() {
         int[] itemIdsToKeep = {49538, 50096, 4614, 49976, 50431, 49947, 49949, 50753, 41092, 49429, 50161};
         Bank.depositAllExcept(itemIdsToKeep);
-        return false;
     }
 
     private static void logItemsDeposited() {
