@@ -3,6 +3,7 @@ package net.botwithus.Combat;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
+import net.botwithus.rs3.script.Execution;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.SoulSplit;
@@ -10,45 +11,34 @@ import static net.botwithus.Variables.Variables.random;
 
 public class Prayers {
 
-    public static long manageSoulSplit(LocalPlayer player) {
-        if (SoulSplit) {
-            if (player == null) {
-                return 0;
-            }
-            if (!ActionBar.containsAbility("Soul Split")) {
-                return 0;
-            }
-
-            boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
-
-            if (player.inCombat()) {
-                if (!isSoulSplitActive && player.getPrayerPoints() > 1) {
-                    boolean success = ActionBar.useAbility("Soul Split");
-                    if (success) {
-                        log("[Combat] Activating Soul Split.");
-                        return random.nextLong(600, 1500);
-                    } else {
-                        log("[Error] Failed to activate Soul Split.");
-                        return 0;
-                    }
-                }
+    public static void activateSoulSplit(LocalPlayer player) {
+        boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
+        if (player.hasTarget() && !isSoulSplitActive && player.getPrayerPoints() > 1) {
+            boolean success = ActionBar.useAbility("Soul Split");
+            if (success) {
+                log("[Combat] Activating Soul Split.");
+                Execution.delayUntil( random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(16779) == 1);
             } else {
-                if (isSoulSplitActive) {
-                    boolean success = ActionBar.useAbility("Soul Split");
-                    if (success) {
-                        log("[Combat] Deactivating Soul Split.");
-                        return random.nextLong(600, 1500);
-                    } else {
-                        log("[Error] Failed to deactivate Soul Split.");
-                        return 0;
-                    }
-                }
+                log("[Error] Failed to activate Soul Split.");
             }
-
         }
-        return 0L;
     }
-    private static boolean isQuickPrayersActive() {
+
+    public static void deactivateSoulSplit() {
+        boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
+        if (isSoulSplitActive) {
+            boolean success = ActionBar.useAbility("Soul Split");
+            if (success) {
+                log("[Combat] Deactivating Soul Split.");
+                Execution.delayUntil( random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(16779) == 0);
+            } else {
+                log("[Error] Failed to deactivate Soul Split.");
+            }
+        }
+    }
+
+
+    public static void updateQuickPrayersActiveStatus() {
         int[] varbitIds = {
                 // Curses
                 16761, 16762, 16763, 16786, 16764, 16765, 16787, 16788, 16765, 16766,
@@ -62,37 +52,19 @@ public class Prayers {
                 16759, 16760, 53271, 53272, 53273, 53274
         };
 
+        quickPrayersActive = false; // Reset to false before checking
         for (int varbitId : varbitIds) {
             if (VarManager.getVarbitValue(varbitId) == 1) {
-                return true;
+                quickPrayersActive = true;
+                break; // Exit the loop as soon as one active varbit is found
             }
         }
-        return false;
     }
 
-    private static boolean quickPrayersActive = false;
+    public static boolean quickPrayersActive = false;
 
-    public static void manageQuickPrayers(LocalPlayer player) {
 
-        if (player.inCombat() && !quickPrayersActive) {
-            updateQuickPrayersActivation(player);
-        } else if (!player.inCombat() && quickPrayersActive) {
-            updateQuickPrayersActivation(player);
-        }
-    }
-
-    private static void updateQuickPrayersActivation(LocalPlayer player) {
-        boolean isCurrentlyActive = isQuickPrayersActive();
-        boolean shouldBeActive = shouldActivateQuickPrayers(player);
-
-        if (shouldBeActive && !isCurrentlyActive) {
-            activateQuickPrayers();
-        } else if (!shouldBeActive && isCurrentlyActive) {
-            deactivateQuickPrayers();
-        }
-    }
-
-    private static void activateQuickPrayers() {
+    public static void activateQuickPrayers() {
         if (!quickPrayersActive) {
             log("[Combat] Activating Quick Prayers.");
             if (ActionBar.useAbility("Quick-prayers 1")) {
@@ -116,7 +88,4 @@ public class Prayers {
         }
     }
 
-    private static boolean shouldActivateQuickPrayers(LocalPlayer player) {
-        return player.inCombat();
-    }
 }

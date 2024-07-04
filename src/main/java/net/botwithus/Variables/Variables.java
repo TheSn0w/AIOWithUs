@@ -105,6 +105,13 @@ public class Variables {
 // =====================
 // SECTION 3: Combat
 // =====================
+    public static boolean useThreadsofFate = false;
+    public static boolean useAnimateDead = false;
+    public static boolean useDarkness = false;
+    public static int NecrosisStacksThreshold = 12;
+    public static int VolleyOfSoulsThreshold = 5;
+    public static boolean useExcalibur = false;
+    public static boolean useElvenRitual = false;
     public static boolean isCombatActive = false;
     public static boolean useNotepaper = false;
     public static boolean interactWithLootAll = false;
@@ -536,7 +543,7 @@ public static void dialog(int option1, int option2, int option3) {
     public static String filterText = ""; // Archaeology
     public static boolean ScriptisOn = false;
     public static long totalElapsedTime = 0;
-    public static boolean tooltipsEnabled = true;
+    public static boolean tooltipsEnabled = false;
     public static String saveSettingsFeedbackMessage = "";
     public static boolean showLogs = false;
     public static boolean scrollToBottom = false;

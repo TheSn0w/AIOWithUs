@@ -11,7 +11,7 @@ import static net.botwithus.Variables.Variables.fishCookedCount;
 public class CookingImGui {
 
     public static void renderCooking() {
-        if (isCookingActive && !showLogs) {
+        if (isCookingActive) {
             if (tooltipsEnabled) {
                 float windowWidth = 400;
                 String[] texts = {

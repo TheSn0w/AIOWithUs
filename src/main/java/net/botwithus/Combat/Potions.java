@@ -5,6 +5,7 @@ import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.ResultSet;
@@ -22,6 +23,11 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.random;
 
 public class Potions {
+    public static boolean usePowderOfProtection = false;
+    public static boolean usePowderOfPenance = false;
+    public static boolean useKwuarmSticks = false;
+    public static boolean useLantadymeSticks = false;
+    public static boolean useIritSticks = false;
 
     public static void managePotions(LocalPlayer player) {
         long totalDelay = 0;
@@ -69,7 +75,7 @@ public class Potions {
             boolean success = backpack.interact(aggressionFlask.getName(), "Drink");
             if (success) {
                 log("[Combat] Using aggression potion: " + aggressionFlask.getName());
-                return random.nextLong(650, 950);
+                Execution.delayUntil(5000, () -> VarManager.getVarbitValue(33448) != 0);
             } else {
                 log("[Error] Failed to use aggression potion: " + aggressionFlask.getName());
                 return 0;
@@ -99,10 +105,10 @@ public class Potions {
             return 1L;
         }
 
-        log("[Combat] Drinking " + prayerOrRestorePot.getName());
         boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
             log("[Combat] Successfully drank " + prayerOrRestorePot.getName());
+            Execution.delayUntil(5000, () -> player.getPrayerPoints() > prayerPointsThreshold);
             return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
@@ -139,7 +145,7 @@ public class Potions {
         if (success) {
             log("[Combat] Successfully drank " + overloadPot.getName());
             Execution.delayUntil(5000, () -> VarManager.getVarbitValue(48834) != 0);
-            return random.nextLong(100, 200);
+            return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to interact with overload potion.");
             return 0L;
@@ -171,12 +177,64 @@ public class Potions {
         boolean success = backpack.interact(weaponPoisonItem.getName(), "Apply");
         if (success) {
             log("[Combat] Successfully applied " + weaponPoisonItem.getName());
+            Execution.delayUntil(5000, () -> VarManager.getVarbitValue(2102) > 1);
             return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to apply weapon poison.");
             return 0L;
         }
     }
+
+    public static void handleIncenseSticks(String stickName, int overloadVarId, int durationVarId) {
+        if (Backpack.getQuantity(stickName) > 10) {
+            if (VarManager.getVarbitValue(overloadVarId) != 4) {
+                log("[Incense Sticks] " + stickName + " overload not active, activating.");
+                backpack.interact(stickName, "Overload");
+                Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(overloadVarId) == 4);
+            }
+
+            int currentValue = VarManager.getVarbitValue(durationVarId);
+            boolean shouldUseSticks = currentValue <= 60 || (currentValue < 120 && currentValue >= 60);
+
+            if (shouldUseSticks) {
+                log("[Incense Sticks] We have below 30 minutes or are continuing to top up, interacting with " + stickName + ".");
+                Backpack.interact(stickName, "Light");
+                Execution.delay(random.nextLong(650, 700));
+            }
+        }
+    }
+
+    public static void lantadymeSticks() {
+        handleIncenseSticks("Lantadyme incense sticks", 43699, 43717);
+    }
+
+    public static void kwuarmSticks() {
+        handleIncenseSticks("Kwuarm incense sticks", 43707, 43725);
+    }
+
+    public static void iritSticks() {
+        handleIncenseSticks("Irit incense sticks", 43696, 43714);
+    }
+
+    public static void powderOfProtection() {
+        if (Backpack.contains("Powder of protection") && VarManager.getVarbitValue(50837) <= 1) {
+            log("[Powder] We need to activate Powder of Protection.");
+            Backpack.interact("Powder of protection", "Scatter");
+            Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(50837) > 1);
+        }
+    }
+    public static void powderOfPenance() {
+        if (Backpack.contains("Powder of penance") && VarManager.getVarbitValue(50841) <= 1) {
+            log("[Powder] We need to activate Powder of Penance.");
+            Backpack.interact("Powder of penance", "Scatter");
+            Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(50841) > 1);
+        }
+    }
+
+
+
+
+
 
 
 }

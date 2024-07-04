@@ -112,7 +112,7 @@ public class Loot {
                 }
 
                 if (LootInventory.isOpen()) {
-                    Execution.delay(lootFromInventory());
+                    lootFromInventory();
                 } else {
                     Execution.delay(lootFromGround());
                 }
@@ -136,23 +136,33 @@ public class Loot {
 
     public static void lootNotedItemsFromInventory() {
         if (LootInventory.isOpen()) {
-            List<Item> inventoryItems = LootInventory.getItems();
+            boolean itemLooted;
+            do {
+                itemLooted = false;
+                List<Item> inventoryItems = LootInventory.getItems();
+                Item item = inventoryItems.stream()
+                        .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
+                        .findFirst()
+                        .orElse(null);
 
-            Item item = inventoryItems.stream()
-                    .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
-                    .findFirst()
-                    .orElse(null);
+                if (item != null) {
+                    int itemSlot = item.getSlot();
+                    if (Backpack.isFull() && !Backpack.contains(item.getName())) {
+                        log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
+                        return;
+                    }
 
-            if (item != null) {
-                if (Backpack.isFull() && !Backpack.contains(item.getName())) {
-                    log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
-                    return;
+                    LootInventory.take(item.getName());
+                    log("[Loot] Successfully looted noted item: " + item.getName());
+
+                    itemLooted = Execution.delayUntil(random.nextLong(2000, 3000), () -> {
+                        List<Item> updatedInventoryItems = LootInventory.getItems();
+                        return updatedInventoryItems.stream()
+                                .noneMatch(it -> it.getSlot() == itemSlot && it.getName().equals(item.getName()));
+                    });
                 }
-
-                LootInventory.take(item.getName());
-                log("[Loot] Successfully looted noted item: " + item.getName());
-                Execution.delay(random.nextLong(550, 750));
-            }
+                Execution.delay(620);
+            } while (itemLooted);
         } else {
             List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
@@ -168,6 +178,7 @@ public class Loot {
             }
         }
     }
+
     public static void lootStackableItemsFromInventory() {
         log("[Loot] Checking if LootInventory is open...");
         if (LootInventory.isOpen()) {
@@ -316,41 +327,44 @@ public class Loot {
 
         return random.nextLong(550, 650);
     }*/
-    public static long lootFromInventory() {
-        if (Backpack.isFull()) {
-            log("[Error] Can't loot, Backpack is full.");
-            return random.nextLong(1000, 2000);
+    public static void lootFromInventory() {
+        if (targetItemNames.isEmpty()) {
+            log("[Error] No target items specified for looting.");
+            return;
         }
+        if (!Backpack.isFull()) {
 
-        Pattern lootPattern = generateLootPattern(targetItemNames);
-        List<Item> inventoryItems = LootInventory.getItems();
 
-        Item item = inventoryItems.stream()
-                .filter(it -> it.getName() != null && lootPattern.matcher(it.getName()).find())
-                .findFirst()
-                .orElse(null);
+            Pattern lootPattern = generateLootPattern(targetItemNames);
+            List<Item> inventoryItems = LootInventory.getItems();
 
-        if (item != null) {
-            log("[Loot] Found item to loot: " + item.getName());
-
-            Item currentItem = LootInventory.getItems().stream()
-                    .filter(it -> it.getName().equals(item.getName()))
+            Item item = inventoryItems.stream()
+                    .filter(it -> it.getName() != null && lootPattern.matcher(it.getName()).find())
                     .findFirst()
                     .orElse(null);
 
-            if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
-                LootInventory.take(item.getName());
-                if (useNotepaper) {
-                    useItemOnNotepaper();
+            if (item != null) {
+                log("[Loot] Found item to loot: " + item.getName());
+
+                Item currentItem = LootInventory.getItems().stream()
+                        .filter(it -> it.getName().equals(item.getName()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
+                    LootInventory.take(item.getName());
+                    if (useNotepaper) {
+                        useItemOnNotepaper();
+                    }
+
+                    Execution.delay(random.nextInt(550, 750));
+                } else {
+                    log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
                 }
-
-                Execution.delay(random.nextInt(100, 200));
-            } else {
-                log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
             }
+        } else {
+            log("[Loot] Backpack is full. Cannot loot more items.");
         }
-
-        return random.nextLong(100, 200);
     }
 
 

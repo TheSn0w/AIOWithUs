@@ -25,7 +25,7 @@ import static net.botwithus.Variables.Variables.RingofDueling;
 public class RunecraftingImGui {
 
     public static void renderRunecrafting() {
-        if (isRunecraftingActive && !showLogs) {
+        if (isRunecraftingActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "Will log out if Backpack does not contain Impure Essence",

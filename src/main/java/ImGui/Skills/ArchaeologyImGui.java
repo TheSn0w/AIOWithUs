@@ -19,7 +19,7 @@ import static net.botwithus.Variables.Variables.materialTypes;
 public class ArchaeologyImGui {
 
     public static void renderArchaeology() {
-        if (isArcheologyActive && !showLogs) {
+        if (isArcheologyActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "Some areas are not supported by Traversal after banking",

@@ -21,7 +21,7 @@ public class CentreButton {
                 setStyleColor(ImGuiCol.Button, 255, 140, 0, 200);
             } else if (YellowThemeSelected) {
                 setStyleColor(ImGuiCol.Button, 255, 223, 0, 200);
-            } else {
+            } else if (GreenThemeSelected) {
                 setStyleColor(ImGuiCol.Button, 39, 92, 46, 255);
 
             }

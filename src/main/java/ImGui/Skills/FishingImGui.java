@@ -20,7 +20,7 @@ public class FishingImGui {
 
 
     public static void renderFishing() {
-        if (isFishingActive && !showLogs) {
+        if (isFishingActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "start anywhere, will move to the closest spot",

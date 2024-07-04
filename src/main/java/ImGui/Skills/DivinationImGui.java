@@ -15,7 +15,7 @@ import static net.botwithus.Variables.Variables.energy;
 public class DivinationImGui {
 
     public static void renderDivination() {
-        if (isDivinationActive && !showLogs) {
+        if (isDivinationActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "1-99 AIO, will move from spot to spot automatically",

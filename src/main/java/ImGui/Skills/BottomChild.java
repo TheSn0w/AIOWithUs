@@ -1,6 +1,7 @@
 package ImGui.Skills;
 
 import net.botwithus.Runecrafting.SteamRunes;
+import net.botwithus.Variables.GlobalState;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import java.time.Duration;
@@ -98,10 +99,16 @@ public class BottomChild {
             textWidth = ImGui.CalcTextSize(elapsedTimeText).getX();
             centeredX = (windowWidth - textWidth) / 2;
 
+
             ImGui.SetCursorPosX(0);
             ImGui.SetCursorPosY(27);
             ImGui.SetCursorPosX(centeredX);
             ImGui.Text(elapsedTimeText);
+
+            ImGui.SetCursorPosX(400);
+            ImGui.SetCursorPosY(27);
+
+            ImGui.Text("Ticks: " + GlobalState.currentTickCount);
 
             displayVersion(577.0f);
             ImGui.PopStyleVar(2);

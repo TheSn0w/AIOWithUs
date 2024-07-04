@@ -132,9 +132,6 @@ public class Runnables {
     public static  void handleCombat() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            if (enableRadiusTracking) {
-                Execution.delay(ensureWithinRadius(player));
-            }
             if (usePOD) {
                 handlePOD();
             }

@@ -62,7 +62,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
     @Override
     public void drawSettings() {
         setDefaultTheme();
-        applyGreenTheme();
+        applyBlueTheme();
 
         if (PurpleThemeSelected) {
             applyPurpleTheme();
@@ -271,14 +271,14 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("AIO Fighter`");
                         }
-                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Wars to Load Last Preset from Bank chest");
                         }
-                        createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
+                        /*createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("will go wars to bank and withdraw fish food and go back to combat");
-                        }
+                        }*/
                         createCenteredButton("Eat food?", () -> shouldEatFood = !shouldEatFood, shouldEatFood);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will eat food when health is low");
@@ -299,6 +299,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
                         }
+                        createCenteredButton("Use Notepaper", () -> useNotepaper = !useNotepaper, useNotepaper);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Magic notepaper or Enchant notepaper");
+                        }
                         createCenteredButton("Use POD", () -> usePOD = !usePOD, usePOD);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Player owned dungeons, first room only");
@@ -307,14 +311,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("start anywhere, only toggle this and looting if you want to loot`");
                         }
-                        createCenteredButton("Use Notepaper", () -> useNotepaper = !useNotepaper, useNotepaper);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will use Magic notepaper or Enchant notepaper");
-                        }
-                        /*createCenteredButton("Ripper Demons", () -> attackRipperDemon = !attackRipperDemon, attackRipperDemon);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will attack Ripper demons");
-                        }*/
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
@@ -509,126 +505,129 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
                     if (showLogs) {
-                        if (ImGui.Button("Scroll to Bottom")) {
-                            scrollToBottom = !scrollToBottom;
-                        }
-                        ImGui.SameLine();
-                        ImGui.SeparatorText("Console Logs");
-
-                        ImGui.SetCursorPosX(13);
-                        if (ImGui.BeginChild("LogRegion", 374, windowHeight - 57, true, 0)) {
-                            List<String> logMessages = CustomLogger.getLogMessages();
-                            for (String message : logMessages) {
-                                if (message.contains("[Error]")) {
-                                    String[] parts = message.split(" ", 2);
-                                    ImGui.PushStyleColor(ImGuiCol.Text, 1.0f, 0.0f, 0.0f, 1.0f);
-                                    ImGui.Text(parts[0]);
-                                    ImGui.SameLine();
-                                    ImGui.Text(parts[1]);
-                                    ImGui.PopStyleColor();
-                                } else if (message.contains("[Loot]")) {
-                                    String[] parts = message.split(" ", 2);
-                                    setStyleColor(ImGuiCol.Text, 70, 130, 180, 255);
-                                    ImGui.Text(parts[0]);
-                                    ImGui.SameLine();
-                                    ImGui.Text(parts[1]);
-                                    ImGui.PopStyleColor();
-                                } else if (message.contains("[Success]")) {
-                                    String[] parts = message.split(" ", 2);
-                                    setStyleColor(ImGuiCol.Text, 0, 255, 0, 255);
-                                    ImGui.Text(parts[0]);
-                                    ImGui.SameLine();
-                                    ImGui.Text(parts[1]);
-                                    ImGui.PopStyleColor();
-                                } else if (message.contains("[Caution]")) {
-                                    String[] parts = message.split(" ", 2);
-                                    setStyleColor(ImGuiCol.Text, 242, 140, 40, 255);
-                                    ImGui.Text(parts[0]);
-                                    ImGui.SameLine();
-                                    ImGui.Text(parts[1]);
-                                    ImGui.PopStyleColor();
-                                } else {
-                                    ImGui.Text(message);
-                                }
+                        if (ImGui.Begin("Logs", ImGuiWindowFlag.None.getValue())) {
+                            if (ImGui.Button("Scroll to Bottom")) {
+                                scrollToBottom = !scrollToBottom;
                             }
-                            if (scrollToBottom) {
-                                ImGui.SetScrollHereY(1.0f);
-                            }
-                            ImGui.EndChild();
-                        }
-                    } else {
-                        if (!anySelected) {
-                            String[] snowTexts = {
-                                    " SSSS         N   N       OOO       W      W",
-                                    "S             NN  N      O   O      W      W",
-                                    " SSS          N N N      O   O      W      W",
-                                    "    S         N  NN      O   O      W  W  W",
-                                    "    S         N   N      O   O      W  W  W",
-                                    "S   S         N   N      O   O      W  W  W",
-                                    " SSS          N   N       OOO        W W W "
-                            };
-
-                            for (String text : snowTexts) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(text).getX();
-                                float centeredX = (windowWidth - textWidth) / 2;
-                                ImGui.SetCursorPosX(centeredX);
-                                ImGui.Text(text);
-                                ImGui.Spacing(5, 5);
-                            }
-                            ImGui.SetCursorPosY(220);
-
-                            String[] newLines = {
-                                    "Welcome to the AIO Script",
-                                    "Please select a skill to start",
-                                    "if you like the script please",
-                                    "consider leaving a review",
-                                    "if you have any bugs or issues",
-                                    "please report them on the forum",
-                                    "please note, these are just the barebones of some scripts",
-                                    "that can be found on the marketplace",
-                            };
-
-                            for (String line : newLines) {
-                                float windowWidth = 400;
-                                float textWidth = ImGui.CalcTextSize(line).getX();
-                                float centeredX = (windowWidth - textWidth) / 2;
-                                ImGui.SetCursorPosX(centeredX);
-                                ImGui.Text(line);
-                            }
-
-                            String discordLink = "https://discordapp.com/channels/973830420858810378/1192140405689548891";
-                            float buttonWidth1 = ImGui.CalcTextSize("Discord Support").getX();
-                            float centeredButtonX1 = (362 - buttonWidth1) / 3;
-                            ImGui.SetCursorPosX(centeredButtonX1);
-                            if (ImGui.Button("Discord Support")) {
-                                try {
-                                    Desktop.getDesktop().browse(new URI(discordLink));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            if (ImGui.IsItemHovered()) {
-                                ImGui.SetTooltip("Click here to join the Discord server for support");
-                            }
-
                             ImGui.SameLine();
+                            ImGui.SeparatorText("Console Logs");
 
-                            String reviewLink = "https://discord.com/channels/973830420858810378/1116465231141544038";
-                            float centeredButtonX2 = centeredButtonX1 + buttonWidth1 + 20;
-                            ImGui.SetCursorPosX(centeredButtonX2);
-                            if (ImGui.Button("Write a Review")) {
-                                try {
-                                    Desktop.getDesktop().browse(new URI(reviewLink));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                            ImGui.SetCursorPosX(13);
+                            if (ImGui.BeginChild("LogRegion", 0, 0, false, 0)) {
+                                List<String> logMessages = CustomLogger.getLogMessages();
+                                for (String message : logMessages) {
+                                    if (message.contains("[Error]")) {
+                                        String[] parts = message.split(" ", 2);
+                                        ImGui.PushStyleColor(ImGuiCol.Text, 1.0f, 0.0f, 0.0f, 1.0f);
+                                        ImGui.Text(parts[0]);
+                                        ImGui.SameLine();
+                                        ImGui.Text(parts[1]);
+                                        ImGui.PopStyleColor(1);
+                                    } else if (message.contains("[Loot]")) {
+                                        String[] parts = message.split(" ", 2);
+                                        setStyleColor(ImGuiCol.Text, 70, 130, 180, 255);
+                                        ImGui.Text(parts[0]);
+                                        ImGui.SameLine();
+                                        ImGui.Text(parts[1]);
+                                        ImGui.PopStyleColor(1);
+                                    } else if (message.contains("[Success]")) {
+                                        String[] parts = message.split(" ", 2);
+                                        setStyleColor(ImGuiCol.Text, 0, 255, 0, 255);
+                                        ImGui.Text(parts[0]);
+                                        ImGui.SameLine();
+                                        ImGui.Text(parts[1]);
+                                        ImGui.PopStyleColor(1);
+                                    } else if (message.contains("[Caution]")) {
+                                        String[] parts = message.split(" ", 2);
+                                        setStyleColor(ImGuiCol.Text, 242, 140, 40, 255);
+                                        ImGui.Text(parts[0]);
+                                        ImGui.SameLine();
+                                        ImGui.Text(parts[1]);
+                                        ImGui.PopStyleColor(1);
+                                    } else {
+                                        ImGui.Text(message);
+                                    }
                                 }
+                                if (scrollToBottom) {
+                                    ImGui.SetScrollHereY(1.0f);
+                                }
+                                ImGui.EndChild();
                             }
-                            if (ImGui.IsItemHovered()) {
-                                ImGui.SetTooltip("Click here to write a review on Discord");
+                        }
+                        ImGui.End();
+                    }
+                    if (!anySelected) {
+                        String[] snowTexts = {
+                                " SSSS         N   N       OOO       W      W",
+                                "S             NN  N      O   O      W      W",
+                                " SSS          N N N      O   O      W      W",
+                                "    S         N  NN      O   O      W  W  W",
+                                "    S         N   N      O   O      W  W  W",
+                                "S   S         N   N      O   O      W  W  W",
+                                " SSS          N   N       OOO        W W W "
+                        };
+
+                        for (String text : snowTexts) {
+                            float windowWidth = 400;
+                            float textWidth = ImGui.CalcTextSize(text).getX();
+                            float centeredX = (windowWidth - textWidth) / 2;
+                            ImGui.SetCursorPosX(centeredX);
+                            ImGui.Text(text);
+                            ImGui.Spacing(5, 5);
+                        }
+                        ImGui.SetCursorPosY(220);
+
+                        String[] newLines = {
+                                "Welcome to the AIO Script",
+                                "Please select a skill to start",
+                                "if you like the script please",
+                                "consider leaving a review",
+                                "if you have any bugs or issues",
+                                "please report them on the forum",
+                                "please note, these are just the barebones of some scripts",
+                                "that can be found on the marketplace",
+                        };
+
+                        for (String line : newLines) {
+                            float windowWidth = 400;
+                            float textWidth = ImGui.CalcTextSize(line).getX();
+                            float centeredX = (windowWidth - textWidth) / 2;
+                            ImGui.SetCursorPosX(centeredX);
+                            ImGui.Text(line);
+                        }
+
+                        String discordLink = "https://discordapp.com/channels/973830420858810378/1192140405689548891";
+                        float buttonWidth1 = ImGui.CalcTextSize("Discord Support").getX();
+                        float centeredButtonX1 = (362 - buttonWidth1) / 3;
+                        ImGui.SetCursorPosX(centeredButtonX1);
+                        if (ImGui.Button("Discord Support")) {
+                            try {
+                                Desktop.getDesktop().browse(new URI(discordLink));
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click here to join the Discord server for support");
+                        }
+
+                        ImGui.SameLine();
+
+                        String reviewLink = "https://discord.com/channels/973830420858810378/1116465231141544038";
+                        float centeredButtonX2 = centeredButtonX1 + buttonWidth1 + 20;
+                        ImGui.SetCursorPosX(centeredButtonX2);
+                        if (ImGui.Button("Write a Review")) {
+                            try {
+                                Desktop.getDesktop().browse(new URI(reviewLink));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Click here to write a review on Discord");
                         }
                     }
+
                     renderThieving();
                     renderHerblore();
                     renderMisc();
@@ -649,11 +648,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
                 ImGui.End();
             }
-            ImGui.PopStyleColor(50);
-            ImGui.PopStyleVar(50);
         }
-        ImGui.PopStyleColor(50);
-        ImGui.PopStyleVar(50);
     }
 
     @Override

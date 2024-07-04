@@ -75,12 +75,12 @@ public class Food {
                     Execution.delayUntil(random.nextLong(15000), LootInventory::isOpen);
                 }
                 food = InventoryItemQuery.newQuery().ids(groundFood.getId()).results().first();
-            } else if (BankforFood) {
+            } else if (nearestBank) {
                 setLastSkillingLocation(player.getCoordinate());
                 setBotState(BANKING);
                 return random.nextLong(1500, 3000);
             } else {
-                log("[Error] No food found");
+                log("[Caution] No food found");
                 return -1L;
             }
         }

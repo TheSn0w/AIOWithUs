@@ -19,7 +19,7 @@ import static net.botwithus.Variables.Variables.logCount;
 public class WoodcuttingImGui {
 
     public static void renderWoodcutting() {
-        if (isWoodcuttingActive && !showLogs) {
+        if (isWoodcuttingActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "start anywhere, will move to the closest tree",

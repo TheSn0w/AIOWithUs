@@ -5,12 +5,11 @@ import net.botwithus.rs3.imgui.ImGui;
 public class Theme {
 
     public static boolean PurpleThemeSelected = false;
-    public static boolean BlueThemeSelected = false;
+    public static boolean BlueThemeSelected = true;
     public static boolean RedThemeSelected = false;
-    public static boolean OrangeThemeSelected = true;
+    public static boolean OrangeThemeSelected = false;
     public static boolean YellowThemeSelected = false;
     public static boolean GreenThemeSelected = false;
-    public static boolean GreyThemeSelected = false;
 
     public static void setDefaultTheme() {
         ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 6.0f);
@@ -58,7 +57,7 @@ public class Theme {
         setStyleColor(ImGuiCol.PopupBg, 80, 0, 150, 200);
         setStyleColor(ImGuiCol.HeaderHovered, 0, 0, 0, 220);
         setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
-        setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
+        setStyleColor(ImGuiCol.Header, 80, 0, 150, 200);
         setStyleColor(ImGuiCol.FrameBgHovered, 100, 50, 180, 250);
         setStyleColor(ImGuiCol.TableHeaderBg, 100, 50, 180, 250);
     }
@@ -70,8 +69,8 @@ public class Theme {
         setStyleColor(ImGuiCol.ButtonHovered, 70, 130, 180, 255);
         setStyleColor(ImGuiCol.Text, 240, 248, 255, 255);
         setStyleColor(ImGuiCol.Separator, 70, 130, 180, 255);
-        setStyleColor(ImGuiCol.TitleBgActive, 0, 0, 0, 230);
-        setStyleColor(ImGuiCol.TitleBg, 0, 0, 0, 230);
+        setStyleColor(ImGuiCol.TitleBgActive, 70, 130, 180, 200);
+        setStyleColor(ImGuiCol.TitleBg, 70, 130, 180, 200);
         setStyleColor(ImGuiCol.CheckMark, 70, 130, 180, 255);
         setStyleColor(ImGuiCol.ResizeGripHovered, 100, 149, 237, 200);
         setStyleColor(ImGuiCol.ResizeGripActive, 70, 130, 180, 255);
@@ -92,7 +91,7 @@ public class Theme {
         setStyleColor(ImGuiCol.TabUnfocusedActive, 70, 130, 180, 255);
         setStyleColor(ImGuiCol.HeaderHovered, 70, 130, 180, 200);
         setStyleColor(ImGuiCol.HeaderActive, 70, 130, 180, 255);
-        setStyleColor(ImGuiCol.Header, 0, 0, 0, 255);
+        setStyleColor(ImGuiCol.Header, 70, 130, 180, 200);
         setStyleColor(ImGuiCol.FrameBgHovered, 70, 130, 180, 255);
         setStyleColor(ImGuiCol.TableHeaderBg, 70, 130, 180, 255);
     }
@@ -200,7 +199,7 @@ public class Theme {
         setStyleColor(ImGuiCol.PopupBg, 0, 0, 0, 230);
         setStyleColor(ImGuiCol.HeaderHovered, 139, 139, 0, 150);
         setStyleColor(ImGuiCol.HeaderActive, 0, 0, 0, 200);
-        setStyleColor(ImGuiCol.Header, 0, 0, 0, 100);
+        setStyleColor(ImGuiCol.Header, 255, 223, 0, 200);
         setStyleColor(ImGuiCol.FrameBgHovered, 139, 139, 0, 150);
         setStyleColor(ImGuiCol.TableHeaderBg, 255, 255, 0, 200);
     }

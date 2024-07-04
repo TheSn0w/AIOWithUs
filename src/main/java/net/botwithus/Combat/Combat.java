@@ -8,24 +8,29 @@ import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
+import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.PathingEntity;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.Food.eatFood;
-import static net.botwithus.Combat.Food.isHealthLow;
 import static net.botwithus.Combat.Loot.*;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
-import static net.botwithus.Combat.Potions.managePotions;
-import static net.botwithus.Combat.Prayers.manageQuickPrayers;
-import static net.botwithus.Combat.Prayers.manageSoulSplit;
+import static net.botwithus.Combat.Potions.*;
+import static net.botwithus.Combat.Prayers.*;
+import static net.botwithus.Combat.Radius.enableRadiusTracking;
+import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -33,6 +38,10 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 public class Combat {
 
     public static boolean handleMultitarget = false;
+    public static boolean useUndeadSlayer = false;
+    public static boolean useDragonSlayer = false;
+    public static boolean useDemonSlayer = false;
+    public static boolean useDwarfcannon = false;
     public static double healthThreshold = 0.8;
     public static boolean shouldEatFood = false;
     private static final Set<Integer> recentlyAttackedTargets = new HashSet<>();
@@ -49,78 +58,40 @@ public class Combat {
     public static boolean isStackable = false;
 
 
+
     public static long attackTarget(LocalPlayer player) {
-        if (player == null || player.isMoving()) {
+        if (player == null) {
             return random.nextLong(100, 200);
         }
-
-        if (shouldHandleLooting()) {
-            handleLooting(player);
+        if (usePowderOfProtection) {
+            powderOfProtection();
         }
-
-        if (shouldHandleSoulSplit(player)) {
-            handleSoulSplit(player);
+        if (usePowderOfPenance) {
+            powderOfPenance();
         }
-
-        if (shouldHandleQuickPrayers()) {
-            handleQuickPrayers(player);
+        if (useKwuarmSticks) {
+            kwuarmSticks();
         }
-
-        if (shouldEatFood && isHealthLow(player)) {
-            long result = handleFood(player);
-            if (result == 1L) {
-                log("[Warning] No food found, continuing with the script.");
+        if (useLantadymeSticks) {
+            lantadymeSticks();
+        }
+        if (useIritSticks) {
+            iritSticks();
+        }
+        if (SoulSplit && !player.inCombat()) {
+            deactivateSoulSplit();
+        }
+        if (usequickPrayers) {
+            updateQuickPrayersActiveStatus();
+            if (!player.inCombat() && quickPrayersActive) {
+                deactivateQuickPrayers();
             }
         }
 
-        managePotions(player);
-        manageScripturesAndScrimshaws(player);
-        handleMultitarget();
-
-
-        if (!player.hasTarget()) {
-            log("[Combat] Player's current target does not match the specified target name. Attacking nearest monster.");
-            attackNearestMonster(player);
+        if (enableRadiusTracking) {
+            ensureWithinRadius(player);
         }
 
-        if (player.hasTarget()) {
-            manageCombatAbilities();
-
-            PathingEntity<?> target = player.getTarget();
-
-            if (handleMultitarget) {
-                if (target.getCurrentHealth() <= target.getMaximumHealth() * healthThreshold) {
-                    Npc newTarget = findDifferentTarget(player, target.getId());
-                    if (newTarget != null) {
-                        return attackMonster(player, newTarget);
-                    } else {
-                        return logAndDelay("[Combat] No new target found.", 100, 200);
-                    }
-                }
-            } else {
-                if (target.getCurrentHealth() <= 0) {
-                    log("[Combat] Current target is dead. Finding a new target.");
-                    Npc newTarget = findDifferentTarget(player, target.getId());
-                    if (newTarget != null) {
-                        return attackMonster(player, newTarget);
-                    } else {
-                        return logAndDelay("[Combat] No new target found.", 100, 200);
-                    }
-                }
-            }
-
-            return random.nextLong(100, 200);
-        }
-
-        return random.nextLong(100, 200);
-    }
-
-
-    private static boolean shouldHandleLooting() {
-        return useLoot || useNotepaper || lootNoted || isStackable;
-    }
-
-    private static void handleLooting(LocalPlayer player) {
         if (useNotepaper) {
             useItemOnNotepaper();
         }
@@ -133,421 +104,417 @@ public class Combat {
         if (isStackable) {
             lootStackableItemsFromInventory();
         }
-    }
 
-    private static boolean shouldHandleSoulSplit(LocalPlayer player) {
-        return SoulSplit;
-    }
-
-    private static void handleSoulSplit(LocalPlayer player) {
-        Execution.delay(manageSoulSplit(player));
-    }
-
-    private static boolean shouldHandleQuickPrayers() {
-        return usequickPrayers;
-    }
-
-    private static void handleQuickPrayers(LocalPlayer player) {
-        manageQuickPrayers(player);
-    }
-
-    private static boolean shouldEatFood() {
-        return shouldEatFood;
-    }
-
-    private static long handleFood(LocalPlayer player) {
-        eatFood(player);
-        return 0;
-    }
-
-    private static void handleMultitarget() {
-        if (handleMultitarget) {
-            if (System.currentTimeMillis() - lastClearTime > random.nextLong(5000, 7500)) {
-                recentlyAttackedTargets.clear();
-                lastClearTime = System.currentTimeMillis();
-            }
+        if (useDwarfcannon) {
+            dwarvenSiegeCannon();
         }
+
+        if (shouldEatFood) {
+            eatFood(player);
+        }
+
+        managePotions(player);
+        manageScripturesAndScrimshaws(player);
+
+        if (player.isMoving()) {
+            return random.nextLong(100, 200);
+        }
+
+        if (!player.hasTarget()) {
+            handleCombat(player);
+        } else {
+            if (SoulSplit && VarManager.getVarbitValue(16779) != 1) {
+                activateSoulSplit(player);
+            }
+            if (usequickPrayers && !quickPrayersActive) {
+                activateQuickPrayers();
+            }
+            manageCombatAbilities();
+        }
+
+
+        return random.nextLong(100, 200);
     }
 
 
-    private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
+
+
+    public static void handleCombat(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
-            return null;
+            return;
         }
 
         Pattern monsterPattern = generateRegexPattern(targetNames);
-
-        Npc newTarget = NpcQuery.newQuery()
+        Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
                 .name(monsterPattern)
                 .isReachable()
                 .health(100, 1_000_000)
                 .option("Attack")
                 .results()
                 .stream()
-                .filter(npc -> npc.getId() != currentTargetId && npc.getCurrentHealth() > npc.getMaximumHealth() * healthThreshold)
-                .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
-                .orElse(null);
+                .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
 
-        if (newTarget == null) {
-            newTarget = NpcQuery.newQuery()
-                    .name(monsterPattern)
-                    .isReachable()
-                    .health(100, 1_000_000)
-                    .option("Attack")
-                    .results()
-                    .stream()
-                    .filter(npc -> npc.getId() != currentTargetId)
-                    .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
-                    .orElse(null);
-        }
-
-        return newTarget;
-    }
-
-
-    static long attackNearestMonster(LocalPlayer player) {
-       /* String playerName = player.getName();
-        Npc followingNpc = null;
-
-        for (Npc npc : net.botwithus.rs3.game.queries.builders.characters.NpcQuery.newQuery().results()) {
-            PathingEntity<?> npcFollowing = npc.getFollowing();
-            String npcName = npc.getName();
-
-            // Check if the NPC has the "Attack" option
-            if (npcFollowing != null && npcFollowing.getId() == player.getId() && !npcName.contains(playerName) && npc.getOptions().contains("Attack")) {
-                followingNpc = npc;
-                break;
-            }
-        }
-
-        if (followingNpc != null) {
-            log("[Info] Attacking NPC that is following the player: " + followingNpc.getName());
-            return attackMonster(player, followingNpc);
-        }*/
-
-        Npc monster = findTarget(player);
-        if (monster == null) {
-            return logAndDelay("[Error] No valid NPC target found.", 1000, 3000);
-        }
-
-        return attackMonster(player, monster);
-    }
-
-
-    private static Npc findTarget(LocalPlayer player) {
-        List<String> targetNames = getTargetNames();
-        if (targetNames.isEmpty()) {
-            log("[Error] No target names specified.");
-            return null;
-        }
-
-        Pattern monsterPattern = generateRegexPattern(targetNames);
-
-        return NpcQuery.newQuery()
-                .name(monsterPattern)
-                .isReachable()
-                .health(100, 1_000_000)
-                .option("Attack")
-                .results()
-                .stream()
-                .filter(npc -> !recentlyAttackedTargets.contains(npc.getId()) || npc.getCurrentHealth() == 0)
-                .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
-                .orElse(null);
-    }
-
-    private static long attackMonster(LocalPlayer player, Npc monster) {
-        if (monster.getOptions().contains("Attack")) {
+        Npc monster = nearestMonsterOptional.orElse(null);
+        if (monster != null) {
             boolean attack = monster.interact("Attack");
             if (attack) {
-                if (handleMultitarget) {
-                    recentlyAttackedTargets.add(monster.getId());
-                }
-                return logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 300, 400);
+                logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 300, 400);
             } else {
-                return logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
+                logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
             }
         } else {
-            return logAndDelay("[Error] No attack option for " + monster.getName(), 1000, 3000);
+            logAndDelay("[Error] No valid NPC target found.", 1000, 3000);
         }
     }
 
-    public static long logAndDelay(String message, int minDelay, int maxDelay) {
+
+    public static void logAndDelay(String message, int minDelay, int maxDelay) {
         log(message);
         long delay = random.nextLong(minDelay, maxDelay);
         Execution.delay(delay);
-        return delay;
     }
-
-    public static boolean useThreadsofFate = false;
-    public static boolean useAnimateDead = false;
-    public static boolean useDarkness = false;
-    public static int NecrosisStacksThreshold = 12;
-    public static int VolleyOfSoulsThreshold = 5;
-    public static boolean useExcalibur = false;
-    public static boolean useElvenRitual = false;
 
     public static void manageCombatAbilities() {
         LocalPlayer player = getLocalPlayer();
 
         if (DeathGrasp) {
-            Execution.delay(essenceOfFinality(player));
+            essenceOfFinality(player);
         }
         if (InvokeDeath) {
-            Execution.delay(Deathmark(player));
+            InvokeDeath(player);
         }
         if (VolleyofSouls) {
-            Execution.delay(volleyOfSouls(player));
+            volleyOfSouls(player);
         }
         if (SpecialAttack) {
-            Execution.delay(DeathEssence(player));
+            DeathEssence(player);
         }
         if (KeepArmyup) {
-            Execution.delay(KeepArmyup(player));
+            KeepArmyup(player);
         }
         if (useVulnerabilityBombs) {
-            Execution.delay(vulnerabilityBomb(player));
+            vulnerabilityBomb(player);
         }
         if (useThreadsofFate) {
-            Execution.delay(manageThreadsofFate(player));
+            manageThreadsofFate(player);
         }
         if (useDarkness) {
-            Execution.delay(manageDarkness(player));
+            manageDarkness(player);
         }
         if (useElvenRitual) {
-            Execution.delay(activateElvenRitual(player));
+            activateElvenRitual(player);
         }
         if (useExcalibur) {
-            Execution.delay(activateExcalibur());
+            activateExcalibur();
         }
         if (useAnimateDead) {
-            Execution.delay(manageAnimateDead(player));
+            manageAnimateDead(player);
+        }
+        if (useUndeadSlayer) {
+            Execution.delay(activateUndeadSlayer());
+        }
+        if (useDragonSlayer) {
+            Execution.delay(activateDragonSlayer());
+        }
+        if (useDemonSlayer) {
+            Execution.delay(activateDemonSlayer());
         }
     }
 
-    public static long essenceOfFinality(LocalPlayer player) {
+    public static void essenceOfFinality(LocalPlayer player) {
         int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
 
-        // Check all conditions and return early if any of them are not met
-        if (player.getAdrenaline() < 250
-                || !ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty()
-                || !player.inCombat()
-                || !player.hasTarget()
-                || !ActionBar.containsAbility("Essence of Finality")
-                || currentNecrosisStacks < NecrosisStacksThreshold) {
-            return 0;
-        }
+        if (player.getAdrenaline() > 250
+                && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty()
+                && player.inCombat()
+                && player.hasTarget()
+                && ActionBar.containsAbility("Essence of Finality")
+                && currentNecrosisStacks >= NecrosisStacksThreshold) {
 
-        // If all conditions are met, proceed with the main logic
-        boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
-        if (abilityUsed) {
-            log("[Success] Used Death Grasp with " + currentNecrosisStacks + " Necrosis stacks.");
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to use Death Grasp, but ability use failed.");
+            boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
+            if (abilityUsed) {
+                boolean effectConfirmed = Execution.delayUntil(random.nextLong(5500, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 10986) != currentNecrosisStacks);
+                if (effectConfirmed) {
+                    log("[Success] Essence of Finality effect confirmed with " + currentNecrosisStacks + " Necrosis stacks.");
+                } else {
+                    log("[Error] Essence of Finality effect not confirmed.");
+                }
+            }
         }
-
-        return 0;
     }
 
 
-    public static long DeathEssence(LocalPlayer player) {
-        if (player.getAdrenaline() < 300
-                || player.getFollowing().getCurrentHealth() < 500
-                || !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty()
-                || !player.hasTarget()
-                || !ActionBar.containsAbility("Weapon Special Attack")) {
-            return 0;
-        }
+    public static void DeathEssence(LocalPlayer player) {
+        if (player.getAdrenaline() > 300
+                && player.getFollowing().getCurrentHealth() > 500
+                && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty()
+                && player.inCombat()
+                && player.hasTarget()
+                && ActionBar.containsAbility("Weapon Special Attack")) {
 
-        boolean success = ActionBar.useAbility("Weapon Special Attack");
-        if (success) {
-            log("[Success] Used Death Essence: " + true);
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to use Death Essence, but ability use failed.");
+            boolean success = ActionBar.useAbility("Weapon Special Attack");
+            if (success) {
+                boolean abilityEffect = Execution.delayUntil(random.nextLong(5000, 6500), () -> !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty());
+                if (abilityEffect) {
+                    log("[Success] Death Essence effect confirmed.");
+                } else {
+                    log("[Error] Death Essence effect not confirmed.");
+                }
+            } else {
+                log("[Error] Attempted to use Death Essence, but ability use failed.");
+            }
         }
-
-        return 0;
     }
 
-    public static long volleyOfSouls(LocalPlayer player) {
+    public static void volleyOfSouls(LocalPlayer player) {
         int currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035);
 
-        if (currentResidualSouls < VolleyOfSoulsThreshold
-                || !player.hasTarget()
-                || !ActionBar.containsAbility("Volley of Souls")) {
-            return 0;
-        }
+        if (currentResidualSouls >= VolleyOfSoulsThreshold
+                && player.hasTarget()
+                && player.inCombat()
+                && ActionBar.containsAbility("Volley of Souls")) {
 
-        boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
-        if (abilityUsed) {
-            log("[Success] Used Volley of Souls with " + currentResidualSouls + " residual souls.");
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to use Volley of Souls, but ability use failed.");
+            boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
+            if (abilityUsed) {
+                boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) != currentResidualSouls);
+                if (effectConfirmed) {
+                    log("[Success] Volley of Souls effect confirmed with " + currentResidualSouls + " residual souls.");
+                } else {
+                    log("[Error] Volley of Souls effect not confirmed.");
+                }
+            } else {
+                log("[Error] Attempted to use Volley of Souls, but ability use failed.");
+            }
         }
-
-        return 0;
     }
 
-    public static long Deathmark(LocalPlayer player) {
-        PathingEntity<?> target = player.getTarget();
-        if (target == null) {
-            log("[Error] No target found.");
-            return 0;
+    public static void InvokeDeath(LocalPlayer player) {
+        if (player != null) {
+            if (VarManager.getVarbitValue(53247) == 0 && getLocalPlayer().getFollowing() != null && getLocalPlayer().getFollowing().getCurrentHealth() >= 5000 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && getLocalPlayer().hasTarget()) {
+                log("[Success] Used Invoke Death: " + ActionBar.useAbility("Invoke Death"));
+                Execution.delay(RandomGenerator.nextInt(600, 1500));
+            }
         }
-
-        double healthPercentage = (double) target.getCurrentHealth() / target.getMaximumHealth();
-
-        if (VarManager.getVarbitValue(53247) != 0
-                || healthPercentage <= 0.15
-                || !ActionBar.containsAbility("Invoke Death")) {
-            return 0;
-        }
-
-        boolean success = ActionBar.useAbility("Invoke Death");
-        if (success) {
-            log("[Success] Used Invoke Death: " + true);
-            Execution.delayUntil(random.nextLong(3000,5000), () -> VarManager.getVarbitValue(53247) != 0);
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to use Invoke Death, but ability use failed.");
-        }
-
-        return 0;
     }
 
-    public static long KeepArmyup(LocalPlayer player) {
-        if (VarManager.getVarValue(VarDomainType.PLAYER, 11018) != 0 || !ActionBar.containsAbility("Conjure Undead Army")) {
-            return 0;
-        }
+    public static void KeepArmyup(LocalPlayer player) {
+        if (VarManager.getVarValue(VarDomainType.PLAYER, 11018) == 0 && ActionBar.containsAbility("Conjure Undead Army")) {
 
-        boolean success = ActionBar.useAbility("Conjure Undead Army");
-        if (success) {
-            log("[Success] Cast Conjure army: " + true);
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to cast Conjure army, but ability use failed.");
+            boolean success = ActionBar.useAbility("Conjure Undead Army");
+            if (success) {
+                log("[Success] Cast Conjure army: " + true);
+                Execution.delayUntil(random.nextLong(3000, 5000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11018) != 0);
+            } else {
+                log("[Error] Attempted to cast Conjure army, but ability use failed.");
+            }
         }
-
-        return 0;
     }
 
-    public static long manageAnimateDead(LocalPlayer player) {
-        if (ComponentQuery.newQuery(284).spriteId(14764).results() != null) {
-            return 0;
-        }
+    public static void manageAnimateDead(LocalPlayer player) {
+        if (ComponentQuery.newQuery(284).spriteId(14764).results().isEmpty()) {
 
-        boolean success = ActionBar.useAbility("Animate Dead");
-        if (!success) {
-            log("[Error] Attempted to cast Animate Dead, but ability use failed.");
-            return 0;
-        }
+            boolean success = ActionBar.useAbility("Animate Dead");
+            if (!success) {
+                log("[Error] Attempted to cast Animate Dead, but ability use failed.");
 
-        log("[Success] Cast Animate Dead: " + true);
-        return random.nextLong(1900, 2000);
+                log("[Success] Cast Animate Dead: " + true);
+                Execution.delayUntil(random.nextLong(3000, 5000), () -> !ComponentQuery.newQuery(284).spriteId(14764).results().isEmpty());
+            }
+        }
     }
 
-    public static long manageThreadsofFate(LocalPlayer player) {
-        if (!ActionBar.containsAbility("Threads of Fate") || ActionBar.getCooldownPrecise("Threads of Fate") != 0) {
-            return 0;
-        }
+    public static void manageThreadsofFate(LocalPlayer player) {
+        if (ActionBar.containsAbility("Threads of Fate") && ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
 
-        boolean success = ActionBar.useAbility("Threads of Fate");
-        if (success) {
-            log("[Success] Cast Threads of Fate: " + true);
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
-        }
+            boolean success = ActionBar.useAbility("Threads of Fate");
+            if (success) {
+                log("[Success] Cast Threads of Fate: " + true);
+                Execution.delayUntil(random.nextLong(3000, 5000), () -> ActionBar.getCooldownPrecise("Threads of Fate") != 0);
 
-        return 0;
+            } else {
+                log("[Error] Attempted to cast Threads of Fate, but ability use failed.");
+            }
+        }
     }
 
-    public static long manageDarkness(LocalPlayer player) {
-        if (!ActionBar.containsAbility("Darkness") || VarManager.getVarValue(VarDomainType.PLAYER, 11074) != 0) {
-            return 0;
-        }
+    public static void manageDarkness(LocalPlayer player) {
+        if (ActionBar.containsAbility("Darkness") && VarManager.getVarValue(VarDomainType.PLAYER, 11074) == 0) {
 
-        boolean success = ActionBar.useAbility("Darkness");
-        if (success) {
-            log("[Success] Cast Darkness: " + true);
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Attempted to cast Darkness, but ability use failed.");
-        }
+            boolean success = ActionBar.useAbility("Darkness");
+            if (success) {
+                log("[Success] Cast Darkness: " + true);
+                Execution.delayUntil(random.nextLong(3000, 5000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11074) != 0);
 
-        return 0;
+            } else {
+                log("[Error] Attempted to cast Darkness, but ability use failed.");
+            }
+        }
     }
-    public static long vulnerabilityBomb(LocalPlayer player) {
+
+    public static void vulnerabilityBomb(LocalPlayer player) {
         int vulnDebuffVarbit = VarManager.getVarbitValue(1939);
 
-        if (vulnDebuffVarbit != 0 || !ActionBar.containsItem("Vulnerability bomb")) {
-            return 0;
+        if (vulnDebuffVarbit == 0 && ActionBar.containsItem("Vulnerability bomb") && player.hasTarget()) {
+
+
+            boolean success = ActionBar.useItem("Vulnerability bomb", "Throw");
+            if (success) {
+                log("[Success] Throwing Vulnerability bomb at " + player.getTarget().getName());
+                Execution.delay(random.nextLong(1900, 2000));
+
+            } else {
+                log("[Error] Failed to use Vulnerability bomb!");
+            }
+        }
+    }
+
+    public static void activateElvenRitual(LocalPlayer player) {
+        if (player.getPrayerPoints() < prayerPointsThreshold && Backpack.contains("Ancient elven ritual shard")) {
+
+            Component elvenRitual = ComponentQuery.newQuery(291).spriteId(43358).results().first();
+            if (elvenRitual != null) {
+
+                boolean success = Backpack.interact("Ancient elven ritual shard", "Activate");
+                if (success) {
+                    log("[Success] Activated Elven Ritual Shard.");
+                    Execution.delay(random.nextLong(1900, 2000));
+
+                } else {
+                    log("[Error] Failed to activate Elven Ritual Shard.");
+                }
+            }
+        }
+    }
+
+    private static void activateExcalibur() {
+        if (ComponentQuery.newQuery(291).spriteId(14632).results().first() == null) {
+
+            LocalPlayer player = getLocalPlayer();
+            if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
+
+                ResultSet<net.botwithus.rs3.game.Item> items = InventoryItemQuery.newQuery().results();
+                Item excaliburItem = items.stream()
+                        .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("excalibur"))
+                        .findFirst()
+                        .orElse(null);
+
+                if (excaliburItem == null) {
+                    log("No Excalibur found!");
+                } else {
+
+                    boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
+                    if (success) {
+                        log("Activating " + excaliburItem.getName());
+                        Execution.delay(random.nextLong(1900, 2000));
+
+                    } else {
+                        log("Failed to activate Excalibur.");
+                    }
+                }
+            }
+        }
+    }
+
+    public static void printSiegeEngineRemainingTime() {
+        ResultSet<Component> components = ComponentQuery.newQuery(291).spriteId(2).results();
+        if (components.isEmpty()) {
+            log("[Error] No components with spriteId 2 found.");
+            return;
         }
 
-        boolean success = ActionBar.useItem("Vulnerability bomb", "Throw");
-        if (success) {
-            log("[Success] Throwing Vulnerability bomb at " + player.getTarget().getName());
-            return random.nextLong(1900, 2000);
+        for (Component component : components) {
+            int interfaceIndex = component.getInterfaceIndex();
+            int componentIndex = component.getComponentIndex();
+            int subComponentIndex = component.getSubComponentIndex() + 1;
+
+            ResultSet<Component> targetComponents = ComponentQuery.newQuery(interfaceIndex)
+                    .componentIndex(componentIndex)
+                    .subComponentIndex(subComponentIndex)
+                    .results();
+
+            if (targetComponents.isEmpty()) {
+                log("[Error] No components found for Interface Index: " + interfaceIndex + ", Component Index: " + componentIndex + ", and Sub Component Index: " + subComponentIndex);
+                continue;
+            }
+
+            Component targetComponent = targetComponents.first();
+            String text = targetComponent.getText();
+
+            if (isTimeLessThanFiveMinutes(text)) {
+                log("[Combat] Interacting with Siege Engine.");
+                EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").results();
+                if (!siegeEngine.isEmpty()) {
+                    siegeEngine.first().interact("Fire");
+                    Execution.delay(random.nextLong(600, 950));
+                }
+            }
+        }
+    }
+
+    public static boolean isTimeLessThanFiveMinutes(String text) {
+        Pattern pattern = Pattern.compile("(\\d+)([smh])");
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            int value = Integer.parseInt(matcher.group(1));
+            String unit = matcher.group(2);
+            switch (unit) {
+                case "s":
+                    return true;
+                case "m":
+                    return value < 5;
+                case "h":
+                    return false;
+            }
+        }
+        return false;
+    }
+
+    public static void dwarvenSiegeCannon() {
+        EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
+        if (!siegeEngine.isEmpty()) {
+            printSiegeEngineRemainingTime();
         } else {
-            log("[Error] Failed to use Vulnerability bomb!");
+            log("[Combat] No Dwarven siege engine found.");
         }
-
+    }
+    public static long activateUndeadSlayer() {
+        if (ActionBar.containsAbility("Undead Slayer") && ActionBar.getCooldownPrecise("Undead Slayer") == 0) {
+            boolean success = ActionBar.useAbility("Undead Slayer");
+            if (success) {
+                log("[Success] Activated Undead Slayer.");
+                return random.nextLong(1900, 2000);
+            } else {
+                log("[Error] Failed to activate Undead Slayer.");
+            }
+        }
+        return 0;
+    }
+    public static long activateDragonSlayer() {
+        if (ActionBar.containsAbility("Dragon Slayer") && ActionBar.getCooldownPrecise("Dragon Slayer") == 0) {
+            boolean success = ActionBar.useAbility("Dragon Slayer");
+            if (success) {
+                log("[Success] Activated Dragon Slayer.");
+                return random.nextLong(1900, 2000);
+            } else {
+                log("[Error] Failed to activate Dragon Slayer.");
+            }
+        }
+        return 0;
+    }
+    public static long activateDemonSlayer() {
+        if (ActionBar.containsAbility("Demon Slayer") && ActionBar.getCooldownPrecise("Demon Slayer") == 0) {
+            boolean success = ActionBar.useAbility("Demon Slayer");
+            if (success) {
+                log("[Success] Activated Demon Slayer.");
+                return random.nextLong(1900, 2000);
+            } else {
+                log("[Error] Failed to activate Demon Slayer.");
+            }
+        }
         return 0;
     }
 
-    public static long activateElvenRitual(LocalPlayer player) {
-        if (player.getPrayerPoints() >= prayerPointsThreshold || !Backpack.contains("Ancient elven ritual shard")) {
-            return 0;
-        }
 
-        Component elvenRitual = ComponentQuery.newQuery(291).spriteId(43358).results().first();
-        if (elvenRitual != null) {
-            return 0;
-        }
-
-        boolean success = Backpack.interact("Ancient elven ritual shard", "Activate");
-        if (success) {
-            log("[Success] Activated Elven Ritual Shard.");
-            return random.nextLong(1900, 2000);
-        } else {
-            log("[Error] Failed to activate Elven Ritual Shard.");
-        }
-
-        return 0;
-    }
-
-    private static long activateExcalibur() {
-        if (ComponentQuery.newQuery(291).spriteId(14632).results().first() != null) {
-            return 0;
-        }
-
-        LocalPlayer player = getLocalPlayer();
-        if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
-            return 0;
-        }
-
-        ResultSet<net.botwithus.rs3.game.Item> items = InventoryItemQuery.newQuery().results();
-        Item excaliburItem = items.stream()
-                .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("excalibur"))
-                .findFirst()
-                .orElse(null);
-
-        if (excaliburItem == null) {
-            log("No Excalibur found!");
-            return 0;
-        }
-
-        boolean success = Backpack.interact(excaliburItem.getName(), "Activate");
-        if (success) {
-            log("Activating " + excaliburItem.getName());
-            return random.nextLong(1900, 2000);
-        } else {
-            log("Failed to activate Excalibur.");
-            return 0;
-        }
-    }
 }

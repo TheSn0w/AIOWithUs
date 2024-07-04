@@ -19,7 +19,7 @@ import static net.botwithus.Variables.Variables.*;
 public class MiningImGui {
 
     public static void renderMining() {
-        if (isMiningActive && !showLogs) {
+        if (isMiningActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "start anywhere, will move to the closest rock",

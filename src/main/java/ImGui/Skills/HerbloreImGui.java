@@ -19,7 +19,7 @@ import static net.botwithus.Variables.Variables.Potions;
 public class HerbloreImGui {
 
     public static void renderHerblore() {
-        if (isHerbloreActive && !showLogs) {
+        if (isHerbloreActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "Uses `Load Last Preset from` Bank chest",

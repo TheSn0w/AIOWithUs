@@ -7,6 +7,7 @@ import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.Prayers.deactivateQuickPrayers;
+import static net.botwithus.Combat.Prayers.quickPrayersActive;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.BANKING;
@@ -33,8 +35,17 @@ public class Banking {
         if (VarManager.getVarbitValue(16779) == 1) {
             ActionBar.useAbility("Soul Split");
         }
-        if (usequickPrayers) {
+        if (usequickPrayers && quickPrayersActive) {
             deactivateQuickPrayers();
+        }
+
+        if (useDwarfcannon) {
+            EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
+            if (!siegeEngine.isEmpty()) {
+                SceneObject engine = siegeEngine.first();
+                engine.interact("Pick up");
+                Execution.delayUntil(random.nextLong(15000, 20000), () -> Backpack.contains("Dwarven siege engine"));
+            }
         }
         setLastSkillingLocation(player.getCoordinate());
         if (ActionBar.containsAbility("War's Retreat Teleport")) {
@@ -71,6 +82,15 @@ public class Banking {
                             Execution.delay(random.nextLong(5000, 7500));
                             NavPath path = NavPath.resolve(lastSkillingLocation);
                             if (Movement.traverse(path) == TraverseEvent.State.FINISHED) {
+                                if (useDwarfcannon) {
+                                    EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
+
+                                    if (Backpack.contains("Dwarven siege engine")) {
+                                      Backpack.interact("Dwarven siege engine", "Set up");
+                                      Execution.delayUntil(random.nextLong(15000, 20000), () -> !siegeEngine.isEmpty());
+                                        setBotState(SKILLING);
+                                    }
+                                }
                                 setBotState(SKILLING);
                             }
                             break;

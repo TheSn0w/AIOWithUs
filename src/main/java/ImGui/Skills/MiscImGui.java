@@ -32,7 +32,7 @@ public class MiscImGui {
 
 
     public static void renderMisc() {
-        if (isMiscActive && !isDissasemblerActive && !showLogs) {
+        if (isMiscActive && !isDissasemblerActive) {
             float totalWidth = 360.0f;
             float checkboxWidth = 100.0f;
             float numItems = 3.0f;

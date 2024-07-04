@@ -5,12 +5,14 @@ import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Runecrafting.Runecrafting;
+import net.botwithus.Variables.GlobalState;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
+import net.botwithus.rs3.events.impl.ServerTickedEvent;
 import net.botwithus.rs3.game.*;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -22,6 +24,7 @@ import net.botwithus.rs3.script.config.ScriptConfig;
 import java.time.Instant;
 import java.util.*;
 
+import static ImGui.Skills.CombatImGui.showCheckboxesWindow;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.Combat.Banking.bankToWars;
@@ -30,8 +33,8 @@ import static net.botwithus.Combat.ItemRemover.dropItems;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
-import static net.botwithus.Combat.Radius.enableRadiusTracking;
-import static net.botwithus.Combat.Radius.radius;
+import static net.botwithus.Combat.Potions.*;
+import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Misc.Harps.useHarps;
@@ -41,6 +44,7 @@ import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 
 public class SnowsScript extends LoopingScript {
@@ -103,7 +107,7 @@ public class SnowsScript extends LoopingScript {
 
 
     public void onLoop() {
-        LocalPlayer player = Client.getLocalPlayer();
+        LocalPlayer player = getLocalPlayer();
 
         if (player == null || Client.getGameState() != Client.GameState.LOGGED_IN) {
             return;
@@ -191,12 +195,22 @@ public class SnowsScript extends LoopingScript {
     private void subscribeToEvents() {
         EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
+        EventBus.EVENT_BUS.subscribe(this, ServerTickedEvent.class, this::onTickEvent);
+
     }
 
-    private void unsubscribeFromEvents() {
+    public void unsubscribeFromEvents() {
         EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
+        EventBus.EVENT_BUS.unsubscribe(this, ServerTickedEvent.class, this::onTickEvent);
+
     }
+
+    private void onTickEvent(ServerTickedEvent event) {
+        GlobalState.currentTickCount = event.getTicks();
+    }
+
+
     public static Map<String, Integer> divineCharges = new HashMap<>();
     public static Map<String, Integer> Gems = new HashMap<>();
     public static Map<String, Integer> steamRunes = new HashMap<>();
@@ -332,7 +346,7 @@ public class SnowsScript extends LoopingScript {
 
 
     void onChatMessageEvent(ChatMessageEvent event) {
-        LocalPlayer player = Client.getLocalPlayer();
+        LocalPlayer player = getLocalPlayer();
         if (!isActive()) {
             return;
         }
@@ -626,6 +640,25 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("maxHopIntervalMinutes", String.valueOf(maxHopIntervalMinutes));
         this.configuration.addProperty("hopDuetoPlayers", String.valueOf(hopDuetoPlayers));
         this.configuration.addProperty("useWorldhop", String.valueOf(useWorldhop));
+        String centerCoordStr = centerCoordinate.getX() + "," + centerCoordinate.getY() + "," + centerCoordinate.getZ();
+        this.configuration.addProperty("centerCoordinate", centerCoordStr);
+        this.configuration.addProperty("useDarkness", String.valueOf(useDarkness));
+        this.configuration.addProperty("useVulnerabilityBombs", String.valueOf(useVulnerabilityBombs));
+        this.configuration.addProperty("useThreadsofFate", String.valueOf(useThreadsofFate));
+        this.configuration.addProperty("useDwarfcannon", String.valueOf(useDwarfcannon));
+        this.configuration.addProperty("useElvenRitual", String.valueOf(useElvenRitual));
+        this.configuration.addProperty("useExcalibur", String.valueOf(useExcalibur));
+        this.configuration.addProperty("useDemonSlayer", String.valueOf(useDemonSlayer));
+        this.configuration.addProperty("useUndeadSlayer", String.valueOf(useUndeadSlayer));
+        this.configuration.addProperty("useDragonSlayer", String.valueOf(useDragonSlayer));
+        this.configuration.addProperty("showLogs", String.valueOf(showLogs));
+        this.configuration.addProperty("showCheckboxesWindow", String.valueOf(showCheckboxesWindow));
+        this.configuration.addProperty("usePowderOfProtection", String.valueOf(usePowderOfProtection));
+        this.configuration.addProperty("usePowderOfPenance", String.valueOf(usePowderOfPenance));
+        this.configuration.addProperty("useLantadymeSticks", String.valueOf(useLantadymeSticks));
+        this.configuration.addProperty("useKwuarmSticks", String.valueOf(useKwuarmSticks));
+        this.configuration.addProperty("useIritSticks", String.valueOf(useIritSticks));
+        this.configuration.addProperty("scrollToBottom", String.valueOf(scrollToBottom));
 
 
 
@@ -634,6 +667,23 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            scrollToBottom = Boolean.parseBoolean(this.configuration.getProperty("scrollToBottom"));
+            useIritSticks = Boolean.parseBoolean(this.configuration.getProperty("useIritSticks"));
+            useKwuarmSticks = Boolean.parseBoolean(this.configuration.getProperty("useKwuarmSticks"));
+            useLantadymeSticks = Boolean.parseBoolean(this.configuration.getProperty("useLantadymeSticks"));
+            usePowderOfPenance = Boolean.parseBoolean(this.configuration.getProperty("usePowderOfPenance"));
+            usePowderOfProtection = Boolean.parseBoolean(this.configuration.getProperty("usePowderOfProtection"));
+            showCheckboxesWindow = Boolean.parseBoolean(this.configuration.getProperty("showCheckboxesWindow"));
+            showLogs = Boolean.parseBoolean(this.configuration.getProperty("showLogs"));
+            useDarkness = Boolean.parseBoolean(this.configuration.getProperty("useDarkness"));
+            useVulnerabilityBombs = Boolean.parseBoolean(this.configuration.getProperty("useVulnerabilityBombs"));
+            useThreadsofFate = Boolean.parseBoolean(this.configuration.getProperty("useThreadsofFate"));
+            useDwarfcannon = Boolean.parseBoolean(this.configuration.getProperty("useDwarfcannon"));
+            useElvenRitual = Boolean.parseBoolean(this.configuration.getProperty("useElvenRitual"));
+            useExcalibur = Boolean.parseBoolean(this.configuration.getProperty("useExcalibur"));
+            useDemonSlayer = Boolean.parseBoolean(this.configuration.getProperty("useDemonSlayer"));
+            useUndeadSlayer = Boolean.parseBoolean(this.configuration.getProperty("useUndeadSlayer"));
+            useDragonSlayer = Boolean.parseBoolean(this.configuration.getProperty("useDragonSlayer"));
             useWorldhop = Boolean.parseBoolean(this.configuration.getProperty("useWorldhop"));
             hopDuetoPlayers = Boolean.parseBoolean(this.configuration.getProperty("hopDuetoPlayers"));
             lootNoted = Boolean.parseBoolean(this.configuration.getProperty("lootNoted"));
@@ -845,6 +895,16 @@ public class SnowsScript extends LoopingScript {
                 String[] loadedItemNamesForNotepaper = serializedItemNamesForNotepaper.split(",");
                 selectedNotepaperNames.clear();
                 selectedNotepaperNames.addAll(Arrays.asList(loadedItemNamesForNotepaper));
+            }
+            String centerCoordStr = this.configuration.getProperty("centerCoordinate");
+            if (centerCoordStr != null && !centerCoordStr.isEmpty()) {
+                String[] parts = centerCoordStr.split(",");
+                if (parts.length == 3) {
+                    int x = Integer.parseInt(parts[0]);
+                    int y = Integer.parseInt(parts[1]);
+                    int z = Integer.parseInt(parts[2]);
+                    centerCoordinate = new Coordinate(x, y, z);
+                }
             }
             log("[Settings] Configuration loaded successfully.");
         } catch (Exception e) {

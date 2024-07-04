@@ -13,7 +13,7 @@ public class ThievingImGui {
 
 
     public static void renderThieving() {
-        if (isThievingActive && !showLogs) {
+        if (isThievingActive) {
             ImGui.SeparatorText("Thieving Options");
             if (tooltipsEnabled) {
                 String[] texts = {
