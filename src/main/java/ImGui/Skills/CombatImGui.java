@@ -2,6 +2,7 @@ package ImGui.Skills;
 
 import ImGui.*;
 import net.botwithus.Combat.*;
+import net.botwithus.Variables.Runnables;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
@@ -18,6 +19,7 @@ import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
+import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
@@ -344,6 +346,19 @@ public class CombatImGui {
                             setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
                         }
                     }
+            if (useTraveltoLocation) {
+                ImGui.SeparatorText("Travel Options");
+                ImGui.SetCursorPosX(spacing);
+                ImGui.SetItemWidth(115.0F);
+                x = ImGui.InputInt("X", x);
+                ImGui.SetItemWidth(115.0F);
+                y = ImGui.InputInt("Y", y);
+                ImGui.SetItemWidth(115.0F);
+                z = ImGui.InputInt("Z", z);
+                if (ImGui.Button("Travel")) {
+                    Runnables.shouldTravel = true;
+                }
+            }
             if (showCheckboxesWindow) {
                 if (ImGui.Begin("Combat Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue())) {
                     ImGui.SetWindowSize((float) 400, (float) 510);

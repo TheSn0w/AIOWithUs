@@ -29,6 +29,7 @@ import static net.botwithus.Combat.Loot.LootEverything;
 import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
+import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
@@ -128,10 +129,16 @@ public class Runnables {
             Execution.delay(Fishing.handleFishing(player, selectedFishingLocations.get(0), selectedFishingActions.get(0)));
         }
     }
+    public static boolean shouldTravel = false;
 
-    public static  void handleCombat() {
+    public static void handleCombat() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
+            if (shouldTravel) {
+                travelToXYZ(x, y, z); // Ensure x, y, z are defined or passed appropriately
+                shouldTravel = false; // Reset the flag
+                return; // Optionally return to avoid other actions after traveling
+            }
             if (usePOD) {
                 handlePOD();
             }

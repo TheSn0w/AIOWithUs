@@ -52,11 +52,11 @@ public class Prayers {
                 16759, 16760, 53271, 53272, 53273, 53274
         };
 
-        quickPrayersActive = false; // Reset to false before checking
+        quickPrayersActive = false;
         for (int varbitId : varbitIds) {
             if (VarManager.getVarbitValue(varbitId) == 1) {
                 quickPrayersActive = true;
-                break; // Exit the loop as soon as one active varbit is found
+                break;
             }
         }
     }

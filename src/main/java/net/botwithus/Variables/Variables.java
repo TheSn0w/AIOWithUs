@@ -149,6 +149,8 @@ public class Variables {
     }
     public static int prayerPointsThreshold = 5000;
     public static int healthPointsThreshold = 50;
+
+
     public static String targetName = "";
     public static final List<String> targetNames = new ArrayList<>();
     public static String Item = "";

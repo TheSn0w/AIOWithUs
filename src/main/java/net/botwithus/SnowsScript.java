@@ -129,13 +129,13 @@ public class SnowsScript extends LoopingScript {
             });
 
             case BANKING -> {
-                if (nearestBank) {
+                if (nearestBank && !isCombatActive) {
                     Execution.delay(performBanking(player));
                 }
                 if (isArcheologyActive) {
                     Execution.delay(BankforArcheology(player, selectedArchNames));
                 }
-                if (isCombatActive) {
+                if (nearestBank && isCombatActive) {
                         Execution.delay(bankToWars(player));
                 }
             }

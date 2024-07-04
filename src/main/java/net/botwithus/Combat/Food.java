@@ -73,12 +73,9 @@ public class Food {
                     // If LootInventory is not open, interact with the ground item until LootInventory is open
                     groundFood.interact("Take");
                     Execution.delayUntil(random.nextLong(15000), LootInventory::isOpen);
+                    Execution.delay(random.nextLong(1000, 2000));
                 }
                 food = InventoryItemQuery.newQuery().ids(groundFood.getId()).results().first();
-            } else if (nearestBank) {
-                setLastSkillingLocation(player.getCoordinate());
-                setBotState(BANKING);
-                return random.nextLong(1500, 3000);
             } else {
                 log("[Caution] No food found");
                 return -1L;
@@ -89,7 +86,7 @@ public class Food {
 
         if (eatSuccess) {
             log("[Combat] Successfully ate " + food.getName());
-            Execution.delay(RandomGenerator.nextInt(250, 450));
+            Execution.delay(RandomGenerator.nextInt(600, 650));
         } else {
             log("[Error] Failed to eat.");
         }

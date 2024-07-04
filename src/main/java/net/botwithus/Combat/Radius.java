@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.movement.Movement;
@@ -8,6 +9,8 @@ import net.botwithus.rs3.script.Execution;
 
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.BotState.SKILLING;
+import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Runnables.handleCombat;
 import static net.botwithus.Variables.Variables.random;
 
@@ -23,22 +26,20 @@ public class Radius {
     }
 
     public static void ensureWithinRadius(LocalPlayer player) {
-        if (!isWithinRadius(player)) {
-            // Calculate direction vector from player to center
-            double dx = centerCoordinate.getX() - player.getCoordinate().getX();
-            double dy = centerCoordinate.getY() - player.getCoordinate().getY();
-            // Normalize the direction vector
-            double length = Math.sqrt(dx * dx + dy * dy);
-            double normalizedDx = dx / length;
-            double normalizedDy = dy / length;
-            // Scale the normalized vector to be just inside the radius
-            double targetX = centerCoordinate.getX() - normalizedDx * (radius - 1);
-            double targetY = centerCoordinate.getY() - normalizedDy * (radius - 1);
-            // Move player to the calculated target position
-            Movement.walkTo((int) targetX, (int) targetY, true);
-            Execution.delay(random.nextLong(200, 400));
-            log("[Combat] Moving player back inside the radius.");
-            attackTarget(player);
+        if (getBotState() == SKILLING) {
+            if (!isWithinRadius(player)) {
+                double dx = centerCoordinate.getX() - player.getCoordinate().getX();
+                double dy = centerCoordinate.getY() - player.getCoordinate().getY();
+                double length = Math.sqrt(dx * dx + dy * dy);
+                double normalizedDx = dx / length;
+                double normalizedDy = dy / length;
+                double targetX = centerCoordinate.getX() - normalizedDx * (radius - 1);
+                double targetY = centerCoordinate.getY() - normalizedDy * (radius - 1);
+                Movement.walkTo((int) targetX, (int) targetY, true);
+                Execution.delay(random.nextLong(600, 650));
+                log("[Combat] Moving player back inside the radius.");
+                attackTarget(player);
+            }
         }
     }
 

@@ -32,7 +32,6 @@ public class ItemRemover {
 
     public static void addDroppedItemName(String nameOrId) {
         if (isNumeric(nameOrId)) {
-            // If the input is numeric, treat it as an item ID
             int itemId = Integer.parseInt(nameOrId);
             ItemType itemType = ConfigManager.getItemType(itemId);
             String itemName = itemType != null ? itemType.getName() : null;
@@ -40,7 +39,6 @@ public class ItemRemover {
                 selectedDroppedItems.add(itemName);
             }
         } else {
-            // If the input is not numeric, treat it as an item name
             if (!selectedDroppedItems.contains(nameOrId)) {
                 selectedDroppedItems.add(nameOrId);
             }

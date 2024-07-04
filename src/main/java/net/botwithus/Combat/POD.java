@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -21,6 +22,7 @@ import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -67,8 +69,11 @@ public class POD {
                 break;
             case 6:
                 if (targetCoordinate != null) {
+                    if (getBotState() != SnowsScript.BotState.SKILLING) {
+                        break;
+                    }
                     attackTarget(getLocalPlayer());
-                    while (!shouldBank(getLocalPlayer())) {
+                    while (!shouldBank(getLocalPlayer()) && getBotState() == SnowsScript.BotState.SKILLING){
                         ensurePlayerWithinRadius(targetCoordinate, 2);
                         attackTarget(getLocalPlayer());
                     }
@@ -162,7 +167,7 @@ public class POD {
 
             if (distance > radius) {
                 Movement.walkTo(targetCoordinate.getX(), targetCoordinate.getY(), true);
-                Execution.delay(1000);
+                Execution.delay(random.nextLong(600, 650));
                 log("[Combat] Moving player within radius.");
             }
         }

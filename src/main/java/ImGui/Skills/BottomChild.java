@@ -105,8 +105,8 @@ public class BottomChild {
             ImGui.SetCursorPosX(centeredX);
             ImGui.Text(elapsedTimeText);
 
-            ImGui.SetCursorPosX(400);
-            ImGui.SetCursorPosY(27);
+            ImGui.SetCursorPosX(440);
+            ImGui.SetCursorPosY(20);
 
             ImGui.Text("Ticks: " + GlobalState.currentTickCount);
 

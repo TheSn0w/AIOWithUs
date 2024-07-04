@@ -31,6 +31,7 @@ import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Prayers.*;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
+import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -60,9 +61,28 @@ public class Combat {
 
 
     public static long attackTarget(LocalPlayer player) {
-        if (player == null) {
-            return random.nextLong(100, 200);
+        if (player == null || useTraveltoLocation) {
+            return random.nextLong(600, 650);
         }
+
+        if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+            activateSoulSplit(player);
+        }
+        if (SoulSplit && VarManager.getVarbitValue(16779) == 1 && (!player.inCombat() || !player.hasTarget() || player.getStanceId() != 2687)) {
+            deactivateSoulSplit();
+        }
+
+        if (usequickPrayers) {
+            updateQuickPrayersActiveStatus();
+            if (!quickPrayersActive && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+                activateQuickPrayers();
+            } else {
+                if (quickPrayersActive && (!player.inCombat() || !player.hasTarget() || player.getStanceId() != 2687)) {
+                    deactivateQuickPrayers();
+                }
+            }
+        }
+
         if (usePowderOfProtection) {
             powderOfProtection();
         }
@@ -77,15 +97,6 @@ public class Combat {
         }
         if (useIritSticks) {
             iritSticks();
-        }
-        if (SoulSplit && !player.inCombat()) {
-            deactivateSoulSplit();
-        }
-        if (usequickPrayers) {
-            updateQuickPrayersActiveStatus();
-            if (!player.inCombat() && quickPrayersActive) {
-                deactivateQuickPrayers();
-            }
         }
 
         if (enableRadiusTracking) {
@@ -113,27 +124,22 @@ public class Combat {
             eatFood(player);
         }
 
+
         managePotions(player);
         manageScripturesAndScrimshaws(player);
 
         if (player.isMoving()) {
-            return random.nextLong(100, 200);
+            return random.nextLong(600, 650);
         }
 
         if (!player.hasTarget()) {
             handleCombat(player);
         } else {
-            if (SoulSplit && VarManager.getVarbitValue(16779) != 1) {
-                activateSoulSplit(player);
-            }
-            if (usequickPrayers && !quickPrayersActive) {
-                activateQuickPrayers();
-            }
             manageCombatAbilities();
         }
 
 
-        return random.nextLong(100, 200);
+        return random.nextLong(600, 650);
     }
 
 
@@ -160,7 +166,7 @@ public class Combat {
         if (monster != null) {
             boolean attack = monster.interact("Attack");
             if (attack) {
-                logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 300, 400);
+                logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 600, 650);
             } else {
                 logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
             }
@@ -179,6 +185,9 @@ public class Combat {
     public static void manageCombatAbilities() {
         LocalPlayer player = getLocalPlayer();
 
+        if (usequickPrayers && !quickPrayersActive) {
+            activateQuickPrayers();
+        }
         if (DeathGrasp) {
             essenceOfFinality(player);
         }
@@ -224,46 +233,55 @@ public class Combat {
     }
 
     public static void essenceOfFinality(LocalPlayer player) {
-        int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
+        while (true) {
+            int currentNecrosisStacks = VarManager.getVarValue(VarDomainType.PLAYER, 10986);
 
-        if (player.getAdrenaline() > 250
-                && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty()
-                && player.inCombat()
-                && player.hasTarget()
-                && ActionBar.containsAbility("Essence of Finality")
-                && currentNecrosisStacks >= NecrosisStacksThreshold) {
+            if (player.getAdrenaline() > 250
+                    && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty()
+                    && player.inCombat()
+                    && ActionBar.containsAbility("Essence of Finality")
+                    && currentNecrosisStacks >= NecrosisStacksThreshold) {
 
-            boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
-            if (abilityUsed) {
-                boolean effectConfirmed = Execution.delayUntil(random.nextLong(5500, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 10986) != currentNecrosisStacks);
-                if (effectConfirmed) {
-                    log("[Success] Essence of Finality effect confirmed with " + currentNecrosisStacks + " Necrosis stacks.");
-                } else {
-                    log("[Error] Essence of Finality effect not confirmed.");
+                boolean abilityUsed = ActionBar.useAbility("Essence of Finality");
+                if (abilityUsed) {
+                    boolean effectConfirmed = Execution.delayUntil(random.nextLong(5500, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 10986) != currentNecrosisStacks);
+                    if (effectConfirmed) {
+                        log("[Success] Essence of Finality effect confirmed with " + currentNecrosisStacks + " Necrosis stacks.");
+                    } else {
+                        log("[Error] Essence of Finality effect not confirmed.");
+                    }
+                    break;
                 }
+            } else {
+                break;
             }
         }
     }
 
 
     public static void DeathEssence(LocalPlayer player) {
-        if (player.getAdrenaline() > 300
-                && player.getFollowing().getCurrentHealth() > 500
-                && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty()
-                && player.inCombat()
-                && player.hasTarget()
-                && ActionBar.containsAbility("Weapon Special Attack")) {
+        while (true) {
+            if (player.getAdrenaline() > 300
+                    && player.getFollowing().getCurrentHealth() > 500
+                    && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty()
+                    && player.inCombat()
+                    && ActionBar.containsAbility("Weapon Special Attack")) {
 
-            boolean success = ActionBar.useAbility("Weapon Special Attack");
-            if (success) {
-                boolean abilityEffect = Execution.delayUntil(random.nextLong(5000, 6500), () -> !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty());
-                if (abilityEffect) {
-                    log("[Success] Death Essence effect confirmed.");
+                boolean success = ActionBar.useAbility("Weapon Special Attack");
+                if (success) {
+                    boolean abilityEffect = Execution.delayUntil(random.nextLong(5000, 6500), () -> !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty());
+                    if (abilityEffect) {
+                        log("[Success] Death Essence effect confirmed.");
+                    } else {
+                        log("[Error] Death Essence effect not confirmed.");
+                    }
+                    break;
                 } else {
-                    log("[Error] Death Essence effect not confirmed.");
+                    log("[Error] Attempted to use Death Essence, but ability use failed.");
+                    break;
                 }
             } else {
-                log("[Error] Attempted to use Death Essence, but ability use failed.");
+                break;
             }
         }
     }
@@ -276,25 +294,40 @@ public class Combat {
                 && player.inCombat()
                 && ActionBar.containsAbility("Volley of Souls")) {
 
-            boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
-            if (abilityUsed) {
-                boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) != currentResidualSouls);
-                if (effectConfirmed) {
-                    log("[Success] Volley of Souls effect confirmed with " + currentResidualSouls + " residual souls.");
+            while (true) {
+                currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035);
+                boolean abilityUsed = ActionBar.useAbility("Volley of Souls");
+                if (abilityUsed) {
+                    int finalCurrentResidualSouls = currentResidualSouls;
+                    boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) < finalCurrentResidualSouls);
+
+                    if (effectConfirmed) {
+                        log("[Success] Volley of Souls effect confirmed with " + currentResidualSouls + " residual souls.");
+                    } else {
+                        log("[Error] Volley of Souls effect not confirmed.");
+                    }
+                    break;
                 } else {
-                    log("[Error] Volley of Souls effect not confirmed.");
+                    log("[Error] Attempted to use Volley of Souls, but ability use failed.");
+                    break;
                 }
-            } else {
-                log("[Error] Attempted to use Volley of Souls, but ability use failed.");
             }
         }
     }
 
     public static void InvokeDeath(LocalPlayer player) {
-        if (player != null) {
-            if (VarManager.getVarbitValue(53247) == 0 && getLocalPlayer().getFollowing() != null && getLocalPlayer().getFollowing().getCurrentHealth() >= 5000 && ActionBar.getCooldownPrecise("Invoke Death") == 0 && getLocalPlayer().hasTarget()) {
+        while (true) {
+            if (VarManager.getVarbitValue(53247) == 0
+                    && player.inCombat()
+                    && ComponentQuery.newQuery(284).spriteId(30100).results().isEmpty()
+                    && ActionBar.containsAbility("Invoke Death")
+                    && ActionBar.getCooldown("Invoke Death") == 0) {
+
                 log("[Success] Used Invoke Death: " + ActionBar.useAbility("Invoke Death"));
-                Execution.delay(RandomGenerator.nextInt(600, 1500));
+                Execution.delay(RandomGenerator.nextInt(1800, 2000));
+                break;
+            } else {
+                break;
             }
         }
     }
@@ -419,10 +452,6 @@ public class Combat {
 
     public static void printSiegeEngineRemainingTime() {
         ResultSet<Component> components = ComponentQuery.newQuery(291).spriteId(2).results();
-        if (components.isEmpty()) {
-            log("[Error] No components with spriteId 2 found.");
-            return;
-        }
 
         for (Component component : components) {
             int interfaceIndex = component.getInterfaceIndex();
@@ -434,20 +463,17 @@ public class Combat {
                     .subComponentIndex(subComponentIndex)
                     .results();
 
-            if (targetComponents.isEmpty()) {
-                log("[Error] No components found for Interface Index: " + interfaceIndex + ", Component Index: " + componentIndex + ", and Sub Component Index: " + subComponentIndex);
-                continue;
-            }
 
             Component targetComponent = targetComponents.first();
             String text = targetComponent.getText();
 
-            if (isTimeLessThanFiveMinutes(text)) {
+            if (isTimeLessThanFiveMinutes(text) || components.isEmpty() || ComponentQuery.newQuery(284).spriteId(2).results().isEmpty()) {
                 log("[Combat] Interacting with Siege Engine.");
                 EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").results();
                 if (!siegeEngine.isEmpty()) {
                     siegeEngine.first().interact("Fire");
-                    Execution.delay(random.nextLong(600, 950));
+                    Execution.delay(random.nextLong(2500, 3500));
+                    break;
                 }
             }
         }
@@ -463,7 +489,7 @@ public class Combat {
                 case "s":
                     return true;
                 case "m":
-                    return value < 5;
+                    return value < 20;
                 case "h":
                     return false;
             }

@@ -108,7 +108,7 @@ public class Potions {
         boolean success = backpack.interact(prayerOrRestorePot.getName(), "Drink");
         if (success) {
             log("[Combat] Successfully drank " + prayerOrRestorePot.getName());
-            Execution.delayUntil(5000, () -> player.getPrayerPoints() > prayerPointsThreshold);
+            Execution.delayUntil(random.nextLong(1800, 2000), () -> player.getPrayerPoints() > prayerPointsThreshold);
             return random.nextLong(650, 950);
         } else {
             log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
@@ -128,7 +128,7 @@ public class Potions {
         Pattern overloadPattern = Pattern.compile("overload", Pattern.CASE_INSENSITIVE);
 
 
-        Item overloadPot = InventoryItemQuery.newQuery()
+        Item overloadPot = InventoryItemQuery.newQuery(93)
                 .results()
                 .stream()
                 .filter(item -> item.getName() != null && overloadPattern.matcher(item.getName()).find())
@@ -162,7 +162,7 @@ public class Potions {
 
         Pattern poisonPattern = Pattern.compile("weapon poison\\+*?", Pattern.CASE_INSENSITIVE);
 
-        Item weaponPoisonItem = InventoryItemQuery.newQuery()
+        Item weaponPoisonItem = InventoryItemQuery.newQuery(93)
                 .results()
                 .stream()
                 .filter(item -> item.getName() != null && poisonPattern.matcher(item.getName()).find())

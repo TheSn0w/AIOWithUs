@@ -94,7 +94,7 @@ public class Loot {
                     log("[Error] Interface 1622 did not open. Attempting to interact with ground item again.");
                     if (groundItem.interact("Take")) {
                         log("[Combat] Attempting to take " + groundItem.getName() + " again...");
-                        Execution.delay(RandomGenerator.nextInt(250, 300));
+                        Execution.delay(RandomGenerator.nextInt(600, 650));
                     }
                 }
                 LootAll();
@@ -161,7 +161,7 @@ public class Loot {
                                 .noneMatch(it -> it.getSlot() == itemSlot && it.getName().equals(item.getName()));
                     });
                 }
-                Execution.delay(620);
+                Execution.delay(random.nextLong(600, 650));
             } while (itemLooted);
         } else {
             List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
@@ -199,7 +199,7 @@ public class Loot {
                     LootInventory.take(item.getName());
                     log("[Loot] Successfully looted stackable item: " + item.getName());
                     inventoryItems = LootInventory.getItems();
-                    Execution.delay(random.nextLong(200, 300));
+                    Execution.delay(random.nextLong(600, 650));
                 } else {
                     log("[Loot] Item is not stackable or ItemType is null. Skipping...");
                 }
@@ -357,7 +357,7 @@ public class Loot {
                         useItemOnNotepaper();
                     }
 
-                    Execution.delay(random.nextInt(550, 750));
+                    Execution.delay(random.nextInt(600, 650));
                 } else {
                     log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
                 }
@@ -425,6 +425,6 @@ public class Loot {
             log("[Loot] No matching items found or LootInventory did not open.");
         }
 
-        return random.nextLong(250, 300);
+        return random.nextLong(600, 650);
     }
 }

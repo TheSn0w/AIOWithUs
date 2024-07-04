@@ -51,11 +51,7 @@ public class Banking {
         if (ActionBar.containsAbility("War's Retreat Teleport")) {
             ActionBar.useAbility("War's Retreat Teleport");
             Execution.delay(random.nextLong(4500, 5000));
-            if (BankforFood) {
-                Execution.delay(handleBankforFood(player, SceneObjectQuery.newQuery().name("Bank chest").option("Use").results().nearest()));
-            } else {
-                Execution.delay(loadLastPreset(player, SceneObjectQuery.newQuery().name("Bank chest").option("Use").results().nearest()));
-            }
+            Execution.delay(loadLastPreset(player, SceneObjectQuery.newQuery().name("Bank chest").option("Use").results().nearest()));
         } else {
             log("[Error] War's Retreat Teleport not found in ability bar.");
             return random.nextLong(1500, 3000);
@@ -66,51 +62,52 @@ public class Banking {
     public static long loadLastPreset(LocalPlayer player, SceneObject nearestBankBooth) {
         List<String> interactionOptions = List.of("Load Last Preset from");
         String bankType = nearestBankBooth.getName();
+        final int maxAttempts = 3; // Define a maximum number of attempts
 
         if (BANK_TYPES.contains(bankType)) {
             for (String interactionOption : interactionOptions) {
                 log("[Combat] Trying interaction option: " + interactionOption + " on " + bankType);
-
                 boolean interactionSuccess = false;
-                while (!interactionSuccess) {
+
+                for (int attempt = 0; attempt < maxAttempts && !interactionSuccess; attempt++) {
                     interactionSuccess = nearestBankBooth.interact(interactionOption);
-                    log("[Combat] Trying to interact with bank using " + interactionOption + " on " + bankType + ": " + interactionSuccess);
+                    log("[Combat] Attempt " + (attempt + 1) + " to interact with bank using " + interactionOption + " on " + bankType + ": " + interactionSuccess);
 
                     if (interactionSuccess) {
                         Execution.delayUntil(random.nextLong(2000, 3000), player::isMoving);
                         if (player.isMoving()) {
                             Execution.delay(random.nextLong(5000, 7500));
-                            NavPath path = NavPath.resolve(lastSkillingLocation);
-                            if (Movement.traverse(path) == TraverseEvent.State.FINISHED) {
-                                if (useDwarfcannon) {
-                                    EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
-
-                                    if (Backpack.contains("Dwarven siege engine")) {
-                                      Backpack.interact("Dwarven siege engine", "Set up");
-                                      Execution.delayUntil(random.nextLong(15000, 20000), () -> !siegeEngine.isEmpty());
-                                        setBotState(SKILLING);
+                            if (!player.isMoving()) {
+                                NavPath path = NavPath.resolve(lastSkillingLocation);
+                                if (Movement.traverse(path) == TraverseEvent.State.FINISHED) {
+                                    if (useDwarfcannon) {
+                                        EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
+                                        if (Backpack.contains("Dwarven siege engine")) {
+                                            Backpack.interact("Dwarven siege engine", "Set up");
+                                            Execution.delayUntil(random.nextLong(3000, 5000), () -> !siegeEngine.isEmpty());
+                                        }
                                     }
+                                    setBotState(SKILLING);
                                 }
-                                setBotState(SKILLING);
                             }
-                            break;
+                            return random.nextLong(1500, 3000);
                         } else {
-                            log("[Error] Player did not start moving after interaction. Retrying interaction.");
-                            interactionSuccess = false;
+                            log("[Error] Player did not start moving after interaction. Trying again.");
                         }
                     } else {
-                        log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");
+                        log("[Error] Failed to interact with bank using " + interactionOption + " option. Trying again.");
                         Execution.delay(random.nextLong(3000, 5000));
                     }
                 }
-            }
-        } else {
-            log("[Error] Bank type " + bankType + " not recognized.");
-        }
 
-        log("[Error] Failed to interact with the bank using all available options.");
-        shutdown();
-        return random.nextLong(1500,3000);
+                if (!interactionSuccess) {
+                    log("[Error] Failed to interact with the bank after " + maxAttempts + " attempts.");
+                    shutdown();
+                    return random.nextLong(1500, 3000);
+                }
+            }
+        }
+        return 0;
     }
 
 
