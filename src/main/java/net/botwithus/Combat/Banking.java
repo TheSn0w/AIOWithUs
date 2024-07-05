@@ -2,6 +2,7 @@ package net.botwithus.Combat;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
+import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
@@ -82,9 +83,12 @@ public class Banking {
                                 if (Movement.traverse(path) == TraverseEvent.State.FINISHED) {
                                     if (useDwarfcannon) {
                                         EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
-                                        if (Backpack.contains("Dwarven siege engine")) {
+                                        if (Backpack.contains("Dwarven siege engine") && Backpack.contains("Cannonball")) {
                                             Backpack.interact("Dwarven siege engine", "Set up");
-                                            Execution.delayUntil(random.nextLong(3000, 5000), () -> !siegeEngine.isEmpty());
+                                            boolean isSetup = Execution.delayUntil(random.nextLong(4000, 5000), () -> !siegeEngine.isEmpty());
+                                            if (!isSetup) {
+                                                moveToNearbyCoordinate();
+                                            }
                                         }
                                     }
                                     setBotState(SKILLING);
@@ -108,6 +112,27 @@ public class Banking {
             }
         }
         return 0;
+    }
+    public static void moveToNearbyCoordinate() {
+        Coordinate playerCoordinate = player.getCoordinate();
+        List<Coordinate> nearbyCoordinates = Arrays.asList(
+                new Coordinate(playerCoordinate.getX() + 1, playerCoordinate.getY(), playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX() - 1, playerCoordinate.getY(), playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() + 1, playerCoordinate.getZ()),
+                new Coordinate(playerCoordinate.getX(), playerCoordinate.getY() - 1, playerCoordinate.getZ())
+        );
+
+        for (Coordinate nearbyCoordinate : nearbyCoordinates) {
+            if (nearbyCoordinate.isWalkable()) {
+                Movement.walkTo(nearbyCoordinate.getX(), nearbyCoordinate.getY(), true);
+                Execution.delay(random.nextLong(1500, 2500));
+
+                if (player.getCoordinate().equals(nearbyCoordinate)) {
+                    log("[Success] Player has moved to the desired coordinate.");
+                    break;
+                }
+            }
+        }
     }
 
 

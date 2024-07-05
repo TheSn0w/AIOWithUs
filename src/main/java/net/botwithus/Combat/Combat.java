@@ -14,6 +14,7 @@ import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.PathingEntity;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
@@ -33,6 +34,7 @@ import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Prayers.*;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;
+import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.TaskScheduler.shutdown;
@@ -64,11 +66,12 @@ public class Combat {
 
     public static long attackTarget(LocalPlayer player) {
 
-        if (player == null || useTraveltoLocation) {
+        if (player == null || useTraveltoLocation || useHintArrow) {
             return random.nextLong(600, 650);
         }
-        teleportOnHealth();
 
+        teleportOnHealth();
+        handleMultitarget();
 
         if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
             activateSoulSplit(player);
@@ -111,7 +114,7 @@ public class Combat {
             useItemOnNotepaper();
         }
         if (useLoot) {
-            Execution.delay(processLooting());
+            processLooting();
         }
         if (lootNoted) {
             lootNotedItems();
@@ -133,27 +136,78 @@ public class Combat {
             handleCombat(player);
         } else {
             manageCombatAbilities();
-        }
 
+            PathingEntity<?> target = player.getTarget();
+
+            if (handleMultitarget) {
+                if (target.getCurrentHealth() <= target.getMaximumHealth() * healthThreshold) {
+                    Npc newTarget = findDifferentTarget(player, target.getId());
+                    if (newTarget != null) {
+                        return attackMonster(player, newTarget);
+                    }
+                }
+            }
+        }
 
         return random.nextLong(200, 300);
     }
 
+    private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
+        List<String> targetNames = getTargetNames();
+        if (targetNames.isEmpty()) {
+            log("[Error] No target names specified.");
+            return null;
+        }
 
-    private static void teleportOnHealth() {
-        LocalPlayer player = getLocalPlayer();
-        if (player != null && player.getCurrentHealth() < player.getMaximumHealth() * 0.10) {
-            if (ActionBar.containsAbility("Max guild Teleport")) {
-                ActionBar.useAbility("Max guild Teleport");
-                log("[Combat] Health is below 7.5% so we are teleporting to Max Guild.");
-            } else if (ActionBar.containsAbility("War's Retreat Teleport")) {
-                ActionBar.useAbility("War's Retreat Teleport");
-                log("[Combat] Health is below 7.5% so we are teleporting to War's Retreat.");
+        Pattern monsterPattern = generateRegexPattern(targetNames);
+
+        Npc newTarget = NpcQuery.newQuery()
+                .name(monsterPattern)
+                .isReachable()
+                .health(100, 1_000_000)
+                .option("Attack")
+                .results()
+                .stream()
+                .filter(npc -> npc.getId() != currentTargetId && npc.getCurrentHealth() > npc.getMaximumHealth() * healthThreshold)
+                .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
+                .orElse(null);
+
+        if (newTarget == null) {
+            newTarget = NpcQuery.newQuery()
+                    .name(monsterPattern)
+                    .isReachable()
+                    .health(100, 1_000_000)
+                    .option("Attack")
+                    .results()
+                    .stream()
+                    .filter(npc -> npc.getId() != currentTargetId)
+                    .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
+                    .orElse(null);
+        }
+
+        return newTarget;
+    }
+    private static long attackMonster(LocalPlayer player, Npc monster) {
+        boolean attack = monster.interact("Attack");
+        log("[MultiTarget] Attacking " + monster.getName() + "...");
+        if (attack) {
+            if (handleMultitarget) {
+                recentlyAttackedTargets.add(monster.getId());
             }
-            Execution.delay(random.nextLong(10000, 20000));
-            shutdown();
+            return random.nextLong(300, 400);
+        }
+        return 0;
+    }
+
+    private static void handleMultitarget() {
+        if (handleMultitarget) {
+            if (System.currentTimeMillis() - lastClearTime > random.nextLong(4000, 5000)) {
+                recentlyAttackedTargets.clear();
+                lastClearTime = System.currentTimeMillis();
+            }
         }
     }
+
 
     public static void handleCombat(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
@@ -190,6 +244,21 @@ public class Combat {
         log(message);
         long delay = random.nextLong(minDelay, maxDelay);
         Execution.delay(delay);
+    }
+
+    private static void teleportOnHealth() {
+        LocalPlayer player = getLocalPlayer();
+        if (player != null && player.getCurrentHealth() < player.getMaximumHealth() * 0.10) {
+            if (ActionBar.containsAbility("Max guild Teleport")) {
+                ActionBar.useAbility("Max guild Teleport");
+                log("[Combat] Health is below 7.5% so we are teleporting to Max Guild.");
+            } else if (ActionBar.containsAbility("War's Retreat Teleport")) {
+                ActionBar.useAbility("War's Retreat Teleport");
+                log("[Combat] Health is below 7.5% so we are teleporting to War's Retreat.");
+            }
+            Execution.delay(random.nextLong(10000, 20000));
+            shutdown();
+        }
     }
 
     private static Map<String, AbilityIndex> abilityIndices = new HashMap<>();
@@ -543,7 +612,7 @@ public class Combat {
             if (isTimeLessThanFiveMinutes(text) || components.isEmpty() || ComponentQuery.newQuery(284).spriteId(2).results().isEmpty()) {
                 log("[Combat] Interacting with Siege Engine.");
                 EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").results();
-                if (!siegeEngine.isEmpty()) {
+                if (!siegeEngine.isEmpty() && Backpack.contains("Cannonball")) {
                     siegeEngine.first().interact("Fire");
                     Execution.delay(random.nextLong(2500, 3500));
                     break;
@@ -573,11 +642,20 @@ public class Combat {
     public static void dwarvenSiegeCannon() {
         EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
         if (!siegeEngine.isEmpty()) {
-            printSiegeEngineRemainingTime();
+            if (Backpack.contains("Cannonball")) {
+                printSiegeEngineRemainingTime();
+            } else {
+                log("[Combat] No Cannonball found in Backpack.");
+                siegeEngine.first().interact("Pick up");
+                log("[Combat] Picking up Cannonball from Siege Engine.");
+                Execution.delay(random.nextLong(2500, 3500));
+                useDwarfcannon = false;
+            }
         } else {
             log("[Combat] No Dwarven siege engine found.");
         }
     }
+
     public static void activateUndeadSlayer() {
         if (ActionBar.containsAbility("Undead Slayer") && ActionBar.getCooldownPrecise("Undead Slayer") == 0) {
             interactWithAbility("Undead Slayer");

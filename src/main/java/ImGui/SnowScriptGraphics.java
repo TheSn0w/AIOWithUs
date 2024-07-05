@@ -35,6 +35,7 @@ import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.lootNoted;
+import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
@@ -314,9 +315,13 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("start anywhere, only toggle this and looting if you want to loot`");
                         }
-                        createCenteredButton("Travel", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
+                        createCenteredButton("Travel Via Coord", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will travel to location");
+                        }
+                        createCenteredButton("Travel via Marker", () -> useHintArrow = !useHintArrow, useHintArrow);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Marker placed on the map");
                         }
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {

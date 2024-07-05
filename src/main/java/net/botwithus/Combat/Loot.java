@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Combat.Combat.useDwarfcannon;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
@@ -106,26 +107,15 @@ public class Loot {
         }
     }
 
-    public static long processLooting() {
-        try {
-            if (getBotState() == SKILLING) {
-                if (Backpack.isFull()) {
-                    log("[Combat] Backpack is full. Cannot loot more items, turning off looting.");
-                    useLoot = false;
-                    return random.nextLong(1000, 2000);
-                }
-
-                if (LootInventory.isOpen()) {
-                    lootFromInventory();
-                } else {
-                    Execution.delay(lootFromGround());
-                }
-            }
-        } catch(Exception e){
-            log("[Error] An error occurred during looting: " + e.getMessage());
-            return random.nextLong(1000, 2000);
+    public static void processLooting() {
+        if (targetItemNames.isEmpty()) {
+            return;
         }
-        return 0;
+        if (LootInventory.isOpen()) {
+            lootFromInventory();
+        } else {
+            lootFromGround();
+        }
     }
 
     public static Pattern generateLootPattern(List<String> names) {
@@ -163,40 +153,47 @@ public class Loot {
 
 
     public static void lootNotedItemsFromInventory() {
-        if (LootInventory.isOpen()) {
-            boolean itemLooted;
-            do {
-                itemLooted = false;
-                List<Item> inventoryItems = LootInventory.getItems();
+    if (LootInventory.isOpen()) {
+        boolean itemLooted;
+        do {
+            itemLooted = false;
+            List<Item> inventoryItems = LootInventory.getItems();
 
-                Item item = inventoryItems.stream()
-                        .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
-                        .findFirst()
-                        .orElse(null);
+            Item item = inventoryItems.stream()
+                    .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
+                    .findFirst()
+                    .orElse(null);
 
-                if (item != null) {
-                    int itemSlot = item.getSlot();
-                    if (Backpack.isFull() && !Backpack.contains(item.getName())) {
-                        log("[Loot] Backpack is full and does not contain the noted item. Stopping looting.");
-                        return;
-                    }
-
-                    LootInventory.take(item.getName());
-
-                    itemLooted = Execution.delayUntil(random.nextLong(2000, 3000), () -> {
-                        List<Item> updatedInventoryItems = LootInventory.getItems();
-                        boolean itemTaken = updatedInventoryItems.stream()
-                                .noneMatch(it -> it.getSlot() == itemSlot && it.getName().equals(item.getName()));
-                        if (itemTaken) {
-                            SwingUtilities.invokeLater(() -> log("[Loot] Successfully looted noted item: " + item.getName()));
-                        }
-                        return itemTaken;
-                    });
+            if (item != null) {
+                int itemSlot = item.getSlot();
+                if (Backpack.isFull() && !Backpack.contains(item.getName())) {
+                    return;
                 }
-                Execution.delay(random.nextLong(995, 1096));
-            } while (itemLooted);
-        }
+
+                // If useDwarfcannon is active and the backpack has 27 or more slots full, do not loot any new items that the backpack does not already contain
+                int totalSlots = 28; // Backpack total capacity
+                int usedSlots = totalSlots - Backpack.countFreeSlots();
+
+                if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
+                    return;
+                }
+
+                LootInventory.take(item.getName());
+
+                itemLooted = Execution.delayUntil(random.nextLong(2000, 3000), () -> {
+                    List<Item> updatedInventoryItems = LootInventory.getItems();
+                    boolean itemTaken = updatedInventoryItems.stream()
+                            .noneMatch(it -> it.getSlot() == itemSlot && it.getName().equals(item.getName()));
+                    if (itemTaken) {
+                        log("[Loot] Successfully looted noted item: " + item.getName());
+                    }
+                    return itemTaken;
+                });
+            }
+            Execution.delay(random.nextLong(995, 1096));
+        } while (itemLooted);
     }
+}
 
     public static void lootStackableItemsFromInventory() {
         log("[Loot] Checking if LootInventory is open...");
@@ -351,35 +348,39 @@ public class Loot {
             log("[Error] No target items specified for looting.");
             return;
         }
-        if (!Backpack.isFull()) {
 
+        int totalSlots = 28;
+        int usedSlots = totalSlots - Backpack.countFreeSlots();
 
-            Pattern lootPattern = generateLootPattern(targetItemNames);
-            List<Item> inventoryItems = LootInventory.getItems();
+        if (useDwarfcannon && usedSlots >= 27) {
+            return;
+        }
 
-            Item item = inventoryItems.stream()
-                    .filter(it -> it.getName() != null && lootPattern.matcher(it.getName()).find())
+        Pattern lootPattern = generateLootPattern(targetItemNames);
+        List<Item> inventoryItems = LootInventory.getItems();
+
+        Item item = inventoryItems.stream()
+                .filter(it -> it.getName() != null && lootPattern.matcher(it.getName()).find())
+                .findFirst()
+                .orElse(null);
+
+        if (item != null) {
+            log("[Loot] Found item to loot: " + item.getName());
+
+            Item currentItem = LootInventory.getItems().stream()
+                    .filter(it -> it.getName().equals(item.getName()))
                     .findFirst()
                     .orElse(null);
 
-            if (item != null) {
-                log("[Loot] Found item to loot: " + item.getName());
-
-                Item currentItem = LootInventory.getItems().stream()
-                        .filter(it -> it.getName().equals(item.getName()))
-                        .findFirst()
-                        .orElse(null);
-
-                if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
-                    LootInventory.take(item.getName());
-                    if (useNotepaper) {
-                        useItemOnNotepaper();
-                    }
-
-                    Execution.delay(random.nextInt(600, 650));
-                } else {
-                    log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
+            if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
+                LootInventory.take(item.getName());
+                if (useNotepaper) {
+                    useItemOnNotepaper();
                 }
+
+                Execution.delay(random.nextInt(600, 650));
+            } else {
+                log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
             }
         } else {
             log("[Loot] Backpack is full. Cannot loot more items.");
@@ -418,17 +419,7 @@ public class Loot {
         }
         return random.nextLong(250, 300);
     }*/
-    public static long lootFromGround() {
-        if (targetItemNames.isEmpty()) {
-            log("[Error] No target items specified for looting.");
-            return random.nextLong(1000, 2000);
-        }
-
-        if (LootInventory.isOpen()) {
-            log("[Loot] Loot interface is open, skipping ground looting.");
-            return 0;
-        }
-
+    public static void lootFromGround() {
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
@@ -443,7 +434,5 @@ public class Loot {
         if (!itemInteracted) {
             log("[Loot] No matching items found or LootInventory did not open.");
         }
-
-        return random.nextLong(600, 650);
     }
 }

@@ -598,7 +598,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("isCorruptedOreActive", String.valueOf(isCorruptedOreActive));
         this.configuration.addProperty("handleArchGlacor", String.valueOf(handleArchGlacor));
         this.configuration.addProperty("enableRadiusTracking", String.valueOf(enableRadiusTracking));
-        this.configuration.addProperty("radius", String.valueOf(radius));
+       /* this.configuration.addProperty("radius", String.valueOf(radius));*/
         this.configuration.addProperty("hiSpecMonocle", String.valueOf(hiSpecMonocle));
         this.configuration.addProperty("materialManual", String.valueOf(materialManual));
         this.configuration.addProperty("archaeologistsTea", String.valueOf(archaeologistsTea));
@@ -814,13 +814,13 @@ public class SnowsScript extends LoopingScript {
                     currentQuantity.set(index);
                 }
             }
-            String radiusValue = this.configuration.getProperty("radius");
+            /*String radiusValue = this.configuration.getProperty("radius");
             if (radiusValue != null && !radiusValue.isEmpty()) {
                 int radius = Integer.parseInt(radiusValue);
                 if (radius < 0) radius = 0;
                 else if (radius > 25) radius = 25;
                 Radius.radius = radius;
-            }
+            }*/
             String necrosisThresholdValue = this.configuration.getProperty("NecrosisStacksThreshold");
             if (necrosisThresholdValue != null && !necrosisThresholdValue.isEmpty()) {
                 int necrosisThreshold = Integer.parseInt(necrosisThresholdValue);

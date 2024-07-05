@@ -140,6 +140,12 @@ public class Runnables {
                 shouldTravel = false; // Reset the flag
                 return; // Optionally return to avoid other actions after traveling
             }
+            if (useHintArrow) {
+                travelToLocation();
+                useHintArrow = false; // Reset the flag
+                return; // Optionally return to avoid other actions after traveling
+            }
+
             if (usePOD) {
                 handlePOD();
             }

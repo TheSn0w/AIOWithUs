@@ -205,7 +205,7 @@ public class CombatImGui {
             ImGui.SetCursorPosX(spacing);
             enableRadiusTracking = ImGui.Checkbox("Enable Radius", enableRadiusTracking);
             if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("sets a radius around current player location, and moves inside if walks out");
+                ImGui.SetTooltip("sets a radius around current player location, will walk back if accidentally moved out of, Reload if disabled!");
             }
 
             ImGui.SameLine();
@@ -214,12 +214,6 @@ public class CombatImGui {
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Have Darkness on Action bar");
             }
-
-            /*ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-            handleMultitarget = ImGui.Checkbox("Multi Target", handleMultitarget);
-            if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Attacks multiple targets when current target is below health threshold");
-            }*/
 
             ImGui.SameLine();
             ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
@@ -298,10 +292,16 @@ public class CombatImGui {
                 ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
             }
 
+            ImGui.SetCursorPosX(spacing);
+            handleMultitarget = ImGui.Checkbox("Multi Target", handleMultitarget);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Attacks multiple targets when current target is below health threshold");
+            }
+
             ImGui.SeparatorText("Checkbox Configs");
 
 
-            /*if (handleMultitarget) {
+            if (handleMultitarget) {
                 ImGui.SetCursorPosX(spacing);
                 ImGui.SetItemWidth(110.0F);
 
@@ -320,7 +320,7 @@ public class CombatImGui {
                 } else if (getHealthThreshold() > 1.0) {
                     setHealthThreshold(1.0);
                 }
-            }*/
+            }
 
             if (useVolleyofSouls) {
                 ImGui.SetCursorPosX(spacing);

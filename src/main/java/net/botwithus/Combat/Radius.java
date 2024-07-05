@@ -35,8 +35,8 @@ public class Radius {
                 double normalizedDy = dy / length;
                 double targetX = centerCoordinate.getX() - normalizedDx * (radius - 1);
                 double targetY = centerCoordinate.getY() - normalizedDy * (radius - 1);
-                Movement.walkTo((int) targetX, (int) targetY, true);
-                Execution.delay(random.nextLong(600, 650));
+                Movement.walkTo((int) targetX, (int) targetY, false);
+                Execution.delayUntil(random.nextLong(3500, 5000), () -> isWithinRadius(player));
                 log("[Combat] Moving player back inside the radius.");
                 attackTarget(player);
             }
