@@ -18,8 +18,12 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
+import javax.swing.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -134,12 +138,37 @@ public class Loot {
         );
     }
 
+    public static void lootNotedItems() {
+        if (LootInventory.isOpen()) {
+            lootNotedItemsFromInventory();
+        } else {
+            pickUpItems();
+        }
+    }
+
+    public static void pickUpItems() {
+        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+
+        GroundItem groundItem = groundItems.stream()
+                .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
+                .findFirst()
+                .orElse(null);
+
+        if (groundItem != null) {
+            groundItem.interact("Take");
+            log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
+            Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+        }
+    }
+
+
     public static void lootNotedItemsFromInventory() {
         if (LootInventory.isOpen()) {
             boolean itemLooted;
             do {
                 itemLooted = false;
                 List<Item> inventoryItems = LootInventory.getItems();
+
                 Item item = inventoryItems.stream()
                         .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
                         .findFirst()
@@ -153,29 +182,19 @@ public class Loot {
                     }
 
                     LootInventory.take(item.getName());
-                    log("[Loot] Successfully looted noted item: " + item.getName());
 
                     itemLooted = Execution.delayUntil(random.nextLong(2000, 3000), () -> {
                         List<Item> updatedInventoryItems = LootInventory.getItems();
-                        return updatedInventoryItems.stream()
+                        boolean itemTaken = updatedInventoryItems.stream()
                                 .noneMatch(it -> it.getSlot() == itemSlot && it.getName().equals(item.getName()));
+                        if (itemTaken) {
+                            SwingUtilities.invokeLater(() -> log("[Loot] Successfully looted noted item: " + item.getName()));
+                        }
+                        return itemTaken;
                     });
                 }
-                Execution.delay(random.nextLong(600, 650));
+                Execution.delay(random.nextLong(995, 1096));
             } while (itemLooted);
-        } else {
-            List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
-
-            GroundItem groundItem = groundItems.stream()
-                    .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
-                    .findFirst()
-                    .orElse(null);
-
-            if (groundItem != null) {
-                groundItem.interact("Take");
-                log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
-                Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
-            }
         }
     }
 

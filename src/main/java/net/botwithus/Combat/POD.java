@@ -69,11 +69,8 @@ public class POD {
                 break;
             case 6:
                 if (targetCoordinate != null) {
-                    if (getBotState() != SnowsScript.BotState.SKILLING) {
-                        break;
-                    }
                     attackTarget(getLocalPlayer());
-                    while (!shouldBank(getLocalPlayer()) && getBotState() == SnowsScript.BotState.SKILLING){
+                    if (!shouldBank(getLocalPlayer())){
                         ensurePlayerWithinRadius(targetCoordinate, 2);
                         attackTarget(getLocalPlayer());
                     }
@@ -149,7 +146,7 @@ public class POD {
 
             while (!getLocalPlayer().getCoordinate().equals(targetPosition)) {
                 Movement.walkTo(targetPosition.getX(), targetPosition.getY(), true);
-                Execution.delay(1000);
+                Execution.delay(random.nextLong(900, 1100));
                 if (getLocalPlayer().getCoordinate().equals(targetPosition)) {
                     log("[Combat] Player has reached the target position.");
                     return targetPosition;
@@ -177,15 +174,31 @@ public class POD {
         if (VarManager.getVarbitValue(16779) == 1) {
             ActionBar.useAbility("Soul Split");
         }
-        ActionBar.useAbility("War's Retreat Teleport");
-        Execution.delay(RandomGenerator.nextInt(6000, 8000));
+        if (ActionBar.containsAbility("Max guild Teleport")) {
+            ActionBar.useAbility("Max guild Teleport");
+            Execution.delay(RandomGenerator.nextInt(5500, 7000));
 
-        EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
-        if (!results.isEmpty()) {
-            SceneObject chest = results.nearest();
-            if (chest != null) {
-                chest.interact("Load Last Preset from");
-                Execution.delay(RandomGenerator.nextInt(6000, 8000));
+            EntityResultSet<Npc> results = NpcQuery.newQuery().name("Banker").option("Bank").results();
+            if (!results.isEmpty()) {
+                Npc banker = results.nearest();
+                if (banker != null) {
+                    banker.interact("Load Last Preset from");
+                    Execution.delay(RandomGenerator.nextInt(6000, 8000));
+                }
+            }
+        } else {
+            if (ActionBar.containsAbility("War's Retreat Teleport")) {
+                ActionBar.useAbility("War's Retreat Teleport");
+                Execution.delay(RandomGenerator.nextInt(5500, 7000));
+
+                EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
+                if (!results.isEmpty()) {
+                    SceneObject chest = results.nearest();
+                    if (chest != null) {
+                        chest.interact("Load Last Preset from");
+                        Execution.delay(RandomGenerator.nextInt(6000, 8000));
+                    }
+                }
             }
         }
         return true;

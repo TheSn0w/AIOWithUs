@@ -41,7 +41,7 @@ public class Banking {
 
         if (useDwarfcannon) {
             EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
-            if (!siegeEngine.isEmpty()) {
+            if (!siegeEngine.isEmpty() && !Backpack.isFull()) {
                 SceneObject engine = siegeEngine.first();
                 engine.interact("Pick up");
                 Execution.delayUntil(random.nextLong(15000, 20000), () -> Backpack.contains("Dwarven siege engine"));

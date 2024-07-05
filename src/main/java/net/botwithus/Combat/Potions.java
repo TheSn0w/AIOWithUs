@@ -33,16 +33,31 @@ public class Potions {
         long totalDelay = 0;
 
         long aggroCheck = useAggression(player);
+        if (aggroCheck == 1L && !nearestBank) {
+            useAggroPots = false;
+        }
+
         long prayerCheck = usePrayerOrRestorePots(player);
+        if (prayerCheck == 1L && !nearestBank) {
+            usePrayerPots = false;
+        }
+
         long overloadCheck = drinkOverloads(player);
+        if (overloadCheck == 1L && !nearestBank) {
+            useOverloads = false;
+        }
+
         long weaponPoisonCheck = useWeaponPoison(player);
+        if (weaponPoisonCheck == 1L && !nearestBank) {
+            useWeaponPoison = false;
+        }
 
         if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L) {
             if (nearestBank) {
-                log("[Info] One or more potions are missing, consider banking.");
+                log("[Info] One or more potions are missing, we're banking.");
                 setBotState(BANKING);
             } else {
-                log("[Info] One or more potions are missing, but Nearest Bank is disabled.");
+                log("[Info] One or more potions are missing, but Bank is disabled.");
             }
         }
 

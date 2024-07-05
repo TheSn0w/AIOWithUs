@@ -665,6 +665,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("scrollToBottom", String.valueOf(scrollToBottom));
         String combatListSerialized = String.join(",", CombatList);
         this.configuration.addProperty("CombatList", combatListSerialized);
+        this.configuration.addProperty("shouldEatFood", String.valueOf(shouldEatFood));
 
 
         this.configuration.save();
@@ -672,6 +673,7 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            shouldEatFood = Boolean.parseBoolean(this.configuration.getProperty("shouldEatFood"));
             scrollToBottom = Boolean.parseBoolean(this.configuration.getProperty("scrollToBottom"));
             useIritSticks = Boolean.parseBoolean(this.configuration.getProperty("useIritSticks"));
             useKwuarmSticks = Boolean.parseBoolean(this.configuration.getProperty("useKwuarmSticks"));

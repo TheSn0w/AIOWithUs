@@ -87,7 +87,7 @@ public class ArchGlacor {
                 if (banker != null) {
                     log("Interacting with Banker");
                     banker.interact("Load Last Preset from");
-                    Execution.delay(random.nextLong(6000, 7000));
+                    Execution.delay(random.nextLong(4000, 5000));
                     log("Finished interacting with Banker");
                     return true;
                 } else {

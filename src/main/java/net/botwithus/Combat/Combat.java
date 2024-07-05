@@ -69,6 +69,7 @@ public class Combat {
         }
         teleportOnHealth();
 
+
         if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
             activateSoulSplit(player);
         }
@@ -85,6 +86,12 @@ public class Combat {
                 }
             }
         }
+        if (enableRadiusTracking) {
+            ensureWithinRadius(player);
+        }
+        if (shouldEatFood) {
+            eatFood(player);
+        }
         if (usePowderOfProtection) {
             powderOfProtection();
         }
@@ -100,9 +107,6 @@ public class Combat {
         if (useIritSticks) {
             iritSticks();
         }
-        if (enableRadiusTracking) {
-            ensureWithinRadius(player);
-        }
         if (useNotepaper) {
             useItemOnNotepaper();
         }
@@ -110,7 +114,7 @@ public class Combat {
             Execution.delay(processLooting());
         }
         if (lootNoted) {
-            lootNotedItemsFromInventory();
+            lootNotedItems();
         }
         if (isStackable) {
             lootStackableItemsFromInventory();
@@ -118,11 +122,6 @@ public class Combat {
         if (useDwarfcannon) {
             dwarvenSiegeCannon();
         }
-
-        if (shouldEatFood) {
-            eatFood(player);
-        }
-
         managePotions(player);
         manageScripturesAndScrimshaws(player);
 
@@ -137,7 +136,7 @@ public class Combat {
         }
 
 
-        return 0;
+        return random.nextLong(200, 300);
     }
 
 
@@ -241,22 +240,17 @@ public class Combat {
 
 
     public static void manageCombatAbilities() {
-        LocalPlayer player = getLocalPlayer();
-        if (player == null) {
-            return;
-        }
-
-        if (useVolleyofSouls) {
-            setup("Volley of Souls");
-            volleyOfSouls();
-        }
+            LocalPlayer player = getLocalPlayer();
+            if (player == null) {
+                return;
+            }
         if (useThreadsofFate) {
             setup("Threads of Fate");
             manageThreadsOfFate();
         }
-        if (useConjureUndeadArmy) {
-            setup("Conjure Undead Army");
-            keepArmyUp();
+        if (useVolleyofSouls) {
+            setup("Volley of Souls");
+            volleyOfSouls();
         }
         if (useEssenceofFinality) {
             setup("Essence of Finality");
@@ -296,7 +290,6 @@ public class Combat {
         if (useDemonSlayer) {
             activateDemonSlayer();
         }
-
     }
 
     public static void volleyOfSouls() {
@@ -313,12 +306,10 @@ public class Combat {
             currentResidualSouls = VarManager.getVarValue(VarDomainType.PLAYER, 11035);
             interactWithAbility("Volley of Souls");
             int finalCurrentResidualSouls = currentResidualSouls;
-            boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) < finalCurrentResidualSouls);
+            boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11035) < finalCurrentResidualSouls);
 
             if (effectConfirmed) {
                 log("[Success] Volley of Souls effect confirmed with " + currentResidualSouls + " residual souls.");
-            } else {
-                log("[Error] Volley of Souls effect not confirmed.");
             }
         }
     }
@@ -332,12 +323,10 @@ public class Combat {
 
             interactWithAbility("Threads of Fate");
 
-            boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> ActionBar.getCooldownPrecise("Threads of Fate") != 0);
+            boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> ActionBar.getCooldownPrecise("Threads of Fate") != 0);
 
             if (effectConfirmed) {
                 log("[Success] Threads of Fate effect confirmed.");
-            } else {
-                log("[Error] Threads of Fate effect not confirmed.");
             }
         }
     }
@@ -351,12 +340,10 @@ public class Combat {
 
             interactWithAbility("Conjure Undead Army");
 
-            boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11018) != 0);
+            boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11018) != 0);
 
             if (effectConfirmed) {
                 log("[Success] Conjure Undead Army effect confirmed.");
-            } else {
-                log("[Error] Conjure Undead Army effect not confirmed.");
             }
         }
     }
@@ -375,11 +362,9 @@ public class Combat {
                 && currentNecrosisStacks >= NecrosisStacksThreshold) {
 
             interactWithAbility("Essence of Finality");
-            boolean effectConfirmed = Execution.delayUntil(random.nextLong(5500, 6500), () -> VarManager.getVarValue(VarDomainType.PLAYER, 10986) != currentNecrosisStacks);
+            boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 10986) != currentNecrosisStacks);
             if (effectConfirmed) {
                 log("[Success] Essence of Finality effect confirmed with " + currentNecrosisStacks + " Necrosis stacks.");
-            } else {
-                log("[Error] Essence of Finality effect not confirmed.");
             }
         }
     }
@@ -398,11 +383,9 @@ public class Combat {
 
             interactWithAbility("Weapon Special Attack");
 
-            boolean abilityEffect = Execution.delayUntil(random.nextLong(5000, 6500), () -> !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty());
+            boolean abilityEffect = Execution.delayUntil(random.nextLong(2000, 3000), () -> !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty());
             if (abilityEffect) {
                 log("[Success] Weapon Special Attack effect confirmed.");
-            } else {
-                log("[Error] Weapon Special Attack effect not confirmed.");
             }
         }
     }
@@ -423,12 +406,10 @@ public class Combat {
 
             interactWithAbility("Invoke Death");
 
-            boolean effectConfirmed = Execution.delayUntil(random.nextLong(5000, 6500), () -> VarManager.getVarbitValue(53247) == 1);
+            boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(53247) == 1);
 
             if (effectConfirmed) {
                 log("[Success] Invoke Death effect confirmed.");
-            } else {
-                log("[Error] Invoke Death effect not confirmed.");
             }
         }
     }
@@ -442,11 +423,9 @@ public class Combat {
 
             interactWithAbility("Animate Dead");
 
-            boolean abilityEffect = Execution.delayUntil(random.nextLong(5000, 6500), () -> !ComponentQuery.newQuery(284).spriteId(14764).results().isEmpty());
+            boolean abilityEffect = Execution.delayUntil(random.nextLong(2000, 3000), () -> !ComponentQuery.newQuery(284).spriteId(14764).results().isEmpty());
             if (abilityEffect) {
                 log("[Success] Animate Dead effect confirmed.");
-            } else {
-                log("[Error] Animate Dead effect not confirmed.");
             }
         }
     }
@@ -461,12 +440,10 @@ public class Combat {
 
             interactWithAbility("Darkness");
 
-            boolean effectConfirmed = Execution.delayUntil(random.nextLong(3000, 5000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11074) != 0);
+            boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarValue(VarDomainType.PLAYER, 11074) != 0);
 
             if (effectConfirmed) {
                 log("[Success] Darkness effect confirmed.");
-            } else {
-                log("[Error] Darkness effect not confirmed.");
             }
         }
     }
@@ -488,7 +465,7 @@ public class Combat {
                 Execution.delay(random.nextLong(1900, 2000));
 
             } else {
-                log("[Error] Failed to use Vulnerability bomb!");
+                log("[Caution] Failed to use Vulnerability bomb!");
             }
         }
     }
@@ -509,7 +486,7 @@ public class Combat {
                     Execution.delay(random.nextLong(1900, 2000));
 
                 } else {
-                    log("[Error] Failed to activate Elven Ritual Shard.");
+                    log("[Caution] Failed to activate Elven Ritual Shard.");
                 }
             }
         }
@@ -530,7 +507,7 @@ public class Combat {
                         .orElse(null);
 
                 if (excaliburItem == null) {
-                    log("No Excalibur found!");
+                    log("[Error] No Excalibur found!");
                 } else {
 
                     boolean success = backpack.interact(excaliburItem.getName(), "Activate");
@@ -539,7 +516,7 @@ public class Combat {
                         Execution.delay(random.nextLong(1900, 2000));
 
                     } else {
-                        log("Failed to activate Excalibur.");
+                        log("[Caution] Failed to activate Excalibur.");
                     }
                 }
             }
@@ -607,7 +584,7 @@ public class Combat {
             log("[Success] Activated Undead Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
         } else {
-            log("[Error] Failed to activate Undead Slayer.");
+            log("[[Caution] ] Failed to activate Undead Slayer.");
         }
     }
 
@@ -617,7 +594,7 @@ public class Combat {
             log("[Success] Activated Dragon Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
         } else {
-            log("[Error] Failed to activate Dragon Slayer.");
+            log("[[Caution] ] Failed to activate Dragon Slayer.");
         }
     }
 
@@ -627,7 +604,7 @@ public class Combat {
             log("[Success] Activated Demon Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
         } else {
-            log("[Error] Failed to activate Demon Slayer.");
+            log("[[Caution] ] Failed to activate Demon Slayer.");
         }
     }
 

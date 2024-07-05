@@ -26,9 +26,6 @@ public class Books {
         if (scriptureofWen) {
             manageScriptureOfWen();
         }
-        if (Variables.useAnimateDead) {
-            manageAnimateDead(player);
-        }
         if (useScrimshaws) {
             manageScrimshaws(player);
         }
@@ -120,16 +117,5 @@ public class Books {
             return RandomGenerator.nextInt(1500, 3000);
         }
         return 0L;
-    }
-    public static void manageAnimateDead(LocalPlayer player) {
-        if (ComponentQuery.newQuery(284).spriteId(14764).results() == null) {
-
-            boolean success = ActionBar.useAbility("Animate Dead");
-            if (!success) {
-                log("[Error] Attempted to cast Animate Dead, but ability use failed.");
-            }
-
-            log("[Success] Cast Animate Dead: " + true);
-        }
     }
 }
