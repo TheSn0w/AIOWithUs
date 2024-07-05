@@ -4,7 +4,6 @@ import ImGui.SnowScriptGraphics;
 import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
-import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Variables.GlobalState;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
@@ -24,6 +23,7 @@ import net.botwithus.rs3.script.config.ScriptConfig;
 import java.time.Instant;
 import java.util.*;
 
+import static ImGui.PredefinedStrings.CombatList;
 import static ImGui.Skills.CombatImGui.showCheckboxesWindow;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
@@ -32,6 +32,7 @@ import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.dropItems;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.Loot.lootNoted;
+import static net.botwithus.Combat.NPCs.updateNpcTableData;
 import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
@@ -40,7 +41,6 @@ import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Runecrafting.Runecrafting.*;
-import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -119,6 +119,9 @@ public class SnowsScript extends LoopingScript {
         if (isDropActive) {
             dropItems();
         }
+        if (isCombatActive) {
+            updateNpcTableData(player);
+        }
 
         switch (botState) {
             case IDLE -> Execution.delay(random.nextLong(1500, 3000));
@@ -141,6 +144,7 @@ public class SnowsScript extends LoopingScript {
             }
         }
     }
+
     private void capturestuff() {
         EntityResultSet<Npc> npcResults = NpcQuery.newQuery()
                 .name("Seren spirit", "Divine blessing", "Catalyst of alteration", "Fire spirit", "Forge phoenix")
@@ -372,10 +376,10 @@ public class SnowsScript extends LoopingScript {
                     }
                 }
             }
-        }
-
-
-        if (handleNecro) {
+            if (message.contains("You need to choose a focus object before starting a ritual.")) {
+                log("[Error] You have run out of supplies in your Focus Storage, logging off");
+                shutdown();
+            }
             if (message.contains("You need the following materials to repair")) {
                 log("[Error] You are missing materials to repair, logging off");
                 shutdown();
@@ -525,10 +529,10 @@ public class SnowsScript extends LoopingScript {
 
 
     public void saveConfiguration() {
-        this.configuration.addProperty("InvokeDeath", String.valueOf(InvokeDeath));
-        this.configuration.addProperty("SpecialAttack", String.valueOf(SpecialAttack));
-        this.configuration.addProperty("VolleyofSouls", String.valueOf(VolleyofSouls));
-        this.configuration.addProperty("DeathGrasp", String.valueOf(DeathGrasp));
+        this.configuration.addProperty("InvokeDeath", String.valueOf(useInvokeDeath));
+        this.configuration.addProperty("SpecialAttack", String.valueOf(useEssenceofFinality));
+        this.configuration.addProperty("VolleyofSouls", String.valueOf(useVolleyofSouls));
+        this.configuration.addProperty("DeathGrasp", String.valueOf(useWeaponSpecialAttack));
         this.configuration.addProperty("isAgilityActive", String.valueOf(isAgilityActive));
         this.configuration.addProperty("isDivinationActive", String.valueOf(isDivinationActive));
         this.configuration.addProperty("isMiningActive", String.valueOf(isMiningActive));
@@ -546,7 +550,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("offerChronicles", String.valueOf(offerChronicles));
         this.configuration.addProperty("Combat", String.valueOf(isCombatActive));
         this.configuration.addProperty("SoulSplit", String.valueOf(SoulSplit));
-        this.configuration.addProperty("KeepArmyup", String.valueOf(KeepArmyup));
+        this.configuration.addProperty("KeepArmyup", String.valueOf(useConjureUndeadArmy));
         String targetNamesSerialized = String.join(",", targetNames);
         this.configuration.addProperty("TargetNames", targetNamesSerialized);
         String ExcavationNamesSerialized = String.join(",", selectedArchNames);
@@ -572,7 +576,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("scriptureofWen", String.valueOf(scriptureofWen));
         this.configuration.addProperty("useWeaponPoison", String.valueOf(useWeaponPoison));
         this.configuration.addProperty("usequickPrayers", String.valueOf(usequickPrayers));
-        this.configuration.addProperty("animateDead", String.valueOf(animateDead));
+        this.configuration.addProperty("animateDead", String.valueOf(Variables.useAnimateDead));
         this.configuration.addProperty("useScrimshaws", String.valueOf(useScrimshaws));
         this.configuration.addProperty("makePlanks", String.valueOf(makePlanks));
         this.configuration.addProperty("makeRefinedPlanks", String.valueOf(makeRefinedPlanks));
@@ -643,7 +647,7 @@ public class SnowsScript extends LoopingScript {
         String centerCoordStr = centerCoordinate.getX() + "," + centerCoordinate.getY() + "," + centerCoordinate.getZ();
         this.configuration.addProperty("centerCoordinate", centerCoordStr);
         this.configuration.addProperty("useDarkness", String.valueOf(useDarkness));
-        this.configuration.addProperty("useVulnerabilityBombs", String.valueOf(useVulnerabilityBombs));
+        this.configuration.addProperty("useVulnerabilityBombs", String.valueOf(useVulnerabilityBomb));
         this.configuration.addProperty("useThreadsofFate", String.valueOf(useThreadsofFate));
         this.configuration.addProperty("useDwarfcannon", String.valueOf(useDwarfcannon));
         this.configuration.addProperty("useElvenRitual", String.valueOf(useElvenRitual));
@@ -659,7 +663,8 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("useKwuarmSticks", String.valueOf(useKwuarmSticks));
         this.configuration.addProperty("useIritSticks", String.valueOf(useIritSticks));
         this.configuration.addProperty("scrollToBottom", String.valueOf(scrollToBottom));
-
+        String combatListSerialized = String.join(",", CombatList);
+        this.configuration.addProperty("CombatList", combatListSerialized);
 
 
         this.configuration.save();
@@ -676,7 +681,7 @@ public class SnowsScript extends LoopingScript {
             showCheckboxesWindow = Boolean.parseBoolean(this.configuration.getProperty("showCheckboxesWindow"));
             showLogs = Boolean.parseBoolean(this.configuration.getProperty("showLogs"));
             useDarkness = Boolean.parseBoolean(this.configuration.getProperty("useDarkness"));
-            useVulnerabilityBombs = Boolean.parseBoolean(this.configuration.getProperty("useVulnerabilityBombs"));
+            useVulnerabilityBomb = Boolean.parseBoolean(this.configuration.getProperty("useVulnerabilityBombs"));
             useThreadsofFate = Boolean.parseBoolean(this.configuration.getProperty("useThreadsofFate"));
             useDwarfcannon = Boolean.parseBoolean(this.configuration.getProperty("useDwarfcannon"));
             useElvenRitual = Boolean.parseBoolean(this.configuration.getProperty("useElvenRitual"));
@@ -716,16 +721,16 @@ public class SnowsScript extends LoopingScript {
             isHerbloreActive = Boolean.parseBoolean(this.configuration.getProperty("isHerbloreActive"));
             usePOD = Boolean.parseBoolean(this.configuration.getProperty("usePOD"));
             SoulSplit = Boolean.parseBoolean(this.configuration.getProperty("SoulSplit"));
-            KeepArmyup = Boolean.parseBoolean(this.configuration.getProperty("KeepArmyup"));
-            SpecialAttack = Boolean.parseBoolean(this.configuration.getProperty("SpecialAttack"));
-            VolleyofSouls = Boolean.parseBoolean(this.configuration.getProperty("VolleyofSouls"));
-            InvokeDeath = Boolean.parseBoolean(this.configuration.getProperty("InvokeDeath"));
-            DeathGrasp = Boolean.parseBoolean(this.configuration.getProperty("DeathGrasp"));
+            useConjureUndeadArmy = Boolean.parseBoolean(this.configuration.getProperty("KeepArmyup"));
+            useEssenceofFinality = Boolean.parseBoolean(this.configuration.getProperty("SpecialAttack"));
+            useVolleyofSouls = Boolean.parseBoolean(this.configuration.getProperty("VolleyofSouls"));
+            useInvokeDeath = Boolean.parseBoolean(this.configuration.getProperty("InvokeDeath"));
+            useWeaponSpecialAttack = Boolean.parseBoolean(this.configuration.getProperty("DeathGrasp"));
             scriptureofWen = Boolean.parseBoolean(this.configuration.getProperty("scriptureofWen"));
             scriptureofJas = Boolean.parseBoolean(this.configuration.getProperty("scriptureofJas"));
             useWeaponPoison = Boolean.parseBoolean(this.configuration.getProperty("useWeaponPoison"));
             usequickPrayers = Boolean.parseBoolean(this.configuration.getProperty("usequickPrayers"));
-            animateDead = Boolean.parseBoolean(this.configuration.getProperty("animateDead"));
+            Variables.useAnimateDead = Boolean.parseBoolean(this.configuration.getProperty("animateDead"));
             useScrimshaws = Boolean.parseBoolean(this.configuration.getProperty("useScrimshaws"));
             makePlanks = Boolean.parseBoolean(this.configuration.getProperty("makePlanks"));
             makeRefinedPlanks = Boolean.parseBoolean(this.configuration.getProperty("makeRefinedPlanks"));
@@ -905,6 +910,12 @@ public class SnowsScript extends LoopingScript {
                     int z = Integer.parseInt(parts[2]);
                     centerCoordinate = new Coordinate(x, y, z);
                 }
+            }
+            String combatListSerialized = this.configuration.getProperty("CombatList");
+            if (combatListSerialized != null && !combatListSerialized.isEmpty()) {
+                String[] loadedCombatList = combatListSerialized.split(",");
+                CombatList.clear();
+                CombatList.addAll(Arrays.asList(loadedCombatList));
             }
             log("[Settings] Configuration loaded successfully.");
         } catch (Exception e) {

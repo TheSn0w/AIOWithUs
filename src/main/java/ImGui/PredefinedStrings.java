@@ -200,12 +200,13 @@ public class PredefinedStrings {
             "Mahogany",
             "Teak"
     );
-    public static List<String> CombatList = List.of(
-            "Goblin",
-            "Zombie",
-            "abyssal"
+    public static List<String> CombatList = new ArrayList<>(List.of(
+            "Abyssal",
+            "Dragon",
+            "Greater demon"
 
-    );
+
+    ));
 
     public static List<String> FoodList = List.of(
             "Shark",

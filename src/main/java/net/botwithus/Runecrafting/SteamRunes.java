@@ -204,6 +204,14 @@ public class SteamRunes {
                     castBladedDive();
                     Execution.delay(random.nextLong(200, 500));
                     if (fireruin.interact("Enter") || !player.isMoving()) {
+                        Execution.delayUntil(random.nextLong(5000, 10000), () -> player.isMoving());
+                        Execution.delay(random.nextLong(950, 1050));
+                        if (ActionBar.getCooldownPrecise("Surge") == 0 && ActionBar.useAbility("Surge") && fireruins.nearest().distanceTo(player) > 5) {
+                            log("[useRingofDueling] Using Surge, waiting for action to complete.");
+                            Execution.delay(random.nextLong(400, 600));
+                            fireruin.interact("Enter");
+                            break;
+                        }
                         break;
                     }
                 }

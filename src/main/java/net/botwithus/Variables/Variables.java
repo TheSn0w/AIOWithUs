@@ -115,26 +115,25 @@ public class Variables {
     public static boolean isCombatActive = false;
     public static boolean useNotepaper = false;
     public static boolean interactWithLootAll = false;
-    public static boolean useVulnerabilityBombs = false;
+    public static boolean useVulnerabilityBomb = false;
     public static boolean useLoot = false;
     public static boolean useOverloads = false;
     public static boolean usePrayerPots = false;
     public static boolean useAggroPots = false;
     public static boolean BankforFood = false;
-    public static boolean DeathGrasp = false;
+    public static boolean useWeaponSpecialAttack = false;
     public static boolean handleArchGlacor = false;
     public static boolean usePOD = false;
-    public static boolean InvokeDeath = false;
-    public static boolean VolleyofSouls = false;
-    public static boolean SpecialAttack = false;
+    public static boolean useInvokeDeath = false;
+    public static boolean useVolleyofSouls = false;
+    public static boolean useEssenceofFinality = false;
     public static boolean SoulSplit = false;
     public static boolean useWeaponPoison = false;
     public static boolean scriptureofWen = false;
     public static boolean scriptureofJas = false;
-    public static boolean animateDead = false;
     public static boolean usequickPrayers = false;
     public static boolean useScrimshaws = false;
-    public static boolean KeepArmyup = false;
+    public static boolean useConjureUndeadArmy = false;
     public static void setPrayerPointsThreshold(int threshold) {
         prayerPointsThreshold = threshold;
     }

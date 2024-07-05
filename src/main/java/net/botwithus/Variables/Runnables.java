@@ -26,6 +26,7 @@ import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.ArchGlacor.handleArchGlacor;
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.Combat.Loot.LootEverything;
+import static net.botwithus.Combat.NPCs.updateNpcTableData;
 import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
 import static net.botwithus.Combat.Radius.ensureWithinRadius;

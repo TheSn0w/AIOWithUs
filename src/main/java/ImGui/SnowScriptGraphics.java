@@ -14,9 +14,11 @@ import java.time.Instant;
 import java.util.List;
 
 import static ImGui.CentreButton.createCenteredButton;
+import static ImGui.PredefinedStrings.CombatList;
 import static ImGui.Skills.ArchaeologyImGui.renderArchaeology;
 import static ImGui.Skills.BottomChild.renderBottom;
 import static ImGui.Skills.CombatImGui.renderCombat;
+import static ImGui.Skills.CombatImGui.showNearbyNPCS;
 import static ImGui.Skills.CookingImGui.renderCooking;
 import static ImGui.Skills.DivinationImGui.renderDivination;
 import static ImGui.Skills.FishingImGui.renderFishing;
@@ -412,7 +414,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will do Soul Altar with Protean Essence");
                         }
-                        /*createCenteredButton("Steam Runes", () -> useSteamRunes = !useSteamRunes, useSteamRunes);*/
+                        createCenteredButton("Steam Runes", () -> useSteamRunes = !useSteamRunes, useSteamRunes);
                     } else if (isMiscActive) {
                         createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, true);
                         if (ImGui.IsItemHovered()) {

@@ -688,7 +688,7 @@ public class MiscImGui {
                 ImGui.Text("Corrupted Ore Per Hour: " + corruptedOrePerHourInt);
             }
         }
-        if (isMiscActive && isDissasemblerActive && !showLogs) {
+        if (isMiscActive && isDissasemblerActive) {
             if (tooltipsEnabled) {
                 String[] texts = {
                         "have Either High Alch or Disassemble on action bar",

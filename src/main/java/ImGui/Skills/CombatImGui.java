@@ -2,8 +2,12 @@ package ImGui.Skills;
 
 import ImGui.*;
 import net.botwithus.Combat.*;
+import net.botwithus.SnowsScript;
 import net.botwithus.Variables.Runnables;
+import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
@@ -16,6 +20,7 @@ import java.util.*;
 import static ImGui.PredefinedStrings.*;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.*;
+import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
@@ -28,6 +33,7 @@ import static net.botwithus.Variables.Variables.removeFoodName;
 public class CombatImGui {
 
     public static boolean showCheckboxesWindow = false;
+    public static boolean showNearbyNPCS = false;
 
 
     public static void renderCombat() {
@@ -72,8 +78,20 @@ public class CombatImGui {
             if (ImGui.Button(buttonText)) {
                 showCheckboxesWindow = !showCheckboxesWindow;
             }
-            ImGui.PopStyleVar(1);
-            ImGui.PopStyleColor(2);
+            float windowWidth1 = 400;
+            String buttonText1 = "Show Nearby NPCs?";
+            float textWidth1 = ImGui.CalcTextSize(buttonText1).getX();
+            float padding1 = (windowWidth1 - textWidth1) / 2;
+            ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0);
+            ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0);
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding1, 2.0f);
+            ImGui.SetCursorPosX(padding1);
+            ImGui.SetCursorPosX(0);
+            if (ImGui.Button(buttonText1)) {
+                showNearbyNPCS = !showNearbyNPCS;
+            }
+            ImGui.PopStyleVar(2);
+            ImGui.PopStyleColor(4);
             ImGui.SeparatorText("Attack Options");
             float totalWidth = 375.0f;
             float checkboxWidth = 105.0f;
@@ -106,96 +124,96 @@ public class CombatImGui {
             setPrayerPointsThreshold(inputThreshold * 10);
 
 
-                    ImGui.SetCursorPosX(spacing);
-                    usePrayerPots = ImGui.Checkbox("Prayer Pots", usePrayerPots);
-                    ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing);
+            usePrayerPots = ImGui.Checkbox("Prayer Pots", usePrayerPots);
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    useOverloads = ImGui.Checkbox("Overloads", useOverloads);
-                    ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useOverloads = ImGui.Checkbox("Overloads", useOverloads);
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    useAggroPots = ImGui.Checkbox("Aggro Pots", useAggroPots);
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useAggroPots = ImGui.Checkbox("Aggro Pots", useAggroPots);
 
-                    ImGui.SetCursorPosX(spacing);
-                    useWeaponPoison = ImGui.Checkbox("Wep Poison", useWeaponPoison);
-                    ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing);
+            useWeaponPoison = ImGui.Checkbox("Wep Poison", useWeaponPoison);
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    scriptureofJas = ImGui.Checkbox("Jas Book", scriptureofJas);
-                    ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            scriptureofJas = ImGui.Checkbox("Jas Book", scriptureofJas);
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    scriptureofWen = ImGui.Checkbox("Wen Book", scriptureofWen);
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            scriptureofWen = ImGui.Checkbox("Wen Book", scriptureofWen);
 
-                    ImGui.SetCursorPosX(spacing);
-                    DeathGrasp = ImGui.Checkbox("EOF", DeathGrasp);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Do not have Finger of Death in Revo bar.");
-                    }
-                    ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing);
+            useWeaponSpecialAttack = ImGui.Checkbox("EOF", useWeaponSpecialAttack);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Do not have Finger of Death in Revo bar.");
+            }
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    SpecialAttack = ImGui.Checkbox("OmniGuard", SpecialAttack);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have on Action Bar");
-                    }
-                    ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useEssenceofFinality = ImGui.Checkbox("OmniGuard", useEssenceofFinality);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have on Action Bar");
+            }
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    VolleyofSouls = ImGui.Checkbox("Volley of Souls", VolleyofSouls);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Do not have Volley on Revo bar.");
-                    }
-                    ImGui.SetCursorPosX(spacing);
-                    InvokeDeath = ImGui.Checkbox("Invoke Death", InvokeDeath);
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useVolleyofSouls = ImGui.Checkbox("Volley of Souls", useVolleyofSouls);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Do not have Volley on Revo bar.");
+            }
+            ImGui.SetCursorPosX(spacing);
+            useInvokeDeath = ImGui.Checkbox("Invoke Death", useInvokeDeath);
 
-                    ImGui.SameLine();
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    SoulSplit = ImGui.Checkbox("Soul Split", SoulSplit);
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            SoulSplit = ImGui.Checkbox("Soul Split", SoulSplit);
 
-                    ImGui.SameLine();
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    KeepArmyup = ImGui.Checkbox("Army 24/7", KeepArmyup);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have on Action Bar");
-                    }
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useConjureUndeadArmy = ImGui.Checkbox("Army 24/7", useConjureUndeadArmy);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have on Action Bar");
+            }
 
-                    ImGui.SetCursorPosX(spacing);
-                    animateDead = ImGui.Checkbox("Animate Dead", animateDead);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have on Action Bar");
-                    }
+            ImGui.SetCursorPosX(spacing);
+            Variables.useAnimateDead = ImGui.Checkbox("Animate Dead", Variables.useAnimateDead);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have on Action Bar");
+            }
 
-                    ImGui.SameLine();
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    usequickPrayers = ImGui.Checkbox("Quick Prayers", usequickPrayers);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have Quick Prayers 1 on Action bar");
-                    }
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            usequickPrayers = ImGui.Checkbox("Quick Prayers", usequickPrayers);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Quick Prayers 1 on Action bar");
+            }
 
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    useScrimshaws = ImGui.Checkbox("Scrimshaws", useScrimshaws);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Activates and Deactivates in/out of combat");
-                    }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useScrimshaws = ImGui.Checkbox("Scrimshaws", useScrimshaws);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Activates and Deactivates in/out of combat");
+            }
 
-                    ImGui.SetCursorPosX(spacing);
-                    enableRadiusTracking = ImGui.Checkbox("Enable Radius", enableRadiusTracking);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("sets a radius around current player location, and moves inside if walks out");
-                    }
+            ImGui.SetCursorPosX(spacing);
+            enableRadiusTracking = ImGui.Checkbox("Enable Radius", enableRadiusTracking);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("sets a radius around current player location, and moves inside if walks out");
+            }
 
-                   ImGui.SameLine();
-                   ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                   useDarkness = ImGui.Checkbox("Darkness", useDarkness);
-                   if (ImGui.IsItemHovered()) {
-                       ImGui.SetTooltip("Have Darkness on Action bar");
-                   }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useDarkness = ImGui.Checkbox("Darkness", useDarkness);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Darkness on Action bar");
+            }
 
             /*ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
             handleMultitarget = ImGui.Checkbox("Multi Target", handleMultitarget);
@@ -203,84 +221,84 @@ public class CombatImGui {
                 ImGui.SetTooltip("Attacks multiple targets when current target is below health threshold");
             }*/
 
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    useVulnerabilityBombs = ImGui.Checkbox("Vuln Bombs", useVulnerabilityBombs);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have Vulnerability Bombs on Action bar");
-                    }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useVulnerabilityBomb = ImGui.Checkbox("Vuln Bombs", useVulnerabilityBomb);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Vulnerability Bombs on Action bar");
+            }
 
-                    ImGui.SetCursorPosX(spacing);
-                    useThreadsofFate = ImGui.Checkbox("Threads of Fate", useThreadsofFate);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have Threads of Fate on Action bar, will use on CD");
-                    }
+            ImGui.SetCursorPosX(spacing);
+            useThreadsofFate = ImGui.Checkbox("Threads of Fate", useThreadsofFate);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have Threads of Fate on Action bar, will use on CD");
+            }
             ImGui.SameLine();
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
             useDwarfcannon = ImGui.Checkbox("Dwarf Cannon", useDwarfcannon);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Will ONLY do Dwarven Siege Engine");
             }
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    useElvenRitual = ImGui.Checkbox("Elven Ritual", useElvenRitual);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("will use from backpack when prayer points are below threshold");
-                    }
-                    ImGui.SetCursorPosX(spacing);
-                    useExcalibur = ImGui.Checkbox("Excalibur", useExcalibur);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("will use excalibur when health below threshold");
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    useDemonSlayer = ImGui.Checkbox("Demon Slayer", useDemonSlayer);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Will use on CD");
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    useDragonSlayer = ImGui.Checkbox("Dragon Slayer", useDragonSlayer);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Will use on CD");
-                    }
-                    ImGui.SetCursorPosX(spacing);
-                    useUndeadSlayer = ImGui.Checkbox("Undead Slayer", useUndeadSlayer);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Will use on CD");
-                    }
-                    ImGui.SameLine();
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useElvenRitual = ImGui.Checkbox("Elven Ritual", useElvenRitual);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("will use from backpack when prayer points are below threshold");
+            }
+            ImGui.SetCursorPosX(spacing);
+            useExcalibur = ImGui.Checkbox("Excalibur", useExcalibur);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("will use excalibur when health below threshold");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useDemonSlayer = ImGui.Checkbox("Demon Slayer", useDemonSlayer);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will use on CD");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useDragonSlayer = ImGui.Checkbox("Dragon Slayer", useDragonSlayer);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will use on CD");
+            }
+            ImGui.SetCursorPosX(spacing);
+            useUndeadSlayer = ImGui.Checkbox("Undead Slayer", useUndeadSlayer);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will use on CD");
+            }
+            ImGui.SameLine();
 
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    usePowderOfProtection = ImGui.Checkbox("Protection", usePowderOfProtection);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Powder of Protection, Will use on CD");
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    usePowderOfPenance = ImGui.Checkbox("Penance", usePowderOfPenance);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Powder of Penance, Will use on CD");
-                    }
-                    ImGui.SetCursorPosX(spacing);
-                    useKwuarmSticks = ImGui.Checkbox("Kwuarm Stick", useKwuarmSticks);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-                    useIritSticks = ImGui.Checkbox("Irit Stick", useIritSticks);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
-                    useLantadymeSticks = ImGui.Checkbox("Lantadyme Stick", useLantadymeSticks);
-                    if (ImGui.IsItemHovered()) {
-                        ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
-                    }
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            usePowderOfProtection = ImGui.Checkbox("Protection", usePowderOfProtection);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Powder of Protection, Will use on CD");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            usePowderOfPenance = ImGui.Checkbox("Penance", usePowderOfPenance);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Powder of Penance, Will use on CD");
+            }
+            ImGui.SetCursorPosX(spacing);
+            useKwuarmSticks = ImGui.Checkbox("Kwuarm Stick", useKwuarmSticks);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useIritSticks = ImGui.Checkbox("Irit Stick", useIritSticks);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
+            }
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+            useLantadymeSticks = ImGui.Checkbox("Lantadyme Stick", useLantadymeSticks);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Have atleast 10, will overload and boost to 30 and then keep topped up");
+            }
 
-                    ImGui.SeparatorText("Checkbox Configs");
+            ImGui.SeparatorText("Checkbox Configs");
 
 
             /*if (handleMultitarget) {
@@ -304,48 +322,83 @@ public class CombatImGui {
                 }
             }*/
 
-                    if (VolleyofSouls) {
-                        ImGui.SetCursorPosX(spacing);
-                        ImGui.SetItemWidth(85.0F);
-                        VolleyOfSoulsThreshold = ImGui.InputInt("Volley Stacks", VolleyOfSoulsThreshold);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Stacks to cast at");
+            if (useVolleyofSouls) {
+                ImGui.SetCursorPosX(spacing);
+                ImGui.SetItemWidth(85.0F);
+                VolleyOfSoulsThreshold = ImGui.InputInt("Volley Stacks", VolleyOfSoulsThreshold);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Stacks to cast at");
+                }
+                if (VolleyOfSoulsThreshold < 0) {
+                    VolleyOfSoulsThreshold = 0;
+                } else if (VolleyOfSoulsThreshold > 5) {
+                    VolleyOfSoulsThreshold = 5;
+                }
+            }
+            if (useWeaponSpecialAttack) {
+                ImGui.SetItemWidth(85.0F);
+                NecrosisStacksThreshold = ImGui.InputInt("Necrosis Stacks", NecrosisStacksThreshold);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Stacks to cast at");
+                }
+                if (NecrosisStacksThreshold < 0) {
+                    NecrosisStacksThreshold = 0;
+                } else if (NecrosisStacksThreshold > 12) {
+                    NecrosisStacksThreshold = 12;
+                }
+            }
+            if (enableRadiusTracking) {
+                ImGui.SetItemWidth(85.0F);
+                int newRadius = ImGui.InputInt("Radius (tiles)", radius);
+                if (newRadius < 0) {
+                    newRadius = 0;
+                } else if (newRadius > 25) {
+                    newRadius = 25;
+                }
+                if (newRadius != radius) {
+                    radius = newRadius;
+                    log("Radius distance changed to: " + radius);
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Set Center")) {
+                    setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
+                }
+            }
+            if (showNearbyNPCS) {
+                if (ImGui.Begin("NPCs Nearby", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue())) {
+                    ImGui.SetWindowSize((float) 600, (float) 225);
+                    ImGui.SeparatorText("Target Options");
+                    List<List<String>> tableData = getNpcTableData();
+
+                    ImGui.SetItemWidth(600);
+
+                    if (ImGui.ListBoxHeader("", 569, 0)) {
+                        ImGui.Columns(1, "NPCs names", true);
+                        for (int i = 0; i < tableData.size(); i++) {
+                            List<String> row = tableData.get(i);
+                            String npcName = row.get(0);
+
+                            String npcIdentifier = npcName + "##" + i;
+
+                            // Check if the npcName is already in the CombatList
+                            if (!CombatList.contains(npcName)) {
+                                ImGui.Selectable(npcIdentifier, false, 0);
+                                if (ImGui.IsItemClicked(ImGui.MouseButton.LEFT_BUTTON)) {
+                                    CombatList.add(npcName); // Add the npcName to the CombatList
+                                    addTargetName(npcName);
+                                    ScriptConsole.println("Added " + npcName + " to combat list.");
+                                }
+                            }
+
+                            ImGui.NextColumn();
                         }
-                        if (VolleyOfSoulsThreshold < 0) {
-                            VolleyOfSoulsThreshold = 0;
-                        } else if (VolleyOfSoulsThreshold > 5) {
-                            VolleyOfSoulsThreshold = 5;
-                        }
+                        ImGui.Columns(1, "Column", false);
+                        ImGui.ListBoxFooter();
                     }
-                    if (DeathGrasp) {
-                        ImGui.SetItemWidth(85.0F);
-                        NecrosisStacksThreshold = ImGui.InputInt("Necrosis Stacks", NecrosisStacksThreshold);
-                        if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Stacks to cast at");
-                        }
-                        if (NecrosisStacksThreshold < 0) {
-                            NecrosisStacksThreshold = 0;
-                        } else if (NecrosisStacksThreshold > 12) {
-                            NecrosisStacksThreshold = 12;
-                        }
-                    }
-                    if (enableRadiusTracking) {
-                        ImGui.SetItemWidth(85.0F);
-                        int newRadius = ImGui.InputInt("Radius (tiles)", radius);
-                        if (newRadius < 0) {
-                            newRadius = 0;
-                        } else if (newRadius > 25) {
-                            newRadius = 25;
-                        }
-                        if (newRadius != radius) {
-                            radius = newRadius;
-                            log("Radius distance changed to: " + radius);
-                        }
-                        ImGui.SameLine();
-                        if (ImGui.Button("Set Center")) {
-                            setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
-                        }
-                    }
+
+                    ImGui.End();
+                }
+            }
             if (useTraveltoLocation) {
                 ImGui.SeparatorText("Travel Options");
                 ImGui.SetCursorPosX(spacing);
@@ -365,6 +418,7 @@ public class CombatImGui {
                     ImGui.SeparatorText("Target Options");
                     if (ImGui.Button("Add Target") && !targetName.isEmpty()) {
                         addTargetName(targetName);
+                        CombatList.add(targetName);
                         addTarget(targetName);
                         targetName = "";
                     }
@@ -376,7 +430,7 @@ public class CombatImGui {
                     targetName = ImGui.InputText("##Targetname", targetName);
 
                     List<String> comboItemsList = new ArrayList<>(CombatList);
-                    comboItemsList.add(0, "                          Select Enemy to Attack");
+                    comboItemsList.add(0, "                          Saved Enemy Names");
                     String[] comboItems = comboItemsList.toArray(new String[0]);
 
                     NativeInteger selectedItemIndex = new NativeInteger(0);

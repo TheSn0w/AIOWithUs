@@ -70,6 +70,7 @@ public class Prayers {
             if (ActionBar.useAbility("Quick-prayers 1")) {
                 log("[Combat] Quick Prayers activated successfully.");
                 quickPrayersActive = true;
+                Execution.delay(random.nextLong(1500, 2000));
             } else {
                 log("[Error] Failed to activate Quick Prayers.");
             }
@@ -82,6 +83,7 @@ public class Prayers {
             if (ActionBar.useAbility("Quick-prayers 1")) {
                 log("[Combat] Quick Prayers deactivated.");
                 quickPrayersActive = false;
+                Execution.delay(random.nextLong(1500, 2000));
             } else {
                 log("[Error] Failed to deactivate Quick Prayers.");
             }

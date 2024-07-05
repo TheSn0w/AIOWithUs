@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.Variables.Variables;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -25,7 +26,7 @@ public class Books {
         if (scriptureofWen) {
             manageScriptureOfWen();
         }
-        if (animateDead) {
+        if (Variables.useAnimateDead) {
             manageAnimateDead(player);
         }
         if (useScrimshaws) {
