@@ -82,7 +82,7 @@ public class Food {
                 food = InventoryItemQuery.newQuery().ids(groundFood.getId()).results().first();
             } else {
                 log("[Caution] No food found");
-                return -1L;
+                return 1L;
             }
         }
 

@@ -140,7 +140,7 @@ public class Combat {
             handleCombat(player);
         }
         if (player.hasTarget()) {
-            if (handleMultitarget && player.hasTarget() && player.getTarget().getCurrentHealth() >= player.getCurrentHealth() * healthThreshold) {
+            if (handleMultitarget && player.getTarget().getCurrentHealth() >= player.getCurrentHealth() * healthThreshold) {
                 PathingEntity<?> target = player.getTarget();
                 Npc newTarget = findDifferentTarget(player, target.getId());
                 if (newTarget != null) {
@@ -312,10 +312,6 @@ public class Combat {
 
 
     public static void manageCombatAbilities() {
-        LocalPlayer player = getLocalPlayer();
-        if (player == null) {
-            return;
-        }
 
         if (useThreadsofFate) {
             setup("Threads of Fate");
@@ -391,11 +387,7 @@ public class Combat {
     }
 
     public static void manageThreadsOfFate() {
-        LocalPlayer player = getLocalPlayer();
-        if (player == null) {
-            return;
-        }
-        if (ActionBar.getCooldown("Threads of Fate") == 0) {
+        if (ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
 
             interactWithAbility("Threads of Fate");
 

@@ -110,7 +110,7 @@ public class FishingImGui {
                 }
                 ImGui.EndTable();
             }
-            if (useGote) {
+            /*if (useGote) {
                 ImGui.SeparatorText("GOTE/Porter Options");
                 ImGui.SetItemWidth(200.0F);
                 if (ImGui.Combo("Type of Porter", currentPorterType, porterTypes)) {
@@ -160,7 +160,7 @@ public class FishingImGui {
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Will equip/charge porters when the current one reaches this threshold OR will bank if none are available in backpack");
                 }
-            }
+            }*/
 
             /*ImGui.Text("Selected Fishing Actions:");*/
 

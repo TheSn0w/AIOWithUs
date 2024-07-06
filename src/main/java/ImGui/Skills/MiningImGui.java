@@ -111,7 +111,7 @@ public class MiningImGui {
                 }
                 ImGui.EndChild();
             }
-            if (useGote) {
+            /*if (useGote) {
                 ImGui.SeparatorText("GOTE/Porter Options");
                 ImGui.SetItemWidth(200.0F);
                 if (ImGui.Combo("Type of Porter", currentPorterType, porterTypes)) {
@@ -168,9 +168,9 @@ public class MiningImGui {
                 String itemName = entry.getKey();
                 int itemCount = entry.getValue();
                 ImGui.Text(itemName + ": " + itemCount);
-            }
+            }*/
         }
-        if (isMiningActive && isDropActive && !showLogs) {
+        if (isMiningActive && isDropActive) {
             ImGui.SeparatorText("Drop Options");
             if (ImGui.Button("Add Item") && !ItemRemover.getDroppeditems().isEmpty()) {
                 ItemRemover.addDroppedItemName(ItemRemover.getDroppeditems());

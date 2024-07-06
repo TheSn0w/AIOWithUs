@@ -112,7 +112,7 @@ public class WoodcuttingImGui {
             }
             ImGui.Text("Average logs cut per hour: " + (int) averageLogsPerHour);
 
-            if (useGote) {
+            /*if (useGote) {
                 ImGui.SeparatorText("GOTE/Porter Options");
                 ImGui.SetItemWidth(200.0F);
                 if (ImGui.Combo("Type of Porter", currentPorterType, porterTypes)) {
@@ -162,9 +162,10 @@ public class WoodcuttingImGui {
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Will equip/charge porters when the current one reaches this threshold OR will bank if none are available in backpack");
                 }
-            }
+            }*/
         }
-        if (isWoodcuttingActive && isDropActive && !showLogs) {
+
+        if (isWoodcuttingActive && isDropActive) {
             ImGui.SeparatorText("Drop Options");
             if (ImGui.Button("Add Item") && !ItemRemover.getDroppeditems().isEmpty()) {
                 ItemRemover.addDroppedItemName(ItemRemover.getDroppeditems());
