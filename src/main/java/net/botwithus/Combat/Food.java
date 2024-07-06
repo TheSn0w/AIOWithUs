@@ -12,6 +12,7 @@ import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
+import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
@@ -21,13 +22,16 @@ import static net.botwithus.Variables.Variables.healthPointsThreshold;
 
 public class Food {
     public static long eatFood(LocalPlayer player) {
-        boolean isPlayerEating = player.getAnimationId() == 18001;
-        double healthPercentage = calculateHealthPercentage(player);
-        boolean isHealthAboveThreshold = healthPercentage > healthPointsThreshold;
+        if (shouldEatFood) {
+
+            boolean isPlayerEating = player.getAnimationId() == 18001;
+            double healthPercentage = calculateHealthPercentage(player);
+            boolean isHealthAboveThreshold = healthPercentage > healthPointsThreshold;
 
 
-        if (isPlayerEating || isHealthAboveThreshold) {
-            return 0;
+            if (isPlayerEating || isHealthAboveThreshold) {
+                return 0;
+            }
         }
 
 

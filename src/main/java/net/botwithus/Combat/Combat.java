@@ -48,7 +48,7 @@ public class Combat {
     public static boolean useDragonSlayer = false;
     public static boolean useDemonSlayer = false;
     public static boolean useDwarfcannon = false;
-    public static double healthThreshold = 0.8;
+    public static double healthThreshold = 0.7;
     public static boolean shouldEatFood = false;
     private static final Set<Integer> recentlyAttackedTargets = new HashSet<>();
     private static long lastClearTime = System.currentTimeMillis();
@@ -71,6 +71,7 @@ public class Combat {
         }
 
         teleportOnHealth();
+        manageCombatAbilities();
         handleMultitarget();
 
         if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
@@ -132,25 +133,26 @@ public class Combat {
             return random.nextLong(600, 650);
         }
 
+        if (handleMultitarget && player.hasTarget() && player.getTarget().getCurrentHealth() >= player.getTarget().getMaximumHealth() * healthThreshold) {
+            return random.nextLong(600, 650);
+        }
         if (!player.hasTarget()) {
             handleCombat(player);
-        } else {
-            manageCombatAbilities();
-
-            PathingEntity<?> target = player.getTarget();
-
-            if (handleMultitarget) {
-                if (target.getCurrentHealth() <= target.getMaximumHealth() * healthThreshold) {
-                    Npc newTarget = findDifferentTarget(player, target.getId());
-                    if (newTarget != null) {
-                        return attackMonster(player, newTarget);
-                    }
+        }
+        if (player.hasTarget()) {
+            if (handleMultitarget && player.hasTarget() && player.getTarget().getCurrentHealth() >= player.getCurrentHealth() * healthThreshold) {
+                PathingEntity<?> target = player.getTarget();
+                Npc newTarget = findDifferentTarget(player, target.getId());
+                if (newTarget != null) {
+                    return attackMonster(player, newTarget);
                 }
+            } else {
+                return random.nextLong(600, 650);
             }
         }
-
-        return random.nextLong(200, 300);
+        return random.nextLong(600, 650);
     }
+
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
         List<String> targetNames = getTargetNames();
@@ -187,6 +189,7 @@ public class Combat {
 
         return newTarget;
     }
+
     private static long attackMonster(LocalPlayer player, Npc monster) {
         boolean attack = monster.interact("Attack");
         log("[MultiTarget] Attacking " + monster.getName() + "...");
@@ -194,14 +197,13 @@ public class Combat {
             if (handleMultitarget) {
                 recentlyAttackedTargets.add(monster.getId());
             }
-            return random.nextLong(300, 400);
         }
-        return 0;
+        return random.nextLong(random.nextLong(1000, 1500));
     }
 
     private static void handleMultitarget() {
         if (handleMultitarget) {
-            if (System.currentTimeMillis() - lastClearTime > random.nextLong(4000, 5000)) {
+            if (System.currentTimeMillis() - lastClearTime > random.nextLong(5000)) {
                 recentlyAttackedTargets.clear();
                 lastClearTime = System.currentTimeMillis();
             }
@@ -301,6 +303,7 @@ public class Combat {
     public static void interactWithAbility(String abilityName) {
         AbilityIndex index = abilityIndices.get(abilityName);
         if (index != null) {
+            log("Interacting with ability: " + abilityName);
             MiniMenu.interact(ComponentAction.COMPONENT.getType(), 1, -1, (index.interfaceIndex() << 16 | index.componentIndex()));
         } else {
             log("Ability not found in the map: " + abilityName);
@@ -309,10 +312,11 @@ public class Combat {
 
 
     public static void manageCombatAbilities() {
-            LocalPlayer player = getLocalPlayer();
-            if (player == null) {
-                return;
-            }
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+
         if (useThreadsofFate) {
             setup("Threads of Fate");
             manageThreadsOfFate();
@@ -359,6 +363,9 @@ public class Combat {
         if (useDemonSlayer) {
             activateDemonSlayer();
         }
+        if (useConjureUndeadArmy) {
+            keepArmyUp();
+        }
     }
 
     public static void volleyOfSouls() {
@@ -388,7 +395,7 @@ public class Combat {
         if (player == null) {
             return;
         }
-        if (ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
+        if (ActionBar.getCooldown("Threads of Fate") == 0) {
 
             interactWithAbility("Threads of Fate");
 
@@ -567,7 +574,7 @@ public class Combat {
             return;
         }
         if (ComponentQuery.newQuery(291).spriteId(14632).results().isEmpty()) {
-            if (player.getCurrentHealth() * 100 / player.getMaximumHealth() >= healthPointsThreshold) {
+            if (player.getCurrentHealth() * 100 / player.getMaximumHealth() <= healthPointsThreshold) {
 
                 ResultSet<net.botwithus.rs3.game.Item> items = InventoryItemQuery.newQuery().results();
                 Item excaliburItem = items.stream()

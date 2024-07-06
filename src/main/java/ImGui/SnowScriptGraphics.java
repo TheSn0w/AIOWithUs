@@ -317,11 +317,11 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Travel Via Coord", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will travel to location");
+                            ImGui.SetTooltip("Will travel to location, set coords in settings");
                         }
                         createCenteredButton("Travel via Marker", () -> useHintArrow = !useHintArrow, useHintArrow);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will use Marker placed on the map");
+                            ImGui.SetTooltip("Will use Marker placed on the map, i recommend setting marker first then enabling this option");
                         }
                         createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {

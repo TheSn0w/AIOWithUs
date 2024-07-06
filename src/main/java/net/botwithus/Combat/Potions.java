@@ -124,7 +124,7 @@ public class Potions {
         if (success) {
             log("[Combat] Successfully drank " + prayerOrRestorePot.getName());
             Execution.delayUntil(random.nextLong(1800, 2000), () -> player.getPrayerPoints() > prayerPointsThreshold);
-            return random.nextLong(650, 950);
+            return random.nextLong(1200, 1300);
         } else {
             log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
             return 0;

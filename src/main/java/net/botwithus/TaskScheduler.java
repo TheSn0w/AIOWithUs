@@ -41,7 +41,6 @@ public class TaskScheduler {
     public static void shutdown() {
         log("[Error] Shutting down...");
         SnowsScript.setBotState(IDLE);
-        SnowScriptGraphics.setScriptStatus(false);
         LoginManager.setAutoLogin(false);
         MiniMenu.interact(14, 1, -1, 93913156);
     }

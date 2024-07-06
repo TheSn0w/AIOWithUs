@@ -382,8 +382,6 @@ public class Loot {
             } else {
                 log("[Loot] Item " + item.getName() + " no longer in the expected slot.");
             }
-        } else {
-            log("[Loot] Backpack is full. Cannot loot more items.");
         }
     }
 

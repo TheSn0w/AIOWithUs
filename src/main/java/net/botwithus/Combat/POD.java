@@ -68,13 +68,10 @@ public class POD {
                 }
                 break;
             case 6:
-                if (targetCoordinate != null) {
-                    attackTarget(getLocalPlayer());
-                    if (!shouldBank(getLocalPlayer())){
-                        ensurePlayerWithinRadius(targetCoordinate, 2);
-                        attackTarget(getLocalPlayer());
-                    }
+                if (shouldBank((LocalPlayer) player)) {
                     currentStep = 7;
+                } else {
+                    attackTarget(getLocalPlayer());
                 }
                 break;
             case 7:
@@ -208,7 +205,7 @@ public class POD {
         long prayerCheck = usePrayerOrRestorePots(player);
         long aggroCheck = useAggression(player);
         long weaponPoisonCheck = useWeaponPoison(player);
-        long foodCheck = eatFood(player);
+        long foodCheck = shouldEatFood ? eatFood(player) : 0;
 
         return (useWeaponPoison && weaponPoisonCheck == 1L) ||
                 (useOverloads && overloadCheck == 1L) ||
