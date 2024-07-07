@@ -23,7 +23,6 @@ import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.CombatManager.manageCombatAbilities;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.LootManager.*;
-import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Prayers.*;
 import static net.botwithus.Combat.Radius.enableRadiusTracking;
@@ -49,6 +48,16 @@ public class Combat {
     public static long attackTarget(LocalPlayer player) {
         if (player == null || useTraveltoLocation || useHintArrow) {
             return random.nextLong(600, 650);
+        }
+
+        if (useCustomLoot) {
+            useCustomLootFromGround();
+        }
+        if (useLootAllNotedItems) {
+            useNotedLootFromGround();
+        }
+        if (useLootEverything) {
+            useLootInventoryPickup();
         }
 
         manageCombatAbilities();

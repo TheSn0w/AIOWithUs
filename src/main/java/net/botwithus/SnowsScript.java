@@ -6,6 +6,7 @@ import net.botwithus.Divination.Divination;
 import net.botwithus.Variables.GlobalState;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
+import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
@@ -107,8 +108,6 @@ public class SnowsScript extends LoopingScript {
     }
 
 
-
-
     public void onLoop() {
         LocalPlayer player = getLocalPlayer();
 
@@ -123,7 +122,6 @@ public class SnowsScript extends LoopingScript {
             dropItems();
         }
         if (isCombatActive) {
-            manageLoot();
             updateNpcTableData(player);
         }
 
@@ -191,6 +189,36 @@ public class SnowsScript extends LoopingScript {
     public void onActivation() {
         subscribeToEvents();
         super.initialize();
+        Thread.ofVirtual().name("LootManager").start(this::manageLoot);
+
+    }
+    public void manageLoot() {
+        while (isActive()) {
+
+            if (useCustomLoot) {
+                Execution.delay(random.nextLong(800, 1000));
+                useCustomLoot();
+            }
+            if (useLootAllNotedItems) {
+                Execution.delay(random.nextLong(800, 1000));
+                lootNotedItemsFromInventory();
+            }
+            if (useNotepaper) {
+                Execution.delay(random.nextLong(800, 1000));
+                useItemOnNotepaper();
+            }
+            if (useLootEverything) {
+                Execution.delay(random.nextLong(800, 1000));
+                LootInventory.lootAll();
+            }
+
+            try {
+                Thread.sleep(random.nextLong(800, 1000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     @Override
