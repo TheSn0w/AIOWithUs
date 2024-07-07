@@ -139,7 +139,7 @@ public class Combat {
     }
 
 
-    public static double healthThreshold = 0.7;
+    public static double healthThreshold = 0.4;
     public static double getHealthThreshold() {
         return healthThreshold;
     }

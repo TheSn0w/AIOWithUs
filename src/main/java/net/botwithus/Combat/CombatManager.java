@@ -126,7 +126,7 @@ public class CombatManager {
         if (player == null) {
             return;
         }
-        if (ActionBar.getCooldownPrecise("Threads of Fate") == 0 && player.hasTarget() && player.inCombat()) {
+        if (ActionBar.getCooldown("Threads of Fate") == 0 && player.hasTarget() && player.inCombat()) {
             interactWithAbility("Threads of Fate");
             boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> ActionBar.getCooldownPrecise("Threads of Fate") != 0);
             if (effectConfirmed) {
