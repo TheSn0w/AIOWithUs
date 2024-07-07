@@ -20,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Combat.Books.*;
-import static net.botwithus.Combat.CombatManager.manageCombatAbilities;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.Potions.*;
@@ -49,7 +48,7 @@ public class Combat {
         if (player == null || useTraveltoLocation || useHintArrow) {
             return random.nextLong(600, 650);
         }
-
+        // if Loot Inventory is not open, interact with ground items
         if (useCustomLoot) {
             useCustomLootFromGround();
         }
@@ -60,7 +59,6 @@ public class Combat {
             useLootInventoryPickup();
         }
 
-        manageCombatAbilities();
         handleMultitarget();
         managePotions(player);
         manageScripturesAndScrimshaws(player);

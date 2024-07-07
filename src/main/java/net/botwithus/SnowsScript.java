@@ -190,6 +190,7 @@ public class SnowsScript extends LoopingScript {
         subscribeToEvents();
         super.initialize();
         Thread.ofVirtual().name("LootManager").start(this::manageLoot);
+        Thread.ofVirtual().name("CombatAbilities").start(this::manageCombatAbilities);
 
     }
     public void manageLoot() {
@@ -209,7 +210,7 @@ public class SnowsScript extends LoopingScript {
             }
             if (useLootEverything) {
                 Execution.delay(random.nextLong(800, 1000));
-                LootInventory.lootAll();
+                lootAllButton();
             }
 
             try {
@@ -220,6 +221,79 @@ public class SnowsScript extends LoopingScript {
             }
         }
     }
+
+    public void manageCombatAbilities() {
+        while (isActive()) {
+
+            LocalPlayer player = getLocalPlayer();
+            if (player == null) {
+                return;
+            }
+            // Backpack
+            if (useVulnerabilityBomb) {
+                vulnerabilityBomb();
+            }
+            // Backpack
+            if (useElvenRitual) {
+                activateElvenRitual();
+            }
+            // Backpack
+            if (useExcalibur) {
+                activateExcalibur();
+            }
+            if (useUndeadSlayer) {
+                setup("Undead Slayer");
+                activateUndeadSlayer();
+            }
+            if (useDragonSlayer) {
+                setup("Dragon Slayer");
+                activateDragonSlayer();
+            }
+            if (useDemonSlayer) {
+                setup("Demon Slayer");
+                activateDemonSlayer();
+            }
+            if (useDarkness) {
+                setup("Darkness");
+                manageDarkness();
+            }
+            if (useAnimateDead) {
+                setup("Animate Dead");
+                manageAnimateDead();
+            }
+            if (useConjureUndeadArmy) {
+                setup("Conjure Undead Army");
+                keepArmyUp();
+            }
+            if (useThreadsofFate) {
+                setup("Threads of Fate");
+                manageThreadsOfFate();
+            }
+            if (useInvokeDeath) {
+                setup("Invoke Death");
+                invokeDeath();
+            }
+            if (useVolleyofSouls) {
+                setup("Volley of Souls");
+                volleyOfSouls();
+            }
+            if (useEssenceofFinality) {
+                setup("Essence of Finality");
+                essenceOfFinality();
+            }
+            if (useWeaponSpecialAttack) {
+                setup("Weapon Special Attack");
+                DeathEssence();
+            }
+            try {
+                Thread.sleep(random.nextLong(800, 1000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
 
     @Override
     public void onDeactivation() {

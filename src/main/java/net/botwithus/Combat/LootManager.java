@@ -29,6 +29,9 @@ public class LootManager {
 // SECTION 1: Loot Everything
 // =====================
     public static void useLootInventoryPickup() {
+        if (LootInventory.isOpen()) {
+            return;
+        }
         EntityResultSet<GroundItem> groundItems = GroundItemQuery.newQuery().results();
         if (groundItems.isEmpty()) {
             return;
@@ -66,6 +69,17 @@ public class LootManager {
         }
     }
 
+    public static void lootAllButton() {
+        if (LootInventory.isOpen() && !LootInventory.getItems().isEmpty()) {
+            if (!Backpack.isFull()) {
+                LootInventory.lootAll();
+                log("[LootAll] Looted all items from the inventory.");
+            } else {
+                log("[LootAll] Backpack is full, Cannot loot all items.");
+            }
+        }
+    }
+
 // =====================
 // SECTION 2: Loot Specific Items
 // =====================
@@ -76,17 +90,13 @@ public class LootManager {
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
-        boolean itemInteracted = groundItems.stream()
+        groundItems.stream()
                 .filter(groundItem -> groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find())
                 .anyMatch(groundItem -> {
                     groundItem.interact("Take");
                     log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
                     return Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
                 });
-
-        if (!itemInteracted) {
-            log("[CustomLootingFromGround] No matching items found or LootInventory did not open.");
-        }
     }
 
     public static void useCustomLoot() {
