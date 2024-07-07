@@ -120,18 +120,20 @@ public class LootManager {
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
-        if (LootInventory.isOpen()) {
-            return;
-        }
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
         groundItems.stream()
                 .filter(groundItem -> groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find())
                 .anyMatch(groundItem -> {
-                    groundItem.interact("Take");
-                    log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                    return Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+                    // Check if the item is not present in the LootInventory
+                    if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
+                        groundItem.interact("Take");
+                        log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                        // Wait until the item appears in the LootInventory
+                        return Execution.delayUntil(random.nextLong(10000, 15000), () -> LootInventory.contains(groundItem.getName()) || LootInventory.isOpen());
+                    }
+                    return false;
                 });
     }
 
@@ -178,9 +180,6 @@ public class LootManager {
 // =====================
 
     public static void useNotedLootFromGround() {
-        if (LootInventory.isOpen()) {
-            return;
-        }
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
 
         GroundItem groundItem = groundItems.stream()
@@ -189,14 +188,12 @@ public class LootManager {
                 .orElse(null);
 
         if (groundItem != null) {
-            while (!player.isMoving()) {
+            // Check if the item is not present in the LootInventory
+            if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
                 groundItem.interact("Take");
-                Execution.delay(random.nextLong(800, 1000));
-            }
-            if (player.isMoving()) {
                 log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
-                return;
+                // Wait until the item appears in the LootInventory
+                Execution.delayUntil(random.nextLong(10000, 15000), () -> LootInventory.contains(groundItem.getName()) || LootInventory.isOpen());
             }
         }
     }
