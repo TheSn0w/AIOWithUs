@@ -1,6 +1,5 @@
 package net.botwithus.Variables;
 
-import net.botwithus.Combat.Combat;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Herblore.SharedState;
 import net.botwithus.TaskScheduler;
@@ -17,7 +16,6 @@ import java.util.regex.Pattern;
 
 import static ImGui.PredefinedStrings.predefinedNames;
 import static ImGui.PredefinedStrings.recipeNamesList;
-import static net.botwithus.Combat.Combat.healthThreshold;
 import static net.botwithus.CustomLogger.log;
 
 public class Variables {
@@ -114,7 +112,7 @@ public class Variables {
     public static boolean shouldEatFood = false;
     public static final Set<Integer> recentlyAttackedTargets = new HashSet<>();
     public static long lastClearTime = System.currentTimeMillis();
-    public static boolean isStackable = false;
+    public static boolean useLootAllStackableItems = false;
     public static boolean useThreadsofFate = false;
     public static boolean useAnimateDead = false;
     public static boolean useDarkness = false;
@@ -124,9 +122,9 @@ public class Variables {
     public static boolean useElvenRitual = false;
     public static boolean isCombatActive = false;
     public static boolean useNotepaper = false;
-    public static boolean interactWithLootAll = false;
+    public static boolean useLootEverything = false;
     public static boolean useVulnerabilityBomb = false;
-    public static boolean useLoot = false;
+    public static boolean useCustomLoot = false;
     public static boolean useOverloads = false;
     public static boolean usePrayerPots = false;
     public static boolean useAggroPots = false;

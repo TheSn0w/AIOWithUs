@@ -2,12 +2,9 @@ package ImGui.Skills;
 
 import ImGui.*;
 import net.botwithus.Combat.*;
-import net.botwithus.SnowsScript;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
-import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
-import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
@@ -698,7 +695,7 @@ public class CombatImGui {
                         }
                     }
                 }
-                if (isCombatActive && useLoot) {
+                if (isCombatActive && useCustomLoot) {
                     ImGui.SeparatorText("Loot Options");
 
                     if (ImGui.Button("Add Item") && !getSelectedItem().isEmpty()) {

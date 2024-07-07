@@ -29,9 +29,8 @@ import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
-import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
-import static net.botwithus.Combat.Loot.lootNoted;
+import static net.botwithus.Combat.LootManager.useLootAllNotedItems;
 import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
@@ -293,19 +292,19 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will eat food when health is low");
                         }
-                        createCenteredButton("Loot", () -> useLoot = !useLoot, useLoot);
+                        createCenteredButton("Loot", () -> useCustomLoot = !useCustomLoot, useCustomLoot);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot Items");
                         }
-                        createCenteredButton("Loot All", () -> interactWithLootAll = !interactWithLootAll, interactWithLootAll);
+                        createCenteredButton("Loot All", () -> useLootEverything = !useLootEverything, useLootEverything);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Items");
                         }
-                        createCenteredButton("Loot All Noted", () -> lootNoted = !lootNoted, lootNoted);
+                        createCenteredButton("Loot All Noted", () -> useLootAllNotedItems = !useLootAllNotedItems, useLootAllNotedItems);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Noted Items in Loot Inventory");
                         }
-                        createCenteredButton("Loot Stackables", () -> isStackable = !isStackable, isStackable);
+                        createCenteredButton("Loot Stackables", () -> useLootAllStackableItems = !useLootAllStackableItems, useLootAllStackableItems);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
                         }
@@ -562,7 +561,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
                     if (showLogs) {
-                        if (ImGui.Begin("Logs", ImGuiWindowFlag.None.getValue())) {
+                        if (ImGui.Begin("Logs", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                            ImGui.SetWindowSize((float) 600, (float) 225);
                             if (ImGui.Button("Scroll to Bottom")) {
                                 scrollToBottom = !scrollToBottom;
                             }

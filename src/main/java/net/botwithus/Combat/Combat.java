@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.CombatManager.manageCombatAbilities;
 import static net.botwithus.Combat.Food.eatFood;
-import static net.botwithus.Combat.Loot.*;
+import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Prayers.*;
@@ -80,17 +80,6 @@ public class Combat {
             eatFood(player);
         }
 
-        // Handle looting actions
-        if (useLoot) {
-            processLooting();
-        }
-        if (lootNoted) {
-            lootNotedItems();
-        }
-        if (isStackable) {
-            lootStackableItemsFromInventory();
-        }
-
         // Handle specific item uses
         if (usePowderOfProtection) {
             powderOfProtection();
@@ -106,9 +95,6 @@ public class Combat {
         }
         if (useIritSticks) {
             iritSticks();
-        }
-        if (useNotepaper) {
-            useItemOnNotepaper();
         }
         if (useDwarfcannon) {
             dwarvenSiegeCannon();

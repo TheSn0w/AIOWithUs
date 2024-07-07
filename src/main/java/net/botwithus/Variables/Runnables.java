@@ -26,7 +26,7 @@ import java.util.List;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.ArchGlacor.handleArchGlacor;
 import static net.botwithus.Combat.Combat.attackTarget;
-import static net.botwithus.Combat.Loot.LootEverything;
+import static net.botwithus.Combat.LootManager.LootEverything;
 import static net.botwithus.Combat.POD.handlePOD;
 import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.Divination.Divination.checkAccountType;
@@ -187,9 +187,6 @@ public class Runnables {
             }
             if (handleArchGlacor) {
                 Execution.delay(handleArchGlacor());
-            }
-            if (interactWithLootAll) {
-                LootEverything();
             }
         }
     }

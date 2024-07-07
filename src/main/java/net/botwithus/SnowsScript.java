@@ -1,13 +1,11 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
-import net.botwithus.Combat.Loot;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Variables.GlobalState;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
-import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
@@ -34,7 +32,7 @@ import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.ItemRemover.dropItems;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
-import static net.botwithus.Combat.Loot.*;
+import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.NPCs.updateNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Potions.*;
@@ -125,6 +123,7 @@ public class SnowsScript extends LoopingScript {
             dropItems();
         }
         if (isCombatActive) {
+            manageLoot();
             updateNpcTableData(player);
         }
 
@@ -357,7 +356,7 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-        if (lootNoted || useLoot || interactWithLootAll) {
+        if (useLootAllNotedItems || useCustomLoot || useLootEverything) {
             if (getBotState() == BotState.SKILLING) {
                 String itemName = event.getNewItem().getName();
                 int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
@@ -628,8 +627,8 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("selectedTreeNames", WoodcuttingNamesSerialized);
         String EatingFoodNamesSerialized = String.join(",", selectedFoodNames);
         this.configuration.addProperty("selectedFoodNames", EatingFoodNamesSerialized);
-        this.configuration.addProperty("interactWithLootAll", String.valueOf(interactWithLootAll));
-        this.configuration.addProperty("useLoot", String.valueOf(useLoot));
+        this.configuration.addProperty("interactWithLootAll", String.valueOf(useLootEverything));
+        this.configuration.addProperty("useLoot", String.valueOf(useCustomLoot));
         String InteractWithLootAllSerialized = String.join(",", targetItemNames);
         this.configuration.addProperty("selectedItemNames", InteractWithLootAllSerialized);
         this.configuration.addProperty("VolleyOfSoulsThreshold", String.valueOf(VolleyOfSoulsThreshold));
@@ -701,7 +700,7 @@ public class SnowsScript extends LoopingScript {
         String serializedItemNamesForNotepaper = String.join(",", selectedNotepaperNames);
         this.configuration.addProperty("selectedNotepaperNames", serializedItemNamesForNotepaper);
         this.configuration.addProperty("handleOnlyChonicles", String.valueOf(handleOnlyChonicles));
-        this.configuration.addProperty("lootNoted", String.valueOf(lootNoted));
+        this.configuration.addProperty("lootNoted", String.valueOf(useLootAllNotedItems));
         this.configuration.addProperty("useWorldhop", String.valueOf(useWorldhop));
         this.configuration.addProperty("minHopIntervalMinutes", String.valueOf(minHopIntervalMinutes));
         this.configuration.addProperty("maxHopIntervalMinutes", String.valueOf(maxHopIntervalMinutes));
@@ -766,7 +765,7 @@ public class SnowsScript extends LoopingScript {
             useDragonSlayer = Boolean.parseBoolean(this.configuration.getProperty("useDragonSlayer"));
             useWorldhop = Boolean.parseBoolean(this.configuration.getProperty("useWorldhop"));
             hopDuetoPlayers = Boolean.parseBoolean(this.configuration.getProperty("hopDuetoPlayers"));
-            lootNoted = Boolean.parseBoolean(this.configuration.getProperty("lootNoted"));
+            useLootAllNotedItems = Boolean.parseBoolean(this.configuration.getProperty("lootNoted"));
             handleOnlyChonicles = Boolean.parseBoolean(this.configuration.getProperty("handleOnlyChonicles"));
             useNotepaper = Boolean.parseBoolean(this.configuration.getProperty("useNotepaper"));
             isdivinechargeActive = Boolean.parseBoolean(this.configuration.getProperty("isdivinechargeActive"));
@@ -790,8 +789,8 @@ public class SnowsScript extends LoopingScript {
             MaterialCache = Boolean.parseBoolean(this.configuration.getProperty("MaterialCache"));
             offerChronicles = Boolean.parseBoolean(this.configuration.getProperty("offerChronicles"));
             isCombatActive = Boolean.parseBoolean(this.configuration.getProperty("Combat"));
-            interactWithLootAll = Boolean.parseBoolean(this.configuration.getProperty("interactWithLootAll"));
-            useLoot = Boolean.parseBoolean(this.configuration.getProperty("useLoot"));
+            useLootEverything = Boolean.parseBoolean(this.configuration.getProperty("interactWithLootAll"));
+            useCustomLoot = Boolean.parseBoolean(this.configuration.getProperty("useLoot"));
             makeBombs = Boolean.parseBoolean(this.configuration.getProperty("makeBombs"));
             isHerbloreActive = Boolean.parseBoolean(this.configuration.getProperty("isHerbloreActive"));
             usePOD = Boolean.parseBoolean(this.configuration.getProperty("usePOD"));
