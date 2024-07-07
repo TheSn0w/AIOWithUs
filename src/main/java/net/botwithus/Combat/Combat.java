@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Loot.*;
-import static net.botwithus.Combat.NPCs.updateNpcTableData;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Prayers.*;
@@ -44,6 +43,8 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 public class Combat {
 
     public static boolean handleMultitarget = false;
+    public static boolean lavaStrykewyrms = false;
+    public static boolean iceStrykewyrms = false;
     public static boolean useUndeadSlayer = false;
     public static boolean useDragonSlayer = false;
     public static boolean useDemonSlayer = false;
@@ -70,7 +71,7 @@ public class Combat {
             return random.nextLong(600, 650);
         }
 
-        teleportOnHealth();
+        /*teleportOnHealth();*/
         manageCombatAbilities();
         handleMultitarget();
 
@@ -132,6 +133,12 @@ public class Combat {
         if (player.isMoving()) {
             return random.nextLong(600, 650);
         }
+        if (lavaStrykewyrms) {
+            return lavaStrykewyrms();
+        }
+        if (iceStrykewyrms) {
+            return iceStrykewyrms();
+        }
 
         if (handleMultitarget && player.hasTarget() && player.getTarget().getCurrentHealth() >= player.getTarget().getMaximumHealth() * healthThreshold) {
             return random.nextLong(600, 650);
@@ -152,6 +159,49 @@ public class Combat {
         }
         return random.nextLong(600, 650);
     }
+    private static long lavaStrykewyrms() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
+            return random.nextLong(400, 600);
+        }
+        EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(2417).option("Investigate").results();
+        Npc strykewyrm = NpcQuery.newQuery().name("Lava strykewyrm").results().nearestTo(player);
+
+        if (strykewyrm == null || !strykewyrm.equals(player.getFollowing())) {
+            if (!mounds.isEmpty()) {
+                log("[LavaStrykewyrms] Interacting with the nearest mound.");
+                mounds.nearest().interact("Investigate");
+                return random.nextLong(1000, 2000);
+            } else {
+                log("[LavaStrykewyrms] No Nearby Mounds available.");
+            }
+        } else {
+            log("[LavaStrykewyrms] Strykewyrm is being followed by the player.");
+        }
+        return 0;
+    }
+    private static long iceStrykewyrms() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
+            return random.nextLong(400, 600);
+        }
+        EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(9462).option("Investigate").results();
+        Npc strykewyrm = NpcQuery.newQuery().name("Ice strykewyrm").results().nearestTo(player);
+
+        if (strykewyrm == null || !strykewyrm.equals(player.getFollowing())) {
+            if (!mounds.isEmpty()) {
+                log("[IceStrykewyrms] Interacting with the nearest mound.");
+                mounds.nearest().interact("Investigate");
+                return random.nextLong(1000, 2000);
+            } else {
+                log("[IceStrykewyrms] No Nearby Mounds available.");
+            }
+        } else {
+            log("[IceStrykewyrms] Strykewyrm is being followed by the player.");
+        }
+        return 0;
+    }
+
 
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {

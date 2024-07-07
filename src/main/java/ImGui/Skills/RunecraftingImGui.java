@@ -14,8 +14,8 @@ import java.util.Map;
 import java.text.SimpleDateFormat;
 
 import static ImGui.Theme.setStyleColor;
+import static net.botwithus.Runecrafting.Abyss.*;
 import static net.botwithus.Runecrafting.Runecrafting.*;
-import static net.botwithus.Runecrafting.Runecrafting.player;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.SnowsScript.steamRunes;
@@ -57,16 +57,14 @@ public class RunecraftingImGui {
             float numItems = 3.0f;
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
 
-            ImGui.SetCursorPosX(spacing);
-            ManageFamiliar = ImGui.Checkbox("Use Familiar?", ManageFamiliar);
-            if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Will use Abyssal Titan or Abyssal lurker or Abyssal parasite");
-            }
-            if (!useSteamRunes) {
+            if (useAbyssRunecrafting) {
+                ImGui.SetCursorPosX(spacing);
+                ManageFamiliar = ImGui.Checkbox("Use Familiar?", ManageFamiliar);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Abyssal Titan or Abyssal lurker or Abyssal parasite");
+                }
 
-            ImGui.SameLine();
-
-
+                ImGui.SameLine();
 
                 ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
                 Powerburst = ImGui.Checkbox("Use Powerburst", Powerburst);
@@ -74,6 +72,80 @@ public class RunecraftingImGui {
                     ImGui.SetTooltip("Will use Powerburst of Sorcery");
                 }
 
+                ImGui.SetCursorPosX(spacing);
+                hopDuetoPlayers = ImGui.Checkbox("Hop due to players", hopDuetoPlayers);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will hop worlds if there are any players in the current world");
+                }
+                ImGui.SeparatorText("Rune to Craft");
+                ImGui.SetCursorPosX(spacing);
+                craftNatureRunes = ImGui.Checkbox("Nature Runes", craftNatureRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                craftBloodRunes = ImGui.Checkbox("Blood Runes", craftBloodRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                craftWaterRunes = ImGui.Checkbox("Water Runes", craftWaterRunes);
+
+                ImGui.SetCursorPosX(spacing);
+                craftAirRunes = ImGui.Checkbox("Air Runes", craftAirRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                craftEarthRunes = ImGui.Checkbox("Earth Runes", craftEarthRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                craftFireRunes = ImGui.Checkbox("Fire Runes", craftFireRunes);
+
+                ImGui.SetCursorPosX(spacing);
+                craftChaosRunes = ImGui.Checkbox("Chaos Runes", craftChaosRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                craftCosmicRunes = ImGui.Checkbox("Cosmic Runes", craftCosmicRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+                craftDeathRunes = ImGui.Checkbox("Death Runes", craftDeathRunes);
+
+                ImGui.SetCursorPosX(spacing);
+                craftLawRunes = ImGui.Checkbox("Law Runes", craftLawRunes);
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                craftMindRunes = ImGui.Checkbox("Mind Runes", craftMindRunes);
+
+                ImGui.SeparatorText("Statistics");
+
+                displayNatureRunesInfo();
+                displayMagicalThreadsInfo();
+            }
+            if (!useSteamRunes && !useAbyssRunecrafting) {
+
+
+                ImGui.SetCursorPosX(spacing);
+                ManageFamiliar = ImGui.Checkbox("Use Familiar?", ManageFamiliar);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Abyssal Titan or Abyssal lurker or Abyssal parasite");
+                }
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                Powerburst = ImGui.Checkbox("Use Powerburst", Powerburst);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Powerburst of Sorcery");
+                }
 
                 ImGui.SetCursorPosX(spacing);
                 notWearingRing = ImGui.Checkbox("Passing bracelet in Backpack?", notWearingRing);
@@ -146,11 +218,18 @@ public class RunecraftingImGui {
                     }
                 }
             }
-
-            ImGui.SeparatorText("Statistics");
             if (useSteamRunes) {
+                ImGui.SetCursorPosX(spacing);
+                ManageFamiliar = ImGui.Checkbox("Use Familiar?", ManageFamiliar);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Abyssal Titan or Abyssal lurker or Abyssal parasite");
+                }
+
                 displaySteamRunesInfo();
-            } else {
+            }
+            if (!useAbyssRunecrafting) {
+
+                ImGui.SeparatorText("Statistics");
                 displayLoopCountAndRunesPerHour(determineSelectedRuneType());
 
 
@@ -206,6 +285,7 @@ public class RunecraftingImGui {
             }
         }
     }
+
     private static void displayLoopCountAndRunesPerHour(String selectedRuneType) {
         int loopCount = getLoopCounter();
         ImGui.Text("Number of Runs: " + loopCount);
@@ -224,6 +304,35 @@ public class RunecraftingImGui {
             ImGui.Text("Runes Crafted: " + quantity);
             ImGui.Text(String.format("Per Hour: %.2f", runesPerHour));
         }
+    }
+    public static void displayNatureRunesInfo() {
+
+        Duration elapsedTime = Duration.between(startTime, Instant.now());
+        long elapsedSeconds = elapsedTime.getSeconds();
+        if (elapsedSeconds == 0) return;
+
+        ImGui.Text("Crafted Runes Info:");
+        for (Map.Entry<String, Integer> entry : runes.entrySet()) {
+            float runesPerHour = (float) entry.getValue() / elapsedSeconds * 3600;
+            ImGui.Text(entry.getKey() + ": " + entry.getValue() + " (" + String.format("%.2f", runesPerHour) + " per hour)");
+        }
+    }
+
+    public static void displayMagicalThreadsInfo() {
+        Duration elapsedTime = Duration.between(startTime, Instant.now());
+        long elapsedSeconds = elapsedTime.getSeconds();
+        if (elapsedSeconds == 0) return;
+
+        ImGui.Text("Magical Threads Info:");
+        for (Map.Entry<String, Integer> entry : magicalThreads.entrySet()) {
+            float threadsPerHour = (float) entry.getValue() / elapsedSeconds * 3600;
+            ImGui.Text(entry.getKey() + ": " + entry.getValue() + " (" + String.format("%.2f", threadsPerHour) + " per hour)");
+        }
+
+        int loopCount = getLoopCounter();
+        ImGui.Text("Number of Runs: " + loopCount);
+        float runsPerHour = calculatePerHour(elapsedTime, loopCount);
+        ImGui.Text(String.format("Runs Per Hour: %.2f", runsPerHour));
     }
     public static void displaySteamRunesInfo() {
         Duration elapsedTime = Duration.between(startTime, Instant.now());

@@ -14,11 +14,9 @@ import java.time.Instant;
 import java.util.List;
 
 import static ImGui.CentreButton.createCenteredButton;
-import static ImGui.PredefinedStrings.CombatList;
 import static ImGui.Skills.ArchaeologyImGui.renderArchaeology;
 import static ImGui.Skills.BottomChild.renderBottom;
 import static ImGui.Skills.CombatImGui.renderCombat;
-import static ImGui.Skills.CombatImGui.showNearbyNPCS;
 import static ImGui.Skills.CookingImGui.renderCooking;
 import static ImGui.Skills.DivinationImGui.renderDivination;
 import static ImGui.Skills.FishingImGui.renderFishing;
@@ -30,7 +28,6 @@ import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
-import static net.botwithus.Archaeology.Porters.bankwithoutPorter;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
@@ -38,6 +35,7 @@ import static net.botwithus.Combat.Loot.lootNoted;
 import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
@@ -229,7 +227,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Thieving - Read Tooltip");
                         }
-                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Bank to withdraw food");
                         }
@@ -266,6 +264,14 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will force to bank when backpack doesnt contain any porters");
                         }*/
+                        /*createCenteredButton("Travel Via Coord", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will travel to location, set coords in settings");
+                        }*/
+                        createCenteredButton("Travel via Marker", () -> useHintArrow = !useHintArrow, useHintArrow);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Marker placed on the map, i recommend setting marker first then enabling this option");
+                        }
                         createCenteredButton("hop worlds", () -> hopWorldsforArchaeology = !hopWorldsforArchaeology, hopWorldsforArchaeology);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will hop worlds when player is within 8 tiles of you");
@@ -327,7 +333,14 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
                         }
-
+                        createCenteredButton("Lava wyrm", () -> lavaStrykewyrms = !lavaStrykewyrms, lavaStrykewyrms);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will kill Lava Strykewyrms");
+                        }
+                        createCenteredButton("Ice wyrm", () -> iceStrykewyrms = !iceStrykewyrms, iceStrykewyrms);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will kill Ice Strykewyrms");
+                        }
                     } else if (isFishingActive) {
                         createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, true);
                         if (ImGui.IsItemHovered()) {
@@ -337,7 +350,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Enable when fishing Tuna/Lobsters/Swordfish/Sharks`");
                         }
-                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
@@ -345,16 +358,24 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
                         }*/
-                        createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
+                        /*createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack, not used to drop fish!");
+                        }*/
+                        /*createCenteredButton("Travel Via Coord", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will travel to location, set coords in settings");
+                        }*/
+                        createCenteredButton("Travel via Marker", () -> useHintArrow = !useHintArrow, useHintArrow);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Marker placed on the map, i recommend setting marker first then enabling this option");
                         }
                     } else if (isMiningActive) {
                         createCenteredButton("Mining", () -> isMiningActive = !isMiningActive, true);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Mining at any spot using any option`");
                         }
-                        createCenteredButton("Use Nearest Bank", () -> nearestBank = !nearestBank, nearestBank);
+                        createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
@@ -362,16 +383,24 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
                         }*/
-                        createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
+                        /*createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
+                        }*/
+                        createCenteredButton("Travel Via Coord", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will travel to location, set coords in settings");
+                        }
+                        createCenteredButton("Travel via Marker", () -> useHintArrow = !useHintArrow, useHintArrow);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Marker placed on the map, i recommend setting marker first then enabling this option");
                         }
                     } else if (isWoodcuttingActive) {
                         createCenteredButton("Woodcutting", () -> isWoodcuttingActive = !isWoodcuttingActive, true);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Woodcutting at any spot using any option`");
                         }
-                        createCenteredButton("Use Nearest Bank", () -> {
+                        createCenteredButton("Bank", () -> {
                             nearestBank = !nearestBank;
                             if (nearestBank) {
                                 log("Nearest bank enabled");
@@ -402,9 +431,17 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
                         }*/
-                        createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
+                        /*createCenteredButton("Drop items?", () -> isDropActive = !isDropActive, isDropActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will drop certain items from backpack");
+                        }*/
+                        /*createCenteredButton("Travel Via Coord", () -> useTraveltoLocation = !useTraveltoLocation, useTraveltoLocation);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will travel to location, set coords in settings");
+                        }*/
+                        createCenteredButton("Travel via Marker", () -> useHintArrow = !useHintArrow, useHintArrow);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Marker placed on the map, i recommend setting marker first then enabling this option");
                         }
                     } else if (isRunecraftingActive) {
                         createCenteredButton("Runecrafting", () -> isRunecraftingActive = !isRunecraftingActive, true);
@@ -415,11 +452,19 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Flesh Altar", () -> HandleFleshAltar = !HandleFleshAltar, HandleFleshAltar);
                         createCenteredButton("Miasma Altar", () -> HandleMiasmaAltar = !HandleMiasmaAltar, HandleMiasmaAltar);
                         createCenteredButton("Spirit Altar", () -> HandleSpiritAltar = !HandleSpiritAltar, HandleSpiritAltar);
-                        createCenteredButton("Soul Altar", () -> soulAltar = !soulAltar, soulAltar);
+                        createCenteredButton("Soul Altar", () -> useSoulAltar = !useSoulAltar, useSoulAltar);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will do Soul Altar with Protean Essence");
                         }
                         createCenteredButton("Steam Runes", () -> useSteamRunes = !useSteamRunes, useSteamRunes);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will do Steam Runes");
+                        }
+                        createCenteredButton("Abyss Crafting", () -> useAbyssRunecrafting = !useAbyssRunecrafting, useAbyssRunecrafting);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will craft runes Via the Abyss, HIGH REQUIREMENTS");
+                        }
+
                     } else if (isMiscActive) {
                         createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, true);
                         if (ImGui.IsItemHovered()) {

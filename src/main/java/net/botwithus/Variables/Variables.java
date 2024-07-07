@@ -398,7 +398,7 @@ public class Variables {
     public static boolean WearingRing = false;
     public static boolean RingofDueling = false;
     public static boolean useWorldhop = false;
-    public static boolean soulAltar = false;
+    public static boolean useSoulAltar = false;
     public static boolean useGraceoftheElves = false;
     public static int getLoopCounter() {
         return loopCounter;

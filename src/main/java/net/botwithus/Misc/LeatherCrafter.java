@@ -80,7 +80,7 @@ public class LeatherCrafter {
         boolean interact = MiniMenu.interact(16, 0, -1, 89784350);
         if (interact) {
             log("[Success] Successfully interacted with Craft!");
-            Execution.delay(random.nextLong(750, 1250));
+            Execution.delay(random.nextLong(600, 700));
         } else {
             log("[Error] Failed to create pouches.");
         }
@@ -104,27 +104,24 @@ public class LeatherCrafter {
                     log("[Crafter] Loading last preset from " + nearestObject.getName());
                     nearestObject.interact("Load Last Preset from");
                 }
-                return random.nextLong(750, 1050);
+                return random.nextLong(600, 700);
             } else if (nearestNpc != null) {
                 log("[Crafter] Loading last preset from " + nearestNpc.getName());
                 nearestNpc.interact("Load Last Preset from");
-                return random.nextLong(750, 1050);
+                return random.nextLong(600, 700);
             } else if (nearestObject != null) {
                 log("[Crafter] Loading last preset from " + nearestObject.getName());
                 nearestObject.interact("Load Last Preset from");
-                return random.nextLong(750, 1050);
+                return random.nextLong(600, 700);
             }
         }
-        return random.nextLong(750, 1050);
+        return 0;
     }
 
     private static long leatherTanning() {
-        if (player.isMoving() || player.getAnimationId() != -1 || Interfaces.isOpen(1251)) {
-            return random.nextLong(750, 1250);
-        }
         if (Interfaces.isOpen(1370)) {
             selectInterface();
-            return random.nextLong(750, 1050);
+            return 0;
         }
         EntityResultSet<SceneObject> portable = SceneObjectQuery.newQuery().name("Portable crafter").option("Tan Leather").results();
         Item leather = null;
@@ -143,7 +140,7 @@ public class LeatherCrafter {
                 log("[Success] Successfully interacted with portable crafter.");
             }
         }
-        return random.nextLong(750, 1050);
+        return 0;
     }
 
 

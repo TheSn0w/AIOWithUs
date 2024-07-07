@@ -8,6 +8,7 @@ import net.botwithus.Divination.Divination;
 import net.botwithus.Fishing.Fishing;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Misc.*;
+import net.botwithus.Runecrafting.Abyss;
 import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Thieving.Thieving;
@@ -26,14 +27,12 @@ import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.ArchGlacor.handleArchGlacor;
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.Combat.Loot.LootEverything;
-import static net.botwithus.Combat.NPCs.updateNpcTableData;
 import static net.botwithus.Combat.POD.handlePOD;
-import static net.botwithus.Combat.Radius.enableRadiusTracking;
-import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Divination.Divination.interactWithChronicle;
 import static net.botwithus.Mining.Mining.handleSkillingMining;
+import static net.botwithus.Misc.Fletching.makeDinarrow;
 import static net.botwithus.Misc.GemCutter.cutGems;
 import static net.botwithus.Misc.LeatherCrafter.handleLeatherCrafter;
 import static net.botwithus.Misc.LeatherCrafter.interactWithLeather;
@@ -41,6 +40,7 @@ import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.Necro.interactWithEntities;
 import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
+import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.isMakeUrnsActive;
@@ -56,14 +56,17 @@ public class Runnables {
     public static void handleRunecrafting() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
-            if (isRunecraftingActive && !soulAltar) {
+            if (isRunecraftingActive) {
                 Runecrafting.handleRunecrafting(player);
             }
-            if (isRunecraftingActive && soulAltar) {
+            if (isRunecraftingActive && useSoulAltar) {
                 Execution.delay(Runecrafting.handleSoulAltar());
             }
             if (isRunecraftingActive && useSteamRunes) {
                 SteamRunes.run();
+            }
+            if (isRunecraftingActive && useAbyssRunecrafting) {
+                Abyss.runAbyss();
             }
         }
     }
@@ -72,6 +75,16 @@ public class Runnables {
         List<String> selectedRockNames = getSelectedRockNames();
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
+            if (shouldTravel) {
+                travelToXYZ(x, y, z);
+                shouldTravel = false;
+                return;
+            }
+            if (useHintArrow) {
+                travelToLocation();
+                useHintArrow = false; // Reset the flag
+                return;
+            }
             Execution.delay(handleSkillingMining(player, selectedRockNames));
         }
     }
@@ -87,6 +100,16 @@ public class Runnables {
         List<String> selectedTreeNames = getSelectedTreeNames();
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
+            if (shouldTravel) {
+                travelToXYZ(x, y, z);
+                shouldTravel = false;
+                return;
+            }
+            if (useHintArrow) {
+                travelToLocation();
+                useHintArrow = false;
+                return;
+            }
             Execution.delay(Woodcutting.handleSkillingWoodcutting(player, selectedTreeNames));
             if (crystallise) {
                 Execution.delay(Woodcutting.handleit());
@@ -127,6 +150,16 @@ public class Runnables {
         List<String> selectedFishingLocations = getSelectedFishingLocations();
         List<String> selectedFishingActions = getSelectedFishingActions();
         if (player != null) {
+            if (shouldTravel) {
+                travelToXYZ(x, y, z);
+                shouldTravel = false;
+                return;
+            }
+            if (useHintArrow) {
+                travelToLocation();
+                useHintArrow = false; // Reset the flag
+                return;
+            }
             Execution.delay(Fishing.handleFishing(player, selectedFishingLocations.get(0), selectedFishingActions.get(0)));
         }
     }
@@ -136,14 +169,14 @@ public class Runnables {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
             if (shouldTravel) {
-                travelToXYZ(x, y, z); // Ensure x, y, z are defined or passed appropriately
-                shouldTravel = false; // Reset the flag
-                return; // Optionally return to avoid other actions after traveling
+                travelToXYZ(x, y, z);
+                shouldTravel = false;
+                return;
             }
             if (useHintArrow) {
                 travelToLocation();
-                useHintArrow = false; // Reset the flag
-                return; // Optionally return to avoid other actions after traveling
+                useHintArrow = false;
+                return;
             }
 
             if (usePOD) {
@@ -177,6 +210,16 @@ public class Runnables {
     public static  void handleArcheology() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
+            if (shouldTravel) {
+                travelToXYZ(x, y, z);
+                shouldTravel = false;
+                return;
+            }
+            if (useHintArrow) {
+                travelToLocation();
+                useHintArrow = false; // Reset the flag
+                return;
+            }
             if (hopWorldsforArchaeology) {
                 WorldHop.checkForOtherPlayersAndHopWorld();
             }
@@ -191,22 +234,58 @@ public class Runnables {
 
         if (player != null) {
             if (isMiscActive) {
-                if (isportermakerActive) {
+                if (makeDinarrow && !isDissasemblerActive) {
+                    Execution.delay(Fletching.fletch());
+                }
+                if (isportermakerActive && !isDissasemblerActive) {
                     Execution.delay(PorterMaker.makePorters());
                 }
-                if (isdivinechargeActive) {
+                if (isdivinechargeActive && !isDissasemblerActive) {
                     Execution.delay(PorterMaker.divineCharges());
                 }
-                if (isCorruptedOreActive) {
+                if (isCorruptedOreActive && !isDissasemblerActive) {
                     Execution.delay(CorruptedOre.mineCorruptedOre());
                 }
-                if (isPlanksActive) {
+                if (isPlanksActive && !isDissasemblerActive) {
                     Execution.delay(Planks.handleplankmaking(player));
                 }
-                if (isSummoningActive && usePrifddinas) {
+                if (isSummoningActive && usePrifddinas && !isDissasemblerActive) {
                     Execution.delay(Summoning.makePouches(player));
-                } else if (isSummoningActive) {
+                } else if (isSummoningActive && !isDissasemblerActive) {
                     Execution.delay(Summoning.interactWithObolisk(player));
+                }
+                if (isGemCutterActive && !isDissasemblerActive) {
+                    Execution.delay(cutGems());
+                }
+                if (isSmeltingActive && !handleGoldBar && !handleGoldGauntlets && !isDissasemblerActive) {
+                    Execution.delay(handleSmelter(player));
+                }
+                if (isSmeltingActive && handleGoldBar && !isDissasemblerActive) {
+                    Execution.delay(smeltGold(player));
+                }
+                if (isSmeltingActive && handleGoldGauntlets && !isDissasemblerActive) {
+                    Execution.delay(smeltGoldGauntlets(player));
+                }
+                if (Variables.pickCaveNightshade && !isDissasemblerActive) {
+                    CaveNightshade.runNightShadeLoop();
+                }
+                if (isSiftSoilActive && !isDissasemblerActive) {
+                    Execution.delay(SiftSoil.handleSoil(player));
+                }
+                if(isCrystalChestActive && !isDissasemblerActive){
+                    CrystalChests.openChest();
+                }
+                if(isMakeUrnsActive && !isDissasemblerActive){
+                    Execution.delay(craftUrns(player));
+                }
+                if (handleHarps && !isDissasemblerActive) {
+                    Execution.delay(Harps.interactwithHarps(player));
+                }
+                if (handleNecro && !isDissasemblerActive) {
+                    Execution.delay(interactWithEntities());
+                }
+                if (handleLeatherCrafter && !isDissasemblerActive) {
+                    Execution.delay(interactWithLeather());
                 }
                 if (isDissasemblerActive) {
                     if (useDisassemble) {
@@ -215,39 +294,6 @@ public class Runnables {
                     if (useAlchamise) {
                         Execution.delay(Dissasembler.castHighLevelAlchemy(player));
                     }
-                }
-                if (isGemCutterActive) {
-                    Execution.delay(cutGems());
-                }
-                if (isSmeltingActive && !handleGoldBar && !handleGoldGauntlets) {
-                    Execution.delay(handleSmelter(player));
-                }
-                if (isSmeltingActive && handleGoldBar) {
-                    Execution.delay(smeltGold(player));
-                }
-                if (isSmeltingActive && handleGoldGauntlets) {
-                    Execution.delay(smeltGoldGauntlets(player));
-                }
-                if (Variables.pickCaveNightshade) {
-                    CaveNightshade.runNightShadeLoop();
-                }
-                if (isSiftSoilActive) {
-                    Execution.delay(SiftSoil.handleSoil(player));
-                }
-                if(isCrystalChestActive){
-                    CrystalChests.openChest();
-                }
-                if(isMakeUrnsActive){
-                    Execution.delay(craftUrns(player));
-                }
-                if (handleHarps) {
-                    Execution.delay(Harps.interactwithHarps(player));
-                }
-                if (handleNecro) {
-                    Execution.delay(interactWithEntities());
-                }
-                if (handleLeatherCrafter) {
-                    Execution.delay(interactWithLeather());
                 }
             }
         }

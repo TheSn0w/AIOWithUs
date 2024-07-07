@@ -1,7 +1,6 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
-import net.botwithus.Combat.Radius;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Variables.GlobalState;
@@ -38,8 +37,10 @@ import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Divination.Divination.checkAccountType;
+import static net.botwithus.Misc.Fletching.makeDinarrow;
 import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Misc.Necro.handleNecro;
+import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
@@ -234,7 +235,8 @@ public class SnowsScript extends LoopingScript {
                 int newCount = event.getNewItem().getStackSize();
                 if (newCount > oldCount) {
                     int newDivineCharges = newCount - oldCount;
-                    divineCharges.put(itemName, newDivineCharges);
+                    int existingCharges = divineCharges.getOrDefault(itemName, 0);
+                    divineCharges.put(itemName, existingCharges + newDivineCharges);
                 }
             }
         }
@@ -308,15 +310,6 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-        /*if (isDissasemblerActive) {
-            if (botState == BotState.SKILLING) {
-                TaskScheduler activeTask = getActiveTask();
-                if (activeTask != null && Objects.requireNonNull(event.getNewItem().getName()).contains(activeTask.getItemToDisassemble())) {
-                    itemsDestroyed++;
-                    activeTask.incrementAmountDisassembled();
-                }
-            }
-        }*/
         if (handleHarps) {
             String itemName = event.getNewItem().getName();
             if (itemName != null && itemName.equals("Harmonic dust")) {
@@ -338,10 +331,39 @@ public class SnowsScript extends LoopingScript {
                 log("[Smelter] Created " + newItemName);
             }
         }
+        if (makeDinarrow) {
+            String itemName = event.getNewItem().getName();
+            if ("Headless dinarrow".equals(itemName)) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int newHeadlessDinarrows = newCount - oldCount;
+                    int existingQuantity = headlessDinarrows.getOrDefault(itemName, 0);
+                    headlessDinarrows.put(itemName, existingQuantity + newHeadlessDinarrows);
+                }
+            }
+
+            if ("Dinarrow".equals(itemName)) {
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int newDinarrows = newCount - oldCount;
+                    int existingQuantity = dinarrows.getOrDefault(itemName, 0);
+                    dinarrows.put(itemName, existingQuantity + newDinarrows);
+                }
+            }
+        }
     }
+
+    public static Map<String, Integer> headlessDinarrows = new HashMap<>();
+    public static Map<String, Integer> dinarrows = new HashMap<>();
+
+
     public static int tunePercentage = 20;
     public static Map<String, Integer> smeltedItems = new HashMap<>();
     public static Map<String, Integer> necroItemsAdded = new HashMap<>();
+    public static Map<String, Integer> materialsGained = new HashMap<>();
+
     Queue<String> lastTwoMessages = new LinkedList<>();
 
 
@@ -355,6 +377,27 @@ public class SnowsScript extends LoopingScript {
             return;
         }
         String message = event.getMessage();
+        if (isDissasemblerActive) {
+            if (message.contains("Materials gained:")) {
+                String[] parts = message.split(": ");
+                if (parts.length > 1) {
+                    String[] materials = parts[1].split(", ");
+                    for (String material : materials) {
+                        String[] materialParts = material.split(" x ");
+                        if (materialParts.length > 1) {
+                            String materialName = materialParts[1].trim();
+                            int materialCount = Integer.parseInt(materialParts[0].trim());
+                            int existingCount = materialsGained.getOrDefault(materialName, 0);
+                            materialsGained.put(materialName, existingCount + materialCount);
+                        }
+                    }
+                }
+            }
+            if (message.contains("You don't have enough")) {
+                log("[Error] You have run out of supplies, logging off");
+                shutdown();
+            }
+        }
 
         if (handleNecro) {
             if (message.contains("The following reward is added to the ritual chest:")) {
@@ -584,7 +627,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("isMiscActive", String.valueOf(isMiscActive));
         this.configuration.addProperty("isPlanksActive", String.valueOf(isPlanksActive));
         this.configuration.addProperty("isPorterMakerActive", String.valueOf(isportermakerActive));
-        this.configuration.addProperty("soulAltar", String.valueOf(soulAltar));
+        this.configuration.addProperty("soulAltar", String.valueOf(useSoulAltar));
         this.configuration.addProperty("isRunecraftingActive", String.valueOf(isRunecraftingActive));
         this.configuration.addProperty("RingofDueling", String.valueOf(RingofDueling));
         this.configuration.addProperty("HandleBoneAltar", String.valueOf(HandleBoneAltar));
@@ -666,6 +709,8 @@ public class SnowsScript extends LoopingScript {
         String combatListSerialized = String.join(",", CombatList);
         this.configuration.addProperty("CombatList", combatListSerialized);
         this.configuration.addProperty("shouldEatFood", String.valueOf(shouldEatFood));
+        this.configuration.addProperty("useAbyssRunecrafting", String.valueOf(useAbyssRunecrafting));
+        this.configuration.addProperty("makeDinarrow", String.valueOf(makeDinarrow));
 
 
         this.configuration.save();
@@ -673,6 +718,8 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            makeDinarrow = Boolean.parseBoolean(this.configuration.getProperty("makeDinarrow"));
+            useAbyssRunecrafting = Boolean.parseBoolean(this.configuration.getProperty("useAbyssRunecrafting"));
             shouldEatFood = Boolean.parseBoolean(this.configuration.getProperty("shouldEatFood"));
             scrollToBottom = Boolean.parseBoolean(this.configuration.getProperty("scrollToBottom"));
             useIritSticks = Boolean.parseBoolean(this.configuration.getProperty("useIritSticks"));
@@ -740,7 +787,7 @@ public class SnowsScript extends LoopingScript {
             isMiscActive = Boolean.parseBoolean(this.configuration.getProperty("isMiscActive"));
             isPlanksActive = Boolean.parseBoolean(this.configuration.getProperty("isPlanksActive"));
             isportermakerActive = Boolean.parseBoolean(this.configuration.getProperty("isPorterMakerActive"));
-            soulAltar = Boolean.parseBoolean(this.configuration.getProperty("soulAltar"));
+            useSoulAltar = Boolean.parseBoolean(this.configuration.getProperty("soulAltar"));
             isRunecraftingActive = Boolean.parseBoolean(this.configuration.getProperty("isRunecraftingActive"));
             RingofDueling = Boolean.parseBoolean(this.configuration.getProperty("RingofDueling"));
             HandleBoneAltar = Boolean.parseBoolean(this.configuration.getProperty("HandleBoneAltar"));

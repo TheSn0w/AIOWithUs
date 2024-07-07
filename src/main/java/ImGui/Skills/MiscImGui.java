@@ -18,6 +18,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Misc.CaveNightshade.NightshadePicked;
 import static net.botwithus.Misc.CrystalChests.useTaverly;
 import static net.botwithus.Misc.Dissasembler.doAll;
+import static net.botwithus.Misc.Fletching.*;
 import static net.botwithus.Misc.LeatherCrafter.*;
 import static net.botwithus.Misc.Necro.enableDisturbances;
 import static net.botwithus.Misc.Necro.handleNecro;
@@ -25,6 +26,8 @@ import static net.botwithus.Misc.PorterMaker.*;
 import static net.botwithus.Misc.Smelter.handleGoldBar;
 import static net.botwithus.Misc.Smelter.handleGoldGauntlets;
 import static net.botwithus.SnowsScript.*;
+import static net.botwithus.SnowsScript.dinarrows;
+import static net.botwithus.SnowsScript.headlessDinarrows;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.tasks;
 
@@ -39,7 +42,7 @@ public class MiscImGui {
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
             ImGui.SeparatorText("Miscellaneous Options");
 
-            boolean NoneSelected = isportermakerActive || handleLeatherCrafter|| handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
+            boolean NoneSelected = isportermakerActive || makeDinarrow || handleLeatherCrafter|| handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
             if (!NoneSelected || isportermakerActive) {
                 if (!NoneSelected) {
@@ -192,6 +195,18 @@ public class MiscImGui {
                     ImGui.SetCursorPosX(spacing);
                 }
                 handleLeatherCrafter = ImGui.Checkbox("Leather Crafter", handleLeatherCrafter);
+                if (!NoneSelected) {
+                    ImGui.SameLine();
+                }
+            }
+            if (!NoneSelected || makeDinarrow) {
+                if (!NoneSelected) {
+                    ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+
+                } else {
+                    ImGui.SetCursorPosX(spacing);
+                }
+                makeDinarrow = ImGui.Checkbox("Make Dinarrows", makeDinarrow);
                 if (!NoneSelected) {
                     ImGui.SameLine();
                 }
@@ -545,6 +560,10 @@ public class MiscImGui {
 
                 ImGui.Text("Divine Charges Per Hour: " + divineChargesPerHourInt);
             }
+            if (makeDinarrow) {
+                displayHeadlessDinarrowInfo();
+                displayDinarrowInfo();
+            }
             if (isGemCutterActive) {
                 ImGui.SeparatorText("Gem Counts");
                 for (Map.Entry<String, Integer> entry : Gems.entrySet()) {
@@ -714,6 +733,11 @@ public class MiscImGui {
             useDisassemble = ImGui.Checkbox("Disassemble", useDisassemble);
             ImGui.SameLine();
             useAlchamise = ImGui.Checkbox("High Alch", useAlchamise);
+
+            if (useDisassemble) {
+                displayMaterialsGainedInfo();
+
+            }
            /* doAll = ImGui.Checkbox("Do all Backpack", doAll);
             ImGui.Separator();
             setItemName(ImGui.InputText("Item name", getItemName(), 100, ImGuiWindowFlag.None.getValue()));
@@ -741,6 +765,41 @@ public class MiscImGui {
                     }
                 }
                 ImGui.EndTable();*/
+        }
+    }
+    public static void displayHeadlessDinarrowInfo() {
+        Duration elapsedTime = Duration.between(startTime, Instant.now());
+        long elapsedSeconds = elapsedTime.getSeconds();
+        if (elapsedSeconds == 0) return;
+
+        ImGui.Text("Headless Dinarrow Info:");
+        for (Map.Entry<String, Integer> entry : headlessDinarrows.entrySet()) {
+            float dinarrowsPerHour = (float) entry.getValue() / elapsedSeconds * 3600;
+            ImGui.Text(entry.getKey() + ": " + entry.getValue() + " (" + String.format("%.2f", dinarrowsPerHour) + " per hour)");
+        }
+    }
+
+    public static void displayDinarrowInfo() {
+        Duration elapsedTime = Duration.between(startTime, Instant.now());
+        long elapsedSeconds = elapsedTime.getSeconds();
+        if (elapsedSeconds == 0) return;
+
+        ImGui.Text("Dinarrow Info:");
+        for (Map.Entry<String, Integer> entry : dinarrows.entrySet()) {
+            float dinarrowsPerHour = (float) entry.getValue() / elapsedSeconds * 3600;
+            ImGui.Text(entry.getKey() + ": " + entry.getValue() + " (" + String.format("%.2f", dinarrowsPerHour) + " per hour)");
+        }
+    }
+    public static void displayMaterialsGainedInfo() {
+        Duration elapsedTime = Duration.between(startTime, Instant.now());
+        long elapsedSeconds = elapsedTime.getSeconds();
+        if (elapsedSeconds == 0) return;
+
+        ImGui.Text("Materials Gained Info:");
+        for (Map.Entry<String, Integer> entry : materialsGained.entrySet()) {
+            String materialName = entry.getKey().replace("</col>", ""); // Remove </col> from the material name
+            float materialsPerHour = (float) entry.getValue() / elapsedSeconds * 3600;
+            ImGui.Text(materialName + ": " + entry.getValue() + " (" + String.format("%.2f", materialsPerHour) + " per hour)");
         }
     }
 }

@@ -33,24 +33,24 @@ public class Potions {
         long totalDelay = 0;
 
         long aggroCheck = useAggression(player);
-        if (aggroCheck == 1L && !nearestBank) {
+      /*  if (aggroCheck == 1L && !nearestBank) {
             useAggroPots = false;
-        }
+        }*/
 
         long prayerCheck = usePrayerOrRestorePots(player);
-        if (prayerCheck == 1L && !nearestBank) {
+        /*if (prayerCheck == 1L && !nearestBank) {
             usePrayerPots = false;
-        }
+        }*/
 
         long overloadCheck = drinkOverloads(player);
-        if (overloadCheck == 1L && !nearestBank) {
+        /*if (overloadCheck == 1L && !nearestBank) {
             useOverloads = false;
-        }
+        }*/
 
         long weaponPoisonCheck = useWeaponPoison(player);
-        if (weaponPoisonCheck == 1L && !nearestBank) {
+        /*if (weaponPoisonCheck == 1L && !nearestBank) {
             useWeaponPoison = false;
-        }
+        }*/
 
         if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L) {
             if (nearestBank) {

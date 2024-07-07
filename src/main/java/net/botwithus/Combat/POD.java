@@ -200,6 +200,8 @@ public class POD {
         }
         return true;
     }
+
+
     public static boolean shouldBank(LocalPlayer player) {
         long overloadCheck = drinkOverloads(player);
         long prayerCheck = usePrayerOrRestorePots(player);

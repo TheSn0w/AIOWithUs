@@ -1,5 +1,6 @@
 package ImGui.Skills;
 
+import net.botwithus.Runecrafting.Abyss;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Variables.GlobalState;
 import net.botwithus.rs3.imgui.ImGui;
@@ -10,6 +11,7 @@ import java.time.Instant;
 import static ImGui.VersionManager.displayVersion;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Misc.UrnMaker.getUrnState;
+import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.getCurrentState;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.SnowsScript.getBotState;
@@ -20,8 +22,8 @@ import static net.botwithus.Variables.Variables.totalElapsedTime;
 public class BottomChild {
 
     public static void renderBottom() {
-        int noScrollbarFlag = 0x00000008; // ImGuiWindowFlags_NoScrollbar
-        int noScrollWithMouseFlag = 0x00000010; // ImGuiWindowFlags_NoScrollWithMouse
+        int noScrollbarFlag = 0x00000008;
+        int noScrollWithMouseFlag = 0x00000010;
         int combinedFlags = noScrollbarFlag | noScrollWithMouseFlag;
 
         if (ImGui.BeginChild("Child1", 580, 60, true, combinedFlags)) {
@@ -29,7 +31,7 @@ public class BottomChild {
             ImGui.SetCursorPosX(10);
 
             String botState;
-            if (isRunecraftingActive && !useSteamRunes) {
+            if (isRunecraftingActive && !useSteamRunes && !useAbyssRunecrafting) {
                 botState = String.valueOf(getCurrentState());
             } else if (useSteamRunes) {
                 botState = String.valueOf(SteamRunes.getCurrentState());
@@ -39,6 +41,8 @@ public class BottomChild {
                 botState = String.valueOf(getSelectedRecipe());
             } else if (isMakeUrnsActive) {
                 botState = String.valueOf(getUrnState());
+            } else if (useAbyssRunecrafting) {
+                botState = String.valueOf(Abyss.getCurrentState());
             } else {
                 botState = String.valueOf(getBotState());
             }

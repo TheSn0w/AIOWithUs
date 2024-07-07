@@ -11,7 +11,6 @@ import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.login.LoginManager;
-import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -34,6 +33,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Runecrafting.Abyss.thisState;
+import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.ScriptState.*;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.TaskScheduler.shutdown;
@@ -42,8 +43,8 @@ import static net.botwithus.Variables.Variables.*;
 public class Runecrafting {
 
     public static long lastMovedOrAnimatedTime = System.currentTimeMillis();
-    private static final Pattern superRestorePattern = Pattern.compile("Super restore.*", Pattern.CASE_INSENSITIVE);
-    private static final Pattern familiarPattern = Pattern.compile("Abyssal parasite|Abyssal lurker|Abyssal titan", Pattern.CASE_INSENSITIVE);
+    public static final Pattern superRestorePattern = Pattern.compile("Super restore.*", Pattern.CASE_INSENSITIVE);
+    public static final Pattern familiarPattern = Pattern.compile("Abyssal parasite|Abyssal lurker|Abyssal titan", Pattern.CASE_INSENSITIVE);
     public static final Map<String, Integer> runeQuantities = new ConcurrentHashMap<>();
     public static Player player = Client.getLocalPlayer();
     public static boolean hopDuetoPlayers = false;
@@ -51,11 +52,9 @@ public class Runecrafting {
     public static Map<String, Integer> getRuneQuantities() {
         return runeQuantities;
     }
-
     public static ScriptState getCurrentState() {
         return currentState;
     }
-
     public static ScriptState currentState = IDLE;
 
 
@@ -70,7 +69,7 @@ public class Runecrafting {
     }
 
     public static void handleRunecrafting(LocalPlayer player) {
-        if (useSteamRunes) {
+        if (useSteamRunes || useAbyssRunecrafting || useSoulAltar) {
             return;
         }
 
