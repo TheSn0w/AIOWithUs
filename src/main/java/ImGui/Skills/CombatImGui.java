@@ -17,8 +17,7 @@ import java.util.*;
 import static ImGui.PredefinedStrings.*;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
-import static net.botwithus.Combat.Familiar.summonFamiliar;
-import static net.botwithus.Combat.Familiar.useFamiliarScrolls;
+import static net.botwithus.Combat.Familiar.*;
 import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;
@@ -314,7 +313,7 @@ public class CombatImGui {
             ImGui.SameLine();
 
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-            summonFamiliar = ImGui.Checkbox("Familiar", summonFamiliar);
+            useFamiliarForCombat = ImGui.Checkbox("Familiar", useFamiliarForCombat);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Will summon familiar if pouch in inventory and has summoning points, if low summoning points, will try drink a restore potion, if none available will bank if Bank is enabled");
             }

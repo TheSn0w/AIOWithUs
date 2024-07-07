@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Familiar.summonFamiliar;
+import static net.botwithus.Combat.Familiar.useFamiliarForCombat;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
@@ -33,27 +34,11 @@ public class Potions {
     public static void managePotions(LocalPlayer player) {
         long totalDelay = random.nextLong(1000, 1500);
 
-        long aggroCheck = useAggression(player);
-      /*  if (aggroCheck == 1L && !nearestBank) {
-            useAggroPots = false;
-        }*/
-
-        long prayerCheck = usePrayerOrRestorePots(player);
-        /*if (prayerCheck == 1L && !nearestBank) {
-            usePrayerPots = false;
-        }*/
-
-        long overloadCheck = drinkOverloads(player);
-        /*if (overloadCheck == 1L && !nearestBank) {
-            useOverloads = false;
-        }*/
-
-        long weaponPoisonCheck = useWeaponPoison(player);
-        /*if (weaponPoisonCheck == 1L && !nearestBank) {
-            useWeaponPoison = false;
-        }*/
-
-        long familiarCheck = summonFamiliar();
+        long aggroCheck = useAggroPots ? useAggression(player) : 0;
+        long prayerCheck = usePrayerPots ? usePrayerOrRestorePots(player) : 0;
+        long overloadCheck = useOverloads ? drinkOverloads(player) : 0;
+        long weaponPoisonCheck = useWeaponPoison ? useWeaponPoison(player) : 0;
+        long familiarCheck = useFamiliarForCombat ? summonFamiliar() : 0;
 
         if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L || familiarCheck == 1L) {
             if (nearestBank) {
@@ -64,11 +49,11 @@ public class Potions {
             }
         }
 
-        totalDelay += aggroCheck != 1L ? aggroCheck : 0;
-        totalDelay += prayerCheck != 1L ? prayerCheck : 0;
-        totalDelay += overloadCheck != 1L ? overloadCheck : 0;
-        totalDelay += weaponPoisonCheck != 1L ? weaponPoisonCheck : 0;
-        totalDelay += familiarCheck != 1L ? familiarCheck : 0;
+        totalDelay += aggroCheck;
+        totalDelay += prayerCheck;
+        totalDelay += overloadCheck;
+        totalDelay += weaponPoisonCheck;
+        totalDelay += familiarCheck;
 
         Execution.delay(totalDelay);
     }

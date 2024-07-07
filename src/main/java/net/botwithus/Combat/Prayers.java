@@ -5,6 +5,7 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
+import static net.botwithus.Combat.RipperDemon.player;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.SoulSplit;
 import static net.botwithus.Variables.Variables.random;
@@ -12,12 +13,11 @@ import static net.botwithus.Variables.Variables.random;
 public class Prayers {
 
     public static void activateSoulSplit(LocalPlayer player) {
-        boolean isSoulSplitActive = VarManager.getVarbitValue(16779) == 1;
-        if (player.hasTarget() && !isSoulSplitActive && player.getPrayerPoints() > 1) {
+        if (VarManager.getVarbitValue(16779) == 0 && player.getPrayerPoints() > 10) {
             boolean success = ActionBar.useAbility("Soul Split");
             if (success) {
                 log("[Combat] Activating Soul Split.");
-                Execution.delayUntil( random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(16779) == 1);
+                Execution.delay(random.nextLong(600));
             } else {
                 log("[Error] Failed to activate Soul Split.");
             }
@@ -66,9 +66,8 @@ public class Prayers {
 
     public static void activateQuickPrayers() {
         if (!quickPrayersActive) {
-            log("[Combat] Activating Quick Prayers.");
-            if (ActionBar.useAbility("Quick-prayers 1")) {
-                log("[Combat] Quick Prayers activated successfully.");
+            if (ActionBar.useAbility("Quick-prayers 1") && player.getPrayerPoints() > 10) {
+                log("[Combat] Activating Quick Prayers.");
                 quickPrayersActive = true;
                 Execution.delay(random.nextLong(1500, 2000));
             } else {

@@ -3,6 +3,8 @@ package net.botwithus.Combat;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.LootInventory;
+import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -11,6 +13,7 @@ import net.botwithus.rs3.game.js5.types.ItemType;
 import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
 import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
@@ -51,12 +54,7 @@ public class LootManager {
                 lootAllButton();
             }
 
-            try {
-                Thread.sleep(random.nextLong(800, 1000));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
+            Execution.delay(random.nextLong(600, 700));
         }
     }
 
@@ -120,18 +118,37 @@ public class LootManager {
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
+        LocalPlayer player = getLocalPlayer();
         Pattern lootPattern = generateLootPattern(targetItemNames);
-        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
+                .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)
+                .toList();
 
         groundItems.stream()
                 .filter(groundItem -> groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find())
                 .anyMatch(groundItem -> {
-                    // Check if the item is not present in the LootInventory
                     if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                        groundItem.interact("Take");
-                        log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                        // Wait until the item appears in the LootInventory
-                        return Execution.delayUntil(random.nextLong(10000, 15000), () -> LootInventory.contains(groundItem.getName()) || LootInventory.isOpen());
+                        while (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+                            groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
+                            if (groundItem == null) {
+                                log("[CustomLootingFromGround] Ground item no longer exists.");
+                                break;
+                            }
+                            groundItem.interact("Take");
+                            log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                            Execution.delay(random.nextLong(600, 750));
+                        }
+
+                        if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null && Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+                            Execution.delay(random.nextLong(750, 1000));
+
+                            log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
+                            Execution.delay(RandomGenerator.nextInt(200, 250));
+                            groundItem.interact("Take");
+                        }
+
+                        GroundItem finalGroundItem = groundItem;
+                        Execution.delayUntil(random.nextLong(10000, 15000), () -> LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
                     }
                     return false;
                 });
@@ -168,7 +185,7 @@ public class LootManager {
             if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
                 LootInventory.take(item.getName());
                 log("[CustomLooting] Found item to loot: " + item.getName());
-                Execution.delay(random.nextLong(800, 1000));
+                Execution.delay(random.nextLong(600, 700));
             } else {
                 log("[CustomLooting] Item " + item.getName() + " no longer in the expected slot.");
             }
@@ -180,20 +197,44 @@ public class LootManager {
 // =====================
 
     public static void useNotedLootFromGround() {
-        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream().toList();
+        LocalPlayer player = Client.getLocalPlayer();
+        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
+                .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)
+                .toList();
 
         GroundItem groundItem = groundItems.stream()
                 .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
-                .findFirst()
+                .findAny()
                 .orElse(null);
 
         if (groundItem != null) {
-            // Check if the item is not present in the LootInventory
             if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                groundItem.interact("Take");
-                log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                // Wait until the item appears in the LootInventory
-                Execution.delayUntil(random.nextLong(10000, 15000), () -> LootInventory.contains(groundItem.getName()) || LootInventory.isOpen());
+                while (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+                    groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
+                    if (groundItem == null) {
+                        log("[NotedItemsFromGround] Ground item no longer exists.");
+                        break;
+                    }
+                    groundItem.interact("Take");
+                    log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                    Execution.delay(random.nextLong(600, 750));
+                }
+
+                if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                        Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 15 &&
+                        ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+
+                    Execution.delay(random.nextLong(750, 1000));
+
+                    log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
+                    Execution.delay(random.nextInt(200, 250));
+                    groundItem.interact("Take");
+                }
+
+                GroundItem finalGroundItem = groundItem;
+                Execution.delayUntil(random.nextLong(10000, 15000), () ->
+                        LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate()
+                );
             }
         }
     }
@@ -219,7 +260,7 @@ public class LootManager {
                 if (!Backpack.isFull() || Backpack.contains(item.getName())) {
                     LootInventory.take(item.getName());
                     log("[NotedItems] Found item to loot: " + item.getName());
-                    Execution.delay(random.nextLong(800, 1000));
+                    Execution.delay(random.nextLong(600, 700));
                 }
             }
         }

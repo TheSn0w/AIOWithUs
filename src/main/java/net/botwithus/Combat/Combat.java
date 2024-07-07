@@ -15,6 +15,7 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -24,6 +25,7 @@ import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.CombatManager.DeathEssence;
 import static net.botwithus.Combat.Familiar.summonFamiliar;
+import static net.botwithus.Combat.Familiar.useFamiliarForCombat;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.Potions.*;
@@ -50,6 +52,25 @@ public class Combat {
             if (player == null) {
                 return;
             }
+            if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+                activateSoulSplit(player);
+            }
+            if (SoulSplit && VarManager.getVarbitValue(16779) == 1 && !player.inCombat()) {
+                deactivateSoulSplit();
+            }
+            if (usequickPrayers) {
+                updateQuickPrayersActiveStatus();
+                if (!quickPrayersActive && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+                    activateQuickPrayers();
+                } else {
+                    if (quickPrayersActive && !player.inCombat()) {
+                        deactivateQuickPrayers();
+                    }
+                }
+            }
+            managePotions(player);
+            manageScripturesAndScrimshaws(player);
+
             if (player.hasTarget() && player.inCombat()) {
                 // Backpack
                 if (useVulnerabilityBomb) {
@@ -143,28 +164,8 @@ public class Combat {
         }
 
         handleMultitarget();
-        managePotions(player);
-        manageScripturesAndScrimshaws(player);
 
-        // Handle combat actions
-        if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
-            activateSoulSplit(player);
-        }
-        if (SoulSplit && VarManager.getVarbitValue(16779) == 1 && !player.inCombat()) {
-            deactivateSoulSplit();
-        }
-        if (usequickPrayers) {
-            updateQuickPrayersActiveStatus();
-            if (!quickPrayersActive && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
-                activateQuickPrayers();
-            } else {
-                if (quickPrayersActive && !player.inCombat()) {
-                    deactivateQuickPrayers();
-                }
-            }
-        }
-
-        if (summonFamiliar) {
+        if (useFamiliarForCombat) {
             summonFamiliar();
         }
         if (enableRadiusTracking) {
@@ -205,53 +206,64 @@ public class Combat {
             return iceStrykewyrms();
         }
 
-        // Handle targeting logic
-        if (handleMultitarget && player.getTarget().getCurrentHealth() > player.getTarget().getMaximumHealth() * healthThreshold) {
-            return random.nextLong(600, 650);
-        }
         if (!player.hasTarget()) {
             handleCombat(player);
         }
+
         if (player.hasTarget()) {
-            if (handleMultitarget && player.getTarget().getCurrentHealth() >= player.getMaximumHealth() * healthThreshold) {
-                PathingEntity<?> target = player.getTarget();
-                Npc newTarget = findDifferentTarget(player, target.getId());
-                if (newTarget != null) {
-                    return attackMonster(player, newTarget);
+
+            PathingEntity<?> target = player.getTarget();
+
+            if (handleMultitarget) {
+                if (target.getCurrentHealth() <= target.getMaximumHealth() * healthThreshold) {
+                    Npc newTarget = findDifferentTarget(player, target.getId());
+                    if (newTarget != null) {
+                        return attackMonster(player, newTarget);
+                    } else {
+                        return random.nextLong(100, 200);
+                    }
+                } else {
+                    return random.nextLong(100, 200);
                 }
-            } else {
-                return random.nextLong(600, 650);
             }
         }
 
-        return random.nextLong(600, 650);
+        return random.nextLong(100, 200);
     }
+
 
 
     private static long lavaStrykewyrms() {
-        LocalPlayer player = getLocalPlayer();
-        if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
-            return random.nextLong(400, 600);
-        }
-        EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(2417).option("Investigate").results();
-        Npc strykewyrm = NpcQuery.newQuery().name("Lava strykewyrm").results().nearestTo(player);
+    LocalPlayer player = getLocalPlayer();
+    if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
+        return random.nextLong(400, 600);
+    }
+    EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(2417).option("Investigate").results();
+    Npc strykewyrm = NpcQuery.newQuery().byType(20630).results().nearestTo(player);
 
-        if (strykewyrm != null && strykewyrm.getCurrentHealth() > 0) {
-            log("[LavaStrykewyrms] Strykewyrm is being followed by the player and has health greater than 0.");
-            strykewyrm.interact("Attack");
-            Execution.delay(random.nextLong(1000, 2000));
-            return 0;
-        }
-
-        if (!mounds.isEmpty()) {
-            log("[LavaStrykewyrms] Interacting with the nearest mound.");
-            mounds.nearest().interact("Investigate");
-            return random.nextLong(1000, 2000);
-        } else {
-            log("[LavaStrykewyrms] No Nearby Mounds available.");
-        }
+    if (strykewyrm != null && strykewyrm.getCurrentHealth() > 0) {
+        log("[Lava] Strykewyrm is being followed by the player and has health greater than 0.");
+        strykewyrm.interact("Attack");
+        Execution.delay(random.nextLong(1000, 2000));
         return 0;
     }
+
+    if (!mounds.isEmpty()) {
+        Npc nearestMound = mounds.nearest();
+        log("[Lava] Interacting with the nearest mound.");
+        nearestMound.interact("Investigate");
+        if (nearestMound.getCoordinate().distanceTo(player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+            Execution.delay(random.nextLong(600, 700));
+            log("[Lava] Used Surge: " + ActionBar.useAbility("Surge"));
+            Execution.delay(random.nextLong(200, 250));
+            nearestMound.interact("Investigate");
+        }
+        return random.nextLong(1000, 2000);
+    } else {
+        log("[Lava] No Nearby Mounds available.");
+    }
+    return 0;
+}
 
     private static long iceStrykewyrms() {
         LocalPlayer player = getLocalPlayer();
@@ -259,20 +271,28 @@ public class Combat {
             return random.nextLong(400, 600);
         }
         EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(9462).option("Investigate").results();
-        Npc strykewyrm = NpcQuery.newQuery().name("Ice strykewyrm").results().nearestTo(player);
+        Npc strykewyrm = NpcQuery.newQuery().byType(9463).results().nearestTo(player);
 
         if (strykewyrm != null && strykewyrm.getCurrentHealth() > 0) {
-            log("[IceStrykewyrms] Strykewyrm is being followed by the player and has health greater than 0.");
+            log("[Ice] Strykewyrm is being followed by the player and has health greater than 0.");
             strykewyrm.interact("Attack");
             Execution.delay(random.nextLong(1000, 2000));
             return 0;
         }
+
         if (!mounds.isEmpty()) {
-            log("[IceStrykewyrms] Interacting with the nearest mound.");
-            mounds.nearest().interact("Investigate");
+            Npc nearestMound = mounds.nearest();
+            log("[Ice] Interacting with the nearest mound.");
+            nearestMound.interact("Investigate");
+            if (nearestMound.getCoordinate().distanceTo(player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+                Execution.delay(random.nextLong(600, 700));
+                log("[Ice] Used Surge: " + ActionBar.useAbility("Surge"));
+                Execution.delay(random.nextLong(200, 250));
+                nearestMound.interact("Investigate");
+            }
             return random.nextLong(1000, 2000);
         } else {
-            log("[IceStrykewyrms] No Nearby Mounds available.");
+            log("[Ice] No Nearby Mounds available.");
         }
         return 0;
     }

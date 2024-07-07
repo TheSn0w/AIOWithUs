@@ -17,7 +17,7 @@ import static net.botwithus.Variables.Variables.random;
 
 public class Familiar {
 
-    public static boolean summonFamiliar = false;
+    public static boolean useFamiliarForCombat = false;
     public static boolean useFamiliarScrolls = false;
 
     public static long summonFamiliar() {
