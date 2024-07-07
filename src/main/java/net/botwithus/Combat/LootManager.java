@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -38,19 +39,15 @@ public class LootManager {
         while (snowsScript.isActive()) {
 
             if (useCustomLoot) {
-                Execution.delay(random.nextLong(800, 1000));
                 useCustomLoot();
             }
             if (useLootAllNotedItems) {
-                Execution.delay(random.nextLong(800, 1000));
                 lootNotedItemsFromInventory();
             }
             if (useNotepaper) {
-                Execution.delay(random.nextLong(800, 1000));
                 useItemOnNotepaper();
             }
             if (useLootEverything) {
-                Execution.delay(random.nextLong(800, 1000));
                 lootAllButton();
             }
 
@@ -111,6 +108,7 @@ public class LootManager {
         if (LootInventory.isOpen() && !LootInventory.getItems().isEmpty()) {
             if (!Backpack.isFull()) {
                 LootInventory.lootAll();
+                Execution.delay(random.nextLong(800, 1000));
                 log("[LootAll] Looted all items from the inventory.");
             } else {
                 log("[LootAll] Backpack is full, Cannot loot all items.");
@@ -168,6 +166,7 @@ public class LootManager {
             if (currentItem != null && currentItem.getSlot() == item.getSlot()) {
                 LootInventory.take(item.getName());
                 log("[CustomLooting] Found item to loot: " + item.getName());
+                Execution.delay(random.nextLong(800, 1000));
             } else {
                 log("[CustomLooting] Item " + item.getName() + " no longer in the expected slot.");
             }
@@ -216,6 +215,7 @@ public class LootManager {
                 if (!Backpack.isFull() || Backpack.contains(item.getName())) {
                     LootInventory.take(item.getName());
                     log("[NotedItems] Found item to loot: " + item.getName());
+                    Execution.delay(random.nextLong(800, 1000));
                 }
             }
         }

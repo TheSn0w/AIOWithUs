@@ -199,7 +199,7 @@ public class Combat {
         }
 
         // Handle targeting logic
-        if (handleMultitarget && player.hasTarget() && player.getTarget().getCurrentHealth() >= player.getTarget().getMaximumHealth() * healthThreshold) {
+        if (handleMultitarget && player.getTarget().getCurrentHealth() >= player.getTarget().getMaximumHealth() * healthThreshold) {
             return random.nextLong(600, 650);
         }
         if (!player.hasTarget()) {

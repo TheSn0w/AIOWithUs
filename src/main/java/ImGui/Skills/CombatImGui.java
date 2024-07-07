@@ -755,20 +755,6 @@ public class CombatImGui {
                         }
                     }
                 }
-                ImGui.SeparatorText("Charms Obtained Count");
-                List<Map<String, Integer>> allCharms = Arrays.asList(BlueCharms, CrimsonCharms, GreenCharms, GoldCharms);
-
-                for (Map<String, Integer> charmMap : allCharms) {
-                    for (Map.Entry<String, Integer> entry : charmMap.entrySet()) {
-                        long elapsedTime = Duration.between(startTime, Instant.now()).toMillis();
-                        double elapsedHours = elapsedTime / 1000.0 / 60.0 / 60.0;
-
-                        double charmsObtainedPerHour = entry.getValue() / elapsedHours;
-                        int charmsObtainedPerHourInt = (int) charmsObtainedPerHour;
-
-                        ImGui.Text(entry.getKey() + ": " + entry.getValue() + " - per hour: " + charmsObtainedPerHourInt);
-                    }
-                }
                 ImGui.End();
             }
         }

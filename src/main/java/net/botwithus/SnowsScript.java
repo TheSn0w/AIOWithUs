@@ -277,37 +277,6 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-        if (isCombatActive) {
-            String itemName = event.getNewItem().getName();
-            if (itemName.endsWith(" charm")) {
-                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
-                int newCount = event.getNewItem().getStackSize();
-                if (newCount > oldCount) {
-                    int quantity = newCount - oldCount;
-
-                    Map<String, Integer> charmMap;
-                    switch (itemName) {
-                        case "Blue charm":
-                            charmMap = BlueCharms;
-                            break;
-                        case "Crimson charm":
-                            charmMap = CrimsonCharms;
-                            break;
-                        case "Green charm":
-                            charmMap = GreenCharms;
-                            break;
-                        case "Gold charm":
-                            charmMap = GoldCharms;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    int currentCount = charmMap.getOrDefault(itemName, 0);
-                    charmMap.put(itemName, currentCount + quantity);
-                }
-            }
-        }
         if (isDivinationActive) {
             String itemName = event.getNewItem().getName();
             if (itemName.contains("energy")) {
@@ -382,16 +351,12 @@ public class SnowsScript extends LoopingScript {
 
 
     public static final Map<String, Integer> lootedItems = new HashMap<>();
-
     public static Map<String, Integer> headlessDinarrows = new HashMap<>();
     public static Map<String, Integer> dinarrows = new HashMap<>();
-
-
     public static int tunePercentage = 20;
     public static Map<String, Integer> smeltedItems = new HashMap<>();
     public static Map<String, Integer> necroItemsAdded = new HashMap<>();
     public static Map<String, Integer> materialsGained = new HashMap<>();
-
     Queue<String> lastTwoMessages = new LinkedList<>();
 
 
