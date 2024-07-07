@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
@@ -20,6 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Combat.Books.*;
+import static net.botwithus.Combat.CombatManager.*;
+import static net.botwithus.Combat.CombatManager.DeathEssence;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.Potions.*;
@@ -34,6 +37,83 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Combat {
+    private SnowsScript snowsScript;
+
+    public Combat(SnowsScript snowsScript) {
+        this.snowsScript = snowsScript;
+    }
+    public void manageCombatAbilities() {
+        while (snowsScript.isActive()) {
+
+            LocalPlayer player = getLocalPlayer();
+            if (player == null) {
+                return;
+            }
+            // Backpack
+            if (useVulnerabilityBomb) {
+                vulnerabilityBomb();
+            }
+            // Backpack
+            if (useElvenRitual) {
+                activateElvenRitual();
+            }
+            // Backpack
+            if (useExcalibur) {
+                activateExcalibur();
+            }
+            if (useUndeadSlayer) {
+                setup("Undead Slayer");
+                activateUndeadSlayer();
+            }
+            if (useDragonSlayer) {
+                setup("Dragon Slayer");
+                activateDragonSlayer();
+            }
+            if (useDemonSlayer) {
+                setup("Demon Slayer");
+                activateDemonSlayer();
+            }
+            if (useDarkness) {
+                setup("Darkness");
+                manageDarkness();
+            }
+            if (useAnimateDead) {
+                setup("Animate Dead");
+                manageAnimateDead();
+            }
+            if (useConjureUndeadArmy) {
+                setup("Conjure Undead Army");
+                keepArmyUp();
+            }
+            if (useThreadsofFate) {
+                setup("Threads of Fate");
+                manageThreadsOfFate();
+            }
+            if (useInvokeDeath) {
+                setup("Invoke Death");
+                invokeDeath();
+            }
+            if (useVolleyofSouls) {
+                setup("Volley of Souls");
+                volleyOfSouls();
+            }
+            if (useEssenceofFinality) {
+                setup("Essence of Finality");
+                essenceOfFinality();
+            }
+            if (useWeaponSpecialAttack) {
+                setup("Weapon Special Attack");
+                DeathEssence();
+            }
+            try {
+                Thread.sleep(random.nextLong(800, 1000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
 
     public static double healthThreshold = 0.7;
     public static double getHealthThreshold() {
@@ -230,6 +310,7 @@ public class Combat {
     private static long attackMonster(LocalPlayer player, Npc monster) {
         boolean attack = monster.interact("Attack");
         log("[MultiTarget] Attacking " + monster.getName() + "...");
+        Execution.delay(random.nextLong(500, 700));
         if (attack) {
             if (handleMultitarget) {
                 recentlyAttackedTargets.add(monster.getId());
@@ -269,7 +350,7 @@ public class Combat {
         if (monster != null) {
             boolean attack = monster.interact("Attack");
             if (attack) {
-                logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 200, 300);
+                logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 500, 700);
             } else {
                 logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
             }

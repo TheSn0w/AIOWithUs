@@ -1,6 +1,8 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
+import net.botwithus.Combat.Combat;
+import net.botwithus.Combat.LootManager;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Variables.GlobalState;
@@ -189,110 +191,15 @@ public class SnowsScript extends LoopingScript {
     public void onActivation() {
         subscribeToEvents();
         super.initialize();
-        Thread.ofVirtual().name("LootManager").start(this::manageLoot);
-        Thread.ofVirtual().name("CombatAbilities").start(this::manageCombatAbilities);
 
-    }
-    public void manageLoot() {
-        while (isActive()) {
+        Combat combat = new Combat(this);
+        Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
 
-            if (useCustomLoot) {
-                Execution.delay(random.nextLong(800, 1000));
-                useCustomLoot();
-            }
-            if (useLootAllNotedItems) {
-                Execution.delay(random.nextLong(800, 1000));
-                lootNotedItemsFromInventory();
-            }
-            if (useNotepaper) {
-                Execution.delay(random.nextLong(800, 1000));
-                useItemOnNotepaper();
-            }
-            if (useLootEverything) {
-                Execution.delay(random.nextLong(800, 1000));
-                lootAllButton();
-            }
 
-            try {
-                Thread.sleep(random.nextLong(800, 1000));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
+        LootManager lootManager = new LootManager(this);
+        Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
     }
 
-    public void manageCombatAbilities() {
-        while (isActive()) {
-
-            LocalPlayer player = getLocalPlayer();
-            if (player == null) {
-                return;
-            }
-            // Backpack
-            if (useVulnerabilityBomb) {
-                vulnerabilityBomb();
-            }
-            // Backpack
-            if (useElvenRitual) {
-                activateElvenRitual();
-            }
-            // Backpack
-            if (useExcalibur) {
-                activateExcalibur();
-            }
-            if (useUndeadSlayer) {
-                setup("Undead Slayer");
-                activateUndeadSlayer();
-            }
-            if (useDragonSlayer) {
-                setup("Dragon Slayer");
-                activateDragonSlayer();
-            }
-            if (useDemonSlayer) {
-                setup("Demon Slayer");
-                activateDemonSlayer();
-            }
-            if (useDarkness) {
-                setup("Darkness");
-                manageDarkness();
-            }
-            if (useAnimateDead) {
-                setup("Animate Dead");
-                manageAnimateDead();
-            }
-            if (useConjureUndeadArmy) {
-                setup("Conjure Undead Army");
-                keepArmyUp();
-            }
-            if (useThreadsofFate) {
-                setup("Threads of Fate");
-                manageThreadsOfFate();
-            }
-            if (useInvokeDeath) {
-                setup("Invoke Death");
-                invokeDeath();
-            }
-            if (useVolleyofSouls) {
-                setup("Volley of Souls");
-                volleyOfSouls();
-            }
-            if (useEssenceofFinality) {
-                setup("Essence of Finality");
-                essenceOfFinality();
-            }
-            if (useWeaponSpecialAttack) {
-                setup("Weapon Special Attack");
-                DeathEssence();
-            }
-            try {
-                Thread.sleep(random.nextLong(800, 1000));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-    }
 
 
     @Override

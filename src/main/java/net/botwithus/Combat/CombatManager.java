@@ -122,7 +122,11 @@ public class CombatManager {
 
 
     public static void manageThreadsOfFate() {
-        if (ActionBar.getCooldownPrecise("Threads of Fate") == 0) {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.getCooldownPrecise("Threads of Fate") == 0 && player.hasTarget() && player.inCombat()) {
             interactWithAbility("Threads of Fate");
             boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> ActionBar.getCooldownPrecise("Threads of Fate") != 0);
             if (effectConfirmed) {
@@ -155,6 +159,7 @@ public class CombatManager {
         if (player.getAdrenaline() > 250
                 && ComponentQuery.newQuery(291).spriteId(55524).results().isEmpty()
                 && player.inCombat()
+                && player.hasTarget()
                 && currentNecrosisStacks.get() >= NecrosisStacksThreshold) {
             interactWithAbility("Essence of Finality");
             int finalCurrentNecrosisStacks = currentNecrosisStacks.get();
@@ -174,6 +179,7 @@ public class CombatManager {
                 && player.getFollowing() != null
                 && player.getFollowing().getCurrentHealth() > 500
                 && ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty()
+                && player.hasTarget()
                 && player.inCombat()) {
             interactWithAbility("Weapon Special Attack");
             boolean abilityEffect = Execution.delayUntil(random.nextLong(2000, 3000), () -> !ComponentQuery.newQuery(291).spriteId(55480).results().isEmpty());
@@ -213,7 +219,11 @@ public class CombatManager {
     }
 
     public static void activateUndeadSlayer() {
-        if (ActionBar.containsAbility("Undead Slayer") && ActionBar.getCooldownPrecise("Undead Slayer") == 0) {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Undead Slayer") && ActionBar.getCooldownPrecise("Undead Slayer") == 0 && player.inCombat() && player.hasTarget()) {
             interactWithAbility("Undead Slayer");
             log("[Success] Activated Undead Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
@@ -223,7 +233,11 @@ public class CombatManager {
     }
 
     public static void activateDragonSlayer() {
-        if (ActionBar.containsAbility("Dragon Slayer") && ActionBar.getCooldownPrecise("Dragon Slayer") == 0) {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Dragon Slayer") && ActionBar.getCooldownPrecise("Dragon Slayer") == 0 && player.inCombat() && player.hasTarget()) {
             interactWithAbility("Dragon Slayer");
             log("[Success] Activated Dragon Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
@@ -233,7 +247,11 @@ public class CombatManager {
     }
 
     public static void activateDemonSlayer() {
-        if (ActionBar.containsAbility("Demon Slayer") && ActionBar.getCooldownPrecise("Demon Slayer") == 0) {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Demon Slayer") && ActionBar.getCooldownPrecise("Demon Slayer") == 0 && player.inCombat() && player.hasTarget()) {
             interactWithAbility("Demon Slayer");
             log("[Success] Activated Demon Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
@@ -249,7 +267,7 @@ public class CombatManager {
         }
         int vulnDebuffVarbit = VarManager.getVarbitValue(1939);
 
-        if (vulnDebuffVarbit == 0 && ActionBar.containsItem("Vulnerability bomb") && player.hasTarget()) {
+        if (vulnDebuffVarbit == 0 && ActionBar.containsItem("Vulnerability bomb") && player.hasTarget() && player.inCombat()) {
             boolean success = ActionBar.useItem("Vulnerability bomb", "Throw");
             if (success) {
                 log("[Success] Throwing Vulnerability bomb at " + player.getTarget().getName());

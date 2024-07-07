@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.rs3.game.Distance;
@@ -17,15 +18,52 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class LootManager {
 
+    private SnowsScript snowsScript;
+
+    public LootManager(SnowsScript snowsScript) {
+        this.snowsScript = snowsScript;
+    }
+
     public static boolean useLootAllNotedItems = false;
 
-    // =====================
+
+    public void manageLoot() {
+        while (snowsScript.isActive()) {
+
+            if (useCustomLoot) {
+                Execution.delay(random.nextLong(800, 1000));
+                useCustomLoot();
+            }
+            if (useLootAllNotedItems) {
+                Execution.delay(random.nextLong(800, 1000));
+                lootNotedItemsFromInventory();
+            }
+            if (useNotepaper) {
+                Execution.delay(random.nextLong(800, 1000));
+                useItemOnNotepaper();
+            }
+            if (useLootEverything) {
+                Execution.delay(random.nextLong(800, 1000));
+                lootAllButton();
+            }
+
+            try {
+                Thread.sleep(random.nextLong(800, 1000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
+// =====================
 // SECTION 1: Loot Everything
 // =====================
     public static void useLootInventoryPickup() {
