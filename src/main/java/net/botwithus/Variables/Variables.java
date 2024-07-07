@@ -1,5 +1,6 @@
 package net.botwithus.Variables;
 
+import net.botwithus.Combat.Combat;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Herblore.SharedState;
 import net.botwithus.TaskScheduler;
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
 
 import static ImGui.PredefinedStrings.predefinedNames;
 import static ImGui.PredefinedStrings.recipeNamesList;
+import static net.botwithus.Combat.Combat.healthThreshold;
 import static net.botwithus.CustomLogger.log;
 
 public class Variables {
@@ -105,6 +107,14 @@ public class Variables {
 // =====================
 // SECTION 3: Combat
 // =====================
+    public static boolean handleMultitarget = false;
+    public static boolean lavaStrykewyrms = false;
+    public static boolean iceStrykewyrms = false;
+    public static boolean useDwarfcannon = false;
+    public static boolean shouldEatFood = false;
+    public static final Set<Integer> recentlyAttackedTargets = new HashSet<>();
+    public static long lastClearTime = System.currentTimeMillis();
+    public static boolean isStackable = false;
     public static boolean useThreadsofFate = false;
     public static boolean useAnimateDead = false;
     public static boolean useDarkness = false;

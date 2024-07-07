@@ -18,11 +18,9 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.Combat.Combat.attackTarget;
-import static net.botwithus.Combat.Combat.shouldEatFood;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 

@@ -1,6 +1,5 @@
 package net.botwithus.Combat;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.rs3.game.Distance;
@@ -15,31 +14,17 @@ import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.util.RandomGenerator;
 
-import javax.swing.*;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.botwithus.Combat.Combat.useDwarfcannon;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.BotState.SKILLING;
-import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
-import static net.botwithus.api.game.hud.prayer.Prayer.isActive;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Loot {
-    public static boolean canLoot() {
-        return !targetItemNames.isEmpty();
-    }
 
     public static boolean lootNoted = false;
 

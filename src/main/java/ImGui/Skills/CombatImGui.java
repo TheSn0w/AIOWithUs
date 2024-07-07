@@ -19,6 +19,7 @@ import java.util.*;
 
 import static ImGui.PredefinedStrings.*;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;

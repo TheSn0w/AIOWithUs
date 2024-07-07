@@ -31,11 +31,12 @@ import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Combat.*;
+import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.ItemRemover.dropItems;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
-import static net.botwithus.Combat.Loot.lootNoted;
+import static net.botwithus.Combat.Loot.*;
 import static net.botwithus.Combat.NPCs.updateNpcTableData;
-import static net.botwithus.Combat.Notepaper.selectedNotepaperNames;
+import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.CustomLogger.log;
@@ -143,7 +144,7 @@ public class SnowsScript extends LoopingScript {
                     Execution.delay(BankforArcheology(player, selectedArchNames));
                 }
                 if (nearestBank && isCombatActive) {
-                        Execution.delay(bankToWars(player));
+                    bankToWars(player);
                 }
             }
         }

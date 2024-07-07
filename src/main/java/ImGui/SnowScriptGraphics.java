@@ -80,8 +80,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
             applyOrangeTheme();
         }
 
-        float columnWidth = 190;
-        float childWidth = columnWidth - 10;
+        float columnWidth = 180;
+        float childWidth = columnWidth - 5;
 
         if (ImGui.Begin("AIO Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue() | ImGuiWindowFlag.NoTitleBar.getValue())) {
             ImGui.SetWindowSize((float) 610, (float) 510);
