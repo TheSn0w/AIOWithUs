@@ -16,6 +16,7 @@ import net.botwithus.rs3.script.Execution;
 import java.util.regex.Pattern;
 
 import static net.botwithus.Combat.Banking.bankToWars;
+import static net.botwithus.Combat.Familiar.summonFamiliar;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
@@ -30,7 +31,7 @@ public class Potions {
     public static boolean useIritSticks = false;
 
     public static void managePotions(LocalPlayer player) {
-        long totalDelay = 0;
+        long totalDelay = random.nextLong(1000, 1500);
 
         long aggroCheck = useAggression(player);
       /*  if (aggroCheck == 1L && !nearestBank) {
@@ -52,12 +53,14 @@ public class Potions {
             useWeaponPoison = false;
         }*/
 
-        if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L) {
+        long familiarCheck = summonFamiliar();
+
+        if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L || familiarCheck == 1L) {
             if (nearestBank) {
                 log("[Info] One or more potions are missing, we're banking.");
                 setBotState(BANKING);
             } else {
-                log("[Info] One or more potions are missing, but Bank is disabled.");
+                log("[Info] One or more Potions/Pouches are missing, but Bank is disabled.");
             }
         }
 
@@ -65,6 +68,7 @@ public class Potions {
         totalDelay += prayerCheck != 1L ? prayerCheck : 0;
         totalDelay += overloadCheck != 1L ? overloadCheck : 0;
         totalDelay += weaponPoisonCheck != 1L ? weaponPoisonCheck : 0;
+        totalDelay += familiarCheck != 1L ? familiarCheck : 0;
 
         Execution.delay(totalDelay);
     }

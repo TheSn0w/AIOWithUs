@@ -580,7 +580,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                         ImGui.SameLine();
                                         ImGui.Text(parts[1]);
                                         ImGui.PopStyleColor(1);
-                                    } else if (message.contains("[Loot]")) {
+                                    } else if (message.contains("[Loot]") || message.contains("[NotedItems]") || message.contains("[NotedItemsFromGround]") || message.contains("[CustomLooting]") || message.contains("[LootEverything]") || message.contains("[LootAll]") || message.contains("CustomLootingFromGround")) {
                                         String[] parts = message.split(" ", 2);
                                         setStyleColor(ImGuiCol.Text, 70, 130, 180, 255);
                                         ImGui.Text(parts[0]);

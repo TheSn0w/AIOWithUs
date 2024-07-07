@@ -17,6 +17,8 @@ import java.util.*;
 import static ImGui.PredefinedStrings.*;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
+import static net.botwithus.Combat.Familiar.summonFamiliar;
+import static net.botwithus.Combat.Familiar.useFamiliarScrolls;
 import static net.botwithus.Combat.ItemRemover.*;
 import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;
@@ -307,6 +309,23 @@ public class CombatImGui {
             handleMultitarget = ImGui.Checkbox("Multi Target", handleMultitarget);
             if (ImGui.IsItemHovered()) {
                 ImGui.SetTooltip("Attacks multiple targets when current target is below health threshold");
+            }
+
+            ImGui.SameLine();
+
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            summonFamiliar = ImGui.Checkbox("Familiar", summonFamiliar);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will summon familiar if pouch in inventory and has summoning points, if low summoning points, will try drink a restore potion, if none available will bank if Bank is enabled");
+            }
+
+            ImGui.SameLine();
+
+            ImGui.SetCursorPosX(spacing * 3 + checkboxWidth * 2);
+
+            useFamiliarScrolls = ImGui.Checkbox("Familiar Scrolls", useFamiliarScrolls);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will use scrolls on familiar if available, make sure your familiar tab is open");
             }
 
             ImGui.SeparatorText("Checkbox Configs");

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import static net.botwithus.Combat.Books.*;
 import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.CombatManager.DeathEssence;
+import static net.botwithus.Combat.Familiar.summonFamiliar;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.Potions.*;
@@ -49,67 +50,69 @@ public class Combat {
             if (player == null) {
                 return;
             }
-            // Backpack
-            if (useVulnerabilityBomb) {
-                vulnerabilityBomb();
-            }
-            // Backpack
-            if (useElvenRitual) {
-                activateElvenRitual();
-            }
-            // Backpack
-            if (useExcalibur) {
-                activateExcalibur();
-            }
-            if (useUndeadSlayer) {
-                setup("Undead Slayer");
-                activateUndeadSlayer();
-            }
-            if (useDragonSlayer) {
-                setup("Dragon Slayer");
-                activateDragonSlayer();
-            }
-            if (useDemonSlayer) {
-                setup("Demon Slayer");
-                activateDemonSlayer();
-            }
-            if (useDarkness) {
-                setup("Darkness");
-                manageDarkness();
-            }
-            if (useAnimateDead) {
-                setup("Animate Dead");
-                manageAnimateDead();
-            }
-            if (useConjureUndeadArmy) {
-                setup("Conjure Undead Army");
-                keepArmyUp();
-            }
-            if (useThreadsofFate) {
-                setup("Threads of Fate");
-                manageThreadsOfFate();
-            }
-            if (useInvokeDeath) {
-                setup("Invoke Death");
-                invokeDeath();
-            }
-            if (useVolleyofSouls) {
-                setup("Volley of Souls");
-                volleyOfSouls();
-            }
-            if (useEssenceofFinality) {
-                setup("Essence of Finality");
-                essenceOfFinality();
-            }
-            if (useWeaponSpecialAttack) {
-                setup("Weapon Special Attack");
-                DeathEssence();
-            }
-            try {
-                Thread.sleep(random.nextLong(800, 1000));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            if (player.hasTarget() && player.inCombat()) {
+                // Backpack
+                if (useVulnerabilityBomb) {
+                    vulnerabilityBomb();
+                }
+                // Backpack
+                if (useElvenRitual) {
+                    activateElvenRitual();
+                }
+                // Backpack
+                if (useExcalibur) {
+                    activateExcalibur();
+                }
+                if (useUndeadSlayer) {
+                    setup("Undead Slayer");
+                    activateUndeadSlayer();
+                }
+                if (useDragonSlayer) {
+                    setup("Dragon Slayer");
+                    activateDragonSlayer();
+                }
+                if (useDemonSlayer) {
+                    setup("Demon Slayer");
+                    activateDemonSlayer();
+                }
+                if (useDarkness) {
+                    setup("Darkness");
+                    manageDarkness();
+                }
+                if (useAnimateDead) {
+                    setup("Animate Dead");
+                    manageAnimateDead();
+                }
+                if (useConjureUndeadArmy) {
+                    setup("Conjure Undead Army");
+                    keepArmyUp();
+                }
+                if (useThreadsofFate) {
+                    setup("Threads of Fate");
+                    manageThreadsOfFate();
+                }
+                if (useInvokeDeath) {
+                    setup("Invoke Death");
+                    invokeDeath();
+                }
+                if (useVolleyofSouls) {
+                    setup("Volley of Souls");
+                    volleyOfSouls();
+                }
+                if (useEssenceofFinality) {
+                    setup("Essence of Finality");
+                    essenceOfFinality();
+                }
+                if (useWeaponSpecialAttack) {
+                    setup("Weapon Special Attack");
+                    DeathEssence();
+                }
+                try {
+                    Thread.sleep(random.nextLong(800, 1000));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
         }
     }
@@ -160,6 +163,10 @@ public class Combat {
                 }
             }
         }
+
+        if (summonFamiliar) {
+            summonFamiliar();
+        }
         if (enableRadiusTracking) {
             ensureWithinRadius(player);
         }
@@ -199,14 +206,14 @@ public class Combat {
         }
 
         // Handle targeting logic
-        if (handleMultitarget && player.getTarget().getCurrentHealth() >= player.getTarget().getMaximumHealth() * healthThreshold) {
+        if (handleMultitarget && player.getTarget().getCurrentHealth() > player.getTarget().getMaximumHealth() * healthThreshold) {
             return random.nextLong(600, 650);
         }
         if (!player.hasTarget()) {
             handleCombat(player);
         }
         if (player.hasTarget()) {
-            if (handleMultitarget && player.getTarget().getCurrentHealth() >= player.getCurrentHealth() * healthThreshold) {
+            if (handleMultitarget && player.getTarget().getCurrentHealth() >= player.getMaximumHealth() * healthThreshold) {
                 PathingEntity<?> target = player.getTarget();
                 Npc newTarget = findDifferentTarget(player, target.getId());
                 if (newTarget != null) {

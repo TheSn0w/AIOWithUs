@@ -60,7 +60,7 @@ public class LootManager {
         }
     }
 
-// =====================
+    // =====================
 // SECTION 1: Loot Everything
 // =====================
     public static void useLootInventoryPickup() {
@@ -116,7 +116,7 @@ public class LootManager {
         }
     }
 
-// =====================
+    // =====================
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
@@ -189,11 +189,18 @@ public class LootManager {
                 .orElse(null);
 
         if (groundItem != null) {
-            groundItem.interact("Take");
-            log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-            Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+            while (!player.isMoving()) {
+                groundItem.interact("Take");
+                Execution.delay(random.nextLong(800, 1000));
+            }
+            if (player.isMoving()) {
+                log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                Execution.delayUntil(random.nextLong(10000, 15000), LootInventory::isOpen);
+                return;
+            }
         }
     }
+
 
     public static void lootNotedItemsFromInventory() {
         if (LootInventory.isOpen()) {
