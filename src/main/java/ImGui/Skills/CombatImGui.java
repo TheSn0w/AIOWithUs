@@ -26,7 +26,7 @@ import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.startTime;
+import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.removeFoodName;
 
@@ -34,6 +34,7 @@ public class CombatImGui {
 
     public static boolean showCheckboxesWindow = false;
     public static boolean showNearbyNPCS = false;
+    public static boolean showAllLoot = false;
 
 
     public static void renderCombat() {
@@ -90,8 +91,20 @@ public class CombatImGui {
             if (ImGui.Button(buttonText1)) {
                 showNearbyNPCS = !showNearbyNPCS;
             }
-            ImGui.PopStyleVar(2);
-            ImGui.PopStyleColor(4);
+            float windowWidth2 = 400;
+            String buttonText2 = "Show All Looted Items?";
+            float textWidth2 = ImGui.CalcTextSize(buttonText2).getX();
+            float padding2 = (windowWidth2 - textWidth2) / 2;
+            ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0);
+            ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0);
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding2, 2.0f);
+            ImGui.SetCursorPosX(padding2);
+            ImGui.SetCursorPosX(0);
+            if (ImGui.Button(buttonText2)) {
+                showAllLoot = !showAllLoot;
+            }
+            ImGui.PopStyleVar(3);
+            ImGui.PopStyleColor(6);
             ImGui.SeparatorText("Attack Options");
             float totalWidth = 375.0f;
             float checkboxWidth = 105.0f;
@@ -365,7 +378,7 @@ public class CombatImGui {
                 }
             }
             if (showNearbyNPCS) {
-                if (ImGui.Begin("NPCs Nearby", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue())) {
+                if (ImGui.Begin("NPCs Nearby", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
                     ImGui.SetWindowSize((float) 600, (float) 225);
                     ImGui.SeparatorText("Target Options");
                     List<List<String>> tableData = getNpcTableData();
@@ -399,6 +412,42 @@ public class CombatImGui {
                     ImGui.End();
                 }
             }
+            if (showAllLoot) {
+                if (ImGui.Begin("Looted Items", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                    ImGui.SetWindowSize((float) 600, (float) 225);
+                    ImGui.SeparatorText("Items Looted");
+
+                    ImGui.SetItemWidth(600);
+
+                    if (ImGui.ListBoxHeader("", 569, 0)) {
+                        ImGui.Columns(3, "Looted Items", true);
+                        ImGui.Text("Items Looted"); // Header for the first column
+                        ImGui.NextColumn();
+                        ImGui.Text("Amount"); // Header for the second column
+                        ImGui.NextColumn();
+                        ImGui.Text("Items Per Hour"); // Header for the third column
+                        ImGui.NextColumn();
+                        ImGui.Separator();
+                        Duration elapsedTime = Duration.between(startTime, Instant.now());
+                        long elapsedSeconds = elapsedTime.getSeconds();
+                        for (Map.Entry<String, Integer> entry : lootedItems.entrySet()) {
+                            ImGui.Text(entry.getKey()); // Item name
+                            ImGui.NextColumn();
+                            ImGui.Text(String.valueOf(entry.getValue())); // Item count
+                            ImGui.NextColumn();
+                            // Calculate items per hour
+                            float itemsPerHour = elapsedSeconds > 0 ? (float) entry.getValue() / elapsedSeconds * 3600 : 0;
+                            ImGui.Text(String.valueOf((int)itemsPerHour)); // Items per hour
+                            ImGui.NextColumn();
+                            ImGui.Separator(); // Separator for each line
+                        }
+                        ImGui.Columns(1, "Column", false);
+                        ImGui.ListBoxFooter();
+                    }
+
+                    ImGui.End();
+                }
+            }
             if (useTraveltoLocation) {
                 ImGui.SeparatorText("Travel Options");
                 ImGui.SetCursorPosX(spacing);
@@ -413,7 +462,7 @@ public class CombatImGui {
                 }
             }
             if (showCheckboxesWindow) {
-                if (ImGui.Begin("Combat Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue())) {
+                if (ImGui.Begin("Combat Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
                     ImGui.SetWindowSize((float) 400, (float) 510);
                     ImGui.SeparatorText("Target Options");
                     if (ImGui.Button("Add Target") && !targetName.isEmpty()) {

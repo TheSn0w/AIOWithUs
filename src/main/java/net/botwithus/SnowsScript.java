@@ -1,11 +1,13 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
+import net.botwithus.Combat.Loot;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
 import net.botwithus.Variables.GlobalState;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
+import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
@@ -23,6 +25,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static ImGui.PredefinedStrings.CombatList;
+import static ImGui.Skills.CombatImGui.showAllLoot;
 import static ImGui.Skills.CombatImGui.showCheckboxesWindow;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
@@ -353,7 +356,23 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
+        if (lootNoted || useLoot || interactWithLootAll) {
+            if (getBotState() == BotState.SKILLING) {
+                String itemName = event.getNewItem().getName();
+                int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
+                int newCount = event.getNewItem().getStackSize();
+                if (newCount > oldCount) {
+                    int quantity = newCount - oldCount;
+                    int currentCount = lootedItems.getOrDefault(itemName, 0);
+                    lootedItems.put(itemName, currentCount + quantity);
+
+                }
+            }
+        }
     }
+
+
+    public static final Map<String, Integer> lootedItems = new HashMap<>();
 
     public static Map<String, Integer> headlessDinarrows = new HashMap<>();
     public static Map<String, Integer> dinarrows = new HashMap<>();
@@ -711,6 +730,9 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("shouldEatFood", String.valueOf(shouldEatFood));
         this.configuration.addProperty("useAbyssRunecrafting", String.valueOf(useAbyssRunecrafting));
         this.configuration.addProperty("makeDinarrow", String.valueOf(makeDinarrow));
+        this.configuration.addProperty("showAllLoot", String.valueOf(showAllLoot));
+        this.configuration.addProperty("lavaStrykewyrms", String.valueOf(lavaStrykewyrms));
+        this.configuration.addProperty("iceStrykewyrms", String.valueOf(iceStrykewyrms));
 
 
         this.configuration.save();
@@ -718,6 +740,9 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            iceStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("iceStrykewyrms"));
+            lavaStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("lavaStrykewyrms"));
+            showAllLoot = Boolean.parseBoolean(this.configuration.getProperty("showAllLoot"));
             makeDinarrow = Boolean.parseBoolean(this.configuration.getProperty("makeDinarrow"));
             useAbyssRunecrafting = Boolean.parseBoolean(this.configuration.getProperty("useAbyssRunecrafting"));
             shouldEatFood = Boolean.parseBoolean(this.configuration.getProperty("shouldEatFood"));

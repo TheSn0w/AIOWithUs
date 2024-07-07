@@ -159,6 +159,7 @@ public class Loot {
             itemLooted = false;
             List<Item> inventoryItems = LootInventory.getItems();
 
+
             Item item = inventoryItems.stream()
                     .filter(it -> it.getName() != null && ConfigManager.getItemType(it.getId()).isNote())
                     .findFirst()
