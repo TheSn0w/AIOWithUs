@@ -20,9 +20,6 @@ import net.botwithus.rs3.script.Execution;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.botwithus.Combat.Combat.*;
-import static net.botwithus.Combat.Prayers.deactivateQuickPrayers;
-import static net.botwithus.Combat.Prayers.quickPrayersActive;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
@@ -34,15 +31,6 @@ public class Banking {
 
 
     public static void bankToWars(LocalPlayer player) {
-        if (VarManager.getVarbitValue(16779) == 1) {
-            ActionBar.useAbility("Soul Split");
-            log("[Banking] Using Soul Split ability");
-        }
-        if (usequickPrayers && quickPrayersActive) {
-            deactivateQuickPrayers();
-            log("[Banking] Deactivating quick prayers");
-        }
-
         if (useDwarfcannon) {
             EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
             if (!siegeEngine.isEmpty() && !Backpack.isFull()) {
@@ -128,7 +116,11 @@ public class Banking {
 
                 while (attempts < 3 && !isSetup) {
                     Backpack.interact("Dwarven siege engine", "Set up");
-                    isSetup = Execution.delayUntil(random.nextLong(4000, 5000), () -> !siegeEngine.isEmpty());
+                    Execution.delay(random.nextLong(4000, 5000));
+
+                    // Requery for the "Dwarven siege engine"
+                    siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
+                    isSetup = !siegeEngine.isEmpty();
 
                     if (!isSetup) {
                         log("[Banking] Failed to set up Dwarven siege engine, moving to nearby coordinate");

@@ -118,6 +118,12 @@ public class LootManager {
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
+        int totalSlots = 28;
+        int usedSlots = totalSlots - Backpack.countFreeSlots();
+
+        if (useDwarfcannon && usedSlots >= 27) {
+            return;
+        }
         LocalPlayer player = getLocalPlayer();
         Pattern lootPattern = generateLootPattern(targetItemNames);
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
@@ -197,6 +203,12 @@ public class LootManager {
 // =====================
 
     public static void useNotedLootFromGround() {
+        int totalSlots = 28;
+        int usedSlots = totalSlots - Backpack.countFreeSlots();
+
+        if (useDwarfcannon && usedSlots >= 27) {
+            return;
+        }
         LocalPlayer player = Client.getLocalPlayer();
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
                 .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)

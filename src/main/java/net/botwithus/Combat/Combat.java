@@ -423,7 +423,6 @@ public class Combat {
                     .subComponentIndex(subComponentIndex)
                     .results();
 
-
             Component targetComponent = targetComponents.first();
             String text = targetComponent.getText();
 
@@ -431,9 +430,16 @@ public class Combat {
                 log("[Combat] Interacting with Siege Engine.");
                 EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").results();
                 if (!siegeEngine.isEmpty() && Backpack.contains("Cannonball")) {
-                    siegeEngine.first().interact("Fire");
-                    Execution.delay(random.nextLong(2500, 3500));
-                    break;
+                    if (ComponentQuery.newQuery(284).spriteId(2).results().isEmpty()) {
+                        Execution.delay(random.nextLong(3512, 5109));
+                        // Requery for the component
+                        components = ComponentQuery.newQuery(291).spriteId(2).results();
+                        if (components.isEmpty()) {
+                            siegeEngine.first().interact("Fire");
+                            Execution.delay(random.nextLong(2500, 3500));
+                            break;
+                        }
+                    }
                 }
             }
         }
