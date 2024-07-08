@@ -134,18 +134,21 @@ public class LootManager {
                 .filter(groundItem -> groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find())
                 .anyMatch(groundItem -> {
                     if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                        while (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+                        if (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
                             groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
                             if (groundItem == null) {
                                 log("[CustomLootingFromGround] Ground item no longer exists.");
-                                break;
+                            } else {
+                                groundItem.interact("Take");
+                                log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                                Execution.delay(random.nextLong(600, 750));
                             }
-                            groundItem.interact("Take");
-                            log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                            Execution.delay(random.nextLong(600, 750));
                         }
 
-                        if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null && Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+                        if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                                Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 &&
+                                ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+
                             Execution.delay(random.nextLong(750, 1000));
 
                             log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
@@ -154,7 +157,8 @@ public class LootManager {
                         }
 
                         GroundItem finalGroundItem = groundItem;
-                        Execution.delayUntil(random.nextLong(10000, 15000), () -> LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
+                        Execution.delayUntil(random.nextLong(10000, 15000), () ->
+                                LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
                     }
                     return false;
                 });
@@ -221,15 +225,15 @@ public class LootManager {
 
         if (groundItem != null) {
             if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                while (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+                if (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
                     groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
                     if (groundItem == null) {
                         log("[NotedItemsFromGround] Ground item no longer exists.");
-                        break;
+                    } else {
+                        groundItem.interact("Take");
+                        log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                        Execution.delay(random.nextLong(600, 750));
                     }
-                    groundItem.interact("Take");
-                    log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                    Execution.delay(random.nextLong(600, 750));
                 }
 
                 if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&

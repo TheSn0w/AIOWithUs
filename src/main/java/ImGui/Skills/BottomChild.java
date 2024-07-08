@@ -3,6 +3,7 @@ package ImGui.Skills;
 import net.botwithus.Runecrafting.Abyss;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Variables.GlobalState;
+import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import java.time.Duration;
@@ -112,7 +113,7 @@ public class BottomChild {
             ImGui.SetCursorPosX(440);
             ImGui.SetCursorPosY(20);
 
-            ImGui.Text("Ticks: " + GlobalState.currentTickCount);
+            ImGui.Text("W: " + LoginManager.getWorld());
 
             displayVersion(577.0f);
             ImGui.PopStyleVar(2);
