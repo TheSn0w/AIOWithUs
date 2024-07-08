@@ -4,6 +4,7 @@ import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -15,9 +16,9 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -411,10 +412,9 @@ public class Combat {
 
 
     public static void printSiegeEngineRemainingTime() {
-        AtomicReference<ResultSet<Component>> components = new AtomicReference<>(ComponentQuery.newQuery(291).spriteId(2).results());
-        Component component = components.get().first();
+        ResultSet<Component> components = ComponentQuery.newQuery(291).spriteId(2).results();
 
-        if (component != null) {
+        for (Component component : components) {
             int interfaceIndex = component.getInterfaceIndex();
             int componentIndex = component.getComponentIndex();
             int subComponentIndex = component.getSubComponentIndex() + 1;
@@ -427,31 +427,15 @@ public class Combat {
             Component targetComponent = targetComponents.first();
             String text = targetComponent.getText();
 
-            if (isTimeLessThanFiveMinutes(text) || components.get().isEmpty()) {
-                interactWithSiegeEngine();
-            } else if (ComponentQuery.newQuery(284).spriteId(2).results().isEmpty()) {
-                Thread.ofVirtual().start(() -> {
-                    try {
-                        Thread.sleep(5000);
-                        // Requery for the component
-                        components.set(ComponentQuery.newQuery(284).spriteId(2).results());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
-                if (components.get().isEmpty()) {
-                    interactWithSiegeEngine();
+            if (isTimeLessThanFiveMinutes(text) || components.isEmpty() || VarManager.getVarValue(VarDomainType.PLAYER, 2735) == 0) {
+                log("[Combat] Interacting with Siege Engine.");
+                EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").results();
+                if (!siegeEngine.isEmpty() && Backpack.contains("Cannonball")) {
+                    siegeEngine.first().interact("Fire");
+                    Execution.delay(random.nextLong(2500, 3500));
+                    break;
                 }
             }
-        }
-    }
-
-    private static void interactWithSiegeEngine() {
-        EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").results();
-        if (!siegeEngine.isEmpty() && Backpack.contains("Cannonball")) {
-            log("[Combat] Interacting with Siege Engine.");
-            siegeEngine.first().interact("Fire");
-            Execution.delay(random.nextLong(750, 1250));
         }
     }
 
