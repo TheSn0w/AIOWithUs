@@ -113,7 +113,7 @@ public class BottomChild {
             ImGui.SetCursorPosX(440);
             ImGui.SetCursorPosY(20);
 
-            ImGui.Text("W: " + LoginManager.getWorld());
+            ImGui.Text("World: " + LoginManager.getWorld());
 
             displayVersion(577.0f);
             ImGui.PopStyleVar(2);
