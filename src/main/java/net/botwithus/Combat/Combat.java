@@ -232,7 +232,7 @@ public class Combat {
                 }
             }
         }
-        return 0;
+        return random.nextLong(300, 500);
     }
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
@@ -298,7 +298,7 @@ public class Combat {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
-            return 0;
+            return random.nextLong(600, 650);
         }
         if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 100) {
 
@@ -323,7 +323,7 @@ public class Combat {
                 log("[Combat] No valid target found.");
             }
         }
-        return 0;
+        return random.nextLong(600, 650);
     }
 
 

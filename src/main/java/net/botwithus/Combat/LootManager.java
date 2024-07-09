@@ -4,7 +4,6 @@ import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.rs3.game.Client;
-import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -21,9 +20,9 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static ImGui.Skills.CombatImGui.lootBasedonCost;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -53,6 +52,9 @@ public class LootManager {
             }
             if (useLootAllStackableItems) {
                 lootStackableItemsFromInventory();
+            }
+            if (lootBasedonCost) {
+                lootValuableItemsFromInventory();
             }
             if (useLootEverything) {
                 lootAllButton();
@@ -408,4 +410,61 @@ public class LootManager {
                 Pattern.CASE_INSENSITIVE
         );
     }
+
+// =====================
+// SECTION 6: Loot based on Cost
+// =====================
+
+    public static long costThreshold = 10000; // Set a default value
+
+    public static int getCostThreshold() {
+        return (int) costThreshold;
+    }
+
+    public static void setCostThreshold(long costThreshold) {
+        LootManager.costThreshold = costThreshold;
+    }
+
+    public static void lootValuableItemsFromInventory() {
+        long costThreshold = 10000;
+        log("[ValuableItem] Cost threshold: " + costThreshold);
+        if (LootInventory.isOpen()) {
+            log("[ValuableItem] Loot inventory is open.");
+            List<Item> inventoryItems = LootInventory.getItems();
+
+            int totalSlots = 28;
+            int usedSlots = totalSlots - Backpack.countFreeSlots();
+            log("[ValuableItem] Total slots: " + totalSlots + ", Used slots: " + usedSlots);
+
+            for (Item item : inventoryItems) {
+                if (item.getName() != null) {
+                    log("[ValuableItem] Checking item: " + item.getName());
+                    var itemType = ConfigManager.getItemType(item.getId());
+                    if (itemType != null && itemType.getCost() >= costThreshold) {
+                        log("[ValuableItem] Item cost is above threshold.");
+                        if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
+                            log("[ValuableItem] Using dwarfcannon and used slots >= 27 and backpack does not contain the item. Returning...");
+                            return;
+                        }
+
+                        if (Backpack.isFull() && !Backpack.contains(item.getName())) {
+                            log("[ValuableItem] Backpack is full and does not contain the item. Returning...");
+                            return;
+                        }
+
+                        LootInventory.take(item.getName());
+                        log("[ValuableItem] Successfully looted valuable item: " + item.getName() + " (Cost: " + itemType.getCost() + ")");
+                        Execution.delay(random.nextLong(600, 650));
+                    } else {
+                        log("[ValuableItem] Item cost is below threshold or item type is null.");
+                    }
+                } else {
+                    log("[ValuableItem] Item name is null.");
+                }
+            }
+        } else {
+            log("[ValuableItem] Loot inventory is not open.");
+        }
+    }
+
 }

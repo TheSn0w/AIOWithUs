@@ -19,6 +19,8 @@ import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.Familiar.*;
 import static net.botwithus.Combat.ItemRemover.*;
+import static net.botwithus.Combat.LootManager.getCostThreshold;
+import static net.botwithus.Combat.LootManager.setCostThreshold;
 import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Potions.*;
@@ -35,6 +37,7 @@ public class CombatImGui {
     public static boolean showCheckboxesWindow = false;
     public static boolean showNearbyNPCS = false;
     public static boolean showAllLoot = false;
+    public static boolean lootBasedonCost = false;
 
 
     public static void renderCombat() {
@@ -354,6 +357,29 @@ public class CombatImGui {
                 } else if (getHealthThreshold() > 1.0) {
                     setHealthThreshold(1.0);
                 }
+            }
+
+            if (lootBasedonCost) {
+                ImGui.SetItemWidth(110.0F);
+                long inputCostThreshold = getCostThreshold();
+                if (ImGui.Button("-10K")) {
+                    inputCostThreshold -= 10000;
+                }
+                ImGui.SameLine();
+                ImGui.Text(String.format("%dK", inputCostThreshold / 1000));
+                ImGui.SameLine();
+                if (ImGui.Button("+10K")) {
+                    inputCostThreshold += 10000;
+                }
+                setCostThreshold(inputCostThreshold);
+                if (getCostThreshold() < 0) {
+                    setCostThreshold(0);
+                } else if (getCostThreshold() > 10000000) { // assuming 1000000 as the maximum cost threshold
+                    setCostThreshold(10000000);
+                }
+                ImGui.SameLine();
+                ImGui.Text("Cost Threshold");
+                ImGui.Separator();
             }
 
             if (useVolleyofSouls) {

@@ -18,6 +18,7 @@ import java.util.List;
 import static ImGui.CentreButton.createCenteredButton;
 import static ImGui.Skills.ArchaeologyImGui.renderArchaeology;
 import static ImGui.Skills.BottomChild.renderBottom;
+import static ImGui.Skills.CombatImGui.lootBasedonCost;
 import static ImGui.Skills.CombatImGui.renderCombat;
 import static ImGui.Skills.CookingImGui.renderCooking;
 import static ImGui.Skills.DivinationImGui.renderDivination;
@@ -326,6 +327,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
                         }
+                        /*createCenteredButton("Loot per cost", () -> lootBasedonCost = !lootBasedonCost, lootBasedonCost);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will loot based on cost you set");
+                        }*/
                         createCenteredButton("Walk to Loot", () -> walkToLoot = !walkToLoot, walkToLoot);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("if item does not appear in loot inventory but is on the ground, it will walk to it until it appears in loot inventory, works for Loot, Loot Noted and Loot Stackables");
