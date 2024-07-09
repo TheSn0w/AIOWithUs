@@ -183,6 +183,10 @@ public class NPCs {
         Coordinate delayCoordinate1 = new Coordinate(1661, 5257, 0);
         Coordinate delayCoordinate2 = new Coordinate(1641, 5268, 0);
         Coordinate delayCoordinate3 = new Coordinate(1651, 5281, 0);
+        Coordinate delayCoordinate4 = new Coordinate(1650, 5281, 0);
+        Coordinate delayCoordinate5 = new Coordinate(1651, 5281, 0);
+        Coordinate delayCoordinate6 = new Coordinate(1652, 5281, 0);
+        Coordinate delayCoordinate7 = new Coordinate(1651, 5280, 0);
         Npc DarkBeasts = NpcQuery.newQuery().name("Dark beast").results().nearest();
 
 
@@ -194,44 +198,51 @@ public class NPCs {
         } else {
             log("Dark beast not found, proceeding to Dungeon entrance.");
             if (Movement.traverse(NavPath.resolve(DungeonEntrance)) == TraverseEvent.State.FINISHED) {
-                EntityResultSet<SceneObject> cave = SceneObjectQuery.newQuery().name("Cave").option("Enter").results();
-                if (!cave.isEmpty()) {
-                    SceneObject nearestCave = cave.nearest();
-                    if (nearestCave != null) {
-                        log("Cave found, proceeding to Enter.");
-                        nearestCave.interact("Enter");
-                        Execution.delayUntil(random.nextLong(7500, 10000), () -> player.getCoordinate().equals(delayCoordinate1));
-                    } else {
-                        log("Cave not found.");
+                while (!player.getCoordinate().equals(delayCoordinate1)) {
+                    EntityResultSet<SceneObject> cave = SceneObjectQuery.newQuery().name("Cave").option("Enter").results();
+                    if (!cave.isEmpty()) {
+                        SceneObject nearestCave = cave.nearest();
+                        if (nearestCave != null) {
+                            log("Cave found, proceeding to Enter.");
+                            nearestCave.interact("Enter");
+                        } else {
+                            log("Cave not found.");
+                        }
                     }
+                    Execution.delay(random.nextLong(1500, 2500));
+                }
+
+                while (!player.getCoordinate().equals(delayCoordinate2)) {
                     EntityResultSet<SceneObject> Gap = SceneObjectQuery.newQuery().id(47237).option("Run-across").results();
-                    if (player.getCoordinate().equals(delayCoordinate1) && !Gap.isEmpty()) {
+                    if (!Gap.isEmpty()) {
                         SceneObject nearestGap = Gap.nearest();
                         if (nearestGap != null) {
                             log("Gap found, proceeding to Run-across.");
                             nearestGap.interact("Run-across");
-                            Execution.delayUntil(random.nextLong(7500, 10000), () -> player.getCoordinate().equals(delayCoordinate2));
                         } else {
                             log("Gap not found.");
                         }
-                        EntityResultSet<SceneObject> barrier = SceneObjectQuery.newQuery().id(47236).option("Pass").results();
-                        if (player.getCoordinate().equals(delayCoordinate2) && !barrier.isEmpty()) {
-                            SceneObject nearestBarrier = barrier.nearest();
-                            if (nearestBarrier != null) {
-                                log("Barrier found, proceeding to Pass.");
-                                nearestBarrier.interact("Pass");
-                                Execution.delayUntil(random.nextLong(7500, 10000), () -> player.getCoordinate().equals(delayCoordinate3));
-                                addTargetName("dark beast");
-                                ActivateSoulSplit();
-                                setSlayerState(Main.SlayerState.COMBAT);
+                    }
+                    Execution.delay(random.nextLong(4500, 7500));
+                }
 
-                            } else {
-                                log("Barrier not found.");
-                            }
-                        }
+                Movement.walkTo(delayCoordinate7.getX(), delayCoordinate7.getY(), false);
+                Execution.delayUntil(10000, () -> player.getCoordinate().equals(delayCoordinate7));
+                EntityResultSet<SceneObject> barrier = SceneObjectQuery.newQuery().id(47236).option("Pass").results();
+                if (!barrier.isEmpty()) {
+                    SceneObject nearestBarrier = barrier.nearest();
+                    if (nearestBarrier != null) {
+                        log("Barrier found, proceeding to Pass.");
+                        nearestBarrier.interact("Pass");
+                    } else {
+                        log("Barrier not found.");
                     }
                 }
-            }
+                Execution.delayUntil(10000, () -> player.getCoordinate().equals(delayCoordinate6) || player.getCoordinate().equals(delayCoordinate5) || player.getCoordinate().equals(delayCoordinate4));            }
+
+            addTargetName("dark beast");
+            ActivateSoulSplit();
+            setSlayerState(Main.SlayerState.COMBAT);
         }
     }
 
