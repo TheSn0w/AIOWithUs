@@ -303,7 +303,7 @@ public class Combat {
             log("[Error] No target names specified.");
             return 0;
         }
-        if (!player.hasTarget()) {
+        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 100) {
 
             Pattern monsterPattern = generateRegexPattern(targetNames);
             Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()

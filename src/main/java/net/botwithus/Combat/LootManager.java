@@ -168,9 +168,7 @@ public class LootManager {
                             log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
                             Execution.delay(RandomGenerator.nextInt(200, 250));
                             groundItem.interact("Take");
-                            GroundItem finalGroundItem = groundItem;
-                            Execution.delayUntil(5000, () -> LootInventory.contains(finalGroundItem.getName()));
-                            return random.nextLong(300, 500);
+                            return random.nextLong(1250, 2000);
                         }
                     }
                 }
@@ -269,9 +267,7 @@ public class LootManager {
                             log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
                             Execution.delay(RandomGenerator.nextInt(200, 250));
                             groundItem.interact("Take");
-                            GroundItem finalGroundItem = groundItem;
-                            Execution.delayUntil(5000, () -> LootInventory.contains(finalGroundItem.getName()));
-                            return random.nextLong(300, 500);
+                            return random.nextLong(1250, 2000);
                         }
                     }
                 }
@@ -392,9 +388,8 @@ public class LootManager {
                         log("[Loot] Used Surge: " + ActionBar.useAbility("Surge"));
                         Execution.delay(random.nextInt(200, 250));
                         groundItem.interact("Take");
-                        GroundItem finalGroundItem = groundItem;
-                        Execution.delayUntil(5000, () -> LootInventory.contains(finalGroundItem.getName()));
-                        return random.nextLong(300, 500);
+                        return random.nextLong(1250, 2000);
+
                     }
                 }
             }
