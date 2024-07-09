@@ -13,6 +13,7 @@ import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Thieving.Thieving;
 import net.botwithus.Woodcutting.Woodcutting;
+import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
@@ -139,6 +140,9 @@ public class Runnables {
                         Execution.delay(interactWithChronicle(chronicles));
                         return;
                     }
+                }
+                if (offerChronicles && Backpack.getQuantity("Chronicle fragment") >= random.nextInt(20, 30)) {
+                    Execution.delay(Divination.convertChroniclesAtRift());
                 }
             } else {
                 Execution.delay(Divination.handleDivination(player));

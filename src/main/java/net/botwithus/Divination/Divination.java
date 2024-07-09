@@ -176,7 +176,7 @@ public class Divination {
         return !Backpack.containsItemByCategory(3030) && !Backpack.containsItemByCategory(3031);
     }
 
-    private static long convertChroniclesAtRift() {
+    public static long convertChroniclesAtRift() {
         SceneObject nearestRift = findNearestRift();
 
         if (nearestRift == null) {
