@@ -308,11 +308,21 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Items");
                         }
-                        createCenteredButton("Loot All Noted", () -> useLootAllNotedItems = !useLootAllNotedItems, useLootAllNotedItems);
+                        createCenteredButton("Loot All Noted", () -> {
+                            useLootAllNotedItems = !useLootAllNotedItems;
+                            if (useLootAllNotedItems) {
+                                useLootAllStackableItems = false;
+                            }
+                        }, useLootAllNotedItems);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Loot All Noted Items in Loot Inventory");
                         }
-                        createCenteredButton("Loot Stackables", () -> useLootAllStackableItems = !useLootAllStackableItems, useLootAllStackableItems);
+                        createCenteredButton("Loot Stackables", () -> {
+                            useLootAllStackableItems = !useLootAllStackableItems;
+                            if (useLootAllStackableItems) {
+                                useLootAllNotedItems = false;
+                            }
+                        }, useLootAllStackableItems);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
                         }
