@@ -215,10 +215,6 @@ public class Combat {
 
         //combat module
 
-        if (!player.hasTarget()) {
-            return handleCombat(player);
-        }
-
         if (player.hasTarget()) {
 
             PathingEntity<?> target = player.getTarget();
@@ -239,7 +235,7 @@ public class Combat {
             }
         }
 
-        return 0;
+        return handleCombat(player);
     }
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
@@ -307,26 +303,28 @@ public class Combat {
             log("[Error] No target names specified.");
             return 0;
         }
+        if (!player.hasTarget()) {
 
-        Pattern monsterPattern = generateRegexPattern(targetNames);
-        Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
-                .name(monsterPattern)
-                .isReachable()
-                .health(100, 1_000_000)
-                .option("Attack")
-                .results()
-                .stream()
-                .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
+            Pattern monsterPattern = generateRegexPattern(targetNames);
+            Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
+                    .name(monsterPattern)
+                    .isReachable()
+                    .health(100, 1_000_000)
+                    .option("Attack")
+                    .results()
+                    .stream()
+                    .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
 
-        Npc monster = nearestMonsterOptional.orElse(null);
-        if (monster != null) {
-            boolean attack = monster.interact("Attack");
-            if (attack) {
-                log("[Combat] Successfully attacked" + monster.getName());
-                return random.nextLong(600, 750);
+            Npc monster = nearestMonsterOptional.orElse(null);
+            if (monster != null) {
+                boolean attack = monster.interact("Attack");
+                if (attack) {
+                    log("[Combat] Successfully attacked" + monster.getName());
+                    return random.nextLong(600, 750);
+                }
+            } else {
+                log("[Combat] No valid target found.");
             }
-        } else {
-            log("[Combat] No valid target found.");
         }
         return 0;
     }
