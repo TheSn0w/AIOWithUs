@@ -86,6 +86,22 @@ public class Main {
         LocalPlayer player = Client.getLocalPlayer();
 
         switch (slayerState) {
+            case COMBAT:
+                if (nearestBank && Backpack.isFull()) {
+                    log("Backpack is full. Banking.");
+                    setSlayerState(SlayerState.WARS_RETREAT);
+                }
+                Npc death = NpcQuery.newQuery().name("Death").results().nearest();
+                if (death != null) {
+                    setSlayerState(SlayerState.DEATHSOFFICE);
+                }
+                if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
+                    slayerState = SlayerState.CHECK;
+                    log("Task completed.");
+                } else {
+                    Execution.delay(attackTarget(player));
+                }
+                break;
             case CHECK:
                 log("Checking Task");
                 checkTaskCompletion();
@@ -224,21 +240,6 @@ public class Main {
                 log("Deaths Office state.");
                 interactWithDeath();
                 break;
-            case COMBAT:
-                if (nearestBank && Backpack.isFull()) {
-                    log("Backpack is full. Banking.");
-                    setSlayerState(SlayerState.WARS_RETREAT);
-                }
-                Npc death = NpcQuery.newQuery().name("Death").results().nearest();
-                if (death != null) {
-                    setSlayerState(SlayerState.DEATHSOFFICE);
-                }
-                if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
-                    slayerState = SlayerState.CHECK;
-                    log("Task completed.");
-                } else {
-                    Execution.delay(attackTarget(player));
-                }
         }
     }
 

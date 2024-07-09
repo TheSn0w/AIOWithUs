@@ -159,18 +159,17 @@ public class Combat {
 
         // if Loot Inventory is not open, interact with ground items
         if (useCustomLoot) {
-            useCustomLootFromGround();
+            Execution.delay(useCustomLootFromGround());
         }
         if (useLootAllNotedItems) {
-            useNotedLootFromGround();
+            Execution.delay(useNotedLootFromGround());
         }
         if (useLootEverything) {
             useLootInventoryPickup();
         }
         if (useLootAllStackableItems) {
-            lootStackableItemsFromGround();
+            Execution.delay(lootStackableItemsFromGround());
         }
-
         if (useFamiliarForCombat) {
             summonFamiliar();
         }
@@ -217,7 +216,7 @@ public class Combat {
         //combat module
 
         if (!player.hasTarget()) {
-            handleCombat(player);
+            return handleCombat(player);
         }
 
         if (player.hasTarget()) {
@@ -240,7 +239,7 @@ public class Combat {
             }
         }
 
-        return random.nextLong(300, 400);
+        return 0;
     }
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
@@ -302,11 +301,11 @@ public class Combat {
     }
 
 
-    public static void handleCombat(LocalPlayer player) {
+    public static long handleCombat(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
-            return;
+            return 0;
         }
 
         Pattern monsterPattern = generateRegexPattern(targetNames);
@@ -323,13 +322,13 @@ public class Combat {
         if (monster != null) {
             boolean attack = monster.interact("Attack");
             if (attack) {
-                logAndDelay("[Combat] Successfully attacked " + monster.getName() + ".", 500, 700);
-            } else {
-                logAndDelay("[Error] Failed to attack " + monster.getName(), 1500, 3000);
+                log("[Combat] Successfully attacked" + monster.getName());
+                return random.nextLong(600, 750);
             }
         } else {
-            logAndDelay("[Error] No valid NPC target found.", 1000, 3000);
+            log("[Combat] No valid target found.");
         }
+        return 0;
     }
 
 

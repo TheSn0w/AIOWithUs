@@ -121,9 +121,9 @@ public class LootManager {
     // =====================
 // SECTION 2: Loot Specific Items
 // =====================
-    public static void useCustomLootFromGround() {
+    public static long useCustomLootFromGround() {
         if (!walkToLoot && LootInventory.isOpen()) {
-            return;
+            return random.nextLong(300, 500);
         }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
@@ -134,52 +134,47 @@ public class LootManager {
                 .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)
                 .toList();
 
-        groundItems.stream()
-                .filter(groundItem -> groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find())
-                .anyMatch(groundItem -> {
-                    ItemType itemType = ConfigManager.getItemType(groundItem.getId());
-                    boolean isStackable = itemType != null && itemType.getStackability() == ItemType.Stackability.ALWAYS;
+        for (GroundItem groundItem : groundItems) {
+            if (groundItem.getName() != null && lootPattern.matcher(groundItem.getName()).find()) {
+                ItemType itemType = ConfigManager.getItemType(groundItem.getId());
+                boolean isStackable = itemType != null && itemType.getStackability() == ItemType.Stackability.ALWAYS;
 
-                    if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                        if (!LootInventory.contains(groundItem.getName())) {
-                            if (!groundItem.isReachable()) {
-                                log("[CustomLootingFromGround] Ground item is not reachable. Skipping...");
-                                return false;
-                            }
-
-                            if (useDwarfcannon && usedSlots >= 27 && (!Backpack.contains(groundItem.getName()) || !isStackable)) {
-                                return false;
-                            }
-
-                            if (Backpack.isFull() && (!Backpack.contains(groundItem.getName()) || !isStackable)) {
-                                return false;
-                            }
-
-                            groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
-                            if (groundItem == null) {
-                                log("[CustomLootingFromGround] Ground item no longer exists.");
-                            } else {
-                                boolean Interacted = groundItem.interact("Take");
-                                log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                                Execution.delay(random.nextLong(600, 750));
-
-                                if (Interacted && player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
-                                        Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 && ActionBar.getCooldown("Surge") == 0) {
-
-                                    Execution.delay(random.nextLong(600, 750));
-                                    log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
-                                    Execution.delay(RandomGenerator.nextInt(200, 250));
-                                    groundItem.interact("Take");
-                                }
-                            }
-                        }
-
-                        GroundItem finalGroundItem = groundItem;
-                        Execution.delayUntil(random.nextLong(2500, 5000), () ->
-                                LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
+                if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
+                    if (!groundItem.isReachable()) {
+                        log("[CustomLootingFromGround] Ground item is not reachable. Skipping...");
+                        return random.nextLong(300, 500);
                     }
-                    return false;
-                });
+
+                    if (useDwarfcannon && usedSlots >= 27 && (!Backpack.contains(groundItem.getName()) || !isStackable)) {
+                        return random.nextLong(300, 500);
+                    }
+
+                    if (Backpack.isFull() && (!Backpack.contains(groundItem.getName()) || !isStackable)) {
+                        return random.nextLong(300, 500);
+                    }
+
+                    groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
+                    if (groundItem == null) {
+                        log("[CustomLootingFromGround] Ground item no longer exists.");
+                    } else {
+                        boolean Interacted = groundItem.interact("Take");
+                        log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                        Execution.delay(random.nextLong(600, 750));
+
+                        if (Interacted && player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                                Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 && ActionBar.getCooldown("Surge") == 0) {
+
+                            Execution.delay(random.nextLong(600, 750));
+                            log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
+                            Execution.delay(RandomGenerator.nextInt(200, 250));
+                            groundItem.interact("Take");
+                            return random.nextLong(300, 500);
+                        }
+                    }
+                }
+            }
+        }
+        return random.nextLong(300, 500);
     }
 
     public static void useCustomLoot() {
@@ -227,63 +222,60 @@ public class LootManager {
 // SECTION 3: Loot Noted Items
 // =====================
 
-    public static void useNotedLootFromGround() {
-        if (!walkToLoot && LootInventory.isOpen()) {
-            return;
-        }
-        int totalSlots = 28;
-        int usedSlots = totalSlots - Backpack.countFreeSlots();
-
-        LocalPlayer player = Client.getLocalPlayer();
-        List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
-                .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)
-                .toList();
-
-        groundItems.stream()
-                .filter(groundItem -> groundItem.getName() != null && ConfigManager.getItemType(groundItem.getId()).isNote())
-                .anyMatch(groundItem -> {
-                    if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                        if (!LootInventory.contains(groundItem.getName())) {
-                            if (!groundItem.isReachable()) {
-                                log("[NotedItemsFromGround] Ground item is not reachable. Skipping...");
-                                return false;
-                            }
-
-                            if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(groundItem.getName())) {
-                                return false;
-                            }
-
-                            if (Backpack.isFull() && !Backpack.contains(groundItem.getName())) {
-                                return false;
-                            }
-
-                            groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
-                            if (groundItem == null) {
-                                log("[NotedItemsFromGround] Ground item no longer exists.");
-                            } else {
-                                groundItem.interact("Take");
-                                log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
-                                Execution.delay(random.nextLong(600, 750));
-
-                                if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
-                                        Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 15 &&
-                                        ActionBar.getCooldown("Surge") == 0) {
-
-                                    Execution.delay(random.nextLong(600, 750));
-                                    log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
-                                    Execution.delay(RandomGenerator.nextInt(200, 250));
-                                    groundItem.interact("Take");
-                                }
-                            }
-                        }
-
-                        GroundItem finalGroundItem = groundItem;
-                        Execution.delayUntil(random.nextLong(2500, 5000), () ->
-                                LootInventory.contains(finalGroundItem.getName()));
-                    }
-                    return false;
-                });
+   public static long useNotedLootFromGround() {
+    if (!walkToLoot && LootInventory.isOpen()) {
+        return random.nextLong(300, 500);
     }
+    int totalSlots = 28;
+    int usedSlots = totalSlots - Backpack.countFreeSlots();
+
+    LocalPlayer player = Client.getLocalPlayer();
+    List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
+            .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)
+            .toList();
+
+    for (GroundItem groundItem : groundItems) {
+        if (groundItem.getName() != null && ConfigManager.getItemType(groundItem.getId()).isNote()) {
+            if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
+                if (!LootInventory.contains(groundItem.getName())) {
+                    if (!groundItem.isReachable()) {
+                        log("[NotedItemsFromGround] Ground item is not reachable. Skipping...");
+                        return random.nextLong(300, 500);
+                    }
+
+                    if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(groundItem.getName())) {
+                        return random.nextLong(300, 500);
+                    }
+
+                    if (Backpack.isFull() && !Backpack.contains(groundItem.getName())) {
+                        return random.nextLong(300, 500);
+                    }
+
+                    groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
+                    if (groundItem == null) {
+                        log("[NotedItemsFromGround] Ground item no longer exists.");
+                    } else {
+                        groundItem.interact("Take");
+                        log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
+                        Execution.delay(random.nextLong(600, 750));
+
+                        if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                                Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 15 &&
+                                ActionBar.getCooldown("Surge") == 0) {
+
+                            Execution.delay(random.nextLong(600, 750));
+                            log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
+                            Execution.delay(RandomGenerator.nextInt(200, 250));
+                            groundItem.interact("Take");
+                            return random.nextLong(300, 500);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return random.nextLong(300, 500);
+}
 
 
     public static void lootNotedItemsFromInventory() {
@@ -353,9 +345,9 @@ public class LootManager {
         return isStackable;
     }
 
-    public static void lootStackableItemsFromGround() {
+    public static long lootStackableItemsFromGround() {
         if (!walkToLoot && LootInventory.isOpen()) {
-            return;
+            return random.nextLong(300, 500);
         }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
@@ -370,15 +362,15 @@ public class LootManager {
             if (!LootInventory.contains(groundItem.getName())) {
                 if (!groundItem.isReachable()) {
                     log("[Loot] Ground item is not reachable. Skipping...");
-                    return;
+                    return random.nextLong(300, 500);
                 }
 
                 if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(groundItem.getName())) {
-                    return;
+                    return random.nextLong(300, 500);
                 }
 
                 if (Backpack.isFull() && !Backpack.contains(groundItem.getName())) {
-                    return;
+                    return random.nextLong(300, 500);
                 }
 
                 groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
@@ -396,15 +388,12 @@ public class LootManager {
                         log("[Loot] Used Surge: " + ActionBar.useAbility("Surge"));
                         Execution.delay(random.nextInt(200, 250));
                         groundItem.interact("Take");
+                        return random.nextLong(300, 500);
                     }
                 }
             }
-
-            GroundItem finalGroundItem = groundItem;
-            Execution.delayUntil(random.nextLong(2500, 5000), () ->
-                    LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate()
-            );
         }
+        return random.nextLong(300, 500);
     }
 
 
