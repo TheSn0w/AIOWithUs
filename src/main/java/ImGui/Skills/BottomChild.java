@@ -15,6 +15,8 @@ import static net.botwithus.Misc.UrnMaker.getUrnState;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.getCurrentState;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
+import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.Slayer.Main.getSlayerState;
 import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.Variables.Variables.*;
@@ -44,6 +46,8 @@ public class BottomChild {
                 botState = String.valueOf(getUrnState());
             } else if (useAbyssRunecrafting) {
                 botState = String.valueOf(Abyss.getCurrentState());
+            } else if (doSlayer) {
+                botState = String.valueOf(getSlayerState());
             } else {
                 botState = String.valueOf(getBotState());
             }

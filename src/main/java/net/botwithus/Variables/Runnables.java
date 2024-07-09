@@ -41,6 +41,8 @@ import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
+import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.Slayer.Main.runSlayer;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.isMakeUrnsActive;
 
@@ -177,7 +179,10 @@ public class Runnables {
                 useHintArrow = false;
                 return;
             }
-            if (!usePOD && !handleArchGlacor) {
+            if (doSlayer) {
+                runSlayer();
+            }
+            if (!usePOD && !handleArchGlacor && !doSlayer) {
                 Execution.delay(attackTarget(player));
             }
             if (handleArchGlacor) {

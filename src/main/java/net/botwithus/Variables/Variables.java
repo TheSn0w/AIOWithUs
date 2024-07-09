@@ -196,6 +196,9 @@ public class Variables {
             }
         }
     }
+    public static void clearTargetNames() {
+        targetNames.clear();
+    }
     public static void addTarget(String target) {
         if (!combatList.contains(target)) {
             combatList.add(target);

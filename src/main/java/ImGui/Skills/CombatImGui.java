@@ -25,6 +25,7 @@ import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.removeFoodName;
@@ -183,7 +184,9 @@ public class CombatImGui {
             ImGui.SameLine();
 
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-            SoulSplit = ImGui.Checkbox("Soul Split", SoulSplit);
+            if (!doSlayer) {
+                SoulSplit = ImGui.Checkbox("Soul Split", SoulSplit);
+            }
 
             ImGui.SameLine();
 
@@ -202,9 +205,11 @@ public class CombatImGui {
             ImGui.SameLine();
 
             ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
-            usequickPrayers = ImGui.Checkbox("Quick Prayers", usequickPrayers);
-            if (ImGui.IsItemHovered()) {
-                ImGui.SetTooltip("Have Quick Prayers 1 on Action bar");
+            if (!doSlayer) {
+                usequickPrayers = ImGui.Checkbox("Quick Prayers", usequickPrayers);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Have Quick Prayers 1 on Action bar");
+                }
             }
 
             ImGui.SameLine();

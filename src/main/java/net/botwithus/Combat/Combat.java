@@ -16,7 +16,6 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -36,6 +35,8 @@ import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Slayer.NPCs.iceStrykewyrms;
+import static net.botwithus.Slayer.NPCs.lavaStrykewyrms;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -153,6 +154,9 @@ public class Combat {
         if (player == null || useTraveltoLocation || useHintArrow) {
             return random.nextLong(600, 650);
         }
+        // resets multitarget ID list
+        handleMultitarget();
+
         // if Loot Inventory is not open, interact with ground items
         if (useCustomLoot) {
             useCustomLootFromGround();
@@ -163,8 +167,9 @@ public class Combat {
         if (useLootEverything) {
             useLootInventoryPickup();
         }
-
-        handleMultitarget();
+        if (useLootAllStackableItems) {
+            lootStackableItemsFromGround();
+        }
 
         if (useFamiliarForCombat) {
             summonFamiliar();
@@ -196,16 +201,20 @@ public class Combat {
             dwarvenSiegeCannon();
         }
 
-        // Handle specific creature types
+        // if moving return
         if (player.isMoving()) {
             return random.nextLong(600, 650);
         }
+
+        // Handle specific creature types
         if (lavaStrykewyrms) {
             return lavaStrykewyrms();
         }
         if (iceStrykewyrms) {
             return iceStrykewyrms();
         }
+
+        //combat module
 
         if (!player.hasTarget()) {
             handleCombat(player);
@@ -221,83 +230,18 @@ public class Combat {
                     if (newTarget != null) {
                         return attackMonster(player, newTarget);
                     } else {
-                        return random.nextLong(100, 200);
+                        return random.nextLong(300, 400);
                     }
                 } else {
-                    return random.nextLong(100, 200);
+                    return random.nextLong(300, 400);
                 }
+            } else {
+                return random.nextLong(300, 400);
             }
         }
 
-        return random.nextLong(100, 200);
+        return random.nextLong(300, 400);
     }
-
-
-
-    private static long lavaStrykewyrms() {
-    LocalPlayer player = getLocalPlayer();
-    if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
-        return random.nextLong(400, 600);
-    }
-    EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(2417).option("Investigate").results();
-    Npc strykewyrm = NpcQuery.newQuery().byType(20630).results().nearestTo(player);
-
-    if (strykewyrm != null && strykewyrm.getCurrentHealth() > 0) {
-        log("[Lava] Strykewyrm is being followed by the player and has health greater than 0.");
-        strykewyrm.interact("Attack");
-        Execution.delay(random.nextLong(1000, 2000));
-        return 0;
-    }
-
-    if (!mounds.isEmpty()) {
-        Npc nearestMound = mounds.nearest();
-        log("[Lava] Interacting with the nearest mound.");
-        nearestMound.interact("Investigate");
-        if (nearestMound.getCoordinate().distanceTo(player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
-            Execution.delay(random.nextLong(600, 700));
-            log("[Lava] Used Surge: " + ActionBar.useAbility("Surge"));
-            Execution.delay(random.nextLong(200, 250));
-            nearestMound.interact("Investigate");
-        }
-        return random.nextLong(1000, 2000);
-    } else {
-        log("[Lava] No Nearby Mounds available.");
-    }
-    return 0;
-}
-
-    private static long iceStrykewyrms() {
-        LocalPlayer player = getLocalPlayer();
-        if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
-            return random.nextLong(400, 600);
-        }
-        EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(9462).option("Investigate").results();
-        Npc strykewyrm = NpcQuery.newQuery().byType(9463).results().nearestTo(player);
-
-        if (strykewyrm != null && strykewyrm.getCurrentHealth() > 0) {
-            log("[Ice] Strykewyrm is being followed by the player and has health greater than 0.");
-            strykewyrm.interact("Attack");
-            Execution.delay(random.nextLong(1000, 2000));
-            return 0;
-        }
-
-        if (!mounds.isEmpty()) {
-            Npc nearestMound = mounds.nearest();
-            log("[Ice] Interacting with the nearest mound.");
-            nearestMound.interact("Investigate");
-            if (nearestMound.getCoordinate().distanceTo(player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
-                Execution.delay(random.nextLong(600, 700));
-                log("[Ice] Used Surge: " + ActionBar.useAbility("Surge"));
-                Execution.delay(random.nextLong(200, 250));
-                nearestMound.interact("Investigate");
-            }
-            return random.nextLong(1000, 2000);
-        } else {
-            log("[Ice] No Nearby Mounds available.");
-        }
-        return 0;
-    }
-
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
         List<String> targetNames = getTargetNames();
@@ -338,13 +282,12 @@ public class Combat {
     private static long attackMonster(LocalPlayer player, Npc monster) {
         boolean attack = monster.interact("Attack");
         log("[MultiTarget] Attacking " + monster.getName() + "...");
-        Execution.delay(random.nextLong(500, 700));
         if (attack) {
             if (handleMultitarget) {
                 recentlyAttackedTargets.add(monster.getId());
             }
         }
-        return random.nextLong(random.nextLong(1000, 1500));
+        return random.nextLong(random.nextLong(300, 400));
     }
 
     private static void handleMultitarget() {

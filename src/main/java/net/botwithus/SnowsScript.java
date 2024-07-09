@@ -47,6 +47,7 @@ import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.*;
+import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -123,9 +124,9 @@ public class SnowsScript extends LoopingScript {
         if (isDropActive) {
             dropItems();
         }
-        if (isCombatActive) {
-            updateNpcTableData(player);
-        }
+
+        updateNpcTableData(player);
+
 
         switch (botState) {
             case IDLE -> Execution.delay(random.nextLong(1500, 3000));
@@ -707,6 +708,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("showAllLoot", String.valueOf(showAllLoot));
         this.configuration.addProperty("lavaStrykewyrms", String.valueOf(lavaStrykewyrms));
         this.configuration.addProperty("iceStrykewyrms", String.valueOf(iceStrykewyrms));
+        this.configuration.addProperty("doSlayer", String.valueOf(doSlayer));
 
 
         this.configuration.save();
@@ -714,6 +716,7 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            doSlayer = Boolean.parseBoolean(this.configuration.getProperty("doSlayer"));
             iceStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("iceStrykewyrms"));
             lavaStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("lavaStrykewyrms"));
             showAllLoot = Boolean.parseBoolean(this.configuration.getProperty("showAllLoot"));

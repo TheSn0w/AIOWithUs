@@ -1,6 +1,8 @@
 package ImGui;
 
 import net.botwithus.*;
+import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.ScenePosition;
 import net.botwithus.rs3.imgui.*;
 import net.botwithus.rs3.script.ScriptConsole;
 import net.botwithus.rs3.script.ScriptGraphicsContext;
@@ -36,6 +38,7 @@ import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
+import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 
@@ -62,6 +65,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
     @Override
     public void drawSettings() {
+        if (Client.getLocalPlayer() != null && Client.getGameState() == Client.GameState.LOGGED_IN) {
+            drawTile(Client.getLocalPlayer().getScene());
+
+        }
         setDefaultTheme();
         applyBlueTheme();
 
@@ -339,6 +346,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Ice wyrm", () -> iceStrykewyrms = !iceStrykewyrms, iceStrykewyrms);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will kill Ice Strykewyrms");
+                        }
+                        createCenteredButton("Slayer", () -> doSlayer = !doSlayer, doSlayer);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will do Ikeagirl Slayer Tasks, will cancel unknown tasks");
                         }
                     } else if (isFishingActive) {
                         createCenteredButton("Fishing", () -> isFishingActive = !isFishingActive, true);
@@ -712,6 +723,29 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
     public void drawOverlay() {
         super.drawOverlay();
     }
+
+    private void drawTile(ScenePosition scene) {
+        // Implementation of drawTile method
+        ScenePosition LeftBack = new ScenePosition(scene.getX() - 300.f, scene.getY(), scene.getZ() - 300.f);
+        ScenePosition RightBack = new ScenePosition(scene.getX() + 300.f, scene.getY(), scene.getZ() - 300.f);
+        ScenePosition LeftFront = new ScenePosition(scene.getX() - 300.f, scene.getY(), scene.getZ() + 300.f);
+        ScenePosition RightFront = new ScenePosition(scene.getX() + 300.f, scene.getY(), scene.getZ() + 300.f);
+        Vector2f LeftFront_s = Client.project(LeftFront);
+        Vector2f RightFront_s = Client.project(RightFront);
+        Vector2f LeftBack_s = Client.project(LeftBack);
+        Vector2f RightBack_s = Client.project(RightBack);
+
+        // Create a new instance of Color with RGB values for blue
+        Color blueColour = new Color(255, 0, 0);
+
+        int colour = blueColour.getRGB();
+        BGList.DrawLine(LeftBack_s.getX(), LeftBack_s.getY(), RightBack_s.getX(), RightBack_s.getY(), 1, colour);
+        BGList.DrawLine(LeftBack_s.getX(), LeftBack_s.getY(), LeftFront_s.getX(), LeftFront_s.getY(), 1, colour);
+        BGList.DrawLine(RightFront_s.getX(), RightFront_s.getY(), RightBack_s.getX(), RightBack_s.getY(), 1, colour);
+        BGList.DrawLine(RightFront_s.getX(), RightFront_s.getY(), LeftFront_s.getX(), LeftFront_s.getY(), 1, colour);
+    }
+
+
 
 }
 
