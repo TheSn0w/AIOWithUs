@@ -728,7 +728,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         if (PurpleThemeSelected) {
             return new Color(128, 0, 128); // RGB values for purple
         } else if (BlueThemeSelected) {
-            return new Color(255, 0, 0); // RGB values for blue
+            return new Color(180, 130, 70, 255); // RGB values for blue
         } else if (RedThemeSelected) {
             return new Color(0, 0, 255); // RGB values for red
         } else if (YellowThemeSelected) {
@@ -738,7 +738,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         } else if (OrangeThemeSelected) {
             return new Color(0, 165, 255); // RGB values for orange
         } else {
-            return new Color(255, 0, 0); // RGB values for blue
+            return new Color(180, 130, 70, 255); // RGB values for blue
         }
     }
 
