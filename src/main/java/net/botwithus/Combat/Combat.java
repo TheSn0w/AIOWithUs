@@ -141,7 +141,7 @@ public class Combat {
     }
 
 
-    public static double healthThreshold = 0.4;
+    public static double healthThreshold = 0.25;
     public static double getHealthThreshold() {
         return healthThreshold;
     }
@@ -289,7 +289,7 @@ public class Combat {
                 recentlyAttackedTargets.add(monster.getId());
             }
         }
-        return random.nextLong(random.nextLong(300, 400));
+        return random.nextLong(random.nextLong(700, 1000));
     }
 
     private static void handleMultitarget() {

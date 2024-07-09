@@ -337,18 +337,18 @@ public class LootManager {
                     var itemType = ConfigManager.getItemType(item.getId());
                     if (itemType != null && isStackable(itemType)) {
                         if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
-                            log("[Loot] Backpack is full or item is not in backpack. Skipping...");
+                            log("[StackedItem] Backpack is full or item is not in backpack. Skipping...");
                             return;
                         }
 
                         if (Backpack.isFull() && !Backpack.contains(item.getName())) {
-                            log("[Loot] Backpack is full and item is not already in backpack. Skipping...");
+                            log("[StackedItem] Backpack is full and item is not already in backpack. Skipping...");
                             return;
                         }
 
                         /*log("[Loot] Item is stackable. Attempting to take item...");*/
                         LootInventory.take(item.getName());
-                        log("[Loot] Successfully looted stackable item: " + item.getName());
+                        log("[StackedItem] Successfully looted stackable item: " + item.getName());
                         Execution.delay(random.nextLong(600, 650));
                     }
                 }
@@ -358,9 +358,7 @@ public class LootManager {
 
     private static boolean isStackable(ItemType itemType) {
         ItemType.Stackability stackability = itemType.getStackability();
-      /*  log("[Loot] Stackability of item: " + itemType.getName() + " is " + stackability);*/
-        boolean isStackable = stackability == ItemType.Stackability.ALWAYS;
-     /*   log("[Loot] Is item stackable? " + isStackable);*/
+        boolean isStackable = stackability == ItemType.Stackability.ALWAYS || stackability == ItemType.Stackability.SOMETIMES;
         return isStackable;
     }
 
