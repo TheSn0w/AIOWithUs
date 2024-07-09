@@ -507,7 +507,7 @@ public class NPCs {
                 new Coordinate(5600, 2124, 0), // Devil's snare
                 new Coordinate(5284, 2387, 0), // Luminous snaggler
                 new Coordinate(5617, 2262, 0),  // Lampenflora
-                new Coordinate(5680, 2342, 0)  // Liverworts
+                new Coordinate(5611, 2395, 0)  // Liverworts
         };
 
         // Determine the highest-level NPC that the player can attack based on Slayer level

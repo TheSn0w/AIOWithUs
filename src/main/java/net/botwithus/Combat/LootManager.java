@@ -121,9 +121,6 @@ public class LootManager {
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
-        if (LootInventory.isOpen()) {
-            return;
-        }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 
@@ -232,9 +229,6 @@ public class LootManager {
 // =====================
 
     public static void useNotedLootFromGround() {
-        if (LootInventory.isOpen()) {
-            return;
-        }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 
@@ -363,9 +357,6 @@ public class LootManager {
     }
 
     public static void lootStackableItemsFromGround() {
-        if (LootInventory.isOpen()) {
-            return;
-        }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 
