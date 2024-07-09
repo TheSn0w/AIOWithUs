@@ -154,8 +154,6 @@ public class Combat {
         if (player == null || useTraveltoLocation || useHintArrow) {
             return random.nextLong(600, 650);
         }
-        // resets multitarget ID list
-        handleMultitarget();
 
         // if Loot Inventory is not open, interact with ground items
         if (useCustomLoot) {
@@ -215,7 +213,13 @@ public class Combat {
 
         //combat module
 
+        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 100) {
+            handleCombat(player);
+            return random.nextLong(300, 500);
+        }
+
         if (player.hasTarget()) {
+            handleMultitarget();
 
             PathingEntity<?> target = player.getTarget();
 
@@ -224,18 +228,11 @@ public class Combat {
                     Npc newTarget = findDifferentTarget(player, target.getId());
                     if (newTarget != null) {
                         return attackMonster(player, newTarget);
-                    } else {
-                        return random.nextLong(300, 400);
                     }
-                } else {
-                    return random.nextLong(300, 400);
                 }
-            } else {
-                return random.nextLong(300, 400);
             }
         }
-
-        return handleCombat(player);
+        return 0;
     }
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {

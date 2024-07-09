@@ -183,7 +183,7 @@ public class Runnables {
                 useHintArrow = false;
                 return;
             }
-            if (doSlayer) {
+            if (doSlayer && !handleArchGlacor && !usePOD) {
                 runSlayer();
             }
             if (!usePOD && !handleArchGlacor && !doSlayer) {
