@@ -246,6 +246,7 @@ public class NPCs {
         }
     }
 
+
     public static void crystalShapeshifters(LocalPlayer player) {
         Coordinate worldGateCoords = new Coordinate(2367, 3358, 0);
         Coordinate crystalShapeshifterCoords = new Coordinate(4143, 6562, 0);
