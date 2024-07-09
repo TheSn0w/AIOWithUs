@@ -178,7 +178,7 @@ public class LootManager {
                         }
 
                         GroundItem finalGroundItem = groundItem;
-                        Execution.delayUntil(random.nextLong(10000, 15000), () ->
+                        Execution.delayUntil(random.nextLong(2500, 5000), () ->
                                 LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
                     }
                     return false;
@@ -286,7 +286,7 @@ public class LootManager {
                         }
 
                         GroundItem finalGroundItem = groundItem;
-                        Execution.delayUntil(random.nextLong(10000, 15000), () ->
+                        Execution.delayUntil(random.nextLong(2500, 5000), () ->
                                 LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
                     }
                     return false;
@@ -414,7 +414,7 @@ public class LootManager {
             }
 
             GroundItem finalGroundItem = groundItem;
-            Execution.delayUntil(random.nextLong(10000, 15000), () ->
+            Execution.delayUntil(random.nextLong(2500, 5000), () ->
                     LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate()
             );
         }
