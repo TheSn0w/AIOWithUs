@@ -724,25 +724,42 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         super.drawOverlay();
     }
 
+    private Color getThemeColor() {
+        if (PurpleThemeSelected) {
+            return new Color(128, 0, 128); // RGB values for purple
+        } else if (BlueThemeSelected) {
+            return new Color(255, 0, 0); // RGB values for blue
+        } else if (RedThemeSelected) {
+            return new Color(0, 0, 255); // RGB values for red
+        } else if (YellowThemeSelected) {
+            return new Color(0, 255, 255); // RGB values for yellow
+        } else if (GreenThemeSelected) {
+            return new Color(0, 128, 0); // RGB values for green
+        } else if (OrangeThemeSelected) {
+            return new Color(0, 165, 255); // RGB values for orange
+        } else {
+            return new Color(255, 0, 0); // RGB values for blue
+        }
+    }
+
     private void drawTile(ScenePosition scene) {
         // Implementation of drawTile method
-        ScenePosition LeftBack = new ScenePosition(scene.getX() - 300.f, scene.getY(), scene.getZ() - 300.f);
-        ScenePosition RightBack = new ScenePosition(scene.getX() + 300.f, scene.getY(), scene.getZ() - 300.f);
-        ScenePosition LeftFront = new ScenePosition(scene.getX() - 300.f, scene.getY(), scene.getZ() + 300.f);
-        ScenePosition RightFront = new ScenePosition(scene.getX() + 300.f, scene.getY(), scene.getZ() + 300.f);
+        ScenePosition LeftBack = new ScenePosition(scene.getX() - 250.f, scene.getY(), scene.getZ() - 250.f);
+        ScenePosition RightBack = new ScenePosition(scene.getX() + 250.f, scene.getY(), scene.getZ() - 250.f);
+        ScenePosition LeftFront = new ScenePosition(scene.getX() - 250.f, scene.getY(), scene.getZ() + 250.f);
+        ScenePosition RightFront = new ScenePosition(scene.getX() + 250.f, scene.getY(), scene.getZ() + 250.f);
         Vector2f LeftFront_s = Client.project(LeftFront);
         Vector2f RightFront_s = Client.project(RightFront);
         Vector2f LeftBack_s = Client.project(LeftBack);
         Vector2f RightBack_s = Client.project(RightBack);
 
-        // Create a new instance of Color with RGB values for blue
-        Color blueColour = new Color(255, 0, 0);
+        Color themeColor = getThemeColor();
 
-        int colour = blueColour.getRGB();
-        BGList.DrawLine(LeftBack_s.getX(), LeftBack_s.getY(), RightBack_s.getX(), RightBack_s.getY(), 1, colour);
-        BGList.DrawLine(LeftBack_s.getX(), LeftBack_s.getY(), LeftFront_s.getX(), LeftFront_s.getY(), 1, colour);
-        BGList.DrawLine(RightFront_s.getX(), RightFront_s.getY(), RightBack_s.getX(), RightBack_s.getY(), 1, colour);
-        BGList.DrawLine(RightFront_s.getX(), RightFront_s.getY(), LeftFront_s.getX(), LeftFront_s.getY(), 1, colour);
+        int colour = themeColor.getRGB();
+        BGList.DrawLine(LeftBack_s.getX(), LeftBack_s.getY(), RightBack_s.getX(), RightBack_s.getY(), 3, colour);
+        BGList.DrawLine(LeftBack_s.getX(), LeftBack_s.getY(), LeftFront_s.getX(), LeftFront_s.getY(), 3, colour);
+        BGList.DrawLine(RightFront_s.getX(), RightFront_s.getY(), RightBack_s.getX(), RightBack_s.getY(), 3, colour);
+        BGList.DrawLine(RightFront_s.getX(), RightFront_s.getY(), LeftFront_s.getX(), LeftFront_s.getY(), 3, colour);
     }
 
 

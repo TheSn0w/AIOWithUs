@@ -64,6 +64,7 @@ public class Main {
     public static void setSlayerState(SlayerState state) {
         slayerState = state;
     }
+
     public static SlayerState getSlayerState() {
         return slayerState;
     }
@@ -218,14 +219,11 @@ public class Main {
     }
 
     private static void checkTaskCompletion() {
-        if (VarManager.getVarValue(VarDomainType.PLAYER, 183) != 0) {
+        /*if (VarManager.getVarValue(VarDomainType.PLAYER, 183) != 0) {
             slayerState = SlayerState.RETRIEVETASKINFO;
-        } else {
-            clearTargetNames();
-            slayerState = SlayerState.WARS_RETREAT;
-            log("Task completed.");
-        }
+        } else {*/
+        clearTargetNames();
+        slayerState = SlayerState.WARS_RETREAT;
+        /*log("Task completed.");*/
     }
-
-
 }
