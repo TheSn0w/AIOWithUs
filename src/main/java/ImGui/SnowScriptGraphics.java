@@ -33,6 +33,7 @@ import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.LootManager.useLootAllNotedItems;
+import static net.botwithus.Combat.LootManager.walkToLoot;
 import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
@@ -314,6 +315,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Loot Stackables", () -> useLootAllStackableItems = !useLootAllStackableItems, useLootAllStackableItems);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
+                        }
+                        createCenteredButton("Loot Custom", () -> walkToLoot = !walkToLoot, walkToLoot);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("if item does not appear in loot inventory but is on the ground, it will walk to it until it appears in loot inventory, works for Loot, Loot Noted and Loot Stackables");
                         }
                         createCenteredButton("Use Notepaper", () -> useNotepaper = !useNotepaper, useNotepaper);
                         if (ImGui.IsItemHovered()) {
