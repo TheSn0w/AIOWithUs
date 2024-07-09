@@ -3,6 +3,7 @@ package net.botwithus.Slayer;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.vars.VarManager;
 
+import static net.botwithus.CustomLogger.log;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class Utilities {
@@ -12,6 +13,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16768) != 0) {
                 ActionBar.useAbility("Deflect Magic");
+                log("Magic prayer deactivated!");
             }
         }
     }
@@ -20,6 +22,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16769) != 0) {
                 ActionBar.useAbility("Deflect Ranged");
+                log("Ranged prayer deactivated!");
             }
         }
     }
@@ -28,6 +31,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16770) != 0) {
                 ActionBar.useAbility("Deflect Melee");
+                log("Melee prayer deactivated!");
             }
         }
     }
@@ -36,6 +40,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16779) != 0) {
                 ActionBar.useAbility("Soul Split");
+                log("Soul Split deactivated!");
             }
         }
     }
@@ -45,6 +50,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16768) != 1) {
                 ActionBar.useAbility("Deflect Magic");
+                log("Magic prayer activated!");
             }
         }
     }
@@ -53,6 +59,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16769) != 1) {
                 ActionBar.useAbility("Deflect Ranged");
+                log("Ranged prayer activated!");
             }
         }
     }
@@ -61,6 +68,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16770) != 1) {
                 ActionBar.useAbility("Deflect Melee");
+                log("Melee prayer activated!");
             }
         }
     }
@@ -69,6 +77,7 @@ public class Utilities {
         if (getLocalPlayer() != null) {
             if (VarManager.getVarbitValue(16779) != 1) {
                 ActionBar.useAbility("Soul Split");
+                log("Soul Split activated!");
             }
         }
     }
