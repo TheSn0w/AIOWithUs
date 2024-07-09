@@ -709,6 +709,7 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("lavaStrykewyrms", String.valueOf(lavaStrykewyrms));
         this.configuration.addProperty("iceStrykewyrms", String.valueOf(iceStrykewyrms));
         this.configuration.addProperty("doSlayer", String.valueOf(doSlayer));
+        this.configuration.addProperty("useLootAllStackableItems", String.valueOf(useLootAllStackableItems));
 
 
         this.configuration.save();
@@ -716,6 +717,7 @@ public class SnowsScript extends LoopingScript {
 
     public void loadConfiguration() {
         try {
+            useLootAllStackableItems = Boolean.parseBoolean(this.configuration.getProperty("useLootAllStackableItems"));
             doSlayer = Boolean.parseBoolean(this.configuration.getProperty("doSlayer"));
             iceStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("iceStrykewyrms"));
             lavaStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("lavaStrykewyrms"));

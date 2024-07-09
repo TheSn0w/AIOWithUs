@@ -18,6 +18,8 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.setSlayerState;
+import static net.botwithus.Slayer.Utilities.*;
+import static net.botwithus.Slayer.Utilities.DeHandleSoulSplit;
 import static net.botwithus.Variables.Variables.random;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -40,6 +42,10 @@ public class WarsRetreat {
         if (player != null) {
             log("Used Wars Retreat: " + ActionBar.useAbility("War's Retreat Teleport"));
             Execution.delay(RandomGenerator.nextInt(5000, 6000));
+            DeActivateMagicPrayer();
+            DeActivateRangedPrayer();
+            DeActivateMeleePrayer();
+            DeHandleSoulSplit();
             Execution.delay(handleCampfire(player));
         }
         return random.nextLong(1500, 3000);

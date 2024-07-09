@@ -150,6 +150,9 @@ public class HandleTask {
                     setSlayerState(ADAMANTDRAGONS);
                     break;
                 default:
+                case "black dradons":
+                    addTargetName("Black dragon");
+                    setSlayerState(BLACKDRAGONS);
                     log("Task not recognized.");
                     skipTask();
             }

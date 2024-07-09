@@ -10,6 +10,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.HandleTask.handleTask;
 import static net.botwithus.Slayer.Laniakea.TeleporttoLaniakea;
 import static net.botwithus.Slayer.NPCs.*;
+import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
 import static net.botwithus.Variables.Variables.clearTargetNames;
 
@@ -50,6 +51,7 @@ public class Main {
         GARGOYLES,
         CHAOSGIANTS,
         AIRUT,
+        BLACKDRAGONS,
         COMBAT,
 
     }
@@ -193,6 +195,10 @@ public class Main {
             case AIRUT:
                 log("Airut state.");
                 airut(player);
+                break;
+            case BLACKDRAGONS:
+                log("Black Dragons state.");
+                blackDragon(player);
                 break;
             case COMBAT:
                 if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {

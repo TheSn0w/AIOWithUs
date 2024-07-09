@@ -80,8 +80,8 @@ public class LootManager {
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 5500), () -> getLocalPlayer().isMoving());
 
                 if (getLocalPlayer().isMoving() && groundItem.getCoordinate() != null && Distance.between(getLocalPlayer().getCoordinate(), groundItem.getCoordinate()) > 10) {
+                    Execution.delay(RandomGenerator.nextInt(600, 750));
                     log("[LootEverything] Used Surge: " + ActionBar.useAbility("Surge"));
-                    Execution.delay(RandomGenerator.nextInt(200, 250));
                 }
 
                 if (groundItem.getCoordinate() != null) {
@@ -121,6 +121,9 @@ public class LootManager {
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
+        if (LootInventory.isOpen()) {
+            return;
+        }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 
@@ -168,7 +171,6 @@ public class LootManager {
                                 ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
 
                             Execution.delay(random.nextLong(750, 1000));
-
                             log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
                             Execution.delay(RandomGenerator.nextInt(200, 250));
                             groundItem.interact("Take");
@@ -230,6 +232,9 @@ public class LootManager {
 // =====================
 
     public static void useNotedLootFromGround() {
+        if (LootInventory.isOpen()) {
+            return;
+        }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 
@@ -355,26 +360,16 @@ public class LootManager {
 
     private static boolean isStackable(ItemType itemType) {
         ItemType.Stackability stackability = itemType.getStackability();
-        log("[Loot] Stackability of item: " + itemType.getName() + " is " + stackability);
+      /*  log("[Loot] Stackability of item: " + itemType.getName() + " is " + stackability);*/
         boolean isStackable = stackability == ItemType.Stackability.ALWAYS;
-        log("[Loot] Is item stackable? " + isStackable);
+     /*   log("[Loot] Is item stackable? " + isStackable);*/
         return isStackable;
-    }
-    public static void costOfAllItemsInInventory() {
-        if (LootInventory.isOpen()) {
-            List<Item> inventoryItems = LootInventory.getItems();
-
-            for (Item item : inventoryItems) {
-                if (item.getName() != null) {
-                    ItemType itemType = ConfigManager.getItemType(item.getId());
-                    long cost = itemType.getCost();
-                    log("[Loot] Cost of item: " + itemType.getName() + " is " + cost);
-                }
-            }
-        }
     }
 
     public static void lootStackableItemsFromGround() {
+        if (LootInventory.isOpen()) {
+            return;
+        }
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 
@@ -392,7 +387,6 @@ public class LootManager {
                 }
 
                 if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(groundItem.getName())) {
-                    log("[Loot] Backpack is full or item is not in backpack. Skipping...");
                     return;
                 }
 
@@ -426,8 +420,6 @@ public class LootManager {
             Execution.delayUntil(random.nextLong(10000, 15000), () ->
                     LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate()
             );
-        } else {
-            log("[Loot] No stackable ground item found or ItemType is null. Skipping...");
         }
     }
 

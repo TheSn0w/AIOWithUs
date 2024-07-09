@@ -1022,5 +1022,22 @@ public class NPCs {
         }
     }
 
+    public static void blackDragon(LocalPlayer player) {
+        Coordinate blackDragonCoord = new Coordinate(2834, 9823, 0);
+        Npc blackDragon = NpcQuery.newQuery().name("Black dragon").results().nearest();
+
+        if (blackDragon != null) {
+            log("Black dragon found, proceeding to attack.");
+            ActivateSoulSplit();
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Black dragon not found, proceeding to Black dragon location.");
+            if (Movement.traverse(NavPath.resolve(blackDragonCoord)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Black dragon location.");
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
 
 }
