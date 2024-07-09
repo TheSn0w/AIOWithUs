@@ -250,6 +250,8 @@ public class Combat {
             return null;
         }
 
+        log("Trying to find a different target.");
+
         Pattern monsterPattern = generateRegexPattern(targetNames);
 
         Npc newTarget = NpcQuery.newQuery()

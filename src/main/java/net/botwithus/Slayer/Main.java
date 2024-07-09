@@ -9,6 +9,7 @@ import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.HandleTask.handleTask;
 import static net.botwithus.Slayer.Laniakea.TeleporttoLaniakea;
+import static net.botwithus.Slayer.Laniakea.skipTask;
 import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
@@ -22,6 +23,7 @@ public class Main {
         WARS_RETREAT,
         LANIAKEA,
         RETRIEVETASKINFO,
+        CANCELTASK,
         LOGOUT,
         CREATURESOFTHELOSTGROVE,
         RISENGHOSTS,
@@ -87,8 +89,13 @@ public class Main {
                 log("Handle Task state.");
                 handleTask(player);
                 break;
+            case CANCELTASK:
+                log("Cancel Task state.");
+                skipTask();
+                break;
             case CREATURESOFTHELOSTGROVE:
                 log("Creatures of the Lost Grove state.");
+                Vinecrawlers(player);
                 break;
             case RISENGHOSTS:
                 log("Risen Ghosts state.");

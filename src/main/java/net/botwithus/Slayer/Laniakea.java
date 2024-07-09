@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.setSlayerState;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.component;
 import static net.botwithus.Variables.Variables.random;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -72,27 +73,45 @@ public class Laniakea {
 
     public static long skipTask() {
         /*if (VarManager.getVarValue(VarDomainType.PLAYER, 183)) { // amount of slayer kills remaining*/
-        if (VarManager.getVarbitValue(9071) >= 30) { // amount of slayer points remaining
+        Npc laniakea = NpcQuery.newQuery().name("Laniakea").results().nearest();
 
-            log("Skipping task.");
-            Npc laniakea = NpcQuery.newQuery().name("Laniakea").results().nearest();
-            if (laniakea != null) {
-                log("Interacting with Laniakea.");
-                laniakea.interact("Rewards");
-                Execution.delayUntil(random.nextLong(3000, 5000), () -> Interfaces.isOpen(1308));
-                Execution.delay(random.nextLong(800, 1100));
-                if (!ComponentQuery.newQuery(1308).componentIndex(21).subComponentIndex(-1).results().isEmpty()) {
-                    log("Interacting with Assignments");
-                    component(1, -1, 85721106);
+        if (laniakea == null) {
+            Coordinate laniakeaCoordinate = new Coordinate(5458, 2354, 0);
+            Coordinate laniakeaCoordinateCape = new Coordinate(5667, 2138, 0);
+
+            if (!InventoryItemQuery.newQuery().ids(93).name(slayerCape).results().isEmpty()) {
+                if (Movement.traverse(NavPath.resolve(laniakeaCoordinateCape)) == TraverseEvent.State.FINISHED) {
+                    log("Teleporting via Slayers Cape.");
+                }
+            } else {
+                if (Movement.traverse(NavPath.resolve(laniakeaCoordinate)) == TraverseEvent.State.FINISHED) {
+                    log("Teleporting to Laniakea.");
+                }
+            }
+            if (VarManager.getVarbitValue(9071) >= 30) { // amount of slayer points remaining
+
+                log("Skipping task.");
+                if (laniakea != null) {
+                    log("Interacting with Laniakea.");
+                    laniakea.interact("Rewards");
+                    Execution.delayUntil(random.nextLong(3000, 5000), () -> Interfaces.isOpen(1308));
                     Execution.delay(random.nextLong(800, 1100));
-                    if (!ComponentQuery.newQuery(1308).componentIndex(555).subComponentIndex(-1).results().isEmpty()) {
-                        log("Cancelling task.");
-                        component(1, -1, 85721639);
-                        Execution.delay(random.nextLong(1500, 3000));
-                        log("Getting new task.");
-                        getTask();
+                    if (!ComponentQuery.newQuery(1308).componentIndex(21).subComponentIndex(-1).results().isEmpty()) {
+                        log("Interacting with Assignments");
+                        component(1, -1, 85721106);
+                        Execution.delay(random.nextLong(800, 1100));
+                        if (!ComponentQuery.newQuery(1308).componentIndex(555).subComponentIndex(-1).results().isEmpty()) {
+                            log("Cancelling task.");
+                            component(1, -1, 85721639);
+                            Execution.delay(random.nextLong(1500, 3000));
+                            log("Getting new task.");
+                            setSlayerState(Main.SlayerState.LANIAKEA);
+                        }
                     }
                 }
+            } else {
+                log("Not enough slayer points to skip task.");
+                shutdown();
             }
         }
         return 0;

@@ -22,6 +22,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.Slayer.Utilities.*;
+import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -55,9 +56,6 @@ public class NPCs {
             return random.nextLong(1000, 2000);
         } else {
             if (Movement.traverse(NavPath.resolve(new Coordinate(3033, 3823, 0))) == TraverseEvent.State.FINISHED) {
-                if(doSlayer) {
-                    setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
-                }
                 log("[Ice] Traversed to Lava Strykewyrms location.");
             } else {
                 log("[Ice] Failed to traverse to Lava Strykewyrms location.");
@@ -94,9 +92,6 @@ public class NPCs {
             return random.nextLong(1000, 2000);
         } else {
             if (Movement.traverse(NavPath.resolve(new Coordinate(3062, 3808, 0))) == TraverseEvent.State.FINISHED) {
-                if(doSlayer) {
-                    setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
-                }
                 log("[Ice] Traversed to Ice Strykewyrms location.");
             } else {
                 log("[Ice] Failed to traverse to Ice Strykewyrms location.");
@@ -113,8 +108,7 @@ public class NPCs {
         if (vinecrawler != null) {
             log("Vinecrawler found, proceeding to attack.");
             ActivateMagicPrayer();
-            attackTarget(player);
-            return 0;
+            setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Vinecrawler not found, proceeding to Standstone.");
             if (Movement.traverse(NavPath.resolve(standstoneLocation)) == TraverseEvent.State.FINISHED) {
@@ -128,8 +122,8 @@ public class NPCs {
                         log("Traversing to Vinecrawler location.");
                         Movement.traverse(NavPath.resolve(vineCrawlers));
                         log("Traversed to Vinecrawler location.");
-                        setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
-
+                        setSlayerState(Main.SlayerState.COMBAT);
+                        ActivateMagicPrayer();
                         return random.nextLong(1000, 2000);
                     }
                 }
@@ -153,6 +147,7 @@ public class NPCs {
                     log("Wilderness Crypt Entrance found, proceeding to Enter.");
                     cryptDoor.nearest().interact("Inspect");
                     Execution.delay(random.nextLong(6500, 7500));
+                    ActivateMagicPrayer();
                     setSlayerState(Main.SlayerState.COMBAT);
                 }
             }
@@ -169,6 +164,7 @@ public class NPCs {
         } else {
             log("Ganodermic beast not found, proceeding to Ganodermic location.");
             if (Movement.traverse(NavPath.resolve(ganodermicLocation)) == TraverseEvent.State.FINISHED) {
+                ActivateSoulSplit();
                 log("Traversed to Ganodermic location.");
                 setSlayerState(Main.SlayerState.COMBAT);
 
@@ -218,6 +214,7 @@ public class NPCs {
                                 log("Barrier found, proceeding to Pass.");
                                 nearestBarrier.interact("Pass");
                                 Execution.delayUntil(random.nextLong(7500, 10000), () -> player.getCoordinate().equals(delayCoordinate3));
+                                ActivateSoulSplit();
                                 setSlayerState(Main.SlayerState.COMBAT);
 
                             } else {
@@ -252,6 +249,7 @@ public class NPCs {
                         Execution.delay(random.nextLong(8000, 10000));
                         log("Traversing to Crystal shapeshifter location.");
                         if (Movement.traverse(NavPath.resolve(crystalShapeshifterCoords)) == TraverseEvent.State.FINISHED) {
+                            ActivateSoulSplit();
                             setSlayerState(Main.SlayerState.COMBAT);
 
                         } else {
@@ -276,6 +274,7 @@ public class NPCs {
             log("Nodon dragonkin not found, proceeding to Dragonkin location.");
             if (Movement.traverse(NavPath.resolve(dragonkinLocation)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Dragonkin location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -320,6 +319,7 @@ public class NPCs {
                                             if (player.getCoordinate().equals(checkpoint1)) {
                                                 if (Movement.traverse(NavPath.resolve(checkpoints2)) == TraverseEvent.State.FINISHED) {
                                                     log("Traversed to Checkpoints.");
+                                                    ActivateMeleePrayer();
                                                     setSlayerState(Main.SlayerState.COMBAT);
 
                                                 }
@@ -359,7 +359,8 @@ public class NPCs {
             log("Venomous dinosaur not found, proceeding to Dinosaur location.");
             if (Movement.traverse(NavPath.resolve(dinosaurCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Dinosaur location.");
-                setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
+                ActivateMeleePrayer();
+                setSlayerState(Main.SlayerState.COMBAT);
 
             }
         }
@@ -377,6 +378,7 @@ public class NPCs {
             log("Mithril dragon not found, proceeding to Mithril dragon location.");
             if (Movement.traverse(NavPath.resolve(MithrilDragonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Mithril dragon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -395,6 +397,7 @@ public class NPCs {
             log("Abyssal demon not found, proceeding to Abyssal demon location.");
             if (Movement.traverse(NavPath.resolve(abyssalDemonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Abyssal demon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -412,6 +415,7 @@ public class NPCs {
             log("Rorarius not found, proceeding to Rorarius location.");
             if (Movement.traverse(NavPath.resolve(rorariusCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Rorarius location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -429,6 +433,7 @@ public class NPCs {
             log("Kalphite not found, proceeding to Kalphites location.");
             if (Movement.traverse(NavPath.resolve(kalphiteCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Kalphite guardian location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -447,6 +452,7 @@ public class NPCs {
             log("Iorwerth elves not found, proceeding to Iorwerth elves location.");
             if (Movement.traverse(NavPath.resolve(elvesCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Iorwerth elves location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -475,6 +481,7 @@ public class NPCs {
                         log("Barrier found, proceeding to Enter.");
                         nearestBarrier.interact("Enter");
                         Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(shadowCreaturesCoords));
+                        ActivateSoulSplit();
                         setSlayerState(Main.SlayerState.COMBAT);
 
                     } else {
@@ -535,6 +542,19 @@ public class NPCs {
             log(targetNpcName + " not found, proceeding to " + targetNpcName + " location.");
             if (Movement.traverse(NavPath.resolve(targetNpcCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to " + targetNpcName + " location.");
+                addTargetName(targetNpcName);
+                switch (targetNpcName) {
+                    case "Devil's snare":
+                        ActivateMeleePrayer();
+                        break;
+                    case "Luminous snaggler":
+                    case "Lampenflora":
+                        ActivateMagicPrayer();
+                        break;
+                    default:
+                        log("No specific prayer for " + targetNpcName);
+                        break;
+                }
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -553,6 +573,7 @@ public class NPCs {
             log("Greater demon not found, proceeding to Greater demon location.");
             if (Movement.traverse(NavPath.resolve(greaterDemonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Greater demon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -563,12 +584,14 @@ public class NPCs {
         Npc mutatedJadinkos = NpcQuery.newQuery().name("Mutated jadinko male").results().nearest();
 
         if (mutatedJadinkos != null) {
-            log("Mutated jadinko found, proceeding to attack.");ActivateSoulSplit();
+            log("Mutated jadinko found, proceeding to attack.");
+            ActivateSoulSplit();
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Mutated jadinko not found, proceeding to Mutated jadinko location.");
             if (Movement.traverse(NavPath.resolve(mutatedJadinkosCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Mutated jadinko location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -619,6 +642,7 @@ public class NPCs {
                         if (player.getCoordinate().equals(delayedCoordinate)) {
                             if (Movement.traverse(NavPath.resolve(corruptedScorpionCoords)) == TraverseEvent.State.FINISHED) {
                                 log("Traversed to Corrupted scorpion location.");
+                                ActivateSoulSplit();
                                 setSlayerState(Main.SlayerState.COMBAT);
 
                             }
@@ -656,6 +680,7 @@ public class NPCs {
                         if (player.getCoordinate().equals(delayedCoordinate)) {
                             if (Movement.traverse(NavPath.resolve(corruptedScarabCoords)) == TraverseEvent.State.FINISHED) {
                                 log("Traversed to Corrupted scarab location.");
+                                ActivateSoulSplit();
                                 setSlayerState(Main.SlayerState.COMBAT);
 
                             }
@@ -693,6 +718,7 @@ public class NPCs {
                         if (player.getCoordinate().equals(delayedCoordinate)) {
                             if (Movement.traverse(NavPath.resolve(corruptedlizardCoords)) == TraverseEvent.State.FINISHED) {
                                 log("Traversed to Corrupted lizard location.");
+                                ActivateSoulSplit();
                                 setSlayerState(Main.SlayerState.COMBAT);
                             }
                         }
@@ -740,6 +766,7 @@ public class NPCs {
                                         if (player.getCoordinate().equals(delayedCoordinate2)) {
                                             if (Movement.traverse(NavPath.resolve(corruptedDustDevilCoords)) == TraverseEvent.State.FINISHED) {
                                                 log("Traversed to Corrupted Dust devils location.");
+                                                ActivateSoulSplit();
                                                 setSlayerState(Main.SlayerState.COMBAT);
                                             }
                                         }
@@ -791,6 +818,7 @@ public class NPCs {
                                         if (player.getCoordinate().equals(delayedCoordinate2)) {
                                             if (Movement.traverse(NavPath.resolve(corruptedKalphiteCoords)) == TraverseEvent.State.FINISHED) {
                                                 log("Traversed to Corrupted kalphite marauder location.");
+                                                ActivateSoulSplit();
                                                 setSlayerState(Main.SlayerState.COMBAT);
                                             }
                                         }
@@ -842,6 +870,7 @@ public class NPCs {
                                         if (player.getCoordinate().equals(delayedCoordinate2)) {
                                             if (Movement.traverse(NavPath.resolve(corruptedWorkerCoords)) == TraverseEvent.State.FINISHED) {
                                                 log("Traversed to Corrupted worker location.");
+                                                ActivateSoulSplit();
                                                 setSlayerState(Main.SlayerState.COMBAT);
 
                                             }
@@ -870,6 +899,7 @@ public class NPCs {
             log("Iron dragon not found, proceeding to Iron dragon location.");
             if (Movement.traverse(NavPath.resolve(irondragonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Iron dragon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -886,6 +916,7 @@ public class NPCs {
             log("Steel dragon not found, proceeding to Steel dragon location.");
             if (Movement.traverse(NavPath.resolve(steeldragonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Steel dragon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -903,6 +934,7 @@ public class NPCs {
             log("Adamant dragon not found, proceeding to Adamant dragon location.");
             if (Movement.traverse(NavPath.resolve(steeldragonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Adamant dragon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -921,6 +953,7 @@ public class NPCs {
             log("Black demon not found, proceeding to Black demon location.");
             if (Movement.traverse(NavPath.resolve(blackDemonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Black demon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -938,6 +971,7 @@ public class NPCs {
             log("Kal'gerion demon not found, proceeding to Kal'gerion demon location.");
             if (Movement.traverse(NavPath.resolve(kalgerionDemonCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Kal'gerion demon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -948,12 +982,14 @@ public class NPCs {
         Coordinate gargoyleCoords = new Coordinate(3441, 3565, 2);
         Npc gargoyle = NpcQuery.newQuery().name("Gargoyle").results().nearest();
         if (gargoyle != null) {
-            log("Gargoyle found, proceeding to attack.");ActivateSoulSplit();
+            log("Gargoyle found, proceeding to attack.");
+            ActivateSoulSplit();
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Gargoyle not found, proceeding to Gargoyle location.");
             if (Movement.traverse(NavPath.resolve(gargoyleCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Gargoyle location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -989,6 +1025,7 @@ public class NPCs {
                                         nearestCave.interact("Enter");
                                         Execution.delay(random.nextLong(4000, 5000));
                                         log("Traversed to Chaos giant location.");
+                                        ActivateSoulSplit();
                                         setSlayerState(Main.SlayerState.COMBAT);
 
                                     }
@@ -1017,6 +1054,7 @@ public class NPCs {
             log("Airut not found, proceeding to Airut location.");
             if (Movement.traverse(NavPath.resolve(airutCoord)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Airut location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -1034,6 +1072,7 @@ public class NPCs {
             log("Black dragon not found, proceeding to Black dragon location.");
             if (Movement.traverse(NavPath.resolve(blackDragonCoord)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Black dragon location.");
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }

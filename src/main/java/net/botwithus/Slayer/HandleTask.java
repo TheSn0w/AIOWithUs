@@ -154,7 +154,7 @@ public class HandleTask {
                     addTargetName("Black dragon");
                     setSlayerState(BLACKDRAGONS);
                     log("Task not recognized.");
-                    skipTask();
+                    setSlayerState(CANCELTASK);
             }
         } else {
             log("The specified component was not found.");
