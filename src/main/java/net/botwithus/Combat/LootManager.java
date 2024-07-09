@@ -333,7 +333,7 @@ public class LootManager {
             if (!inventoryItems.isEmpty()) {
                 Item item = inventoryItems.get(0);
                 if (item.getName() != null) {
-                    log("[Loot] Getting ItemType for item: " + item.getName());
+                    /*log("[Loot] Getting ItemType for item: " + item.getName());*/
                     var itemType = ConfigManager.getItemType(item.getId());
                     if (itemType != null && isStackable(itemType)) {
                         if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
@@ -346,12 +346,10 @@ public class LootManager {
                             return;
                         }
 
-                        log("[Loot] Item is stackable. Attempting to take item...");
+                        /*log("[Loot] Item is stackable. Attempting to take item...");*/
                         LootInventory.take(item.getName());
                         log("[Loot] Successfully looted stackable item: " + item.getName());
                         Execution.delay(random.nextLong(600, 650));
-                    } else {
-                        log("[Loot] Item is not stackable or ItemType is null. Skipping...");
                     }
                 }
             }

@@ -490,6 +490,9 @@ public class NPCs {
                 } else {
                     log("Barrier not found.");
                 }
+            } else {
+                log("Failed to traverse to Manifest shadow location.");
+
             }
         }
     }
