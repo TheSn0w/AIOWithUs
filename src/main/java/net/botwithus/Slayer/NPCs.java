@@ -501,12 +501,13 @@ public class NPCs {
         int playerSlayerLevel = Skills.SLAYER.getSkill().getLevel();
 
         // NPC names and their required Slayer levels
-        String[] npcNames = {"Devil's snare", "Luminous snaggler", "Lampenflora"};
-        int[] slayerRequirements = {90, 95, 102};
+        String[] npcNames = {"Devil's snare", "Luminous snaggler", "Lampenflora", "Liverworts"};
+        int[] slayerRequirements = {90, 95, 102, 110};
         Coordinate[] npcCoordinates = {
                 new Coordinate(5600, 2124, 0), // Devil's snare
                 new Coordinate(5284, 2387, 0), // Luminous snaggler
-                new Coordinate(5617, 2262, 0)  // Lampenflora
+                new Coordinate(5617, 2262, 0),  // Lampenflora
+                new Coordinate(5680, 2342, 0)  // Liverworts
         };
 
         // Determine the highest-level NPC that the player can attack based on Slayer level
@@ -535,6 +536,9 @@ public class NPCs {
                 case "Luminous snaggler":
                 case "Lampenflora":
                     ActivateMagicPrayer();
+                    break;
+                case "Liverworts":
+                    ActivateRangedPrayer();
                     break;
                 default:
                     log("No specific prayer for " + targetNpcName);

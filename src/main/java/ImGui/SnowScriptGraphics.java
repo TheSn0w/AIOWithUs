@@ -572,7 +572,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 ImGui.NextColumn();
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
                     if (showLogs) {
-                        if (ImGui.Begin("Logs", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                        if (ImGui.Begin("Logs", ImGuiWindowFlag.NoNav.getValue())) {
                             ImGui.SetWindowSize((float) 600, (float) 225);
                             if (ImGui.Button("Scroll to Bottom")) {
                                 scrollToBottom = !scrollToBottom;
