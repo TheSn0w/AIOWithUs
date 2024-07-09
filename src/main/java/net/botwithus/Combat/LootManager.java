@@ -148,12 +148,10 @@ public class LootManager {
                             }
 
                             if (useDwarfcannon && usedSlots >= 27 && (!Backpack.contains(groundItem.getName()) || !isStackable)) {
-                                log("[CustomLootingFromGround] Backpack is full or item is not stackable. Skipping...");
                                 return false;
                             }
 
                             if (Backpack.isFull() && (!Backpack.contains(groundItem.getName()) || !isStackable)) {
-                                log("[CustomLootingFromGround] Backpack is full and item is not stackable or not already in backpack. Skipping...");
                                 return false;
                             }
 
@@ -204,12 +202,10 @@ public class LootManager {
                     boolean isStackable = itemType != null && itemType.getStackability() == ItemType.Stackability.ALWAYS;
 
                     if (useDwarfcannon && usedSlots >= 27 && (!Backpack.contains(item.getName()) || !isStackable)) {
-                        log("[CustomLooting] Backpack is full or item is not stackable. Skipping...");
                         return;
                     }
 
                     if (Backpack.isFull() && (!Backpack.contains(item.getName()) || !isStackable)) {
-                        log("[CustomLooting] Backpack is full and item is not stackable or not already in backpack. Skipping...");
                         return;
                     }
 
@@ -255,12 +251,10 @@ public class LootManager {
                             }
 
                             if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(groundItem.getName())) {
-                                log("[NotedItemsFromGround] Backpack is full or item is not in backpack. Skipping...");
                                 return false;
                             }
 
                             if (Backpack.isFull() && !Backpack.contains(groundItem.getName())) {
-                                log("[NotedItemsFromGround] Backpack is full and item is not already in backpack. Skipping...");
                                 return false;
                             }
 
@@ -338,12 +332,10 @@ public class LootManager {
                     var itemType = ConfigManager.getItemType(item.getId());
                     if (itemType != null && isStackable(itemType)) {
                         if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
-                            log("[StackedItem] Backpack is full or item is not in backpack. Skipping...");
                             return;
                         }
 
                         if (Backpack.isFull() && !Backpack.contains(item.getName())) {
-                            log("[StackedItem] Backpack is full and item is not already in backpack. Skipping...");
                             return;
                         }
 
@@ -388,7 +380,6 @@ public class LootManager {
                 }
 
                 if (Backpack.isFull() && !Backpack.contains(groundItem.getName())) {
-                    log("[Loot] Backpack is full and item is not already in backpack. Skipping...");
                     return;
                 }
 
