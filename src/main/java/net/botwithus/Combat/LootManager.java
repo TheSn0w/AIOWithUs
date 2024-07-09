@@ -305,7 +305,7 @@ public class LootManager {
     }
 
 // =====================
-// SECTION 4: Loot Stackable Items //TODO: Needs to be broken down into 2 Sections
+// SECTION 4: Loot Stackable Items
 // =====================
 
     public static void lootStackableItemsFromInventory() {
@@ -315,10 +315,8 @@ public class LootManager {
             int totalSlots = 28;
             int usedSlots = totalSlots - Backpack.countFreeSlots();
 
-            if (!inventoryItems.isEmpty()) {
-                Item item = inventoryItems.get(0);
+            for (Item item : inventoryItems) {
                 if (item.getName() != null) {
-                    /*log("[Loot] Getting ItemType for item: " + item.getName());*/
                     var itemType = ConfigManager.getItemType(item.getId());
                     if (itemType != null && isStackable(itemType)) {
                         if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
@@ -329,7 +327,6 @@ public class LootManager {
                             return;
                         }
 
-                        /*log("[Loot] Item is stackable. Attempting to take item...");*/
                         LootInventory.take(item.getName());
                         log("[StackedItem] Successfully looted stackable item: " + item.getName());
                         Execution.delay(random.nextLong(600, 650));
@@ -341,8 +338,9 @@ public class LootManager {
 
     private static boolean isStackable(ItemType itemType) {
         ItemType.Stackability stackability = itemType.getStackability();
-        boolean isStackable = stackability == ItemType.Stackability.ALWAYS || stackability == ItemType.Stackability.SOMETIMES;
-        return isStackable;
+        /*log("[Loot] Stackability of item: " + itemType.getName() + " is " + stackability);*/
+        /*log("[Loot] Is item stackable? " + isStackable);*/
+        return stackability == ItemType.Stackability.ALWAYS;
     }
 
     public static long lootStackableItemsFromGround() {
@@ -361,7 +359,6 @@ public class LootManager {
             LocalPlayer player = Client.getLocalPlayer();
             if (!LootInventory.contains(groundItem.getName())) {
                 if (!groundItem.isReachable()) {
-                    log("[Loot] Ground item is not reachable. Skipping...");
                     return random.nextLong(300, 500);
                 }
 
