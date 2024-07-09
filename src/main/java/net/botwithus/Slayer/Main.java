@@ -1,5 +1,6 @@
 package net.botwithus.Slayer;
 
+import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -23,6 +24,7 @@ import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
 import static net.botwithus.Variables.Variables.clearTargetNames;
+import static net.botwithus.Variables.Variables.nearestBank;
 
 public class Main {
     public static boolean doSlayer = false;
@@ -65,6 +67,7 @@ public class Main {
         BLACKDRAGONS,
         DEATHSOFFICE,
         COMBAT,
+        BANK,
 
     }
 
@@ -222,6 +225,10 @@ public class Main {
                 interactWithDeath();
                 break;
             case COMBAT:
+                if (nearestBank && Backpack.isFull()) {
+                    log("Backpack is full. Banking.");
+                    setSlayerState(SlayerState.WARS_RETREAT);
+                }
                 Npc death = NpcQuery.newQuery().name("Death").results().nearest();
                 if (death != null) {
                     setSlayerState(SlayerState.DEATHSOFFICE);

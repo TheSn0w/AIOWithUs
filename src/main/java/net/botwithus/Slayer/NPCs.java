@@ -558,6 +558,9 @@ public class NPCs {
                     case "Lampenflora":
                         ActivateMagicPrayer();
                         break;
+                    case "Liverworts":
+                        ActivateRangedPrayer();
+                        break;
                     default:
                         log("No specific prayer for " + targetNpcName);
                         break;

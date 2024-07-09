@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.Slayer.Main;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Item;
@@ -19,6 +20,8 @@ import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Familiar.summonFamiliar;
 import static net.botwithus.Combat.Familiar.useFamiliarForCombat;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.Variables.Variables.*;
@@ -42,8 +45,12 @@ public class Potions {
 
         if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L || familiarCheck == 1L) {
             if (nearestBank) {
-                log("[Info] One or more potions are missing, we're banking.");
-                setBotState(BANKING);
+                if (doSlayer) {
+                    setSlayerState(Main.SlayerState.WARS_RETREAT);
+                } else {
+                    log("[Info] One or more potions are missing, we're banking.");
+                    setBotState(BANKING);
+                }
             } else {
                 log("[Info] One or more Potions/Pouches are missing, but Bank is disabled.");
             }

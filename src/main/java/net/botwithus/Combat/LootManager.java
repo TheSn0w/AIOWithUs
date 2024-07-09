@@ -122,7 +122,7 @@ public class LootManager {
 // SECTION 2: Loot Specific Items
 // =====================
     public static void useCustomLootFromGround() {
-        if (!walkToLoot && !LootInventory.isOpen()) {
+        if (!walkToLoot && LootInventory.isOpen()) {
             return;
         }
         int totalSlots = 28;
@@ -141,7 +141,7 @@ public class LootManager {
                     boolean isStackable = itemType != null && itemType.getStackability() == ItemType.Stackability.ALWAYS;
 
                     if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                        if (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+                        if (!LootInventory.contains(groundItem.getName())) {
                             if (!groundItem.isReachable()) {
                                 log("[CustomLootingFromGround] Ground item is not reachable. Skipping...");
                                 return false;
@@ -159,20 +159,19 @@ public class LootManager {
                             if (groundItem == null) {
                                 log("[CustomLootingFromGround] Ground item no longer exists.");
                             } else {
-                                groundItem.interact("Take");
+                                boolean Interacted = groundItem.interact("Take");
                                 log("[CustomLootingFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
                                 Execution.delay(random.nextLong(600, 750));
+
+                                if (Interacted && player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                                        Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 && ActionBar.getCooldown("Surge") == 0) {
+
+                                    Execution.delay(random.nextLong(600, 750));
+                                    log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
+                                    Execution.delay(RandomGenerator.nextInt(200, 250));
+                                    groundItem.interact("Take");
+                                }
                             }
-                        }
-
-                        if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
-                                Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 &&
-                                ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
-
-                            Execution.delay(random.nextLong(750, 1000));
-                            log("[CustomLootingFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
-                            Execution.delay(RandomGenerator.nextInt(200, 250));
-                            groundItem.interact("Take");
                         }
 
                         GroundItem finalGroundItem = groundItem;
@@ -229,7 +228,7 @@ public class LootManager {
 // =====================
 
     public static void useNotedLootFromGround() {
-        if (!walkToLoot && !LootInventory.isOpen()) {
+        if (!walkToLoot && LootInventory.isOpen()) {
             return;
         }
         int totalSlots = 28;
@@ -244,7 +243,7 @@ public class LootManager {
                 .filter(groundItem -> groundItem.getName() != null && ConfigManager.getItemType(groundItem.getId()).isNote())
                 .anyMatch(groundItem -> {
                     if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
-                        if (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+                        if (!LootInventory.contains(groundItem.getName())) {
                             if (!groundItem.isReachable()) {
                                 log("[NotedItemsFromGround] Ground item is not reachable. Skipping...");
                                 return false;
@@ -265,23 +264,22 @@ public class LootManager {
                                 groundItem.interact("Take");
                                 log("[NotedItemsFromGround] Interacted with: " + groundItem.getName() + " on the ground.");
                                 Execution.delay(random.nextLong(600, 750));
+
+                                if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                                        Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 15 &&
+                                        ActionBar.getCooldown("Surge") == 0) {
+
+                                    Execution.delay(random.nextLong(600, 750));
+                                    log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
+                                    Execution.delay(RandomGenerator.nextInt(200, 250));
+                                    groundItem.interact("Take");
+                                }
                             }
-                        }
-
-                        if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
-                                Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 10 &&
-                                ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
-
-                            Execution.delay(random.nextLong(750, 1000));
-
-                            log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
-                            Execution.delay(RandomGenerator.nextInt(200, 250));
-                            groundItem.interact("Take");
                         }
 
                         GroundItem finalGroundItem = groundItem;
                         Execution.delayUntil(random.nextLong(2500, 5000), () ->
-                                LootInventory.contains(finalGroundItem.getName()) || !finalGroundItem.validate());
+                                LootInventory.contains(finalGroundItem.getName()));
                     }
                     return false;
                 });
@@ -356,7 +354,7 @@ public class LootManager {
     }
 
     public static void lootStackableItemsFromGround() {
-        if (!walkToLoot && !LootInventory.isOpen()) {
+        if (!walkToLoot && LootInventory.isOpen()) {
             return;
         }
         int totalSlots = 28;
@@ -369,7 +367,7 @@ public class LootManager {
 
         if (groundItem != null) {
             LocalPlayer player = Client.getLocalPlayer();
-            if (!player.isMoving() && !LootInventory.contains(groundItem.getName())) {
+            if (!LootInventory.contains(groundItem.getName())) {
                 if (!groundItem.isReachable()) {
                     log("[Loot] Ground item is not reachable. Skipping...");
                     return;
@@ -390,18 +388,16 @@ public class LootManager {
                     groundItem.interact("Take");
                     log("[Loot] Interacted with: " + groundItem.getName() + " on the ground.");
                     Execution.delay(random.nextLong(600, 750));
+
+                    if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
+                            Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 15 && ActionBar.getCooldown("Surge") == 0) {
+
+                        Execution.delay(random.nextLong(600, 750));
+                        log("[Loot] Used Surge: " + ActionBar.useAbility("Surge"));
+                        Execution.delay(random.nextInt(200, 250));
+                        groundItem.interact("Take");
+                    }
                 }
-            }
-
-            if (player.isMoving() && groundItem != null && groundItem.getCoordinate() != null &&
-                    Distance.between(player.getCoordinate(), groundItem.getCoordinate()) > 15 &&
-                    ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
-
-                Execution.delay(random.nextLong(750, 1000));
-
-                log("[Loot] Used Surge: " + ActionBar.useAbility("Surge"));
-                Execution.delay(random.nextInt(200, 250));
-                groundItem.interact("Take");
             }
 
             GroundItem finalGroundItem = groundItem;

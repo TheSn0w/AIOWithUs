@@ -116,18 +116,13 @@ public class WarsRetreat {
 
                     boolean healthFull = Execution.delayUntil(15000, () -> player.getCurrentHealth() == player.getMaximumHealth());
                     if (healthFull) {
-                        log("Player health is now full.");
-                    } else {
-                        log("Timed out waiting for player health to be full.");
+                        log("Player health is full.");
                     }
-                } else {
-                    log("Bank chest is not found.");
-                    return random.nextLong(1500, 3000);
-                }
-                if( VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
-                    setSlayerState(Main.SlayerState.LANIAKEA);
-                } else {
-                    setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
+                    if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
+                        setSlayerState(Main.SlayerState.LANIAKEA);
+                    } else {
+                        setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
+                    }
                 }
             }
         }
