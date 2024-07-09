@@ -316,7 +316,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot all stackables");
                         }
-                        createCenteredButton("Loot Custom", () -> walkToLoot = !walkToLoot, walkToLoot);
+                        createCenteredButton("Walk to Loot", () -> walkToLoot = !walkToLoot, walkToLoot);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("if item does not appear in loot inventory but is on the ground, it will walk to it until it appears in loot inventory, works for Loot, Loot Noted and Loot Stackables");
                         }
