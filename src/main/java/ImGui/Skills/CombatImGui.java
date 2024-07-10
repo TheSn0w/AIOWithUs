@@ -530,6 +530,55 @@ public class CombatImGui {
                     Runnables.shouldTravel = true;
                 }
             }
+            if (doSlayer && showSlayerOptions) {
+
+// In your ImGui interface
+                if (ImGui.Begin("Task Options", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                    ImGui.SetWindowSize((float) 400, (float) 510);
+                    ImGui.SeparatorText("Slayer Statistics");
+                    updateAndDisplaySlayerPoints();
+                    ImGui.SeparatorText("Task Options");
+
+                    // Add a combo box with all the cases
+                    String[] tasks = {"creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms","lava strykewyrms", "greater demons", "mutated jadinkos","corrupted creatures", "iron dragons","steel dragons","adamant dragons", "black dragons", "dragons", "black demons","kal'gerion demons","gargoyles","chaos giants", "strykewyrms", "airut"};
+                    NativeInteger selectedItemIndex = new NativeInteger(0);
+                    if (ImGui.Combo("Tasks", selectedItemIndex, tasks)) {
+                        int selectedIndex = selectedItemIndex.get();
+                        if (selectedIndex >= 0 && selectedIndex < tasks.length) {
+                            // When a case is selected, add it to the list of tasks to skip
+                            tasksToSkip.add(tasks[selectedIndex]);
+                        }
+                    }
+
+                    // Display a table with all the selected names to skip
+                    if (!tasksToSkip.isEmpty()) {
+                        if (ImGui.BeginTable("Tasks to Skip", 2, ImGuiWindowFlag.None.getValue())) {
+                            ImGui.TableNextRow();
+                            ImGui.TableSetupColumn("Task Name", 0);
+                            ImGui.TableSetupColumn("Action", 1);
+                            ImGui.TableHeadersRow();
+
+                            for (String taskName : new ArrayList<>(tasksToSkip)) {
+                                ImGui.TableNextRow();
+                                ImGui.Separator();
+                                ImGui.TableNextColumn();
+                                ImGui.Text(taskName);
+                                ImGui.Separator();
+                                ImGui.TableNextColumn();
+                                if (ImGui.Button("Remove##" + taskName)) {
+                                    tasksToSkip.remove(taskName);
+                                }
+                                if (ImGui.IsItemHovered()) {
+                                    ImGui.SetTooltip("Click to remove this task");
+                                }
+                            }
+                            ImGui.EndTable();
+                        }
+                    }
+
+                    ImGui.End();
+                }
+            }
             if (showCheckboxesWindow) {
                 if (ImGui.Begin("Combat Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
                     ImGui.SetWindowSize((float) 400, (float) 510);
@@ -825,55 +874,6 @@ public class CombatImGui {
                             }
                             ImGui.EndTable();
                         }
-                    }
-                }
-                if (doSlayer && showSlayerOptions) {
-
-// In your ImGui interface
-                    if (ImGui.Begin("Task Options", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
-                        ImGui.SetWindowSize((float) 400, (float) 510);
-                        ImGui.SeparatorText("Slayer Statistics");
-                        updateAndDisplaySlayerPoints();
-                        ImGui.SeparatorText("Task Options");
-
-                        // Add a combo box with all the cases
-                        String[] tasks = {"creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms","lava strykewyrms", "greater demons", "mutated jadinkos","corrupted creatures", "iron dragons","steel dragons","adamant dragons", "black dragons", "dragons", "black demons","kal'gerion demons","gargoyles","chaos giants", "strykewyrms", "airut"};
-                        NativeInteger selectedItemIndex = new NativeInteger(0);
-                        if (ImGui.Combo("Tasks", selectedItemIndex, tasks)) {
-                            int selectedIndex = selectedItemIndex.get();
-                            if (selectedIndex >= 0 && selectedIndex < tasks.length) {
-                                // When a case is selected, add it to the list of tasks to skip
-                                tasksToSkip.add(tasks[selectedIndex]);
-                            }
-                        }
-
-                        // Display a table with all the selected names to skip
-                        if (!tasksToSkip.isEmpty()) {
-                            if (ImGui.BeginTable("Tasks to Skip", 2, ImGuiWindowFlag.None.getValue())) {
-                                ImGui.TableNextRow();
-                                ImGui.TableSetupColumn("Task Name", 0);
-                                ImGui.TableSetupColumn("Action", 1);
-                                ImGui.TableHeadersRow();
-
-                                for (String taskName : new ArrayList<>(tasksToSkip)) {
-                                    ImGui.TableNextRow();
-                                    ImGui.Separator();
-                                    ImGui.TableNextColumn();
-                                    ImGui.Text(taskName);
-                                    ImGui.Separator();
-                                    ImGui.TableNextColumn();
-                                    if (ImGui.Button("Remove##" + taskName)) {
-                                        tasksToSkip.remove(taskName);
-                                    }
-                                    if (ImGui.IsItemHovered()) {
-                                        ImGui.SetTooltip("Click to remove this task");
-                                    }
-                                }
-                                ImGui.EndTable();
-                            }
-                        }
-
-                        ImGui.End();
                     }
                 }
                 ImGui.End();
