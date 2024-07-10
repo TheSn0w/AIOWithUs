@@ -120,11 +120,12 @@ public class Potions {
         if (success) {
             log("[Combat] Successfully drank " + prayerOrRestorePot.getName());
             Execution.delayUntil(random.nextLong(1800, 2000), () -> player.getPrayerPoints() > prayerPointsThreshold);
-            return random.nextLong(1200, 1300);
+            Execution.delay(random.nextLong(1250, 1500));
         } else {
             log("[Error] Failed to interact with " + prayerOrRestorePot.getName());
             return 0;
         }
+        return 0;
     }
 
     public static long drinkOverloads(LocalPlayer player) {
@@ -156,11 +157,12 @@ public class Potions {
         if (success) {
             log("[Combat] Successfully drank " + overloadPot.getName());
             Execution.delayUntil(5000, () -> VarManager.getVarbitValue(48834) != 0);
-            return random.nextLong(650, 950);
+            Execution.delay(random.nextLong(1250, 1500));
         } else {
             log("[Error] Failed to interact with overload potion.");
             return 0L;
         }
+        return 0;
     }
 
     public static long useWeaponPoison(LocalPlayer player) {
@@ -189,11 +191,12 @@ public class Potions {
         if (success) {
             log("[Combat] Successfully applied " + weaponPoisonItem.getName());
             Execution.delayUntil(5000, () -> VarManager.getVarbitValue(2102) > 1);
-            return random.nextLong(650, 950);
+            Execution.delay(random.nextLong(1250, 1500));
         } else {
             log("[Error] Failed to apply weapon poison.");
             return 0L;
         }
+        return 0;
     }
 
     public static void handleIncenseSticks(String stickName, int overloadVarId, int durationVarId) {

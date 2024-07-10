@@ -7,7 +7,9 @@ import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import net.botwithus.rs3.game.minimenu.actions.ComponentAction;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.Player;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.imgui.NativeInteger;
 
 import java.util.*;
@@ -236,6 +238,19 @@ public class Variables {
 
     public static void setSelectedItem(String selectedItem) {
         Variables.selectedItem = selectedItem;
+    }
+
+    public static int getCurrentSlayerPoints() {
+        return VarManager.getVarbitValue(9071);
+    }
+
+    public static String currentSlayerTask() {
+        try {
+            String text = Objects.requireNonNull(ComponentQuery.newQuery(1639).componentIndex(11).results().first()).getText();
+            return text != null ? text : "Not found";
+        } catch (Exception e) {
+            return "Error or not available";
+        }
     }
 
 

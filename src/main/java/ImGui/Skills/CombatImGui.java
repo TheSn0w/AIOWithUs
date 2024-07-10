@@ -5,6 +5,8 @@ import net.botwithus.Combat.*;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
@@ -744,6 +746,12 @@ public class CombatImGui {
                         }
                     }
                 }
+
+                if(doSlayer) {
+                    ImGui.SeparatorText("Slayer Statistics");
+                    updateAndDisplaySlayerPoints();
+                }
+
                 if (isCombatActive && useCustomLoot) {
                     ImGui.SeparatorText("Loot Options");
 
@@ -807,5 +815,23 @@ public class CombatImGui {
                 ImGui.End();
             }
         }
+    }
+
+    private static int startingSlayerPoints = -1;
+
+    public static void updateAndDisplaySlayerPoints() {
+        if (startingSlayerPoints == -1) {
+            startingSlayerPoints = Variables.getCurrentSlayerPoints();
+        }
+        int currentSlayerPoints = getCurrentSlayerPoints();
+        int differenceSlayerPoints = currentSlayerPoints - startingSlayerPoints;
+
+        String componentText11 = Variables.currentSlayerTask();
+        ImGui.Text("Current Task: " + componentText11);
+        ImGui.Text("Kills Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 183));
+
+        ImGui.Text("Starting Slayer Points: " + startingSlayerPoints);
+        ImGui.Text("Current Slayer Points: " + currentSlayerPoints);
+        ImGui.SeparatorText("Slayer Points Earned this Session: " + differenceSlayerPoints);
     }
 }

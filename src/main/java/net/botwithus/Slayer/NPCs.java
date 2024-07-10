@@ -121,7 +121,7 @@ public class NPCs {
                 }
             } else {
                 log("[Ice] Player is not inside the area. Moving to a random walkable coordinate within the area...");
-                Coordinate randomWalkableCoordinate = new Area.Rectangular(areaBottomLeft, areaTopRight).getRandomCoordinate();
+                Coordinate randomWalkableCoordinate = new Area.Rectangular(areaBottomLeft, areaTopRight).getRandomWalkableCoordinate();
                 if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                     log("[Ice] Successfully moved to the area.");
                     if (doSlayer) {
