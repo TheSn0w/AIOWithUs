@@ -5,6 +5,7 @@ import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
@@ -34,6 +35,7 @@ import java.util.Random;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Abyss.AbyssState.*;
 import static net.botwithus.Runecrafting.Runecrafting.*;
+import static net.botwithus.TaskScheduler.bankPin;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.player;
@@ -127,8 +129,11 @@ public class Abyss {
                     bank.interact("Load Last Preset from");
                     log("[Bank] Interacting with bank.");
                     Execution.delay(random.nextLong(600, 800));
-                    if (player.isMoving()) {
-                        Execution.delayUntil(20000, () -> Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0)));
+                    if (player.isMoving() || Distance.between(player.getCoordinate(), new Coordinate(3097, 3496, 0)) > 15.0D) {
+                        Execution.delayUntil(20000, () -> Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0)) || Interfaces.isOpen(759));
+                        if (Interfaces.isOpen(759)) {
+                            bankPin();
+                        }
                         log("[Bank] Loaded last preset.");
                         if (Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0))) {
                             thisState = AbyssState.INTERACTWITHWALL;
