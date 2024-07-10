@@ -3,8 +3,13 @@ package ImGui.Skills;
 import net.botwithus.SnowsScript;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
+import net.botwithus.rs3.imgui.ImGuiWindowFlag;
+
 import java.util.Map;
 
+import static net.botwithus.Slayer.Main.useBankPin;
+import static net.botwithus.TaskScheduler.*;
+import static net.botwithus.TaskScheduler.pin4;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.fishCookedCount;
 
@@ -38,6 +43,24 @@ public class CookingImGui {
                 }
 
                 ImGui.PopStyleColor(1);
+            }
+            if (useBankPin) {
+                if (ImGui.Begin("Bank Pin Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                    ImGui.SeparatorText("Pin Options");
+                    ImGui.SetCursorPosX(15);
+                    ImGui.SetItemWidth(100.0F);
+                    pin1 = ImGui.InputInt("Pin 1", pin1);
+                    ImGui.SetItemWidth(100.0F);
+                    ImGui.SameLine();
+                    pin2 = ImGui.InputInt("Pin 2", pin2);
+                    ImGui.SetItemWidth(100.0F);
+                    ImGui.SameLine();
+                    pin3 = ImGui.InputInt("Pin 3", pin3);
+                    ImGui.SetItemWidth(100.0F);
+                    ImGui.SameLine();
+                    pin4 = ImGui.InputInt("Pin 4", pin4);
+                }
+                ImGui.End();
             }
             ImGui.SeparatorText("Cooking Options");
 

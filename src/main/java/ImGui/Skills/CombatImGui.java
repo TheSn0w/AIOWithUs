@@ -32,7 +32,6 @@ import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
-;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.TaskScheduler.*;
 import static net.botwithus.Variables.Variables.*;
@@ -451,7 +450,7 @@ public class CombatImGui {
             }
             if (showNearbyNPCS) {
                 if (ImGui.Begin("NPCs Nearby", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
-                    ImGui.SetWindowSize((float) 600, (float) 225);
+                    ImGui.SetWindowSize((float) 610, (float) 225);
                     ImGui.SeparatorText("Target Options");
                     List<List<String>> tableData = getNpcTableData();
 
@@ -486,7 +485,7 @@ public class CombatImGui {
             }
             if (showAllLoot) {
                 if (ImGui.Begin("Looted Items", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
-                    ImGui.SetWindowSize((float) 600, (float) 225);
+                    ImGui.SetWindowSize((float) 610, (float) 225);
                     ImGui.SeparatorText("Items Looted");
 
                     ImGui.SetItemWidth(600);

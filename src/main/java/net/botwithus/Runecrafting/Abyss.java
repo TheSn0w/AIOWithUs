@@ -94,10 +94,10 @@ public class Abyss {
 
         if (!sword.isEmpty() && bankResults.isEmpty()) {
             boolean success = false;
-            if (player.getAnimationId() == -1) {
+            while (player.getAnimationId() == -1) {
                 success = Equipment.interact(Equipment.Slot.WEAPON, "Edgeville");
                 log("[Wilderness Sword] Interacting with Wilderness Sword.");
-                Execution.delay(random.nextLong(750, 1500));
+                Execution.delay(random.nextLong(750, 1500)); // Wait for 1000ms before trying again
                 if (player.getAnimationId() != -1) {
                     log("[Wilderness Sword] Player is teleporting.");
                 }
@@ -233,12 +233,13 @@ public class Abyss {
 
     private static void interactWithRift(SceneObject rift, String riftName) {
         rift.interact("Exit-through");
-        Execution.delay(random.nextLong(750, 1250));
-        if (player.isMoving()) {
+        Execution.delay(random.nextLong(1000, 1250));
+        EntityResultSet<Npc> results = NpcQuery.newQuery().name("Dark mage").option("Talk-to").results();
+        if (results.isEmpty()) {
             log("[Portal] Interaction with " + riftName + " initiated.");
             thisState = INTERACTWITHALTER;
         } else {
-            Execution.delay(random.nextLong(750, 1000));
+            Execution.delay(random.nextLong(1000, 1250));
             interactWithRift(rift, riftName);
         }
     }
@@ -247,7 +248,7 @@ public class Abyss {
         String altarName = getAltarName();
         EntityResultSet<SceneObject> altarResults = SceneObjectQuery.newQuery().name(altarName).option("Craft-rune").results();
 
-        if (!altarResults.isEmpty()) {
+        while (!altarResults.isEmpty()) {
             SceneObject altar = altarResults.nearest();
             if (altar != null) {
                 if (Backpack.contains("Pure essence")) {
@@ -263,6 +264,7 @@ public class Abyss {
                     updateRunesQuantity();
                     updateMagicalThreadQuantity();
                     thisState = TELEPORTTOBANK;
+                    break;
                 }
             }
         }

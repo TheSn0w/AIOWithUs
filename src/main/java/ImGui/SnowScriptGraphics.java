@@ -383,11 +383,11 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Lava wyrm", () -> lavaStrykewyrms = !lavaStrykewyrms, lavaStrykewyrms);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will kill Lava Strykewyrms");
+                            ImGui.SetTooltip("Will kill Lava Strykewyrms, will even travel there automatically");
                         }
                         createCenteredButton("Ice wyrm", () -> iceStrykewyrms = !iceStrykewyrms, iceStrykewyrms);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will kill Ice Strykewyrms");
+                            ImGui.SetTooltip("Will kill Ice Strykewyrms, will even travel there automatically");
                         }
                         createCenteredButton("Slayer", () -> doSlayer = !doSlayer, doSlayer);
                         if (ImGui.IsItemHovered()) {
@@ -636,7 +636,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 if (ImGui.BeginChild("Column2", 400, windowHeight, true, 0)) {
                     if (showLogs) {
                         if (ImGui.Begin("Logs", ImGuiWindowFlag.NoDecoration.getValue())) {
-                            ImGui.SetWindowSize((float) 600, (float) 225);
+                            ImGui.SetWindowSize((float) 610, (float) 225);
                             if (ImGui.Button("Scroll to Bottom")) {
                                 scrollToBottom = !scrollToBottom;
                             }
