@@ -90,7 +90,7 @@ public class TaskScheduler {
                     int componentId = pinComponents.get(pin);
                     component(1, -1, componentId);
                 }
-                Execution.delay(2000);
+                Execution.delay(random.nextLong(1000, 2000));
             }
         }
     }
