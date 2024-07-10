@@ -9,6 +9,7 @@ import ImGui.*;
 import java.time.Duration;
 import java.time.Instant;
 
+import static ImGui.Stopwatch.getElapsedTimeSecs;
 import static ImGui.VersionManager.displayVersion;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Misc.UrnMaker.getUrnState;
@@ -103,7 +104,7 @@ public class BottomChild {
             ImGui.SetCursorPosX(centeredX);
             ImGui.Text("" + botState);
 
-            long elapsedTime = ScriptisOn ? Duration.between(startTime, Instant.now()).getSeconds() + totalElapsedTime : totalElapsedTime;
+            long elapsedTime = getElapsedTimeSecs();
             String elapsedTimeText = String.format("%02d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, elapsedTime % 60);
             textWidth = ImGui.CalcTextSize(elapsedTimeText).getX();
             centeredX = (windowWidth - textWidth) / 2;

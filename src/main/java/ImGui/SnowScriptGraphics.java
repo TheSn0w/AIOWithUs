@@ -29,6 +29,7 @@ import static ImGui.Skills.MiscImGui.renderMisc;
 import static ImGui.Skills.RunecraftingImGui.renderRunecrafting;
 import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
+import static ImGui.Stopwatch.start;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
@@ -61,6 +62,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
     public static void setScriptStatus(boolean status) {
         ScriptisOn = status;
     }
+
+
 
 
 
@@ -113,10 +116,16 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         setBotState(BotState.IDLE);
                         totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
                         ScriptisOn = false;
+
+                        // Stop the stopwatch when the script is not running
+                        Stopwatch.stop();
                     } else {
                         setBotState(BotState.SKILLING);
                         startTime = Instant.now();
                         ScriptisOn = true;
+
+                        // Start the stopwatch when the script is running
+                        Stopwatch.start();
                     }
                 }
                 ImGui.PopStyleVar(1);
