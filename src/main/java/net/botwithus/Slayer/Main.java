@@ -22,6 +22,7 @@ import static net.botwithus.Slayer.Laniakea.TeleporttoLaniakea;
 import static net.botwithus.Slayer.Laniakea.skipTask;
 import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.Utilities.*;
+import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
 import static net.botwithus.Variables.Variables.clearTargetNames;
 import static net.botwithus.Variables.Variables.nearestBank;
@@ -183,11 +184,11 @@ public class Main {
                 VileBlooms(player);
                 break;
             case ICESTRYKEWYRMS:
-                log("Ice Strykewyrms state.");
+                ActivateSoulSplit();
                 iceStrykewyrms();
                 break;
             case LAVASTRYKEWYRMS:
-                log("Lava Strykewyrms state.");
+                ActivateSoulSplit();
                 lavaStrykewyrms();
                 break;
             case GREATERDEMONS:

@@ -13,6 +13,7 @@ import static net.botwithus.Slayer.Laniakea.skipTask;
 import static net.botwithus.Slayer.Main.SlayerState.*;
 import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.Slayer.NPCs.*;
+import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
 import static net.botwithus.Variables.Variables.*;
 
 public class HandleTask {
@@ -96,10 +97,12 @@ public class HandleTask {
                     setSlayerState(VILEBLOOMS);
                     break;
                 case "ice strykewyrms":
+                    ActivateSoulSplit();
                     setSlayerState(ICESTRYKEWYRMS);
                     Execution.delay(iceStrykewyrms());
                     break;
                 case "lava strykewyrms":
+                    ActivateSoulSplit();
                     setSlayerState(LAVASTRYKEWYRMS);
                     break;
                 case "greater demons":
@@ -151,6 +154,7 @@ public class HandleTask {
                     break;
                 case "strykewyrms":
                     setSlayerState(ICESTRYKEWYRMS);
+                    ActivateSoulSplit();
                     Execution.delay(iceStrykewyrms());
                     break;
                 case "black dragons":

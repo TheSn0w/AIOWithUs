@@ -30,7 +30,7 @@ public class NPCs {
 
     public static long lavaStrykewyrms() {
         LocalPlayer player = getLocalPlayer();
-        if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
+        if (player == null || (player.hasTarget() && player.getFollowing() != null || player.isMoving())) {
             return random.nextLong(400, 600);
         }
         EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(2417).option("Investigate").results();
@@ -53,10 +53,18 @@ public class NPCs {
                 Execution.delay(random.nextLong(200, 250));
                 nearestMound.interact("Investigate");
             }
+            if (doSlayer) {
+                lavaStrykewyrms = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
             return random.nextLong(1000, 2000);
         } else {
             if (Movement.traverse(NavPath.resolve(new Coordinate(3033, 3823, 0))) == TraverseEvent.State.FINISHED) {
                 log("[Ice] Traversed to Lava Strykewyrms location.");
+                if (doSlayer) {
+                    lavaStrykewyrms = true;
+                    setSlayerState(Main.SlayerState.COMBAT);
+                }
             } else {
                 log("[Ice] Failed to traverse to Lava Strykewyrms location.");
             }
@@ -66,7 +74,7 @@ public class NPCs {
 
     public static long iceStrykewyrms() {
         LocalPlayer player = getLocalPlayer();
-        if (player == null || (player.hasTarget() && player.getFollowing() != null)) {
+        if (player == null || (player.hasTarget() && player.getFollowing() != null || player.isMoving())) {
             return random.nextLong(400, 600);
         }
         EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(9462).option("Investigate").results();
@@ -89,10 +97,18 @@ public class NPCs {
                 Execution.delay(random.nextLong(200, 250));
                 nearestMound.interact("Investigate");
             }
+            if (doSlayer) {
+                iceStrykewyrms = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
             return random.nextLong(1000, 2000);
         } else {
             if (Movement.traverse(NavPath.resolve(new Coordinate(3062, 3808, 0))) == TraverseEvent.State.FINISHED) {
                 log("[Ice] Traversed to Ice Strykewyrms location.");
+                if (doSlayer) {
+                    iceStrykewyrms = true;
+                    setSlayerState(Main.SlayerState.COMBAT);
+                }
             } else {
                 log("[Ice] Failed to traverse to Ice Strykewyrms location.");
             }

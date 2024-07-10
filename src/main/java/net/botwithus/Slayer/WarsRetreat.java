@@ -20,7 +20,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.Utilities.DeHandleSoulSplit;
-import static net.botwithus.Variables.Variables.random;
+import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class WarsRetreat {
@@ -46,6 +46,8 @@ public class WarsRetreat {
             DeActivateRangedPrayer();
             DeActivateMeleePrayer();
             DeHandleSoulSplit();
+            lavaStrykewyrms = false;
+            iceStrykewyrms = false;
             Execution.delay(handleCampfire(player));
         }
         return random.nextLong(1500, 3000);
