@@ -149,10 +149,15 @@ public class HandleTask {
                     addTargetName("Adamant dragon");
                     setSlayerState(ADAMANTDRAGONS);
                     break;
-                default:
+                case "strykewyrms":
+                    setSlayerState(ICESTRYKEWYRMS);
+                    Execution.delay(iceStrykewyrms());
+                    break;
                 case "black dragons":
                     addTargetName("Black dragon");
                     setSlayerState(BLACKDRAGONS);
+                    break;
+                default:
                     log("Task not recognized.");
                     setSlayerState(CANCELTASK);
             }
