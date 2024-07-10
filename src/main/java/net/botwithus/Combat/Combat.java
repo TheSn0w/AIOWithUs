@@ -316,7 +316,7 @@ public class Combat {
             if (monster != null) {
                 boolean attack = monster.interact("Attack");
                 if (attack) {
-                    log("[Combat] Successfully attacked" + monster.getName());
+                    log("[Combat] Successfully attacked: " + monster.getName());
                     return random.nextLong(600, 750);
                 }
             } else {
