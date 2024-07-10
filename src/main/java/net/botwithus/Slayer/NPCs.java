@@ -1,7 +1,10 @@
 package net.botwithus.Slayer;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.rs3.game.Area;
+import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.movement.Movement;
@@ -47,7 +50,7 @@ public class NPCs {
             Npc nearestMound = mounds.nearest();
             log("[Lava] Interacting with the nearest mound.");
             nearestMound.interact("Investigate");
-            if (nearestMound.getCoordinate().distanceTo(player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+            if (Distance.between(nearestMound.getCoordinate(), player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
                 Execution.delay(random.nextLong(600, 700));
                 log("[Lava] Used Surge: " + ActionBar.useAbility("Surge"));
                 Execution.delay(random.nextLong(200, 250));
@@ -55,6 +58,7 @@ public class NPCs {
             }
             if (doSlayer) {
                 lavaStrykewyrms = true;
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
             return random.nextLong(1000, 2000);
@@ -63,6 +67,7 @@ public class NPCs {
                 log("[Ice] Traversed to Lava Strykewyrms location.");
                 if (doSlayer) {
                     lavaStrykewyrms = true;
+                    ActivateSoulSplit();
                     setSlayerState(Main.SlayerState.COMBAT);
                 }
             } else {
@@ -73,10 +78,14 @@ public class NPCs {
     }
 
     public static long iceStrykewyrms() {
-        LocalPlayer player = getLocalPlayer();
+        LocalPlayer player = Client.getLocalPlayer();
         if (player == null || (player.hasTarget() && player.getFollowing() != null || player.isMoving())) {
             return random.nextLong(400, 600);
         }
+
+        Coordinate playerLocation = player.getCoordinate();
+        Coordinate areaTopRight = new Coordinate(3076, 3816, 0);
+        Coordinate areaBottomLeft = new Coordinate(3044, 3797, 0);
         EntityResultSet<Npc> mounds = NpcQuery.newQuery().byType(9462).option("Investigate").results();
         Npc strykewyrm = NpcQuery.newQuery().byType(9463).results().nearestTo(player);
 
@@ -91,7 +100,7 @@ public class NPCs {
             Npc nearestMound = mounds.nearest();
             log("[Ice] Interacting with the nearest mound.");
             nearestMound.interact("Investigate");
-            if (nearestMound.getCoordinate().distanceTo(player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
+            if (Distance.between(nearestMound.getCoordinate(), player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
                 Execution.delay(random.nextLong(600, 700));
                 log("[Ice] Used Surge: " + ActionBar.useAbility("Surge"));
                 Execution.delay(random.nextLong(200, 250));
@@ -99,18 +108,30 @@ public class NPCs {
             }
             if (doSlayer) {
                 iceStrykewyrms = true;
+                ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
             return random.nextLong(1000, 2000);
         } else {
-            if (Movement.traverse(NavPath.resolve(new Coordinate(3062, 3808, 0))) == TraverseEvent.State.FINISHED) {
-                log("[Ice] Traversed to Ice Strykewyrms location.");
-                if (doSlayer) {
-                    iceStrykewyrms = true;
-                    setSlayerState(Main.SlayerState.COMBAT);
+            if (playerLocation.getArea().contains(areaBottomLeft) && playerLocation.getArea().contains(areaTopRight)) {
+                log("[Ice] Player is inside the area.");
+                if (mounds.isEmpty()) {
+                    log("[Ice] No mounds found. Waiting for mounds to appear...");
+                    Execution.delayUntil(random.nextLong(3500, 6000), () -> !NpcQuery.newQuery().byType(9463).option("Investigate").results().isEmpty());
                 }
             } else {
-                log("[Ice] Failed to traverse to Ice Strykewyrms location.");
+                log("[Ice] Player is not inside the area. Moving to a random walkable coordinate within the area...");
+                Coordinate randomWalkableCoordinate = new Area.Rectangular(areaBottomLeft, areaTopRight).getRandomCoordinate();
+                if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                    log("[Ice] Successfully moved to the area.");
+                    if (doSlayer) {
+                        iceStrykewyrms = true;
+                        ActivateSoulSplit();
+                        setSlayerState(Main.SlayerState.COMBAT);
+                    }
+                } else {
+                    log("[Ice] Failed to move to the area.");
+                }
             }
         }
         return 0;

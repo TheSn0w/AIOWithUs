@@ -97,12 +97,9 @@ public class HandleTask {
                     setSlayerState(VILEBLOOMS);
                     break;
                 case "ice strykewyrms":
-                    ActivateSoulSplit();
                     setSlayerState(ICESTRYKEWYRMS);
-                    Execution.delay(iceStrykewyrms());
                     break;
                 case "lava strykewyrms":
-                    ActivateSoulSplit();
                     setSlayerState(LAVASTRYKEWYRMS);
                     break;
                 case "greater demons":

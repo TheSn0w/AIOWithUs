@@ -331,9 +331,9 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will loot based on cost you set");
                         }*/
-                        createCenteredButton("Walk to Loot", () -> walkToLoot = !walkToLoot, walkToLoot);
+                        createCenteredButton("Walk to Loot (BETA)", () -> walkToLoot = !walkToLoot, walkToLoot);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("if item does not appear in loot inventory but is on the ground, it will walk to it until it appears in loot inventory, works for Loot, Loot Noted and Loot Stackables");
+                            ImGui.SetTooltip("[BETA] if item does not appear in loot inventory but is on the ground, it will walk to it until it appears in loot inventory, works for Loot, Loot Noted and Loot Stackables");
                         }
                         createCenteredButton("Use Notepaper", () -> useNotepaper = !useNotepaper, useNotepaper);
                         if (ImGui.IsItemHovered()) {

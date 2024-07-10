@@ -184,11 +184,11 @@ public class Main {
                 VileBlooms(player);
                 break;
             case ICESTRYKEWYRMS:
-                ActivateSoulSplit();
+                log("Ice Strykewyrms state.");
                 iceStrykewyrms();
                 break;
             case LAVASTRYKEWYRMS:
-                ActivateSoulSplit();
+                log("Lava Strykewyrms state.");
                 lavaStrykewyrms();
                 break;
             case GREATERDEMONS:
