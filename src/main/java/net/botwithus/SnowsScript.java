@@ -49,8 +49,8 @@ import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.Slayer.Main.doSlayer;
-import static net.botwithus.TaskScheduler.bankPin;
-import static net.botwithus.TaskScheduler.shutdown;
+import static net.botwithus.Slayer.Main.useBankPin;
+import static net.botwithus.TaskScheduler.*;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -712,6 +712,11 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("iceStrykewyrms", String.valueOf(iceStrykewyrms));
         this.configuration.addProperty("doSlayer", String.valueOf(doSlayer));
         this.configuration.addProperty("useLootAllStackableItems", String.valueOf(useLootAllStackableItems));
+        this.configuration.addProperty("useBankPin", String.valueOf(useBankPin));
+        this.configuration.addProperty("pin1", String.valueOf(pin1));
+        this.configuration.addProperty("pin2", String.valueOf(pin2));
+        this.configuration.addProperty("pin3", String.valueOf(pin3));
+        this.configuration.addProperty("pin4", String.valueOf(pin4));
 
 
         this.configuration.save();
@@ -830,6 +835,26 @@ public class SnowsScript extends LoopingScript {
             useWorldhop = Boolean.parseBoolean(this.configuration.getProperty("useWorldhop"));
             minHopIntervalMinutes = Integer.parseInt(this.configuration.getProperty("minHopIntervalMinutes"));
             maxHopIntervalMinutes = Integer.parseInt(this.configuration.getProperty("maxHopIntervalMinutes"));
+            useBankPin = Boolean.parseBoolean(this.configuration.getProperty("useBankPin"));
+            String pin1Value = this.configuration.getProperty("pin1");
+            if (pin1Value != null && !pin1Value.isEmpty()) {
+                pin1 = Integer.parseInt(pin1Value);
+            }
+
+            String pin2Value = this.configuration.getProperty("pin2");
+            if (pin2Value != null && !pin2Value.isEmpty()) {
+                pin2 = Integer.parseInt(pin2Value);
+            }
+
+            String pin3Value = this.configuration.getProperty("pin3");
+            if (pin3Value != null && !pin3Value.isEmpty()) {
+                pin3 = Integer.parseInt(pin3Value);
+            }
+
+            String pin4Value = this.configuration.getProperty("pin4");
+            if (pin4Value != null && !pin4Value.isEmpty()) {
+                pin4 = Integer.parseInt(pin4Value);
+            }
             String prayerPointsThresholdValue = this.configuration.getProperty("PrayerPointsThreshold");
             if (prayerPointsThresholdValue != null && !prayerPointsThresholdValue.isEmpty()) {
                 int prayerPointsThreshold = Integer.parseInt(prayerPointsThresholdValue);
