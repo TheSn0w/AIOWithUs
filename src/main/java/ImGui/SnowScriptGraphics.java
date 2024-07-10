@@ -232,6 +232,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will upkeep familiar, Have pouch and Restore Potions in Backpack, will bank at prif if out of pouches/restore pots");
                         }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
+                        }
                         createCenteredButton("Harvest Chronicles", () -> harvestChronicles = !harvestChronicles, harvestChronicles);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will harvest chronicles");
@@ -294,6 +298,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will hop worlds when player is within 8 tiles of you");
                         }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
+                        }
                     } else if (isCombatActive) {
                         createCenteredButton("Combat", () -> isCombatActive = !isCombatActive, true);
                         if (ImGui.IsItemHovered()) {
@@ -305,7 +313,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         }
                         createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will enter Bank Pin if it comes up");
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
                         }
                         /*createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
                         if (ImGui.IsItemHovered()) {
@@ -398,6 +406,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
+                        }
                         /*createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Gote/Porter");
@@ -422,6 +434,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
+                        }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
                         }
                         /*createCenteredButton("Use Gote/Porter", () -> useGote = !useGote, useGote);
                         if (ImGui.IsItemHovered()) {
@@ -455,13 +471,17 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
+                        }
                         createCenteredButton("Acadia Tree", () -> acadiaTree = !acadiaTree, acadiaTree);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will cut Acadia Trees OUTSIDE of VIP area");
+                            ImGui.SetTooltip("Will cut Acadia Trees OUTSIDE of VIP area [Banking not supported]");
                         }
                         createCenteredButton("Acadia VIP", () -> acadiaVIP = !acadiaVIP, acadiaVIP);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will cut Acadia Trees INSIDE of VIP area");
+                            ImGui.SetTooltip("Will cut Acadia Trees INSIDE of VIP area [Banking not supported]");
                         }
                         createCenteredButton("Crystallise", () -> crystallise = !crystallise, crystallise);
                         if (ImGui.IsItemHovered()) {
@@ -508,16 +528,25 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will craft runes Via the Abyss, HIGH REQUIREMENTS");
                         }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
+                        }
 
                     } else if (isMiscActive) {
                         createCenteredButton("Misc", () -> isMiscActive = !isMiscActive, true);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Miscellaneous Options");
                         }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
+                        }
                         createCenteredButton("Magic", () -> isDissasemblerActive = !isDissasemblerActive, isDissasemblerActive);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will Disassemble/High Alchemy Items");
                         }
+
                         createCenteredButton("Violet Theme", () -> {
                             if (!PurpleThemeSelected) {
                                 PurpleThemeSelected = true;
