@@ -8,6 +8,9 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Laniakea.skipTask;
 import static net.botwithus.Slayer.Main.SlayerState.*;
@@ -24,10 +27,17 @@ public class HandleTask {
         HandleTask.snowsScript = snowsScript;
     }
 
+    static List<String> tasksToSkip = new ArrayList<>();
+
     static void handleTask(LocalPlayer player) {
         Component component = ComponentQuery.newQuery(1639).componentIndex(11).results().first();
         if (component != null) {
             String taskText = component.getText().trim().toLowerCase();
+            if (tasksToSkip.contains(taskText)) {
+                log("Task " + taskText + " is set to be skipped.");
+                setSlayerState(CANCELTASK);
+                return;
+            }
             switch (taskText) {
                 case "creatures of the lost grove":
                     addTargetName("Vinecrawler");
