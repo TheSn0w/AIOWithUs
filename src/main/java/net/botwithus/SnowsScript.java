@@ -15,6 +15,7 @@ import net.botwithus.rs3.events.impl.ChatMessageEvent;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.events.impl.ServerTickedEvent;
 import net.botwithus.rs3.game.*;
+import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
@@ -48,6 +49,7 @@ import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.TaskScheduler.bankPin;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -72,6 +74,7 @@ public class SnowsScript extends LoopingScript {
         IDLE,
         SKILLING,
         BANKING,
+        BANKPIN,
     }
 
 
@@ -117,7 +120,6 @@ public class SnowsScript extends LoopingScript {
         if (player == null || Client.getGameState() != Client.GameState.LOGGED_IN) {
             return;
         }
-
 
         capturestuff();
 

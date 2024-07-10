@@ -3,6 +3,7 @@ package net.botwithus.Slayer;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
+import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
@@ -18,8 +19,10 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.setSlayerState;
+import static net.botwithus.Slayer.Main.useBankPin;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.Utilities.DeHandleSoulSplit;
+import static net.botwithus.TaskScheduler.bankPin;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -87,19 +90,27 @@ public class WarsRetreat {
         if (player != null) {
             EntityResultSet<SceneObject> altarOfWarResults = SceneObjectQuery.newQuery().name("Altar of War").results();
 
-            if (!altarOfWarResults.isEmpty()) {
-                SceneObject altar = altarOfWarResults.nearest();
-                if (altar != null && altar.interact("Pray")) {
-                    log("Praying at Altar of War!");
-                    Execution.delayUntil(random.nextLong(10000, 15000), () -> getLocalPlayer().getPrayerPoints() == Skills.PRAYER.getLevel() * 100);
-                    if (player.getPrayerPoints() == Skills.PRAYER.getLevel() * 100) {
-                        log("Prayer points are now full.");
-                        Execution.delay(handleBank(player));
-                    } else {
-                        log("Timed out waiting for prayer points to be full.");
-                        return random.nextLong(1500, 3000);
+            if (player.getPrayerPoints() < Skills.PRAYER.getLevel() * 100) {
+                if (!altarOfWarResults.isEmpty()) {
+                    SceneObject altar = altarOfWarResults.nearest();
+                    if (altar != null && altar.interact("Pray")) {
+                        log("Praying at Altar of War!");
+                        Execution.delayUntil(random.nextLong(10000, 15000), () -> getLocalPlayer().getPrayerPoints() == Skills.PRAYER.getLevel() * 100);
+                        if (player.getPrayerPoints() == Skills.PRAYER.getLevel() * 100) {
+                            log("Prayer points are now full.");
+                            Execution.delay(handleBank(player));
+                        } else {
+                            log("Timed out waiting for prayer points to be full.");
+                            return random.nextLong(1500, 3000);
+                        }
                     }
+                } else {
+                    log("Altar of War is not found.");
+                    Execution.delay(handleBank(player));
                 }
+            } else {
+                log("Prayer points are already full.");
+                Execution.delay(handleBank(player));
             }
         }
         return random.nextLong(1500, 3000);
@@ -115,6 +126,9 @@ public class WarsRetreat {
                     bank.interact("Load Last Preset from");
                     log("Loading preset!");
                     Execution.delay(RandomGenerator.nextInt(3000, 5000));
+                    if (Interfaces.isOpen(759)) {
+                        bankPin();
+                    }
 
                     boolean healthFull = Execution.delayUntil(15000, () -> player.getCurrentHealth() == player.getMaximumHealth());
                     if (healthFull) {

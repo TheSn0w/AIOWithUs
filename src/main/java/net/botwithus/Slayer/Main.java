@@ -15,20 +15,25 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.List;
 
+import static ImGui.Skills.CombatImGui.getTasksToSkip;
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.HandleTask.handleTask;
+import static net.botwithus.Slayer.HandleTask.tasksToSkip;
 import static net.botwithus.Slayer.Laniakea.TeleporttoLaniakea;
 import static net.botwithus.Slayer.Laniakea.skipTask;
+import static net.botwithus.Slayer.Main.SlayerState.CANCELTASK;
 import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
+import static net.botwithus.TaskScheduler.bankPin;
 import static net.botwithus.Variables.Variables.clearTargetNames;
 import static net.botwithus.Variables.Variables.nearestBank;
 
 public class Main {
     public static boolean doSlayer = false;
+    public static boolean useBankPin = false;
 
     public enum SlayerState {
         CHECK,
@@ -85,6 +90,10 @@ public class Main {
 
     public static void runSlayer() {
         LocalPlayer player = Client.getLocalPlayer();
+
+        if (Interfaces.isOpen(759)) {
+            bankPin();
+        }
 
         switch (slayerState) {
             case COMBAT:
@@ -247,6 +256,31 @@ public class Main {
     }
 
     private static void checkTaskCompletion() {
+        List<String> tasksToSkip = getTasksToSkip();
+        log("Tasks to skip: " + tasksToSkip.size());
+        if (!tasksToSkip.isEmpty()) {
+            for (String task : tasksToSkip) {
+                log("Task in list: " + task);
+            }
+        }
+        Component component = ComponentQuery.newQuery(1639).componentIndex(11).results().first();
+        if (component != null) {
+            String taskText = component.getText().trim().toLowerCase();
+            log("Component text: " + taskText);
+
+            for (String task : tasksToSkip) {
+                String taskLower = task.trim().toLowerCase();
+                log("Checking against: " + taskLower);
+
+                if (taskText.contains(taskLower) || taskLower.contains(taskText)) {
+                    log("Task " + taskText + " is set to be skipped.");
+                    setSlayerState(CANCELTASK);
+                    return;
+                }
+            }
+        } else {
+            log("Component not found.");
+        }
         if (VarManager.getVarValue(VarDomainType.PLAYER, 183) != 0) {
             slayerState = SlayerState.RETRIEVETASKINFO;
         } else {

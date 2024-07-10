@@ -33,11 +33,7 @@ public class HandleTask {
         Component component = ComponentQuery.newQuery(1639).componentIndex(11).results().first();
         if (component != null) {
             String taskText = component.getText().trim().toLowerCase();
-            if (tasksToSkip.contains(taskText)) {
-                log("Task " + taskText + " is set to be skipped.");
-                setSlayerState(CANCELTASK);
-                return;
-            }
+
             switch (taskText) {
                 case "creatures of the lost grove":
                     addTargetName("Vinecrawler");

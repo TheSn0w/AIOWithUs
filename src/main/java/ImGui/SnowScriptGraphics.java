@@ -42,6 +42,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.Slayer.Main.useBankPin;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
 
@@ -301,6 +302,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Wars to Load Last Preset from Bank chest");
+                        }
+                        createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will enter Bank Pin if it comes up");
                         }
                         /*createCenteredButton("Banks for food", () -> BankforFood = !BankforFood, BankforFood);
                         if (ImGui.IsItemHovered()) {

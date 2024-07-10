@@ -11,6 +11,7 @@ import net.botwithus.rs3.imgui.ImGui;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
 import net.botwithus.rs3.imgui.NativeInteger;
 import net.botwithus.rs3.script.ScriptConsole;
+import net.botwithus.TaskScheduler;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -30,7 +31,10 @@ import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.Slayer.Main.useBankPin;
+;
 import static net.botwithus.SnowsScript.*;
+import static net.botwithus.TaskScheduler.*;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.removeFoodName;
 
@@ -42,7 +46,6 @@ public class CombatImGui {
     public static boolean lootBasedonCost = false;
     public static boolean showSlayerOptions = false;
 
-    static List<String> tasksToSkip = new ArrayList<>();
 
 
 
@@ -531,53 +534,33 @@ public class CombatImGui {
                 }
             }
             if (doSlayer && showSlayerOptions) {
-
-// In your ImGui interface
                 if (ImGui.Begin("Task Options", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
-                    ImGui.SetWindowSize((float) 400, (float) 510);
+                    ImGui.SetWindowSize(400, 510);
                     ImGui.SeparatorText("Slayer Statistics");
-                    updateAndDisplaySlayerPoints();
+                    updateAndDisplaySlayerPoints(); // Placeholder for actual function
                     ImGui.SeparatorText("Task Options");
-
-                    // Add a combo box with all the cases
-                    String[] tasks = {"creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms","lava strykewyrms", "greater demons", "mutated jadinkos","corrupted creatures", "iron dragons","steel dragons","adamant dragons", "black dragons", "dragons", "black demons","kal'gerion demons","gargoyles","chaos giants", "strykewyrms", "airut"};
-                    NativeInteger selectedItemIndex = new NativeInteger(0);
-                    if (ImGui.Combo("Tasks", selectedItemIndex, tasks)) {
-                        int selectedIndex = selectedItemIndex.get();
-                        if (selectedIndex >= 0 && selectedIndex < tasks.length) {
-                            // When a case is selected, add it to the list of tasks to skip
-                            tasksToSkip.add(tasks[selectedIndex]);
-                        }
-                    }
-
-                    // Display a table with all the selected names to skip
-                    if (!tasksToSkip.isEmpty()) {
-                        if (ImGui.BeginTable("Tasks to Skip", 2, ImGuiWindowFlag.None.getValue())) {
-                            ImGui.TableNextRow();
-                            ImGui.TableSetupColumn("Task Name", 0);
-                            ImGui.TableSetupColumn("Action", 1);
-                            ImGui.TableHeadersRow();
-
-                            for (String taskName : new ArrayList<>(tasksToSkip)) {
-                                ImGui.TableNextRow();
-                                ImGui.Separator();
-                                ImGui.TableNextColumn();
-                                ImGui.Text(taskName);
-                                ImGui.Separator();
-                                ImGui.TableNextColumn();
-                                if (ImGui.Button("Remove##" + taskName)) {
-                                    tasksToSkip.remove(taskName);
-                                }
-                                if (ImGui.IsItemHovered()) {
-                                    ImGui.SetTooltip("Click to remove this task");
-                                }
-                            }
-                            ImGui.EndTable();
-                        }
-                    }
+                    updateTasksToSkip();
 
                     ImGui.End();
                 }
+            }
+            if (useBankPin) {
+                if (ImGui.Begin("Bank Pin Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                    ImGui.SeparatorText("Pin Options");
+                    ImGui.SetCursorPosX(spacing);
+                    ImGui.SetItemWidth(100.0F);
+                    pin1 = ImGui.InputInt("Pin 1", pin1);
+                    ImGui.SetItemWidth(100.0F);
+                    ImGui.SameLine();
+                    pin2 = ImGui.InputInt("Pin 2", pin2);
+                    ImGui.SetItemWidth(100.0F);
+                    ImGui.SameLine();
+                    pin3 = ImGui.InputInt("Pin 3", pin3);
+                    ImGui.SetItemWidth(100.0F);
+                    ImGui.SameLine();
+                    pin4 = ImGui.InputInt("Pin 4", pin4);
+                }
+                ImGui.End();
             }
             if (showCheckboxesWindow) {
                 if (ImGui.Begin("Combat Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
@@ -898,4 +881,58 @@ public class CombatImGui {
         ImGui.Text("Current Slayer Points: " + currentSlayerPoints);
         ImGui.SeparatorText("Slayer Points Earned this Session: " + differenceSlayerPoints);
     }
+
+    private static List<String> tasksToSkip = new ArrayList<>();
+
+    public static List<String> getTasksToSkip() {
+        return tasksToSkip;
+    }
+
+    public static void updateTasksToSkip() {
+        String[] tasks = {"Choose Skips", "creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms","lava strykewyrms", "greater demons", "mutated jadinkos","corrupted creatures", "iron dragons","steel dragons","adamant dragons", "black dragons", "dragons", "black demons","kal'gerion demons","gargoyles","chaos giants", "strykewyrms", "airut"};
+        NativeInteger selectedItemIndex = new NativeInteger(0);
+
+        if (ImGui.Combo("Tasks", selectedItemIndex, tasks)) {
+            int selectedIndex = selectedItemIndex.get();
+            if (selectedIndex > 0 && selectedIndex < tasks.length) { // Ignore "Choose Skips"
+                String selectedTask = tasks[selectedIndex].toLowerCase().trim();
+                if (!tasksToSkip.contains(selectedTask)) {
+                    tasksToSkip.add(selectedTask);
+                    log("Task " + selectedTask + " added to skip list.");
+                }
+            }
+        }
+
+        displayTasksToSkip();
+    }
+
+    private static void displayTasksToSkip() {
+        if (!tasksToSkip.isEmpty()) {
+            if (ImGui.BeginTable("Tasks to Skip", 2, ImGuiWindowFlag.None.getValue())) {
+                ImGui.TableNextRow();
+                ImGui.TableSetupColumn("Task Name", 0);
+                ImGui.TableSetupColumn("Action", 1);
+                ImGui.TableHeadersRow();
+
+                for (String taskName : new ArrayList<>(tasksToSkip)) {
+                    ImGui.TableNextRow();
+                    ImGui.Separator();
+                    ImGui.TableNextColumn();
+                    ImGui.Text(taskName);
+                    ImGui.Separator();
+                    ImGui.TableNextColumn();
+                    if (ImGui.Button("Remove##" + taskName)) {
+                        tasksToSkip.remove(taskName);
+                        log("Task " + taskName + " removed from skip list.");
+                    }
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Click to remove this task");
+                    }
+                }
+                ImGui.EndTable();
+            }
+        }
+    }
+
+
 }

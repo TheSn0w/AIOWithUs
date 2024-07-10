@@ -9,6 +9,7 @@ import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -27,6 +28,7 @@ import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
+import static net.botwithus.TaskScheduler.bankPin;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
@@ -194,6 +196,9 @@ public class BankInteractions {
 
                     if (interactionSuccess) {
                         Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
+                        if (Interfaces.isOpen(759)) {
+                            bankPin();
+                        }
                         if (Bank.isOpen()) {
                             log("[Banking] Bank is open. Depositing items.");
 
@@ -272,6 +277,9 @@ public class BankInteractions {
 
                     if (interactionSuccess) {
                         Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
+                        if (Interfaces.isOpen(759)) {
+                            bankPin();
+                        }
                         if (Bank.isOpen()) {
                             log("[Banking] Bank is open. Depositing items.");
                             Bank.depositAllExcept(oreBoxesPattern);
@@ -376,6 +384,10 @@ public class BankInteractions {
 
                     if (interactionSuccess) {
                         Execution.delay(random.nextLong(3000, 5000));
+                        if (Interfaces.isOpen(759)) {
+                            bankPin();
+                        }
+                        Execution.delay(random.nextLong(1500, 3000));
                         log("[Banking] Traversing to last skilling location.");
                         if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
                             setBotState(SKILLING);
