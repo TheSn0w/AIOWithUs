@@ -335,7 +335,7 @@ public class SnowsScript extends LoopingScript {
                 }
             }
         }
-        if (useLootAllNotedItems || useCustomLoot || useLootEverything) {
+        if (isCombatActive) {
             if (getBotState() == BotState.SKILLING) {
                 String itemName = event.getNewItem().getName();
                 int oldCount = event.getOldItem() != null ? event.getOldItem().getStackSize() : 0;
