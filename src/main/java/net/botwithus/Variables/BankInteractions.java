@@ -198,6 +198,7 @@ public class BankInteractions {
                         Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
                         if (Interfaces.isOpen(759)) {
                             bankPin();
+                            Execution.delay(random.nextLong(1500, 3000));
                         }
                         if (Bank.isOpen()) {
                             log("[Banking] Bank is open. Depositing items.");
@@ -279,6 +280,7 @@ public class BankInteractions {
                         Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
                         if (Interfaces.isOpen(759)) {
                             bankPin();
+                            Execution.delay(random.nextLong(1500, 3000));
                         }
                         if (Bank.isOpen()) {
                             log("[Banking] Bank is open. Depositing items.");
@@ -387,7 +389,6 @@ public class BankInteractions {
                         if (Interfaces.isOpen(759)) {
                             bankPin();
                         }
-                        Execution.delay(random.nextLong(1500, 3000));
                         log("[Banking] Traversing to last skilling location.");
                         if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
                             setBotState(SKILLING);
