@@ -384,7 +384,10 @@ public class Abyss {
     }
 
     private static boolean waitForBankInterface() {
-        Execution.delayUntil(15000, () -> Interfaces.isOpen(517));
+        Execution.delayUntil(15000, () -> Interfaces.isOpen(517) || Interfaces.isOpen(759));
+        if (Interfaces.isOpen(759)) {
+            bankPin();
+        }
         if (Interfaces.isOpen(517)) {
             log("[Familiar] Bank interface is open.");
             Execution.delay(random.nextLong(600, 800));
@@ -432,10 +435,14 @@ public class Abyss {
     }
 
     private static void closeBank() {
-        Bank.close();
-        Execution.delayUntil(random.nextLong(15000, 20000), () -> !Interfaces.isOpen(517));
-        log("[Runecrafting] Closed bank.");
-        if (!Interfaces.isOpen(517)) {
+        Execution.delay(random.nextLong(600, 800));
+        while (Bank.isOpen()) {
+            Bank.close();
+            Execution.delayUntil(random.nextLong(15000, 20000), () -> !Bank.isOpen());
+            log("[Runecrafting] Attempted to close bank.");
+        }
+        log("[Runecrafting] Bank is closed.");
+        if (!Bank.isOpen()) {
             if (!ManageFamiliar) {
                 thisState = AbyssState.TELEPORTTOBANK;
                 return;
