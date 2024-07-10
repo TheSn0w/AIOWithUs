@@ -184,9 +184,11 @@ public class Main {
                 break;
             case ICESTRYKEWYRMS:
                 log("Ice Strykewyrms state.");
+                iceStrykewyrms();
                 break;
             case LAVASTRYKEWYRMS:
                 log("Lava Strykewyrms state.");
+                lavaStrykewyrms();
                 break;
             case GREATERDEMONS:
                 log("Greater Demons state.");
