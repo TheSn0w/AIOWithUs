@@ -311,32 +311,25 @@ public class LootManager {
 // =====================
 
     public static void lootStackableItemsFromInventory() {
-        if (LootInventory.isOpen()) {
-            List<Item> inventoryItems = LootInventory.getItems();
+    if (LootInventory.isOpen()) {
+        List<Item> inventoryItems = LootInventory.getItems();
 
-            int totalSlots = 28;
-            int usedSlots = totalSlots - Backpack.countFreeSlots();
+        int totalSlots = 28;
+        int usedSlots = totalSlots - Backpack.countFreeSlots();
 
-            for (Item item : inventoryItems) {
-                if (item.getName() != null) {
-                    var itemType = ConfigManager.getItemType(item.getId());
-                    if (itemType != null && isStackable(itemType)) {
-                        if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(item.getName())) {
-                            return;
-                        }
-
-                        if (Backpack.isFull() && !Backpack.contains(item.getName())) {
-                            return;
-                        }
-
-                        LootInventory.take(item.getName());
-                        log("[StackedItem] Successfully looted stackable item: " + item.getName());
-                        Execution.delay(random.nextLong(600, 650));
-                    }
-                }
-            }
-        }
+        inventoryItems.stream()
+            .filter(item -> item.getName() != null)
+            .map(item -> ConfigManager.getItemType(item.getId()))
+            .filter(itemType -> itemType != null && isStackable(itemType))
+            .filter(itemType -> !(useDwarfcannon && usedSlots >= 27 && !Backpack.contains(itemType.getName())))
+            .filter(itemType -> !(Backpack.isFull() && !Backpack.contains(itemType.getName())))
+            .forEach(itemType -> {
+                LootInventory.take(itemType.getName());
+                log("[StackedItem] Successfully looted stackable item: " + itemType.getName());
+                Execution.delay(random.nextLong(600, 650));
+            });
     }
+}
 
     private static boolean isStackable(ItemType itemType) {
         ItemType.Stackability stackability = itemType.getStackability();
