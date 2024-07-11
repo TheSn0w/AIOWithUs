@@ -172,27 +172,32 @@ public class NPCs {
     }
 
     public static void risenGhosts(LocalPlayer player) {
-        Coordinate cryptEntrance = new Coordinate(3290, 3610, 0);
+        Coordinate cryptEntrance = new Coordinate(3291, 3610, 0);
         Npc ghostResults = NpcQuery.newQuery().name("Risen ghost").results().nearest();
-        if (ghostResults != null) {
-            log("Risen ghost found, proceeding to attack.");
-            addTargetName("ghost");
-            ActivateMagicPrayer();
-            setSlayerState(Main.SlayerState.COMBAT);
-        } else {
+
+        while (ghostResults == null) {
             log("Risen ghost not found, proceeding to Crypt entrance.");
             if (Movement.traverse(NavPath.resolve(cryptEntrance)) == TraverseEvent.State.FINISHED) {
                 EntityResultSet<SceneObject> cryptDoor = SceneObjectQuery.newQuery().name("Wilderness Crypt Entrance").option("Enter").results();
                 if (!cryptDoor.isEmpty()) {
-                    log("Wilderness Crypt Entrance found, proceeding to Enter.");
-                    cryptDoor.nearest().interact("Inspect");
-                    Execution.delay(random.nextLong(6500, 7500));
-                    addTargetName("ghost");
-                    ActivateMagicPrayer();
-                    setSlayerState(Main.SlayerState.COMBAT);
+                    SceneObject door = cryptDoor.nearest();
+                    if (door != null) {
+                        log("Wilderness Crypt Entrance found, proceeding to Enter.");
+                        door.interact("Enter");
+                        Execution.delay(random.nextLong(6500, 7500));
+                    } else {
+                        log("Crypt door is null.");
+                    }
                 }
             }
+            ghostResults = NpcQuery.newQuery().name("Risen ghost").results().nearest();
+
         }
+
+        log("Risen ghost found, proceeding to attack.");
+        addTargetName("ghost");
+        ActivateMagicPrayer();
+        setSlayerState(Main.SlayerState.COMBAT);
     }
 
     public static void GanodermicCreatures(LocalPlayer player) {

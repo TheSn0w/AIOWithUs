@@ -863,13 +863,17 @@ public class CombatImGui {
         }
     }
 
+
+    // Declare a static variable to store the starting slayer points
     private static int startingSlayerPoints = -1;
 
     public static void updateAndDisplaySlayerPoints() {
+        // Initialize the starting slayer points only once
         if (startingSlayerPoints == -1) {
-            startingSlayerPoints = Variables.getCurrentSlayerPoints();
+            startingSlayerPoints = VarManager.getVarbitValue(9071);
         }
-        int currentSlayerPoints = getCurrentSlayerPoints();
+
+        int currentSlayerPoints = VarManager.getVarbitValue(9071);
         int differenceSlayerPoints = currentSlayerPoints - startingSlayerPoints;
 
         String componentText11 = Variables.currentSlayerTask();
