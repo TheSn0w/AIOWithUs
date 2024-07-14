@@ -1,5 +1,7 @@
 package net.botwithus.Combat;
 
+import ImGui.SnowScriptGraphics;
+import net.botwithus.Slayer.Main;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -35,8 +37,11 @@ import static net.botwithus.Combat.Radius.ensureWithinRadius;
 import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Slayer.NPCs.iceStrykewyrms;
-import static net.botwithus.Slayer.NPCs.lavaStrykewyrms;
+import static net.botwithus.Slayer.Main.doSlayer;
+import static net.botwithus.Slayer.Main.setSlayerState;
+import static net.botwithus.Slayer.NPCs.*;
+import static net.botwithus.Slayer.WarsRetreat.camelWarriors;
+import static net.botwithus.Slayer.WarsRetreat.slayerPointFarming;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -47,6 +52,11 @@ public class Combat {
     public Combat(SnowsScript snowsScript) {
         this.snowsScript = snowsScript;
     }
+
+
+    public static boolean useDefensives = false;
+
+
     public void manageCombatAbilities() {
         while (snowsScript.isActive()) {
 
@@ -74,6 +84,7 @@ public class Combat {
             manageScripturesAndScrimshaws(player);
 
             if (player.hasTarget() && player.inCombat()) {
+
                 // Backpack
                 if (useVulnerabilityBomb) {
                     vulnerabilityBomb();
@@ -130,6 +141,9 @@ public class Combat {
                     setup("Weapon Special Attack");
                     DeathEssence();
                 }
+                if (useDefensives) {
+                    useDefensives();
+                }
                 try {
                     Thread.sleep(random.nextLong(800, 1000));
                 } catch (InterruptedException e) {
@@ -153,6 +167,14 @@ public class Combat {
     public static long attackTarget(LocalPlayer player) {
         if (player == null || useTraveltoLocation || useHintArrow) {
             return random.nextLong(600, 650);
+        }
+
+        if (doSlayer && slayerPointFarming && VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
+            int varValue = VarManager.getVarValue(VarDomainType.PLAYER, 10077);
+            int lastDigit = varValue % 10;
+            if (lastDigit >= 0 && lastDigit <= 8) {
+                return random.nextLong(600, 650);
+            }
         }
 
         // if Loot Inventory is not open, interact with ground items
@@ -210,11 +232,14 @@ public class Combat {
         if (iceStrykewyrms) {
             return iceStrykewyrms();
         }
+        if (camelWarriors && !player.hasTarget()) {
+            return camelWarriors(player);
+        }
 
         //combat module
 
         if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 100) {
-            handleCombat(player);
+            Execution.delay(handleCombat(player));
             return random.nextLong(300, 500);
         }
 
@@ -300,7 +325,7 @@ public class Combat {
             log("[Error] No target names specified.");
             return random.nextLong(600, 650);
         }
-        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 100) {
+        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 1) {
 
             Pattern monsterPattern = generateRegexPattern(targetNames);
             Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()

@@ -37,6 +37,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jsoup:jsoup:1.14.3")
 }
 
 val copyJar by tasks.register<Copy>("copyJar") {

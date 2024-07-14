@@ -30,6 +30,8 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import static net.botwithus.CustomLogger.log;
@@ -90,29 +92,49 @@ public class Abyss {
     }
 
 
+    private static final Pattern SWORD_PATTERN = Pattern.compile("Wilderness sword (1|2|3|4|4 \\(Augmented\\))");
+
+
+
     private static void useWildernessSword() {
-        ResultSet<Item> sword = InventoryItemQuery.newQuery(94).name("Wilderness sword 4").results();
+        ResultSet<Item> sword = InventoryItemQuery.newQuery(94).results();
         EntityResultSet<SceneObject> bankResults = SceneObjectQuery.newQuery().id(42377).option("Bank").results();
 
-        if (!sword.isEmpty() && bankResults.isEmpty()) {
-            boolean success = false;
-            while (player.getAnimationId() == -1) {
-                success = Equipment.interact(Equipment.Slot.WEAPON, "Edgeville");
-                log("[Wilderness Sword] Interacting with Wilderness Sword.");
-                Execution.delay(random.nextLong(750, 1500)); // Wait for 1000ms before trying again
-                if (player.getAnimationId() != -1) {
-                    log("[Wilderness Sword] Player is teleporting.");
+        if (bankResults.isEmpty()) {
+            if (!sword.isEmpty()) {
+                Item wildernessSword = null;
+                for (Item item : sword) {
+                    Matcher matcher = SWORD_PATTERN.matcher(item.getName());
+                    if (matcher.matches()) {
+                        wildernessSword = item;
+                        break;
+                    }
                 }
-            }
-            if (success) {
-                Execution.delay(random.nextLong(1500, 2000));
-                Execution.delayUntil(15000, () -> !player.isMoving() && player.getAnimationId() == -1);
-                log("[Wilderness Sword] Teleporting to Edgeville.");
-                Execution.delay(random.nextLong(750, 1000));
-                thisState = AbyssState.BANKING;
+
+                if (wildernessSword != null) {
+                    boolean success = false;
+                    while (player.getAnimationId() == -1) {
+                        success = Equipment.interact(Equipment.Slot.WEAPON, "Edgeville");
+                        log("[Wilderness Sword] Interacting with Wilderness Sword.");
+                        Execution.delay(random.nextLong(750, 1500)); // Wait for 750-1500ms before trying again
+                        if (player.getAnimationId() != -1) {
+                            log("[Wilderness Sword] Player is teleporting.");
+                        }
+                    }
+                    if (success) {
+                        Execution.delay(random.nextLong(1500, 2000));
+                        Execution.delayUntil(15000, () -> !player.isMoving() && player.getAnimationId() == -1);
+                        log("[Wilderness Sword] Teleporting to Edgeville.");
+                        Execution.delay(random.nextLong(1500, 2000));
+                        thisState = AbyssState.BANKING;
+                    }
+                } else {
+                    log("[Wilderness Sword] Wilderness Sword not found in inventory.");
+                }
+            } else {
+                log("[Wilderness Sword] Inventory is empty.");
             }
         } else {
-            Execution.delay(random.nextLong(750, 1000));
             thisState = AbyssState.BANKING;
         }
     }

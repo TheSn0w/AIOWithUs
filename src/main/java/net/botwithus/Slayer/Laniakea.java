@@ -1,5 +1,6 @@
 package net.botwithus.Slayer;
 
+import net.botwithus.rs3.game.Area;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
@@ -73,23 +74,29 @@ public class Laniakea {
     }
 
     public static long skipTask() {
-        /*if (VarManager.getVarValue(VarDomainType.PLAYER, 183)) { // amount of slayer kills remaining*/
         EntityResultSet<Npc> laniakea = NpcQuery.newQuery().name("Laniakea").results();
 
         if (laniakea.isEmpty()) {
-            Coordinate laniakeaCoordinate = new Coordinate(5458, 2354, 0);
-            Coordinate laniakeaCoordinateCape = new Coordinate(5667, 2138, 0);
+            Coordinate laniakeaCoordinate = new Coordinate(5460, 2354, 0);
+            Coordinate laniakeaCoordinateCape = new Coordinate(5668, 2138, 0);
+
+            Area area = createAreaAroundCoordinate(laniakeaCoordinate, 1); // Pass 1 as the radius
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+            Area area1 = createAreaAroundCoordinate(laniakeaCoordinateCape, 1); // Pass 1 as the radius
+            Coordinate randomWalkableCoordinate1 = getRandomWalkableCoordinateInArea(area1);
 
             if (!InventoryItemQuery.newQuery(93).name(slayerCape).results().isEmpty()) {
-                if (Movement.traverse(NavPath.resolve(laniakeaCoordinateCape)) == TraverseEvent.State.FINISHED) {
+                if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate1)) == TraverseEvent.State.FINISHED) {
                     log("Teleporting via Slayers Cape.");
                 }
             } else {
-                if (Movement.traverse(NavPath.resolve(laniakeaCoordinate)) == TraverseEvent.State.FINISHED) {
+                if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                     log("Teleporting to Laniakea.");
                 }
             }
         }
+
         if (VarManager.getVarbitValue(9071) >= 30) { // amount of slayer points remaining
 
             log("Skipping task.");
@@ -116,6 +123,21 @@ public class Laniakea {
             shutdown();
         }
         return 0;
+    }
+
+    private static Area createAreaAroundCoordinate(Coordinate center, int radius) {
+        Coordinate topLeft = new Coordinate(center.getX() - radius, center.getY() + radius, center.getZ());
+        Coordinate bottomRight = new Coordinate(center.getX() + radius, center.getY() - radius, center.getZ());
+
+        Area area = new Area.Rectangular(topLeft, bottomRight);
+        log("Created area with top left coordinate: " + topLeft + " and bottom right coordinate: " + bottomRight);
+        return area;
+    }
+
+    private static Coordinate getRandomWalkableCoordinateInArea(Area area) {
+        Coordinate randomCoordinate = area.getRandomWalkableCoordinate();
+        log("Selected random walkable coordinate: " + randomCoordinate);
+        return randomCoordinate;
     }
 }
 

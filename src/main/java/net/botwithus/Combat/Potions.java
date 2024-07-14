@@ -3,20 +3,20 @@ package net.botwithus.Combat;
 import net.botwithus.Slayer.Main;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Item;
-import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.regex.Pattern;
 
-import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Familiar.summonFamiliar;
 import static net.botwithus.Combat.Familiar.useFamiliarForCombat;
 import static net.botwithus.CustomLogger.log;
@@ -33,17 +33,19 @@ public class Potions {
     public static boolean useKwuarmSticks = false;
     public static boolean useLantadymeSticks = false;
     public static boolean useIritSticks = false;
+    public static boolean useAntifirePotion = false;
 
     public static void managePotions(LocalPlayer player) {
         long totalDelay = random.nextLong(1000, 1500);
 
         long aggroCheck = useAggroPots ? useAggression(player) : 0;
+        long antifireCheck = useAntifirePotion ? antifirePotion() : 0;
         long prayerCheck = usePrayerPots ? usePrayerOrRestorePots(player) : 0;
         long overloadCheck = useOverloads ? drinkOverloads(player) : 0;
         long weaponPoisonCheck = useWeaponPoison ? useWeaponPoison(player) : 0;
         long familiarCheck = useFamiliarForCombat ? summonFamiliar() : 0;
 
-        if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L || familiarCheck == 1L) {
+        if (aggroCheck == 1L || prayerCheck == 1L || overloadCheck == 1L || weaponPoisonCheck == 1L || familiarCheck == 1L || antifireCheck == 1L) {
             if (nearestBank) {
                 if (doSlayer) {
                     setSlayerState(Main.SlayerState.WARS_RETREAT);
@@ -243,6 +245,29 @@ public class Potions {
             Backpack.interact("Powder of penance", "Scatter");
             Execution.delayUntil(random.nextLong(2000, 3000), () -> VarManager.getVarbitValue(50841) > 1);
         }
+    }
+
+    private static long antifirePotion() {
+        if (useAntifirePotion && VarManager.getVarbitValue(497) <= 1) {
+            Player localPlayer = Client.getLocalPlayer();
+            if (localPlayer != null) {
+                ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();
+                Item antifireItem = items.stream()
+                        .filter(item -> item.getName() != null && item.getName().toLowerCase().contains("antifire"))
+                        .findFirst()
+                        .orElse(null);
+
+                if (antifireItem != null) {
+                    Backpack.interact(antifireItem.getName(), "Drink");
+                    log("Drinking " + antifireItem.getName());
+                    Execution.delay(random.nextLong(1250, 1500));
+                } else {
+                    log("No Antifire potions found!");
+                    return 1L;
+                }
+            }
+        }
+        return 0;
     }
 
 

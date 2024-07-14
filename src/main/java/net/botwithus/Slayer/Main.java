@@ -1,14 +1,22 @@
 package net.botwithus.Slayer;
 
+import net.botwithus.Runecrafting.PlayerInfo;
+import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
+import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.characters.PlayerQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
+import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.scene.entities.characters.player.Player;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
@@ -18,27 +26,34 @@ import java.util.List;
 import static ImGui.Skills.CombatImGui.getTasksToSkip;
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Runecrafting.Runecrafting.*;
+import static net.botwithus.Runecrafting.Runecrafting.ScriptState.*;
 import static net.botwithus.Slayer.HandleTask.handleTask;
 import static net.botwithus.Slayer.HandleTask.tasksToSkip;
+import static net.botwithus.Slayer.Jacquelyn.TeleporttoJacquelyn;
 import static net.botwithus.Slayer.Laniakea.TeleporttoLaniakea;
 import static net.botwithus.Slayer.Laniakea.skipTask;
 import static net.botwithus.Slayer.Main.SlayerState.CANCELTASK;
+import static net.botwithus.Slayer.Main.SlayerState.COMBAT;
 import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
+import static net.botwithus.Slayer.WarsRetreat.slayerPointFarming;
 import static net.botwithus.TaskScheduler.bankPin;
-import static net.botwithus.Variables.Variables.clearTargetNames;
-import static net.botwithus.Variables.Variables.nearestBank;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.player;
 
 public class Main {
     public static boolean doSlayer = false;
     public static boolean useBankPin = false;
+    public static boolean hopWorldsForSlayer = false;
 
     public enum SlayerState {
         CHECK,
         WARS_RETREAT,
         LANIAKEA,
+        JACQUELYN,
         RETRIEVETASKINFO,
         CANCELTASK,
         LOGOUT,
@@ -71,9 +86,22 @@ public class Main {
         CHAOSGIANTS,
         AIRUT,
         BLACKDRAGONS,
+        CAMELWARRIORS,
         DEATHSOFFICE,
         COMBAT,
         BANK,
+        BATS,
+        BIRDS,
+        CAVEBUGS,
+        CAVESLIME,
+        COWS,
+        FROGS,
+        GHOSTS,
+        GOBLINS,
+        RATS,
+        SKELETONS,
+        SPIDERS,
+        ZOMBIES,
 
     }
 
@@ -97,6 +125,36 @@ public class Main {
 
         switch (slayerState) {
             case COMBAT:
+                checkForOtherPlayersAndHopWorldSlayer();
+
+                if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
+                    if (slayerPointFarming) {
+                        int varValue = VarManager.getVarValue(VarDomainType.PLAYER, 10077);
+                        int lastDigit = varValue % 10;
+                        if (lastDigit >= 0 && lastDigit <= 8) {
+                            log("Waiting for combat to end, then Teleporting to Jacquelyn.");
+                            clearTargetNames();
+                            boolean isOutOfCombat = Execution.delayUntil( random.nextLong(25000, 30000), () -> !player.inCombat());
+                            if (!isOutOfCombat) {
+                                log("Player is still in combat after 25-30 seconds. Moving to Wars Retreat.");
+                                setSlayerState(Main.SlayerState.WARS_RETREAT);
+                                return;
+                            }
+                            DeActivateMagicPrayer();
+                            DeActivateRangedPrayer();
+                            DeActivateMeleePrayer();
+                            DeHandleSoulSplit();
+                            lavaStrykewyrms = false;
+                            iceStrykewyrms = false;
+                            WarsRetreat.camelWarriors = false;
+                            setSlayerState(Main.SlayerState.JACQUELYN);
+                            clearTargetNames();
+                        } else if (lastDigit == 9) {
+                            setSlayerState(Main.SlayerState.WARS_RETREAT);
+                        }
+                    }
+                }
+
                 if (nearestBank && Backpack.isFull()) {
                     log("Backpack is full. Banking.");
                     setSlayerState(SlayerState.WARS_RETREAT);
@@ -105,7 +163,7 @@ public class Main {
                 if (death != null) {
                     setSlayerState(SlayerState.DEATHSOFFICE);
                 }
-                if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
+                if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0 && !slayerPointFarming) {
                     slayerState = SlayerState.CHECK;
                     log("Task completed.");
                 } else {
@@ -124,6 +182,10 @@ public class Main {
                 log("Laniakea state.");
                 TeleporttoLaniakea();
                 break;
+            case JACQUELYN:
+                log("Jacquelyn state.");
+                TeleporttoJacquelyn();
+                break;
             case RETRIEVETASKINFO:
                 log("Handle Task state.");
                 handleTask(player);
@@ -131,6 +193,10 @@ public class Main {
             case CANCELTASK:
                 log("Cancel Task state.");
                 skipTask();
+                break;
+            case CAMELWARRIORS:
+                log("Camel Warriors state.");
+                camelWarriors(player);
                 break;
             case CREATURESOFTHELOSTGROVE:
                 log("Creatures of the Lost Grove state.");
@@ -248,6 +314,54 @@ public class Main {
                 log("Black Dragons state.");
                 blackDragon(player);
                 break;
+            case BATS:
+                log("Bats state.");
+                bats(player);
+                break;
+            case BIRDS:
+                log("Birds state.");
+                birds(player);
+                break;
+            case CAVEBUGS:
+                log("Cave Bugs state.");
+                caveBugs(player);
+                break;
+            case CAVESLIME:
+                log("Cave Slime state.");
+                caveSlime(player);
+                break;
+            case COWS:
+                log("Cows state.");
+                cows(player);
+                break;
+            case FROGS:
+                log("Frogs state.");
+                frogs(player);
+                break;
+            case GHOSTS:
+                log("Ghosts state.");
+                ghosts(player);
+                break;
+            case GOBLINS:
+                log("Goblins state.");
+                goblins(player);
+                break;
+            case RATS:
+                log("Rats state.");
+                rats(player);
+                break;
+            case SKELETONS:
+                log("Skeletons state.");
+                skeletons(player);
+                break;
+            case SPIDERS:
+                log("Spiders state.");
+                spiders(player);
+                break;
+            case ZOMBIES:
+                log("Zombies state.");
+                zombies(player);
+                break;
             case DEATHSOFFICE:
                 log("Deaths Office state.");
                 interactWithDeath();
@@ -289,6 +403,94 @@ public class Main {
             log("Task completed.");
         }
     }
+
+    public static void checkForOtherPlayersAndHopWorldSlayer() {
+        if (slayerState.equals(COMBAT) && hopWorldsForSlayer) {
+            if (player == null) {
+                log("Local player not found.");
+                return;
+            }
+            String localPlayerName = player.getName();
+            Coordinate localPlayerLocation = player.getCoordinate();
+
+            PlayerQuery query = PlayerQuery.newQuery();
+
+            EntityResultSet<Player> players = query.results();
+
+            boolean otherPlayersPresent = players.stream()
+                    .filter(player -> !player.getName().equals(localPlayerName))
+                    .filter(player -> {
+                        Coordinate playerLocation = player.getCoordinate();
+                        return playerLocation != null && localPlayerLocation.distanceTo(playerLocation) <= 25.0D;
+                    })
+                    .peek(player -> {
+                        log("Found player within distance: " + player.getName());
+                        playerInfo.add(new PlayerInfo(player.getName(), System.currentTimeMillis(), LoginManager.getWorld()));
+                    })
+                    .findAny()
+                    .isPresent();
+
+            if (otherPlayersPresent) {
+                ActionBar.useAbility("War's Retreat Teleport");
+                LocalPlayer player = Client.getLocalPlayer();
+                Execution.delay(random.nextLong(6500, 7500));
+                Execution.delayUntil(15000, () -> !player.inCombat());
+                log("Other players found within distance. Initiating world hop.");
+                int currentWorld = LoginManager.getWorld();
+                int randomMembersWorldsIndex;
+                do {
+                    randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                } while (membersWorlds[randomMembersWorldsIndex] == currentWorld);
+                HopWorldsSlayer(membersWorlds[randomMembersWorldsIndex]);
+                log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
+                setSlayerState(SlayerState.WARS_RETREAT);
+            }
+        }
+    }
+
+    public static void HopWorldsSlayer(int world) {
+        if (Interfaces.isOpen(1431)) {
+            log("[Slayer] Interacting with Settings Icon.");
+            component(1, 7, 93782016);
+            boolean hopperOpen = Execution.delayUntil(random.nextLong(5012, 9998), () -> Interfaces.isOpen(1433));
+            log("Settings Menu Open: " + hopperOpen);
+            Execution.delay(random.nextLong(642, 786));
+
+            if (hopperOpen) {
+                Component HopWorldsMenu = ComponentQuery.newQuery(1433).componentIndex(65).results().first();
+                if (HopWorldsMenu != null) {
+                    Execution.delay(random.nextLong(642, 786));
+                    component(1, -1, 93913153);
+                    log("[Slayer] Hop Worlds Button Clicked.");
+                    boolean worldSelectOpen = Execution.delayUntil(random.nextLong(5014, 9758), () -> Interfaces.isOpen(1587));
+
+                    if (worldSelectOpen) {
+                        log("[Slayer] World Select Interface Open.");
+                        Execution.delay(random.nextLong(642, 786));
+                        component(2, world, 104005640);
+                        log("[Slayer] Selected World: " + world);
+
+                        if (Client.getGameState() == Client.GameState.LOGGED_IN && player != null) {
+                            Execution.delay(random.nextLong(7548, 9879));
+                            log("[Slayer] Resuming script.");
+                        } else {
+                            log("[Slayer] Failed to resume script. GameState is not LOGGED_IN or player is null.");
+                        }
+                    } else {
+                        log("[Slayer] Failed to open World Select Interface.");
+                    }
+                } else {
+                    log("[Slayer] Failed to find Hop Worlds Menu.");
+                }
+            } else {
+                log("[Slayer] Failed to open hopper. Retrying...");
+                HopWorldsSlayer(world);
+            }
+        } else {
+            log("[Slayer] Interface 1431 is not open.");
+        }
+    }
+
 
     private static void interactWithDeath() {
         Npc death = NpcQuery.newQuery().name("Death").results().nearest();

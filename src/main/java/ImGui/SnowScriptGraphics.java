@@ -1,12 +1,17 @@
 package ImGui;
 
 import net.botwithus.*;
+import net.botwithus.Slayer.NPCs;
+import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.ScenePosition;
 import net.botwithus.rs3.imgui.*;
+import net.botwithus.rs3.script.ImmutableScript;
 import net.botwithus.rs3.script.ScriptConsole;
+import net.botwithus.rs3.script.ScriptController;
 import net.botwithus.rs3.script.ScriptGraphicsContext;
 import net.botwithus.SnowsScript;
+import net.botwithus.rs3.script.events.PropertyUpdateRequestEvent;
 
 
 import java.awt.*;
@@ -18,7 +23,6 @@ import java.util.List;
 import static ImGui.CentreButton.createCenteredButton;
 import static ImGui.Skills.ArchaeologyImGui.renderArchaeology;
 import static ImGui.Skills.BottomChild.renderBottom;
-import static ImGui.Skills.CombatImGui.lootBasedonCost;
 import static ImGui.Skills.CombatImGui.renderCombat;
 import static ImGui.Skills.CookingImGui.renderCooking;
 import static ImGui.Skills.DivinationImGui.renderDivination;
@@ -29,7 +33,6 @@ import static ImGui.Skills.MiscImGui.renderMisc;
 import static ImGui.Skills.RunecraftingImGui.renderRunecrafting;
 import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
-import static ImGui.Stopwatch.start;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
@@ -43,14 +46,14 @@ import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
-import static net.botwithus.SnowsScript.*;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.rs3.script.ScriptController.getActiveScript;
 
 public class SnowScriptGraphics extends ScriptGraphicsContext {
 
     SnowsScript script;
-    public Instant startTime;
 
+    public Instant startTime;
 
 
     public SnowScriptGraphics(ScriptConsole scriptConsole, SnowsScript script) {
@@ -59,13 +62,23 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         this.startTime = Instant.now();
     }
 
-
-    public static void setScriptStatus(boolean status) {
-        ScriptisOn = status;
+    public void setActive(String name, boolean active) {
+        ImmutableScript activeScript = getActiveScript();
+        if (activeScript == null) {
+            log("No active script to set active");
+        } else {
+            ImmutableScript owner = ScriptController.getScripts().stream()
+                    .filter(script -> script.getName().equals(name))
+                    .findFirst()
+                    .orElse(null);
+            if(owner == null) {
+                log("No script found with name: " + name);
+                return;
+            }
+            EventBus.EVENT_BUS.publish(owner, new PropertyUpdateRequestEvent(activeScript, "isActive", Boolean.toString(active)));
+            log("Script " + name + " set to " + (active ? "active" : "inactive"));
+        }
     }
-
-
-
 
 
 
@@ -93,7 +106,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         }
 
         float columnWidth = 180;
-        float childWidth = columnWidth - 5;
+        float childWidth = columnWidth - 10;
 
         if (ImGui.Begin("AIO Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue() | ImGuiWindowFlag.NoCollapse.getValue() | ImGuiWindowFlag.NoTitleBar.getValue())) {
             ImGui.SetWindowSize((float) 610, (float) 510);
@@ -107,7 +120,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 float textWidth1;
                 float padding;
 
-                buttonText = ScriptisOn ? "Stop Script" : "Start Script";
+                /*buttonText = ScriptisOn ? "Stop Script" : "Start Script";
                 textWidth1 = ImGui.CalcTextSize(buttonText).getX();
                 padding = (childWidth - textWidth1) / 2;
                 ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding, 15);
@@ -118,17 +131,18 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
                         ScriptisOn = false;
 
-                        // Stop the stopwatch when the script is not running
+
+
                         Stopwatch.stop();
                     } else {
                         setBotState(BotState.SKILLING);
                         startTime = Instant.now();
                         ScriptisOn = true;
 
-                        // Start the stopwatch when the script is running
                         Stopwatch.start();
                     }
-                }
+                }*/
+
                 ImGui.PopStyleVar(1);
                 buttonText = "Save Settings";
                 textWidth1 = ImGui.CalcTextSize(buttonText).getX();
@@ -389,6 +403,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will kill Ice Strykewyrms, will even travel there automatically");
                         }
+                        /*createCenteredButton("Camel Warriors", () -> NPCs.camelWarriors = !NPCs.camelWarriors, NPCs.camelWarriors);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will kill Ice Strykewyrms, will even travel there automatically");
+                        }*/
                         createCenteredButton("Slayer", () -> doSlayer = !doSlayer, doSlayer);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will do Ikeagirl Slayer Tasks, will cancel unknown tasks");
@@ -715,8 +733,6 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                                 "consider leaving a review",
                                 "if you have any bugs or issues",
                                 "please report them on the forum",
-                                "please note, these are just the barebones of some scripts",
-                                "that can be found on the marketplace",
                         };
 
                         for (String line : newLines) {

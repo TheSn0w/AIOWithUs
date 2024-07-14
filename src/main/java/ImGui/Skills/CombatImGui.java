@@ -2,6 +2,7 @@ package ImGui.Skills;
 
 import ImGui.*;
 import net.botwithus.Combat.*;
+import net.botwithus.Slayer.HandleTask;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
 import net.botwithus.rs3.game.Client;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static ImGui.PredefinedStrings.*;
+import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.Familiar.*;
@@ -30,8 +32,9 @@ import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.Combat.Radius.*;
 import static net.botwithus.Combat.Travel.*;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Slayer.Main.doSlayer;
-import static net.botwithus.Slayer.Main.useBankPin;
+import static net.botwithus.Slayer.HandleTask.lastTenTasks;
+import static net.botwithus.Slayer.Main.*;
+import static net.botwithus.Slayer.WarsRetreat.slayerPointFarming;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.TaskScheduler.*;
 import static net.botwithus.Variables.Variables.*;
@@ -44,6 +47,7 @@ public class CombatImGui {
     public static boolean showAllLoot = false;
     public static boolean lootBasedonCost = false;
     public static boolean showSlayerOptions = false;
+
 
 
 
@@ -359,95 +363,131 @@ public class CombatImGui {
                 ImGui.SetTooltip("Will use scrolls on familiar if available, make sure your familiar tab is open");
             }
 
+            ImGui.SetCursorPosX(spacing);
+            useAntifirePotion = ImGui.Checkbox("use Antifire", useAntifirePotion);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will use any type of potion that has Antifire in the name");
+            }
+
+            ImGui.SameLine();
+
+            ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+            useDefensives = ImGui.Checkbox("use Defensives", useDefensives);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("Will use all defensives in combat, very useful when doing slayer tasks, or monsters that hit hard");
+            }
+
             ImGui.SeparatorText("Checkbox Configs");
 
 
             if (handleMultitarget) {
                 ImGui.SetCursorPosX(spacing);
-                ImGui.SetItemWidth(110.0F);
 
+                ImGui.SetItemWidth(225.0F);
                 int displayedHealthThreshold = (int) (getHealthThreshold() * 100);
-                int inputHealthThreshold = ImGui.InputInt("target Threshold", displayedHealthThreshold);
-                double newHealthThreshold = inputHealthThreshold / 100.0;
+
+                setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 0);
+                int newDisplayedHealthThreshold = ImGui.Slider("Health Threshold", displayedHealthThreshold, 0, 100, 1);
+
+
+                double newHealthThreshold = newDisplayedHealthThreshold / 100.0;
 
 
                 if (newHealthThreshold != getHealthThreshold()) {
                     setHealthThreshold(newHealthThreshold);
-                    ScriptConsole.println("Health threshold changed to: " + newHealthThreshold);
+                    log("Health threshold changed to: " + newHealthThreshold);
                 }
-                setHealthThreshold(inputHealthThreshold / 100.0);
+
                 if (getHealthThreshold() < 0.0) {
                     setHealthThreshold(0.0);
                 } else if (getHealthThreshold() > 1.0) {
                     setHealthThreshold(1.0);
                 }
+                ImGui.PopStyleColor(1);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Choose NPC % to find another target to attack");
+                }
             }
-
-            if (lootBasedonCost) {
-                ImGui.SetItemWidth(110.0F);
-                long inputCostThreshold = getCostThreshold();
-                if (ImGui.Button("-10K")) {
-                    inputCostThreshold -= 10000;
-                }
-                ImGui.SameLine();
-                ImGui.Text(String.format("%dK", inputCostThreshold / 1000));
-                ImGui.SameLine();
-                if (ImGui.Button("+10K")) {
-                    inputCostThreshold += 10000;
-                }
-                setCostThreshold(inputCostThreshold);
-                if (getCostThreshold() < 0) {
-                    setCostThreshold(0);
-                } else if (getCostThreshold() > 10000000) { // assuming 1000000 as the maximum cost threshold
-                    setCostThreshold(10000000);
-                }
-                ImGui.SameLine();
-                ImGui.Text("Cost Threshold");
-                ImGui.Separator();
-            }
-
             if (useVolleyofSouls) {
                 ImGui.SetCursorPosX(spacing);
-                ImGui.SetItemWidth(85.0F);
-                VolleyOfSoulsThreshold = ImGui.InputInt("Volley Stacks", VolleyOfSoulsThreshold);
+                ImGui.SetItemWidth(225.0F);
+
+                // Get the current VolleyOfSoulsThreshold
+                int displayedVolleyOfSoulsThreshold = VolleyOfSoulsThreshold;
+                setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 0);
+
+                // Use the ImGui slider to adjust the VolleyOfSoulsThreshold
+                int newDisplayedVolleyOfSoulsThreshold = ImGui.Slider("Volley Stacks", displayedVolleyOfSoulsThreshold, 0, 5, 1);
+
+                // Check if the VolleyOfSoulsThreshold has changed and set the new value
+                if (newDisplayedVolleyOfSoulsThreshold != VolleyOfSoulsThreshold) {
+                    VolleyOfSoulsThreshold = newDisplayedVolleyOfSoulsThreshold;
+                    log("Volley Stacks threshold changed to: " + VolleyOfSoulsThreshold);
+                }
+
+                ImGui.PopStyleColor(1);
+
+                // Show tooltip when hovered
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Stacks to cast at");
                 }
-                if (VolleyOfSoulsThreshold < 0) {
-                    VolleyOfSoulsThreshold = 0;
-                } else if (VolleyOfSoulsThreshold > 5) {
-                    VolleyOfSoulsThreshold = 5;
-                }
             }
+
             if (useWeaponSpecialAttack) {
-                ImGui.SetItemWidth(85.0F);
-                NecrosisStacksThreshold = ImGui.InputInt("Necrosis Stacks", NecrosisStacksThreshold);
+                ImGui.SetCursorPosX(spacing);
+                ImGui.SetItemWidth(225.0F);
+
+                // Get the current NecrosisStacksThreshold
+                int displayedNecrosisStacksThreshold = NecrosisStacksThreshold;
+                setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 0);
+
+                // Use the ImGui slider to adjust the NecrosisStacksThreshold
+                int newDisplayedNecrosisStacksThreshold = ImGui.Slider("Necrosis Stacks", displayedNecrosisStacksThreshold, 0, 12, 1);
+
+                // Check if the NecrosisStacksThreshold has changed and set the new value
+                if (newDisplayedNecrosisStacksThreshold != NecrosisStacksThreshold) {
+                    NecrosisStacksThreshold = newDisplayedNecrosisStacksThreshold;
+                    log("Necrosis Stacks threshold changed to: " + NecrosisStacksThreshold);
+                }
+
+                ImGui.PopStyleColor(1);
+
+                // Show tooltip when hovered
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Stacks to cast at");
                 }
-                if (NecrosisStacksThreshold < 0) {
-                    NecrosisStacksThreshold = 0;
-                } else if (NecrosisStacksThreshold > 12) {
-                    NecrosisStacksThreshold = 12;
-                }
             }
+
             if (enableRadiusTracking) {
-                ImGui.SetItemWidth(85.0F);
-                int newRadius = ImGui.InputInt("Radius (tiles)", radius);
-                if (newRadius < 0) {
-                    newRadius = 0;
-                } else if (newRadius > 25) {
-                    newRadius = 25;
-                }
-                if (newRadius != radius) {
-                    radius = newRadius;
+                ImGui.SetCursorPosX(spacing);
+                ImGui.SetItemWidth(225.0F);
+
+                // Get the current radius
+                int displayedRadius = radius;
+                setStyleColor(ImGuiCol.FrameBgHovered, 0, 0, 0, 0);
+
+                // Use the ImGui slider to adjust the radius
+                int newDisplayedRadius = ImGui.Slider("Radius", displayedRadius, 0, 25, 1);
+
+                // Check if the radius has changed and set the new value
+                if (newDisplayedRadius != radius) {
+                    radius = newDisplayedRadius;
                     log("Radius distance changed to: " + radius);
                 }
+
+                ImGui.PopStyleColor(1);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Radius to stay within after you set the center");
+                }
+
                 ImGui.SameLine();
+                ImGui.SetItemWidth(50.0F);
                 if (ImGui.Button("Set Center")) {
                     setCenterCoordinate(Client.getLocalPlayer().getCoordinate());
                 }
+
             }
+
             if (showNearbyNPCS) {
                 if (ImGui.Begin("NPCs Nearby", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
                     ImGui.SetWindowSize((float) 610, (float) 225);
@@ -538,6 +578,8 @@ public class CombatImGui {
                     ImGui.SeparatorText("Slayer Statistics");
                     updateAndDisplaySlayerPoints(); // Placeholder for actual function
                     ImGui.SeparatorText("Task Options");
+                    slayerPointFarming = ImGui.Checkbox("Farm Slayer Points", slayerPointFarming);
+                    hopWorldsForSlayer = ImGui.Checkbox("Hop Worlds (BETA) - dont use with Farm slayer", hopWorldsForSlayer);
                     updateTasksToSkip();
 
                     ImGui.End();
@@ -879,20 +921,25 @@ public class CombatImGui {
         String componentText11 = Variables.currentSlayerTask();
         ImGui.Text("Current Task: " + componentText11);
         ImGui.Text("Kills Remaining: " + VarManager.getVarValue(VarDomainType.PLAYER, 183));
+        ImGui.Text("Task Streak: " + VarManager.getVarValue(VarDomainType.PLAYER, 10077));
 
         ImGui.Text("Starting Slayer Points: " + startingSlayerPoints);
         ImGui.Text("Current Slayer Points: " + currentSlayerPoints);
         ImGui.SeparatorText("Slayer Points Earned this Session: " + differenceSlayerPoints);
     }
 
-    private static List<String> tasksToSkip = new ArrayList<>();
+    public static void resetSlayerPoints() {
+        startingSlayerPoints = -1;
+    }
+
+    public static List<String> tasksToSkip = new ArrayList<>();
 
     public static List<String> getTasksToSkip() {
         return tasksToSkip;
     }
 
     public static void updateTasksToSkip() {
-        String[] tasks = {"Choose Skips", "creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms","lava strykewyrms", "greater demons", "mutated jadinkos","corrupted creatures", "iron dragons","steel dragons","adamant dragons", "black dragons", "dragons", "black demons","kal'gerion demons","gargoyles","chaos giants", "strykewyrms", "airut"};
+        String[] tasks = {"Choose Skips", "Camel warrior", "creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms", "lava strykewyrms", "greater demons", "mutated jadinkos", "corrupted creatures", "iron dragons", "steel dragons", "adamant dragons", "black dragons", "dragons", "black demons", "kal'gerion demons", "gargoyles", "chaos giants", "strykewyrms", "airut"};
         NativeInteger selectedItemIndex = new NativeInteger(0);
 
         if (ImGui.Combo("Tasks", selectedItemIndex, tasks)) {
@@ -906,10 +953,47 @@ public class CombatImGui {
             }
         }
 
-        displayTasksToSkip();
+        if (!tasksToSkip.isEmpty()) {
+            if (ImGui.BeginTable("Tasks to Skip", 2, ImGuiWindowFlag.None.getValue())) {
+                ImGui.TableNextRow();
+                ImGui.TableSetupColumn("Task Name", 0);
+                ImGui.TableSetupColumn("Action", 1);
+                ImGui.TableHeadersRow();
+
+                for (String taskName : new ArrayList<>(tasksToSkip)) {
+                    ImGui.TableNextRow();
+                    ImGui.Separator();
+                    ImGui.TableNextColumn();
+                    ImGui.Text(taskName);
+                    ImGui.Separator();
+                    ImGui.TableNextColumn();
+                    if (ImGui.Button("Remove##" + taskName)) {
+                        tasksToSkip.remove(taskName);
+                        log("Task " + taskName + " removed from skip list.");
+                    }
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Click to remove this task");
+                    }
+                }
+                ImGui.EndTable();
+            }
+        }
+        if (ImGui.BeginTable("Last 10 Tasks", 1, ImGuiWindowFlag.None.getValue())) {
+            ImGui.TableSetupColumn("Last 10 Tasks", 0);
+            ImGui.TableHeadersRow();
+
+            for (String task : lastTenTasks) {
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text(task);
+                ImGui.Separator();
+            }
+            ImGui.EndTable();
+        }
     }
 
-    private static void displayTasksToSkip() {
+
+    /*private static void displayTasksToSkip() {
         if (!tasksToSkip.isEmpty()) {
             if (ImGui.BeginTable("Tasks to Skip", 2, ImGuiWindowFlag.None.getValue())) {
                 ImGui.TableNextRow();
@@ -936,6 +1020,19 @@ public class CombatImGui {
             }
         }
     }
+    private static void displayLastTenTasks() {
+        if (ImGui.BeginTable("Last 10 Tasks", 1, ImGuiWindowFlag.None.getValue())) {
+            ImGui.TableSetupColumn("Last 10 Tasks", 0);
+            ImGui.TableHeadersRow();
+
+            for (String task : lastTenTasks) {
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text(task);
+            }
+            ImGui.EndTable();
+        }
+    }*/
 
 
 }

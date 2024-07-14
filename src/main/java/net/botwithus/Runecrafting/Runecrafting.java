@@ -854,7 +854,7 @@ public class Runecrafting {
     }
 
 
-    static int[] membersWorlds = new int[]{
+    public static int[] membersWorlds = new int[]{
            1, 2, 4, 5, 6, 9, 10, 12, 14, 15,
            16, 21, 22, 23, 24, 25, 26, 27, 28, 31,
            32, 35, 36, 37, 39, 40, 42, 44, 45, 46,

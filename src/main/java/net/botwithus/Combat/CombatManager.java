@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static net.botwithus.Combat.Combat.useDefensives;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.Variables.Variables.random;
@@ -126,7 +127,7 @@ public class CombatManager {
         if (player == null) {
             return;
         }
-        if (ActionBar.getCooldown("Threads of Fate") == 0 && player.hasTarget() && player.inCombat()) {
+        if (ActionBar.getCooldown("Threads of Fate") == 0 && player.hasTarget() && player.inCombat() && player.getFollowing() != null) {
             interactWithAbility("Threads of Fate");
             boolean effectConfirmed = Execution.delayUntil(random.nextLong(2000, 3000), () -> ActionBar.getCooldownPrecise("Threads of Fate") != 0);
             if (effectConfirmed) {
@@ -323,6 +324,127 @@ public class CombatManager {
                     }
                 }
             }
+        }
+    }
+
+    private static long lastAbilityUseTime = 0;
+
+    public static void useDefensives() {
+        LocalPlayer player = getLocalPlayer();
+        long currentTime = System.currentTimeMillis();
+        if (useDefensives && currentTime - lastAbilityUseTime >= random.nextLong(7500, 10000)) {
+            if (ActionBar.containsAbility("Barricade") && ActionBar.getCooldownPrecise("Barricade") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() >= 1000) {
+                useBarricade();
+                lastAbilityUseTime = currentTime;
+                return;
+            }
+            if (ActionBar.containsAbility("Devotion") && ActionBar.getCooldownPrecise("Devotion") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() > 500) {
+                useDevotion();
+                lastAbilityUseTime = currentTime;
+                return;
+            }
+            if (ActionBar.containsAbility("Resonance") && ActionBar.getCooldownPrecise("Resonance") == 0 && player.inCombat() && player.hasTarget()) {
+                useResonance();
+                lastAbilityUseTime = currentTime;
+                return;
+            }
+            if (ActionBar.containsAbility("Anticipation") && ActionBar.getCooldownPrecise("Anticipation") == 0 && player.inCombat() && player.hasTarget()) {
+                useAnticipation();
+                lastAbilityUseTime = currentTime;
+                return;
+            }
+            if (ActionBar.containsAbility("Reflect") && ActionBar.getCooldownPrecise("Reflect") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() > 500) {
+                useReflect();
+                lastAbilityUseTime = currentTime;
+                return;
+            }
+            if (ActionBar.containsAbility("Debilitate") && ActionBar.getCooldownPrecise("Debilitate") == 0 && player.inCombat() && player.hasTarget()) {
+                useDebilitate();
+                lastAbilityUseTime = currentTime;
+            }
+        }
+    }
+
+    public static void useReflect() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Reflect") && ActionBar.getCooldownPrecise("Reflect") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() > 500) {
+            ActionBar.useAbility("Reflect");
+            log("[Success] Activated Reflect.");
+            Execution.delay(random.nextLong(1900, 2000));
+        } else {
+            log("[[Caution] ] Failed to activate Reflect.");
+        }
+    }
+    public static void useResonance() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Resonance") && ActionBar.getCooldownPrecise("Resonance") == 0 && player.inCombat() && player.hasTarget()) {
+            ActionBar.useAbility("Resonance");
+            log("[Success] Activated Resonance.");
+            Execution.delay(random.nextLong(1900, 2000));
+        } else {
+            log("[[Caution] ] Failed to activate Resonance.");
+        }
+    }
+
+    public static void useDebilitate() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Debilitate") && ActionBar.getCooldownPrecise("Debilitate") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() > 500) {
+            ActionBar.useAbility("Debilitate");
+            log("[Success] Activated Debilitate.");
+            Execution.delay(random.nextLong(1900, 2000));
+        } else {
+            log("[[Caution] ] Failed to activate Debilitate.");
+        }
+    }
+
+    public static void useDevotion() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Devotion") && ActionBar.getCooldownPrecise("Devotion") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() > 500) {
+            ActionBar.useAbility("Devotion");
+            log("[Success] Activated Devotion.");
+            Execution.delay(random.nextLong(1900, 2000));
+        } else {
+            log("[[Caution] ] Failed to activate Devotion.");
+        }
+    }
+
+    public static void useBarricade() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Barricade") && ActionBar.getCooldownPrecise("Barricade") == 0 && player.inCombat() && player.hasTarget() && player.getAdrenaline() >= 1000) {
+            ActionBar.useAbility("Barricade");
+            log("[Success] Activated Barricade.");
+            Execution.delay(random.nextLong(1900, 2000));
+        } else {
+            log("[[Caution] ] Failed to activate Barricade.");
+        }
+    }
+
+    public static void useAnticipation() {
+        LocalPlayer player = getLocalPlayer();
+        if (player == null) {
+            return;
+        }
+        if (ActionBar.containsAbility("Anticipation") && ActionBar.getCooldownPrecise("Anticipation") == 0 && player.inCombat() && player.hasTarget()) {
+            ActionBar.useAbility("Anticipation");
+            log("[Success] Activated Anticipation.");
+            Execution.delay(random.nextLong(1900, 2000));
+        } else {
+            log("[[Caution] ] Failed to activate Anticipation.");
         }
     }
 }

@@ -6,7 +6,7 @@ import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.actionbar.ActionBar;
-import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
+import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -17,10 +17,12 @@ import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.skills.Skills;
-import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
-import static net.botwithus.Combat.Combat.attackTarget;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.setSlayerState;
@@ -30,6 +32,7 @@ import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class NPCs {
+
 
     public static long lavaStrykewyrms() {
         LocalPlayer player = getLocalPlayer();
@@ -137,10 +140,14 @@ public class NPCs {
         return 0;
     }
 
-    public static long Vinecrawlers(LocalPlayer player) {
+    public static void Vinecrawlers(LocalPlayer player) {
         Coordinate standstoneLocation = new Coordinate(2221, 3056, 0);
         Coordinate standstoneLocation2 = new Coordinate(1374, 5538, 0);
         Coordinate vineCrawlers = new Coordinate(1321, 5607, 0);
+
+        Area area = createAreaAroundCoordinate(vineCrawlers);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         Npc vinecrawler = NpcQuery.newQuery().name("Vinecrawler").results().nearest();
         if (vinecrawler != null) {
             log("Vinecrawler found, proceeding to attack.");
@@ -158,17 +165,16 @@ public class NPCs {
                     log("Standstone inspected, proceeding to Vinecrawler.");
                     if (player.getCoordinate().equals(standstoneLocation2)) {
                         log("Traversing to Vinecrawler location.");
-                        Movement.traverse(NavPath.resolve(vineCrawlers));
+                        Movement.traverse(NavPath.resolve(randomWalkableCoordinate));
                         log("Traversed to Vinecrawler location.");
                         addTargetName("vinecrawler");
+                        handleMultitarget = false;
                         setSlayerState(Main.SlayerState.COMBAT);
                         ActivateMagicPrayer();
-                        return random.nextLong(1000, 2000);
                     }
                 }
             }
         }
-        return 0;
     }
 
     public static void risenGhosts(LocalPlayer player) {
@@ -196,6 +202,7 @@ public class NPCs {
 
         log("Risen ghost found, proceeding to attack.");
         addTargetName("ghost");
+        handleMultitarget = true;
         ActivateMagicPrayer();
         setSlayerState(Main.SlayerState.COMBAT);
     }
@@ -203,6 +210,10 @@ public class NPCs {
     public static void GanodermicCreatures(LocalPlayer player) {
         Coordinate ganodermicLocation = new Coordinate(4634, 5448, 0);
         Npc ganodermicCreature = NpcQuery.newQuery().name("Ganodermic beast").results().nearest();
+
+        Area area = createAreaAroundCoordinate(ganodermicLocation);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (ganodermicCreature != null) {
             log("Ganodermic beast found, proceeding to attack.");
             addTargetName("Ganodermic");
@@ -210,10 +221,11 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Ganodermic beast not found, proceeding to Ganodermic location.");
-            if (Movement.traverse(NavPath.resolve(ganodermicLocation)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 ActivateSoulSplit();
                 log("Traversed to Ganodermic location.");
                 addTargetName("Ganodermic");
+                handleMultitarget = true;
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -224,7 +236,6 @@ public class NPCs {
         Coordinate DungeonEntrance = new Coordinate(1685, 5288, 1);
         Coordinate delayCoordinate1 = new Coordinate(1661, 5257, 0);
         Coordinate delayCoordinate2 = new Coordinate(1641, 5268, 0);
-        Coordinate delayCoordinate3 = new Coordinate(1651, 5281, 0);
         Coordinate delayCoordinate4 = new Coordinate(1650, 5281, 0);
         Coordinate delayCoordinate5 = new Coordinate(1651, 5281, 0);
         Coordinate delayCoordinate6 = new Coordinate(1652, 5281, 0);
@@ -280,9 +291,11 @@ public class NPCs {
                         log("Barrier not found.");
                     }
                 }
-                Execution.delayUntil(10000, () -> player.getCoordinate().equals(delayCoordinate6) || player.getCoordinate().equals(delayCoordinate5) || player.getCoordinate().equals(delayCoordinate4));            }
+                Execution.delayUntil(10000, () -> player.getCoordinate().equals(delayCoordinate6) || player.getCoordinate().equals(delayCoordinate5) || player.getCoordinate().equals(delayCoordinate4));
+            }
 
             addTargetName("dark beast");
+            handleMultitarget = true;
             ActivateSoulSplit();
             setSlayerState(Main.SlayerState.COMBAT);
         }
@@ -291,7 +304,11 @@ public class NPCs {
 
     public static void crystalShapeshifters(LocalPlayer player) {
         Coordinate worldGateCoords = new Coordinate(2367, 3358, 0);
-        Coordinate crystalShapeshifterCoords = new Coordinate(4143, 6562, 0);
+        Coordinate crystalShapeshifterCoords = new Coordinate(4067, 6616, 0);
+
+        Area area = createAreaAroundCoordinate(crystalShapeshifterCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         Npc shapeshifterResults = NpcQuery.newQuery().name("Crystal Shapeshifter").results().nearest();
 
         if (shapeshifterResults != null) {
@@ -309,11 +326,18 @@ public class NPCs {
                     if (nearestWorldGate != null) {
                         log("World Gate found, proceeding to Enter.");
                         nearestWorldGate.interact("Enter");
-                        Execution.delay(random.nextLong(8000, 10000));
+                        Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(847));
+                        if (Interfaces.isOpen(847)) {
+                            Execution.delay(random.nextLong(1000, 2000));
+                            log("Interface is open, selecting option Yes.");
+                            dialog(0, -1, 55509014);
+                            Execution.delay(random.nextLong(6500, 7500));
+                        }
                         log("Traversing to Crystal shapeshifter location.");
-                        if (Movement.traverse(NavPath.resolve(crystalShapeshifterCoords)) == TraverseEvent.State.FINISHED) {
+                        if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                             addTargetName("crystal shapeshifter");
                             ActivateSoulSplit();
+                            handleMultitarget = false;
                             setSlayerState(Main.SlayerState.COMBAT);
 
                         } else {
@@ -330,6 +354,10 @@ public class NPCs {
     public static void nodonDragonkin(LocalPlayer player) {
         Coordinate dragonkinLocation = new Coordinate(1706, 1248, 0);
         Npc dragonkin = NpcQuery.newQuery().name("Nodon guard").results().nearest();
+
+        Area area = createAreaAroundCoordinate(dragonkinLocation);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (dragonkin != null) {
             log("Nodon dragonkin found, proceeding to attack.");
             addTargetName("nodon");
@@ -337,10 +365,11 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Nodon dragonkin not found, proceeding to Dragonkin location.");
-            if (Movement.traverse(NavPath.resolve(dragonkinLocation)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Dragonkin location.");
                 addTargetName("nodon");
                 ActivateSoulSplit();
+                handleMultitarget = false;
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -354,6 +383,7 @@ public class NPCs {
         Coordinate checkpoints1 = new Coordinate(2404, 6856, 3);
         Coordinate checkpoints2 = new Coordinate(2440, 6869, 1);
         Npc salawaAkhResults = NpcQuery.newQuery().name("Salawa akh").results().nearest();
+
 
         if (salawaAkhResults != null) {
             log("Salawa akh found, proceeding to attack.");
@@ -387,6 +417,7 @@ public class NPCs {
                                                 if (Movement.traverse(NavPath.resolve(checkpoints2)) == TraverseEvent.State.FINISHED) {
                                                     log("Traversed to Checkpoints.");
                                                     addTargetName("Salawa akh");
+                                                    handleMultitarget = true;
                                                     ActivateMeleePrayer();
                                                     setSlayerState(Main.SlayerState.COMBAT);
 
@@ -415,30 +446,13 @@ public class NPCs {
         }
     }
 
-    public static void dinosaurs(LocalPlayer player) {
-        Coordinate dinosaurCoords = new Coordinate(5434, 2532, 0);
-        Npc dinosaurResults = NpcQuery.newQuery().name("Venomous dinosaur").results().nearest();
-
-        if (dinosaurResults != null) {
-            log("Venomous dinosaur found, proceeding to attack.");
-            addTargetName("dinsosaur");
-            ActivateMeleePrayer();
-            setSlayerState(Main.SlayerState.COMBAT);
-        } else {
-            log("Venomous dinosaur not found, proceeding to Dinosaur location.");
-            if (Movement.traverse(NavPath.resolve(dinosaurCoords)) == TraverseEvent.State.FINISHED) {
-                log("Traversed to Dinosaur location.");
-                addTargetName("dinsosaur");
-                ActivateMeleePrayer();
-                setSlayerState(Main.SlayerState.COMBAT);
-
-            }
-        }
-    }
 
     public static void mithrilDragons(LocalPlayer player) {
         Coordinate MithrilDragonCoords = new Coordinate(1765, 5337, 1);
         Npc mithrils = NpcQuery.newQuery().name("Mithril dragon").results().nearest();
+
+        Area area = createAreaAroundCoordinate(MithrilDragonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
 
         if (mithrils != null) {
             log("Mithril dragon found, proceeding to attack.");
@@ -447,9 +461,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Mithril dragon not found, proceeding to Mithril dragon location.");
-            if (Movement.traverse(NavPath.resolve(MithrilDragonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Mithril dragon location.");
                 addTargetName("mithril");
+                handleMultitarget = false;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
@@ -461,6 +476,9 @@ public class NPCs {
         Coordinate abyssalDemonCoords = new Coordinate(3230, 3654, 0);
         Npc abyssalDemonResults = NpcQuery.newQuery().name("Abyssal demon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(abyssalDemonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (abyssalDemonResults != null) {
             log("Abyssal demon found, proceeding to attack.");
             addTargetName("demon");
@@ -468,9 +486,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Abyssal demon not found, proceeding to Abyssal demon location.");
-            if (Movement.traverse(NavPath.resolve(abyssalDemonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Abyssal demon location.");
                 addTargetName("demon");
+                handleMultitarget = true;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
@@ -482,15 +501,19 @@ public class NPCs {
         Coordinate rorariusCoords = new Coordinate(1110, 598, 1);
         Npc rorarius = NpcQuery.newQuery().name("Rorarius").results().nearest();
 
+        Area area = createAreaAroundCoordinate(rorariusCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (rorarius != null) {
             addTargetName("rorarius");
             ActivateSoulSplit();
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Rorarius not found, proceeding to Rorarius location.");
-            if (Movement.traverse(NavPath.resolve(rorariusCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Rorarius location.");
                 addTargetName("rorarius");
+                handleMultitarget = true;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -501,6 +524,9 @@ public class NPCs {
         Coordinate kalphiteCoords = new Coordinate(2995, 1624, 0);
         Npc kalphites = NpcQuery.newQuery().name("Exiled kalphite guardian").results().nearest();
 
+        Area area = createAreaAroundCoordinate(kalphiteCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (kalphites != null) {
             log("Kalphite guardian found, proceeding to attack.");
             addTargetName("kalphite");
@@ -508,9 +534,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Kalphite not found, proceeding to Kalphites location.");
-            if (Movement.traverse(NavPath.resolve(kalphiteCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Kalphite guardian location.");
                 addTargetName("kalphite");
+                handleMultitarget = true;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
@@ -522,6 +549,9 @@ public class NPCs {
         Coordinate elvesCoords = new Coordinate(2193, 3325, 1);
         Npc iorwerthElves = NpcQuery.newQuery().option("Attack").results().nearest();
 
+        Area area = createAreaAroundCoordinate(elvesCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (iorwerthElves != null) {
             log("Iorwerth elves found, proceeding to attack.");
             addTargetName("iorwerth");
@@ -529,10 +559,11 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Iorwerth elves not found, proceeding to Iorwerth elves location.");
-            if (Movement.traverse(NavPath.resolve(elvesCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Iorwerth elves location.");
                 addTargetName("iorwerth");
                 ActivateSoulSplit();
+                handleMultitarget = false;
                 setSlayerState(Main.SlayerState.COMBAT);
 
             }
@@ -562,6 +593,7 @@ public class NPCs {
                         nearestBarrier.interact("Enter");
                         Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(shadowCreaturesCoords));
                         addTargetName("shadow");
+                        handleMultitarget = false;
                         ActivateSoulSplit();
                         setSlayerState(Main.SlayerState.COMBAT);
 
@@ -646,6 +678,7 @@ public class NPCs {
                         log("No specific prayer for " + targetNpcName);
                         break;
                 }
+                handleMultitarget = false;
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -656,6 +689,9 @@ public class NPCs {
         Coordinate greaterDemonCoords = new Coordinate(3160, 3685, 0);
         Npc greaterDemons = NpcQuery.newQuery().name("Greater demon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(greaterDemonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (greaterDemons != null) {
             log("Greater demon found, proceeding to attack.");
             addTargetName("Greater demon");
@@ -663,10 +699,11 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Greater demon not found, proceeding to Greater demon location.");
-            if (Movement.traverse(NavPath.resolve(greaterDemonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Greater demon location.");
                 addTargetName("Greater demon");
                 ActivateSoulSplit();
+                handleMultitarget = true;
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -676,6 +713,9 @@ public class NPCs {
         Coordinate mutatedJadinkosCoords = new Coordinate(3057, 9243, 0);
         Npc mutatedJadinkos = NpcQuery.newQuery().name("Mutated jadinko male").results().nearest();
 
+        Area area = createAreaAroundCoordinate(mutatedJadinkosCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (mutatedJadinkos != null) {
             log("Mutated jadinko found, proceeding to attack.");
             addTargetName("jadinko");
@@ -683,10 +723,11 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Mutated jadinko not found, proceeding to Mutated jadinko location.");
-            if (Movement.traverse(NavPath.resolve(mutatedJadinkosCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Mutated jadinko location.");
                 addTargetName("jadinko");
                 ActivateSoulSplit();
+                handleMultitarget = true;
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
@@ -718,6 +759,9 @@ public class NPCs {
         Coordinate corruptedScorpionCoords = new Coordinate(2384, 6818, 3);
         Npc corruptedScorpion = NpcQuery.newQuery().name("Corrupted scorpion").results().nearest();
 
+        Area area = createAreaAroundCoordinate(corruptedScorpionCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (corruptedScorpion != null) {
             log("Corrupted scorpion found, proceeding to attack.");
             addTargetName("scorpion");
@@ -735,10 +779,11 @@ public class NPCs {
                         nearestDungeonEntrance.interact("Enter");
                         Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(delayedCoordinate));
                         if (player.getCoordinate().equals(delayedCoordinate)) {
-                            if (Movement.traverse(NavPath.resolve(corruptedScorpionCoords)) == TraverseEvent.State.FINISHED) {
+                            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                                 log("Traversed to Corrupted scorpion location.");
                                 addTargetName("scorpion");
                                 ActivateSoulSplit();
+                                handleMultitarget = true;
                                 setSlayerState(Main.SlayerState.COMBAT);
 
                             }
@@ -757,6 +802,9 @@ public class NPCs {
         Coordinate corruptedScarabCoords = new Coordinate(2384, 6818, 3);
         Npc corruptedScarab = NpcQuery.newQuery().name("Corrupted scarab").results().nearest();
 
+        Area area = createAreaAroundCoordinate(corruptedScarabCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (corruptedScarab != null) {
             log("Corrupted scarab found, proceeding to attack.");
             addTargetName("scarab");
@@ -774,10 +822,11 @@ public class NPCs {
                         nearestDungeonEntrance.interact("Enter");
                         Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(delayedCoordinate));
                         if (player.getCoordinate().equals(delayedCoordinate)) {
-                            if (Movement.traverse(NavPath.resolve(corruptedScarabCoords)) == TraverseEvent.State.FINISHED) {
+                            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                                 log("Traversed to Corrupted scarab location.");
                                 addTargetName("scarab");
                                 ActivateSoulSplit();
+                                handleMultitarget = true;
                                 setSlayerState(Main.SlayerState.COMBAT);
 
                             }
@@ -796,6 +845,9 @@ public class NPCs {
         Coordinate corruptedlizardCoords = new Coordinate(2403, 6841, 3);
         Npc corruptedLizard = NpcQuery.newQuery().name("Corrupted lizard").results().nearest();
 
+        Area area = createAreaAroundCoordinate(corruptedlizardCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (corruptedLizard != null) {
             log("Corrupted lizard found, proceeding to attack.");
             addTargetName("lizard");
@@ -813,9 +865,10 @@ public class NPCs {
                         nearestDungeonEntrance.interact("Enter");
                         Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(delayedCoordinate));
                         if (player.getCoordinate().equals(delayedCoordinate)) {
-                            if (Movement.traverse(NavPath.resolve(corruptedlizardCoords)) == TraverseEvent.State.FINISHED) {
+                            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                                 log("Traversed to Corrupted lizard location.");
                                 addTargetName("lizard");
+                                handleMultitarget = true;
                                 ActivateSoulSplit();
                                 setSlayerState(Main.SlayerState.COMBAT);
                             }
@@ -835,6 +888,7 @@ public class NPCs {
         Coordinate delayedCoordinate2 = new Coordinate(2405, 6863, 1);
         Coordinate corruptedDustDevilCoords = new Coordinate(2385, 6895, 1);
         Npc corruptedLizard = NpcQuery.newQuery().name("Corrupted dust devil").results().nearest();
+
 
         if (corruptedLizard != null) {
             log("Corrupted dust devil found, proceeding to attack.");
@@ -865,6 +919,7 @@ public class NPCs {
                                             if (Movement.traverse(NavPath.resolve(corruptedDustDevilCoords)) == TraverseEvent.State.FINISHED) {
                                                 log("Traversed to Corrupted Dust devils location.");
                                                 addTargetName("dust");
+                                                handleMultitarget = true;
                                                 ActivateSoulSplit();
                                                 setSlayerState(Main.SlayerState.COMBAT);
                                             }
@@ -888,6 +943,9 @@ public class NPCs {
         Coordinate delayedCoordinate2 = new Coordinate(2405, 6863, 1);
         Coordinate corruptedKalphiteCoords = new Coordinate(2385, 6895, 1);
         Npc corruptedKalphiteMarauder = NpcQuery.newQuery().name("Corrupted kalphite marauder").results().nearest();
+
+        Area area = createAreaAroundCoordinate(corruptedKalphiteCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
 
         if (corruptedKalphiteMarauder != null) {
             log("Corrupted kalphite marauder found, proceeding to attack.");
@@ -915,9 +973,10 @@ public class NPCs {
                                         nearestRope.interact("Climb down");
                                         Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(delayedCoordinate2));
                                         if (player.getCoordinate().equals(delayedCoordinate2)) {
-                                            if (Movement.traverse(NavPath.resolve(corruptedKalphiteCoords)) == TraverseEvent.State.FINISHED) {
+                                            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                                                 log("Traversed to Corrupted kalphite marauder location.");
                                                 addTargetName("kalphite");
+                                                handleMultitarget = true;
                                                 ActivateSoulSplit();
                                                 setSlayerState(Main.SlayerState.COMBAT);
                                             }
@@ -971,6 +1030,7 @@ public class NPCs {
                                             if (Movement.traverse(NavPath.resolve(corruptedWorkerCoords)) == TraverseEvent.State.FINISHED) {
                                                 log("Traversed to Corrupted worker location.");
                                                 addTargetName("worker");
+                                                handleMultitarget = true;
                                                 ActivateSoulSplit();
                                                 setSlayerState(Main.SlayerState.COMBAT);
 
@@ -992,6 +1052,9 @@ public class NPCs {
         Coordinate irondragonCoords = new Coordinate(2716, 9459, 0);
         Npc ironDragon = NpcQuery.newQuery().name("Iron dragon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(irondragonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (ironDragon != null) {
             log("Iron dragon found, proceeding to attack.");
             addTargetName("Iron dragon");
@@ -999,9 +1062,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Iron dragon not found, proceeding to Iron dragon location.");
-            if (Movement.traverse(NavPath.resolve(irondragonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Iron dragon location.");
                 addTargetName("Iron dragon");
+                handleMultitarget = false;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1012,6 +1076,9 @@ public class NPCs {
         Coordinate steeldragonCoords = new Coordinate(2716, 9459, 0);
         Npc steelDragon = NpcQuery.newQuery().name("Steel dragon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(steeldragonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (steelDragon != null) {
             log("Steel dragon found, proceeding to attack.");
             addTargetName("Steel dragon");
@@ -1019,9 +1086,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Steel dragon not found, proceeding to Steel dragon location.");
-            if (Movement.traverse(NavPath.resolve(steeldragonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Steel dragon location.");
                 addTargetName("Steel dragon");
+                handleMultitarget = false;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1032,6 +1100,9 @@ public class NPCs {
         Coordinate steeldragonCoords = new Coordinate(4512, 6034, 0);
         Npc adamantDragon = NpcQuery.newQuery().name("Adamant dragon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(steeldragonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (adamantDragon != null) {
             log("Adamant dragon found, proceeding to attack.");
             addTargetName("Adamant dragon");
@@ -1039,9 +1110,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Adamant dragon not found, proceeding to Adamant dragon location.");
-            if (Movement.traverse(NavPath.resolve(steeldragonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Adamant dragon location.");
                 ActivateSoulSplit();
+                handleMultitarget = false;
                 addTargetName("Adamant dragon");
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1052,6 +1124,9 @@ public class NPCs {
         Coordinate blackDemonCoords = new Coordinate(2867, 9778, 0);
         Npc blackDemon = NpcQuery.newQuery().name("Black demon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(blackDemonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (blackDemon != null) {
             log("Black demon found, proceeding to attack.");
             addTargetName("Black demon");
@@ -1059,9 +1134,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Black demon not found, proceeding to Black demon location.");
-            if (Movement.traverse(NavPath.resolve(blackDemonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Black demon location.");
                 addTargetName("Black demon");
+                handleMultitarget = true;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1072,6 +1148,9 @@ public class NPCs {
         Coordinate kalgerionDemonCoords = new Coordinate(1297, 1287, 0);
         Npc kalgerionDemon = NpcQuery.newQuery().name("Kal'gerion demon").results().nearest();
 
+        Area area = createAreaAroundCoordinate(kalgerionDemonCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (kalgerionDemon != null) {
             log("Kal'gerion demon found, proceeding to attack.");
             addTargetName("demon");
@@ -1079,9 +1158,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Kal'gerion demon not found, proceeding to Kal'gerion demon location.");
-            if (Movement.traverse(NavPath.resolve(kalgerionDemonCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Kal'gerion demon location.");
                 addTargetName("demon");
+                handleMultitarget = false;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
 
@@ -1092,6 +1172,11 @@ public class NPCs {
     public static void gargoyles(LocalPlayer player) {
         Coordinate gargoyleCoords = new Coordinate(3441, 3565, 2);
         Npc gargoyle = NpcQuery.newQuery().name("Gargoyle").results().nearest();
+
+        Area area = createAreaAroundCoordinate(gargoyleCoords);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+
         if (gargoyle != null) {
             log("Gargoyle found, proceeding to attack.");
             addTargetName("Gargoyle");
@@ -1099,9 +1184,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Gargoyle not found, proceeding to Gargoyle location.");
-            if (Movement.traverse(NavPath.resolve(gargoyleCoords)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Gargoyle location.");
                 addTargetName("Gargoyle");
+                handleMultitarget = true;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1140,6 +1226,7 @@ public class NPCs {
                                         Execution.delay(random.nextLong(4000, 5000));
                                         log("Traversed to Chaos giant location.");
                                         addTargetName("Chaos Giant");
+                                        handleMultitarget = false;
                                         ActivateSoulSplit();
                                         setSlayerState(Main.SlayerState.COMBAT);
 
@@ -1161,6 +1248,9 @@ public class NPCs {
         Coordinate airutCoord = new Coordinate(2274, 3617, 0);
         Npc airut = NpcQuery.newQuery().name("Airut").results().nearest();
 
+        Area area = createAreaAroundCoordinate(airutCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         if (airut != null) {
             log("Airut found, proceeding to attack.");
             addTargetName("Airut");
@@ -1168,9 +1258,10 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Airut not found, proceeding to Airut location.");
-            if (Movement.traverse(NavPath.resolve(airutCoord)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Airut location.");
                 addTargetName("Airut");
+                handleMultitarget = true;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1179,6 +1270,10 @@ public class NPCs {
 
     public static void blackDragon(LocalPlayer player) {
         Coordinate blackDragonCoord = new Coordinate(2834, 9823, 0);
+
+        Area area = createAreaAroundCoordinate(blackDragonCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
         Npc blackDragon = NpcQuery.newQuery().name("Black dragon").results().nearest();
 
         if (blackDragon != null) {
@@ -1188,14 +1283,425 @@ public class NPCs {
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Black dragon not found, proceeding to Black dragon location.");
-            if (Movement.traverse(NavPath.resolve(blackDragonCoord)) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Black dragon location.");
                 addTargetName("black");
+                handleMultitarget = false;
                 ActivateSoulSplit();
                 setSlayerState(Main.SlayerState.COMBAT);
             }
         }
     }
+
+    public static void dinosaurs(LocalPlayer player) {
+        int playerSlayerLevel = Skills.SLAYER.getSkill().getLevel();
+
+        log("Slayer level: " + playerSlayerLevel);
+
+        // NPC data
+        class NpcData {
+            final int slayerRequirement;
+            final Coordinate coordinate;
+
+            NpcData(int slayerRequirement, Coordinate coordinate) {
+                this.slayerRequirement = slayerRequirement;
+                this.coordinate = coordinate;
+            }
+        }
+
+        Map<String, NpcData> npcDataMap = new LinkedHashMap<>();
+        npcDataMap.put("Feral dinosaur", new NpcData(90, new Coordinate(5520, 2515, 0)));
+        npcDataMap.put("Brutish dinosaur", new NpcData(99, new Coordinate(5527, 2544, 0)));
+        npcDataMap.put("Venomous dinosaur", new NpcData(105, new Coordinate(5432, 2529, 0)));
+        npcDataMap.put("Ripper dinosaur", new NpcData(114, new Coordinate(5679, 2188, 0)));
+
+        String targetNpcName = null;
+        NpcData targetNpcData = null;
+        for (Map.Entry<String, NpcData> entry : npcDataMap.entrySet()) {
+            if (playerSlayerLevel >= entry.getValue().slayerRequirement) {
+                targetNpcName = entry.getKey();
+                targetNpcData = entry.getValue();
+            }
+        }
+
+        if (targetNpcName == null) {
+            log("No NPCs available for your Slayer level.");
+            return;
+        }
+
+        String finalTargetNpcName = targetNpcName;
+        Runnable handleNpc = () -> {
+            addTargetName(finalTargetNpcName);
+            ActivateMeleePrayer();
+            handleMultitarget = true;
+            setSlayerState(Main.SlayerState.COMBAT);
+        };
+
+        Npc targetNpc = NpcQuery.newQuery().name(targetNpcName).results().nearest();
+        if (targetNpc != null) {
+            log(targetNpcName + " found, proceeding to attack.");
+            handleNpc.run();
+        } else {
+            log(targetNpcName + " not found, proceeding to " + targetNpcName + " location.");
+            if (Movement.traverse(NavPath.resolve(targetNpcData.coordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to " + targetNpcName + " location.");
+                handleNpc.run();
+            }
+        }
+    }
+
+    public static long camelWarriors(LocalPlayer player) {
+        Coordinate camelWarriorCoord = new Coordinate(2834, 9823, 0);
+
+        // Search for the mirage NPCs
+        Npc bloodMirage = NpcQuery.newQuery().name("Blood mirage").results().nearest();
+        Npc shadowMirage = NpcQuery.newQuery().name("Shadow mirage").results().nearest();
+        Npc smokeMirage = NpcQuery.newQuery().name("Smoke mirage").results().nearest();
+
+        Npc targetNpc = null;
+        int lowestHp = Integer.MAX_VALUE;
+
+        // Determine which mirage NPC has the lowest HP
+        if (bloodMirage != null && bloodMirage.getCurrentHealth() < lowestHp) {
+            lowestHp = bloodMirage.getCurrentHealth();
+            targetNpc = bloodMirage;
+        }
+        if (shadowMirage != null && shadowMirage.getCurrentHealth() < lowestHp) {
+            lowestHp = shadowMirage.getCurrentHealth();
+            targetNpc = shadowMirage;
+        }
+        if (smokeMirage != null && smokeMirage.getCurrentHealth() < lowestHp) {
+            lowestHp = smokeMirage.getCurrentHealth();
+            targetNpc = smokeMirage;
+        }
+
+        if (targetNpc != null) {
+            if (!player.hasTarget()) {
+                log(targetNpc.getName() + " with lowest HP found, proceeding to attack.");
+                targetNpc.interact("Attack");
+                Execution.delay(random.nextLong(1000, 1500));
+            } else {
+                return random.nextLong(300, 400);
+            }
+            return 0;
+        } else {
+            List<Npc> camelWarriors = NpcQuery.newQuery().name("Camel Warrior").results().stream().toList();
+            if (!camelWarriors.isEmpty()) {
+                for (Npc camelWarrior : camelWarriors) {
+                    if (camelWarrior.getCurrentHealth() < lowestHp) {
+                        lowestHp = camelWarrior.getCurrentHealth();
+                        targetNpc = camelWarrior;
+                    }
+                }
+                if (targetNpc != null && !player.hasTarget()) {
+                    log("Camel Warrior with lowest HP found, proceeding to attack.");
+                    targetNpc.interact("Attack");
+                    Execution.delay(random.nextLong(1000, 2000));
+                    if (doSlayer) {
+                        ActivateSoulSplit();
+                        setSlayerState(Main.SlayerState.COMBAT);
+                    }
+                } else {
+                    return random.nextLong(300, 400);
+                }
+                return 0;
+            } else {
+                log("No NPCs found, proceeding to Camel Warrior location.");
+                if (Movement.traverse(NavPath.resolve(camelWarriorCoord)) == TraverseEvent.State.FINISHED) { // TODO: Change to Camel Warrior location
+                    log("Traversed to Camel Warrior location.");
+                    if (doSlayer) {
+                        ActivateSoulSplit();
+                        handleMultitarget = false;
+                        setSlayerState(Main.SlayerState.COMBAT);
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+
+    public static void skeletons(LocalPlayer player) {
+        Coordinate skeletonCoord = new Coordinate(4024, 5530, 0);
+        Npc skeleton = NpcQuery.newQuery().name("Skeleton").results().nearest();
+
+
+        if (skeleton != null) {
+            log("Skeleton found, proceeding to attack.");
+            addTargetName("Skeleton");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Skeleton not found, proceeding to Skeleton location.");
+            Area area = createAreaAroundCoordinate(skeletonCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Skeleton location.");
+                addTargetName("Skeleton");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void caveBugs(LocalPlayer player) {
+        Coordinate caveBugCoord = new Coordinate(3181, 9557, 0);
+        Npc caveBug = NpcQuery.newQuery().name("Cave bug").option("Attack").results().nearest();
+
+
+        if (caveBug != null) {
+            log("Cave bug found, proceeding to attack.");
+            addTargetName("cave bug");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Cave bug not found, proceeding to Cave bug location.");
+            Area area = createAreaAroundCoordinate(caveBugCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Cave bug location.");
+                addTargetName("cave bug");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void caveSlime(LocalPlayer player) {
+        Coordinate caveSlimeCoord = new Coordinate(3181, 9557, 0);
+        Npc caveSlime = NpcQuery.newQuery().name("Cave slime").option("Attack").results().nearest();
+
+
+        if (caveSlime != null) {
+            log("Cave slime found, proceeding to attack.");
+            addTargetName("cave slime");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Cave slime not found, proceeding to Cave slime location.");
+            Area area = createAreaAroundCoordinate(caveSlimeCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Cave slime location.");
+                addTargetName("cave slime");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void birds(LocalPlayer player) {
+    Coordinate birdCoord = new Coordinate(3233, 3297, 0);
+    Npc bird = NpcQuery.newQuery().name("Chicken").option("Attack").results().nearest();
+
+    if (bird != null && player.getCoordinate().distanceTo(bird.getCoordinate()) <= 20) {
+        log("Chicken found within 20 tiles, proceeding to attack.");
+        addTargetName("Chicken");
+        setSlayerState(Main.SlayerState.COMBAT);
+    } else {
+        log("Chicken not found or not within 20 tiles, proceeding to Chicken location.");
+        Area area = createAreaAroundCoordinate(birdCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+        if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+            log("Traversed to Chicken location.");
+            addTargetName("Chicken");
+            handleMultitarget = true;
+            setSlayerState(Main.SlayerState.COMBAT);
+        }
+    }
+}
+
+    public static void goblins(LocalPlayer player) {
+    Coordinate goblinCoord = new Coordinate(3247, 3237, 0);
+    Npc goblin = NpcQuery.newQuery().name("Goblin").option("Attack").results().nearest();
+
+
+    if (goblin != null && player.getCoordinate().distanceTo(goblin.getCoordinate()) <= 20) {
+        log("Goblin found within 20 tiles, proceeding to attack.");
+        addTargetName("Goblin");
+        setSlayerState(Main.SlayerState.COMBAT);
+    } else {
+        log("Goblin not found or not within 20 tiles, proceeding to Goblin location.");
+        Area area = createAreaAroundCoordinate(goblinCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+        if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+            log("Traversed to Goblin location.");
+            addTargetName("Goblin");
+            handleMultitarget = true;
+            setSlayerState(Main.SlayerState.COMBAT);
+        }
+    }
+}
+
+    public static void spiders(LocalPlayer player) {
+        Coordinate spiderCoord = new Coordinate(3181, 3180, 0);
+        Npc spider = NpcQuery.newQuery().name("Giant spider").results().nearest();
+
+
+        if (spider != null) {
+            log("spider found, proceeding to attack.");
+            addTargetName("spider");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("spider not found, proceeding to spider location.");
+            Area area = createAreaAroundCoordinate(spiderCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to spider location.");
+                addTargetName("spider");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void cows(LocalPlayer player) {
+        Coordinate cowCoord = new Coordinate(3257, 3276, 0);
+        Npc cow = NpcQuery.newQuery().name("Cow").results().nearest();
+
+
+        if (cow != null && player.getCoordinate().distanceTo(cow.getCoordinate()) <= 20) {
+            log("Cow found within 20 tiles, proceeding to attack.");
+            addTargetName("Cow");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Cow not found or not within 20 tiles, proceeding to Cow location.");
+            Area area = createAreaAroundCoordinate(cowCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Cow location.");
+                addTargetName("Cow");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void bats(LocalPlayer player) {
+        Coordinate batCoord = new Coordinate(4024, 5515, 0);
+        Npc bat = NpcQuery.newQuery().name("Warped bat").results().nearest();
+
+
+        if (bat != null) {
+            log("Warped bat found, proceeding to attack.");
+            addTargetName("Warped bat");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Warped bat not found, proceeding to Warped bat location.");
+            Area area = createAreaAroundCoordinate(batCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Warped bat location.");
+                addTargetName("Warped bat");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void rats(LocalPlayer player) {
+        Coordinate ratCoord = new Coordinate(3181, 3180, 0);
+        Npc rat = NpcQuery.newQuery().name("Giant rat").results().nearest();
+
+
+        if (rat != null) {
+            log("Giant rat found, proceeding to attack.");
+            addTargetName("Giant rat");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Giant rat not found, proceeding to Giant rat location.");
+            Area area = createAreaAroundCoordinate(ratCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Giant rat location.");
+                addTargetName("Giant rat");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void frogs(LocalPlayer player) {
+        Coordinate frogCoord = new Coordinate(3181, 3180, 0);
+        Npc frog = NpcQuery.newQuery().name("Swamp frog").results().nearest();
+
+
+        if (frog != null) {
+            log("Swamp frog found, proceeding to attack.");
+            addTargetName("Swamp frog");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Swamp frog not found, proceeding to Swamp frog location.");
+            Area area = createAreaAroundCoordinate(frogCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Swamp frog location.");
+                addTargetName("Swamp frog");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void ghosts(LocalPlayer player) {
+        Coordinate ghostCoord = new Coordinate(2902, 9849, 0);
+        Npc ghost = NpcQuery.newQuery().name("Ghost").results().nearest();
+
+        if (ghost != null) {
+            log("Ghost found, proceeding to attack.");
+            addTargetName("Ghost");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Ghost not found, proceeding to Ghost location.");
+            Area area = createAreaAroundCoordinate(ghostCoord);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Ghost location.");
+                addTargetName("Ghost");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void zombies(LocalPlayer player) {
+        Coordinate center = new Coordinate(3987, 5554, 0);
+
+        Npc spider = NpcQuery.newQuery().name("Corpse spider").results().nearest();
+
+        if (spider != null) {
+            log("Corpse spider found, proceeding to attack.");
+            addTargetName("Corpse spider");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Corpse spider not found, proceeding to Corpse spider location.");
+            Area area = createAreaAroundCoordinate(center);
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Corpse spider location.");
+                addTargetName("Corpse spider");
+                handleMultitarget = true;
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    private static Area createAreaAroundCoordinate(Coordinate center) {
+        Coordinate topLeft = new Coordinate(center.getX() - 2, center.getY() + 2, center.getZ());
+        Coordinate bottomRight = new Coordinate(center.getX() + 2, center.getY() - 2, center.getZ());
+
+        Area area = new Area.Rectangular(topLeft, bottomRight);
+        log("Created area with top left coordinate: " + topLeft + " and bottom right coordinate: " + bottomRight);
+        return area;
+    }
+
+    private static Coordinate getRandomWalkableCoordinateInArea(Area area) {
+        Coordinate randomCoordinate = area.getRandomWalkableCoordinate();
+        log("Selected random walkable coordinate: " + randomCoordinate);
+        return randomCoordinate;
+    }
+
+
+
+
+
 
 
 }

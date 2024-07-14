@@ -1,6 +1,7 @@
 package net.botwithus.Slayer;
 
 import net.botwithus.rs3.game.Client;
+import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -28,6 +29,9 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class WarsRetreat {
 
+    public static boolean slayerPointFarming = false;
+    public static boolean camelWarriors = false;
+
     public static void bankingLogic() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null)
@@ -36,9 +40,7 @@ public class WarsRetreat {
             } else {
                 Execution.delay(handleCampfire(player));
             }
-        Execution.delay(RandomGenerator.nextInt(1000, 2000));
         log("We're idle!");
-        Execution.delay(RandomGenerator.nextInt(1000, 2000));
     }
 
     private static long useWarsRetreat(LocalPlayer player) {
@@ -51,6 +53,7 @@ public class WarsRetreat {
             DeHandleSoulSplit();
             lavaStrykewyrms = false;
             iceStrykewyrms = false;
+            camelWarriors = false;
             Execution.delay(handleCampfire(player));
         }
         return random.nextLong(1500, 3000);
@@ -60,12 +63,12 @@ public class WarsRetreat {
         if (player != null) {
             EntityResultSet<SceneObject> Campfire = SceneObjectQuery.newQuery().name("Campfire").option("Warm hands").results();
 
-            if (!Campfire.isEmpty()) {
+            if (!Campfire.isEmpty() && ComponentQuery.newQuery(284).spriteId(10931).results().isEmpty()) {
                 SceneObject campfire = Campfire.nearest();
                 if (campfire != null) {
                     campfire.interact("Warm hands");
                     log("Warming hands!");
-                    Execution.delayUntil(10000, () -> {
+                    Execution.delayUntil(random.nextLong(10000, 15000), () -> {
                         ResultSet<Component> results = ComponentQuery.newQuery(284).spriteId(10931).results();
                         return !results.isEmpty();
                     });
@@ -77,6 +80,9 @@ public class WarsRetreat {
                         log("Timed out waiting for campfire buff to be active.");
                         return random.nextLong(1500, 3000);
                     }
+                } else {
+                    log("Campfire is not found.");
+                    Execution.delay(handlePraying(player));
                 }
             } else {
                 log("Campfire buff is already active!");
@@ -125,17 +131,22 @@ public class WarsRetreat {
                 if (bank != null) {
                     bank.interact("Load Last Preset from");
                     log("Loading preset!");
-                    Execution.delay(RandomGenerator.nextInt(3000, 5000));
+                    Execution.delayUntil(random.nextLong(5000, 10000), () -> player.getCoordinate().equals(new Coordinate(3299, 10131, 0)));
                     if (Interfaces.isOpen(759)) {
                         bankPin();
                     }
-
-                    boolean healthFull = Execution.delayUntil(15000, () -> player.getCurrentHealth() == player.getMaximumHealth());
-                    if (healthFull) {
-                        log("Player health is full.");
-                    }
                     if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
-                        setSlayerState(Main.SlayerState.LANIAKEA);
+                        if (slayerPointFarming) {
+                            int varValue = VarManager.getVarValue(VarDomainType.PLAYER, 10077);
+                            int lastDigit = varValue % 10;
+                            if (lastDigit >= 0 && lastDigit <= 8) {
+                                setSlayerState(Main.SlayerState.JACQUELYN);
+                            } else if (lastDigit == 9) {
+                                setSlayerState(Main.SlayerState.LANIAKEA);
+                            }
+                        } else {
+                            setSlayerState(Main.SlayerState.LANIAKEA);
+                        }
                     } else {
                         setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
                     }

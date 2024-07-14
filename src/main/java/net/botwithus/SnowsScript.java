@@ -27,8 +27,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static ImGui.PredefinedStrings.CombatList;
-import static ImGui.Skills.CombatImGui.showAllLoot;
-import static ImGui.Skills.CombatImGui.showCheckboxesWindow;
+import static ImGui.Skills.CombatImGui.*;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.Combat.Banking.bankToWars;
@@ -50,6 +49,7 @@ import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
+import static net.botwithus.Slayer.WarsRetreat.slayerPointFarming;
 import static net.botwithus.TaskScheduler.*;
 import static net.botwithus.Variables.BankInteractions.performBanking;
 import static net.botwithus.Variables.Variables.*;
@@ -192,7 +192,9 @@ public class SnowsScript extends LoopingScript {
 
     @Override
     public void onActivation() {
+        resetSlayerPoints();
         subscribeToEvents();
+        setBotState(BotState.SKILLING);
         super.initialize();
 
         Combat combat = new Combat(this);
@@ -208,7 +210,8 @@ public class SnowsScript extends LoopingScript {
     @Override
     public void onDeactivation() {
         saveConfiguration();
-        unsubscribeFromEvents();
+        unsubscribeAll();
+        setBotState(BotState.IDLE);
         super.onDeactivation();
     }
 
@@ -216,18 +219,20 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
         EventBus.EVENT_BUS.subscribe(this, ServerTickedEvent.class, this::onTickEvent);
-
     }
+
+
 
     public void unsubscribeFromEvents() {
         EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
         EventBus.EVENT_BUS.unsubscribe(this, ServerTickedEvent.class, this::onTickEvent);
-
     }
 
+    public static int tick = 0;
+
     private void onTickEvent(ServerTickedEvent event) {
-        GlobalState.currentTickCount = event.getTicks();
+        tick = event.getTicks();
     }
 
 
@@ -717,13 +722,22 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("pin2", String.valueOf(pin2));
         this.configuration.addProperty("pin3", String.valueOf(pin3));
         this.configuration.addProperty("pin4", String.valueOf(pin4));
-
+        String tasksToSkipSerialized = String.join(",", tasksToSkip);
+        this.configuration.addProperty("TasksToSkip", tasksToSkipSerialized);
+        this.configuration.addProperty("showSlayerOptions", String.valueOf(showSlayerOptions));
+        this.configuration.addProperty("slayerPointFarming", String.valueOf(slayerPointFarming));
 
         this.configuration.save();
     }
 
     public void loadConfiguration() {
         try {
+            String tasksToSkipSerialized = this.configuration.getProperty("TasksToSkip");
+            if (tasksToSkipSerialized != null && !tasksToSkipSerialized.isEmpty()) {
+                tasksToSkip = new ArrayList<>(Arrays.asList(tasksToSkipSerialized.split(",")));
+            }
+            slayerPointFarming = Boolean.parseBoolean(this.configuration.getProperty("slayerPointFarming"));
+            showSlayerOptions = Boolean.parseBoolean(this.configuration.getProperty("showSlayerOptions"));
             useLootAllStackableItems = Boolean.parseBoolean(this.configuration.getProperty("useLootAllStackableItems"));
             doSlayer = Boolean.parseBoolean(this.configuration.getProperty("doSlayer"));
             iceStrykewyrms = Boolean.parseBoolean(this.configuration.getProperty("iceStrykewyrms"));
