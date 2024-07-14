@@ -81,35 +81,24 @@ public class LootManager {
             return;
         }
 
-        if (!groundItems.isEmpty() && !Backpack.isFull()) {
-            GroundItem groundItem = groundItems.stream().min(Comparator.comparingDouble(it -> it.getCoordinate().distanceTo(player.getCoordinate()))).orElse(null);
-            if (groundItem != null) {
-                double distance = groundItem.getCoordinate().distanceTo(player.getCoordinate());
-                if (distance <= 25.0D) {
-                    groundItem.interact("Take");
-                    Execution.delayUntil(RandomGenerator.nextInt(5000, 5500), () -> getLocalPlayer().isMoving());
+        GroundItem groundItem = groundItems.stream().min(Comparator.comparingDouble(it -> it.getCoordinate().distanceTo(player.getCoordinate()))).orElse(null);
+        if (groundItem != null) {
+            if (Backpack.isFull() && (!Backpack.contains(groundItem.getName()) || !isStackable(groundItem.getConfigType()))) {
+                return;
+            }
 
-                    if (getLocalPlayer().isMoving() && groundItem.getCoordinate() != null && Distance.between(getLocalPlayer().getCoordinate(), groundItem.getCoordinate()) > 10) {
-                        Execution.delay(RandomGenerator.nextInt(600, 750));
-                        log("[LootEverything] Used Surge: " + ActionBar.useAbility("Surge"));
-                    }
+            double distance = groundItem.getCoordinate().distanceTo(player.getCoordinate());
+            if (distance <= 25.0D) {
+                if (groundItem.interact("Take")) {
+                    log("[LootEverything] Taking " + groundItem.getName() + "...");
+                }
 
-                    if (groundItem.getCoordinate() != null) {
-                        Execution.delayUntil(RandomGenerator.nextInt(100, 200), () -> Distance.between(getLocalPlayer().getCoordinate(), groundItem.getCoordinate()) <= 10);
-                    }
-
+                boolean interfaceOpened = Execution.delayUntil(random.nextLong(3000, 5000), () -> Interfaces.isOpen(1622));
+                if (!interfaceOpened) {
+                    log("[Error] Loot Inventory did not open. Attempting to interact with ground item again.");
                     if (groundItem.interact("Take")) {
-                        log("[LootEverything] Taking " + groundItem.getName() + "...");
-                        Execution.delay(RandomGenerator.nextInt(600, 700));
-                    }
-
-                    boolean interfaceOpened = Execution.delayUntil(15000, () -> Interfaces.isOpen(1622));
-                    if (!interfaceOpened) {
-                        log("[Error] Interface 1622 did not open. Attempting to interact with ground item again.");
-                        if (groundItem.interact("Take")) {
-                            log("[LootEverything] Attempting to take " + groundItem.getName() + " again...");
-                            Execution.delay(RandomGenerator.nextInt(600, 650));
-                        }
+                        log("[LootEverything] Attempting to take " + groundItem.getName() + " again...");
+                        Execution.delay(RandomGenerator.nextInt(600, 650));
                     }
                 }
             }
@@ -129,8 +118,6 @@ public class LootManager {
         LootInventory.lootAll();
         Execution.delay(random.nextLong(800, 1000));
         log("[LootAll] Looted all items from the inventory.");
-    } else {
-        log("[LootAll] Backpack is full, Cannot loot all items.");
     }
 }
 
