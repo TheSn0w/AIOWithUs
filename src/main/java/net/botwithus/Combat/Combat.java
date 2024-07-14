@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.Slayer.NPCs;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -175,6 +176,7 @@ public class Combat {
                 return;
             }
         }
+        NpcQuery.newQuery().overheadText("your blacklsited").results().isEmpty();
 
         if (useCustomLoot) {
             useCustomLootFromGround();
@@ -285,7 +287,6 @@ public class Combat {
                 .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
                 .orElse(null);
 
-        // If no reachable NPC is found, perform a second query without the isReachable filter
         if (newTarget == null) {
             newTarget = NpcQuery.newQuery()
                     .name(monsterPattern)
@@ -326,7 +327,6 @@ public class Combat {
                 .stream()
                 .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
 
-        // If no reachable NPC is found, perform a second query without the isReachable filter
         if (nearestMonsterOptional.isEmpty()) {
             nearestMonsterOptional = NpcQuery.newQuery()
                     .name(monsterPattern)
@@ -342,34 +342,12 @@ public class Combat {
             boolean attack = monster.interact("Attack");
             if (attack) {
                 log("[Combat] Successfully attacked: " + monster.getName());
+                Execution.delay(random.nextLong(750, 985));
             }
         } else {
             log("[Combat] No valid target found.");
         }
     }
-
-
-    public static void logAndDelay(String message, int minDelay, int maxDelay) {
-        log(message);
-        long delay = random.nextLong(minDelay, maxDelay);
-        Execution.delay(delay);
-    }
-
-    private static void teleportOnHealth() {
-        LocalPlayer player = getLocalPlayer();
-        if (player != null && player.getCurrentHealth() < player.getMaximumHealth() * 0.10) {
-            if (ActionBar.containsAbility("Max guild Teleport")) {
-                ActionBar.useAbility("Max guild Teleport");
-                log("[Combat] Health is below 7.5% so we are teleporting to Max Guild.");
-            } else if (ActionBar.containsAbility("War's Retreat Teleport")) {
-                ActionBar.useAbility("War's Retreat Teleport");
-                log("[Combat] Health is below 7.5% so we are teleporting to War's Retreat.");
-            }
-            Execution.delay(random.nextLong(10000, 20000));
-            shutdown();
-        }
-    }
-
 
 
     public static void printSiegeEngineRemainingTime() {

@@ -133,7 +133,6 @@ public class Main {
                         int lastDigit = varValue % 10;
                         if (lastDigit >= 0 && lastDigit <= 8) {
                             log("Waiting for combat to end, then Teleporting to Jacquelyn.");
-                            clearTargetNames();
                             boolean isOutOfCombat = Execution.delayUntil( random.nextLong(25000, 30000), () -> !player.inCombat());
                             if (!isOutOfCombat) {
                                 log("Player is still in combat after 25-30 seconds. Moving to Wars Retreat.");
@@ -179,10 +178,12 @@ public class Main {
                 bankingLogic();
                 break;
             case LANIAKEA:
+                clearTargetNames();
                 log("Laniakea state.");
                 TeleporttoLaniakea();
                 break;
             case JACQUELYN:
+                clearTargetNames();
                 log("Jacquelyn state.");
                 TeleporttoJacquelyn();
                 break;

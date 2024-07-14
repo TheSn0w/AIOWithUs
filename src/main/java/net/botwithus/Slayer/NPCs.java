@@ -1537,7 +1537,7 @@ public class NPCs {
 
         if (spider != null) {
             log("spider found, proceeding to attack.");
-            addTargetName("spider");
+            addTargetName("Giant spider");
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("spider not found, proceeding to spider location.");

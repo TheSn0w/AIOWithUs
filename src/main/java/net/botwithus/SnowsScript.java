@@ -118,6 +118,17 @@ public class SnowsScript extends LoopingScript {
         return null;
     }
 
+    private boolean scriptActive = false;
+
+    private void onPropertyUpdateRequest(PropertyUpdateRequestEvent event) {
+        getConsole().addLineToConsole("Received PropertyUpdateRequestEvent: " + event.getValue());
+        boolean newState = Boolean.parseBoolean(event.getValue());
+        if (newState != this.scriptActive) {
+            scriptActive = newState;
+            this.setActive(newState);
+        }
+    }
+
 
     public void onLoop() {
         LocalPlayer player = getLocalPlayer();
@@ -222,6 +233,7 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
         EventBus.EVENT_BUS.subscribe(this, ServerTickedEvent.class, this::onTickEvent);
+        EventBus.EVENT_BUS.subscribe(this, PropertyUpdateRequestEvent.class, this::onPropertyUpdateRequest);
     }
 
 
