@@ -1,6 +1,7 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
+import ImGui.Stopwatch;
 import net.botwithus.Combat.Combat;
 import net.botwithus.Combat.LootManager;
 import net.botwithus.Cooking.Cooking;
@@ -23,6 +24,8 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.config.ScriptConfig;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -196,6 +199,7 @@ public class SnowsScript extends LoopingScript {
         subscribeToEvents();
         setBotState(BotState.SKILLING);
         super.initialize();
+        Stopwatch.start();
 
         Combat combat = new Combat(this);
         Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
@@ -212,6 +216,8 @@ public class SnowsScript extends LoopingScript {
         saveConfiguration();
         unsubscribeAll();
         setBotState(BotState.IDLE);
+        totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
+        Stopwatch.stop();
         super.onDeactivation();
     }
 
