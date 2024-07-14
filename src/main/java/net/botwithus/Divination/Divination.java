@@ -151,24 +151,17 @@ public class Divination {
 
 
     private static long handleFullBackpack() {
-        long delay = random.nextLong(500, 750);
 
         SceneObject nearestRift = findNearestRift();
 
         if (nearestRift == null) {
             log("[Error] No nearby rift found to convert memories.");
-            delay += random.nextLong(500, 1000);
         } else {
             if (nearestRift.interact("Convert memories")) {
-                Execution.delayUntil(60000, Divination::isBackpackEmpty);
-
-                delay += random.nextLong(550, 800);
-            } else {
-                delay += random.nextLong(500, 750);
+                Execution.delayUntil(random.nextLong(25000, 30000), Divination::isBackpackEmpty);
             }
         }
-
-        return delay;
+        return 0;
     }
 
 
