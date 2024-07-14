@@ -195,10 +195,9 @@ public class SnowsScript extends LoopingScript {
 
     @Override
     public void onActivation() {
+        setBotState(BotState.SKILLING);
         resetSlayerPoints();
         subscribeToEvents();
-        setBotState(BotState.SKILLING);
-        super.initialize();
         Stopwatch.start();
 
         Combat combat = new Combat(this);
@@ -207,6 +206,8 @@ public class SnowsScript extends LoopingScript {
 
         LootManager lootManager = new LootManager(this);
         Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
+
+        super.initialize();
     }
 
 
@@ -227,13 +228,6 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.subscribe(this, ServerTickedEvent.class, this::onTickEvent);
     }
 
-
-
-    public void unsubscribeFromEvents() {
-        EventBus.EVENT_BUS.unsubscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
-        EventBus.EVENT_BUS.unsubscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
-        EventBus.EVENT_BUS.unsubscribe(this, ServerTickedEvent.class, this::onTickEvent);
-    }
 
     public static int tick = 0;
 

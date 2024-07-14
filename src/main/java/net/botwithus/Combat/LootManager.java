@@ -58,7 +58,7 @@ public class LootManager {
                 lootAllButton();
             }
 
-            Execution.delay(random.nextLong(600, 700));
+            Execution.delay(random.nextLong(1100, 1650));
         }
     }
 
@@ -219,9 +219,9 @@ public class LootManager {
 // SECTION 3: Loot Noted Items
 // =====================
 
-   public static long useNotedLootFromGround() {
+   public static void useNotedLootFromGround() {
     if (!walkToLoot && LootInventory.isOpen()) {
-        return random.nextLong(300, 500);
+        return;
     }
     int totalSlots = 28;
     int usedSlots = totalSlots - Backpack.countFreeSlots();
@@ -240,11 +240,11 @@ public class LootManager {
         if (!LootInventory.contains(groundItem.getName()) || !LootInventory.isOpen()) {
             if (!LootInventory.contains(groundItem.getName())) {
                 if (useDwarfcannon && usedSlots >= 27 && !Backpack.contains(groundItem.getName())) {
-                    return random.nextLong(300, 500);
+                    return;
                 }
 
                 if (Backpack.isFull() && !Backpack.contains(groundItem.getName())) {
-                    return random.nextLong(300, 500);
+                    return;
                 }
 
                 groundItem = GroundItemQuery.newQuery().itemId(groundItem.getId()).results().nearest();
@@ -263,14 +263,13 @@ public class LootManager {
                             log("[NotedItemsFromGround] Used Surge: " + ActionBar.useAbility("Surge"));
                             Execution.delay(random.nextInt(200, 250));
                             groundItem.interact("Take");
-                            return random.nextLong(1250, 2000);
+
                         }
                     }
                 }
             }
         }
     }
-    return random.nextLong(300, 500);
 }
 
 
