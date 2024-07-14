@@ -4,7 +4,6 @@ import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.rs3.game.Client;
-import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -12,24 +11,17 @@ import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.js5.types.ItemType;
 import net.botwithus.rs3.game.js5.types.configs.ConfigManager;
 import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
-import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.script.Execution;
-import net.botwithus.rs3.util.RandomGenerator;
 
-import javax.lang.model.util.Elements;
-import javax.swing.text.Document;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static ImGui.Skills.CombatImGui.lootBasedonCost;
-import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.Combat.Notepaper.useItemOnNotepaper;
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -61,7 +53,7 @@ public class LootManager {
                 lootStackableItemsFromInventory();
             }
             if (useLootEverything) {
-                Execution.delay(lootAllButton());
+                lootAllButton();
             }
 
             Execution.delay(random.nextLong(600, 700));
@@ -109,22 +101,19 @@ public class LootManager {
         return random.nextLong(300, 500);
     }
 
-   public static long lootAllButton() {
+   public static void lootAllButton() {
        if (LootInventory.isOpen() && !LootInventory.getItems().isEmpty()) {
            if (Backpack.isFull()) {
                boolean stackableItemExists = LootInventory.getItems().stream()
                        .anyMatch(item -> ConfigManager.getItemType(item.getId()).getStackability() == ItemType.Stackability.ALWAYS
                                && Backpack.contains(item.getName()));
                if (!stackableItemExists) {
-                   random.nextLong(800, 1000);
+                   return;
                }
            }
            LootInventory.lootAll();
            log("[LootAll] Looted all items from the inventory.");
-           return random.nextLong(800, 1000);
-
        }
-       return random.nextLong(800, 1000);
    }
 
 

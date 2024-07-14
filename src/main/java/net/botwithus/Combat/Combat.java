@@ -241,14 +241,12 @@ public class Combat {
 
         //combat module
 
-        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 100) {
+        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 0) {
             Execution.delay(handleCombat(player));
             return random.nextLong(300, 500);
         }
 
         if (player.hasTarget()) {
-            handleMultitarget();
-
             PathingEntity<?> target = player.getTarget();
 
             if (handleMultitarget) {
@@ -259,8 +257,11 @@ public class Combat {
                     }
                 }
             }
+        } else {
+            return random.nextLong(600, 650);
         }
-        return random.nextLong(300, 500);
+        log("[Combat] returning");
+        return random.nextLong(600, 650);
     }
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
@@ -276,7 +277,6 @@ public class Combat {
 
         Npc newTarget = NpcQuery.newQuery()
                 .name(monsterPattern)
-                .isReachable()
                 .health(100, 1_000_000)
                 .option("Attack")
                 .results()
@@ -288,7 +288,6 @@ public class Combat {
         if (newTarget == null) {
             newTarget = NpcQuery.newQuery()
                     .name(monsterPattern)
-                    .isReachable()
                     .health(100, 1_000_000)
                     .option("Attack")
                     .results()
@@ -302,24 +301,11 @@ public class Combat {
     }
 
     private static long attackMonster(LocalPlayer player, Npc monster) {
-        boolean attack = monster.interact("Attack");
+        monster.interact("Attack");
         log("[MultiTarget] Attacking " + monster.getName() + "...");
-        if (attack) {
-            if (handleMultitarget) {
-                recentlyAttackedTargets.add(monster.getId());
-            }
-        }
         return random.nextLong(random.nextLong(700, 1000));
     }
 
-    private static void handleMultitarget() {
-        if (handleMultitarget) {
-            if (System.currentTimeMillis() - lastClearTime > random.nextLong(5000)) {
-                recentlyAttackedTargets.clear();
-                lastClearTime = System.currentTimeMillis();
-            }
-        }
-    }
 
 
     public static long handleCombat(LocalPlayer player) {
@@ -328,12 +314,10 @@ public class Combat {
             log("[Error] No target names specified.");
             return random.nextLong(600, 650);
         }
-        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 1) {
 
             Pattern monsterPattern = generateRegexPattern(targetNames);
             Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
                     .name(monsterPattern)
-                    .isReachable()
                     .health(100, 1_000_000)
                     .option("Attack")
                     .results()
@@ -350,7 +334,6 @@ public class Combat {
             } else {
                 log("[Combat] No valid target found.");
             }
-        }
         return random.nextLong(600, 650);
     }
 
