@@ -23,6 +23,7 @@ import static net.botwithus.Misc.LeatherCrafter.*;
 import static net.botwithus.Misc.Necro.enableDisturbances;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Misc.PorterMaker.*;
+import static net.botwithus.Misc.SiftSoil.useSiftSoilSpell;
 import static net.botwithus.Misc.Smelter.handleGoldBar;
 import static net.botwithus.Misc.Smelter.handleGoldGauntlets;
 import static net.botwithus.Slayer.Main.useBankPin;
@@ -45,7 +46,7 @@ public class MiscImGui {
             float spacing = (totalWidth - (numItems * checkboxWidth)) / (numItems + 1);
             ImGui.SeparatorText("Miscellaneous Options");
 
-            boolean NoneSelected = isportermakerActive || makeDinarrow || handleLeatherCrafter|| handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
+            boolean NoneSelected = isportermakerActive || makeDinarrow || isSiftSoilActive || handleLeatherCrafter|| handleNecro || handleHarps || isMakeUrnsActive || isCrystalChestActive || isPlanksActive || isCorruptedOreActive || isSummoningActive || isGemCutterActive || isdivinechargeActive || isSmeltingActive;
 
             if (!NoneSelected || isportermakerActive) {
                 if (!NoneSelected) {
@@ -210,9 +211,11 @@ public class MiscImGui {
                     ImGui.SetCursorPosX(spacing);
                 }
                 makeDinarrow = ImGui.Checkbox("Make Dinarrows", makeDinarrow);
-                if (!NoneSelected) {
-                    ImGui.SameLine();
-                }
+            }
+            if (isSiftSoilActive) {
+                ImGui.SeparatorText("Sift Soil Options");
+                ImGui.SetCursorPosX(spacing);
+                useSiftSoilSpell = ImGui.Checkbox("Sift Soil with Sift Soil Spell", useSiftSoilSpell);
             }
             if (useBankPin) {
                 if (ImGui.Begin("Bank Pin Settings", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {

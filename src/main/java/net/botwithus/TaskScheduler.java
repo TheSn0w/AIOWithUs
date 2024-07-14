@@ -1,16 +1,19 @@
 package net.botwithus;
 
+import ImGui.Stopwatch;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.game.minimenu.MiniMenu;
 import ImGui.SnowScriptGraphics;
 import net.botwithus.rs3.script.Execution;
+import net.botwithus.rs3.script.ScriptController;
 
 import java.util.HashMap;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.IDLE;
 import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.rs3.script.ScriptController.setActive;
 
 public class TaskScheduler {
     public int amountToDisassemble;
@@ -43,6 +46,8 @@ public class TaskScheduler {
         log("[Error] Shutting down...");
         SnowsScript.setBotState(IDLE);
         LoginManager.setAutoLogin(false);
+        Stopwatch.stop();
+        setActive(ScriptController.getActiveScript().getName(), false);
         MiniMenu.interact(14, 1, -1, 93913156);
     }
 
