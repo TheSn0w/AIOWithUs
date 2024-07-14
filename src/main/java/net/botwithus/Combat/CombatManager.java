@@ -17,9 +17,6 @@ import net.botwithus.rs3.script.Execution;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.botwithus.Combat.Combat.useDefensives;
@@ -278,9 +275,8 @@ public class CombatManager {
         if (player == null) {
             return;
         }
-        if (player.getPrayerPoints() < prayerPointsThreshold && Backpack.contains("Ancient elven ritual shard")) {
-            Component elvenRitual = ComponentQuery.newQuery(291).spriteId(43358).results().first();
-            if (elvenRitual != null) {
+        if (Backpack.contains("Ancient elven ritual shard")) {
+            if (ComponentQuery.newQuery(291).spriteId(43358).results().isEmpty()) {
                 boolean success = backpack.interact("Ancient elven ritual shard", "Activate");
                 if (success) {
                     log("[Success] Activated Elven Ritual Shard.");

@@ -167,7 +167,7 @@ public class Main {
                     slayerState = SlayerState.CHECK;
                     log("Task completed.");
                 } else {
-                    Execution.delay(attackTarget(player));
+                    attackTarget(player);
                 }
                 break;
             case CHECK:

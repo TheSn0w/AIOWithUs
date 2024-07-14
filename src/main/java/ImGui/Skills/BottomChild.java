@@ -11,6 +11,7 @@ import java.time.Instant;
 
 import static ImGui.Stopwatch.getElapsedTimeSecs;
 import static ImGui.VersionManager.displayVersion;
+import static net.botwithus.Combat.ArchGlacor.getCurrentStep;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Misc.UrnMaker.getUrnState;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
@@ -49,6 +50,8 @@ public class BottomChild {
                 botState = String.valueOf(Abyss.getCurrentState());
             } else if (doSlayer) {
                 botState = String.valueOf(getSlayerState());
+            } else if (handleArchGlacor) {
+                botState = String.valueOf(getCurrentStep());
             } else {
                 botState = String.valueOf(getBotState());
             }

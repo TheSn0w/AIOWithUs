@@ -35,13 +35,17 @@ public class ArchGlacor {
         currentStep = state;
     }
 
+    public static GlacorState getCurrentStep() {
+        return currentStep;
+    }
+
     public enum GlacorState {
         BANKING,
         TRAVELING,
         ATTACKING;
     }
 
-    public static long handleArchGlacor() {
+    public static void handleArchGlacor() {
 
         switch (currentStep) {
             case BANKING:
@@ -51,24 +55,21 @@ public class ArchGlacor {
                 break;
             case TRAVELING:
                 if (travelToArchGlacor(getLocalPlayer(), teleportAbility)) {
+                    addTargetName("arch-glacor");
                     setGlacorState(GlacorState.ATTACKING);
                 }
                 break;
             case ATTACKING:
-                if (!getTargetNames().contains("arch-glacor")) {
-                    addTargetName("arch-glacor");
-                }
                 Component timerComponent = getTimerComponent();
                 if (shouldBank(getLocalPlayer()) || isTimerZero(timerComponent) || Backpack.isFull()) {
                     setGlacorState(GlacorState.BANKING);
-                    break;
                 } else {
-                    Execution.delay(attackTarget(getLocalPlayer()));
+                    attackTarget(getLocalPlayer());
                 }
+                break;
             default:
                 break;
         }
-        return 0;
     }
 
 

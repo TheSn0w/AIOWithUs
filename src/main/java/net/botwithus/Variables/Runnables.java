@@ -55,6 +55,7 @@ public class Runnables {
             Execution.delay(Herblore.handleHerblore(player));
         }
     }
+
     public static void handleRunecrafting() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
@@ -73,7 +74,7 @@ public class Runnables {
         }
     }
 
-    public static  void handleMining() {
+    public static void handleMining() {
         List<String> selectedRockNames = getSelectedRockNames();
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
@@ -91,14 +92,14 @@ public class Runnables {
         }
     }
 
-    public static  void handleThieving() {
+    public static void handleThieving() {
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
             Execution.delay(Thieving.handleThieving(player));
         }
     }
 
-    public static  void handleWoodcutting() {
+    public static void handleWoodcutting() {
         List<String> selectedTreeNames = getSelectedTreeNames();
         LocalPlayer player = Client.getLocalPlayer();
         if (player != null) {
@@ -150,7 +151,7 @@ public class Runnables {
         }
     }
 
-    public static  void handleFishing() {
+    public static void handleFishing() {
         LocalPlayer player = Client.getLocalPlayer();
         List<String> selectedFishingLocations = getSelectedFishingLocations();
         List<String> selectedFishingActions = getSelectedFishingActions();
@@ -168,6 +169,7 @@ public class Runnables {
             Execution.delay(Fishing.handleFishing(player, selectedFishingLocations.get(0), selectedFishingActions.get(0)));
         }
     }
+
     public static boolean shouldTravel = false;
 
     public static void handleCombat() {
@@ -176,27 +178,21 @@ public class Runnables {
             if (shouldTravel) {
                 travelToXYZ(x, y, z);
                 shouldTravel = false;
-                return;
-            }
-            if (useHintArrow) {
+            } else if (useHintArrow) {
                 travelToLocation();
                 useHintArrow = false;
-                return;
-            }
-            if (doSlayer && !handleArchGlacor && !usePOD) {
+            } else if (doSlayer) {
                 runSlayer();
-            }
-            if (!usePOD && !handleArchGlacor && !doSlayer) {
-                Execution.delay(attackTarget(player));
-            }
-            if (handleArchGlacor) {
-                Execution.delay(handleArchGlacor());
-            }
-            if (usePOD) {
+            } else if (usePOD) {
                 handlePOD();
+            } else if (handleArchGlacor) {
+                handleArchGlacor();
+            } else {
+                attackTarget(player);
             }
         }
     }
+
 
     public static  void handleCooking() {
         LocalPlayer player = Client.getLocalPlayer();

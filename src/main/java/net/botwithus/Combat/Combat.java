@@ -1,7 +1,5 @@
 package net.botwithus.Combat;
 
-import ImGui.SnowScriptGraphics;
-import net.botwithus.Slayer.Main;
 import net.botwithus.SnowsScript;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.actionbar.ActionBar;
@@ -38,7 +36,6 @@ import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.doSlayer;
-import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.WarsRetreat.camelWarriors;
 import static net.botwithus.Slayer.WarsRetreat.slayerPointFarming;
@@ -164,33 +161,29 @@ public class Combat {
         Combat.healthThreshold = healthThreshold;
     }
 
-    public static long attackTarget(LocalPlayer player) {
+    public static void attackTarget(LocalPlayer player) {
         if (player == null || useTraveltoLocation || useHintArrow) {
-            return random.nextLong(600, 650);
+            Execution.delay(random.nextLong(600, 650));
+            return;
         }
 
         if (doSlayer && slayerPointFarming && VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
             int varValue = VarManager.getVarValue(VarDomainType.PLAYER, 10077);
             int lastDigit = varValue % 10;
             if (lastDigit >= 0 && lastDigit <= 8) {
-                return random.nextLong(600, 650);
+                Execution.delay(random.nextLong(600, 650));
+                return;
             }
         }
 
-        log("[Combat] Attacking target...");
-
-        // if Loot Inventory is not open, interact with ground items
         if (useCustomLoot) {
-            Execution.delay(useCustomLootFromGround());
-        }
-        if (useLootAllNotedItems) {
-            Execution.delay(useNotedLootFromGround());
-        }
-        if (useLootEverything) {
-            Execution.delay(useLootInventoryPickup());
-        }
-        if (useLootAllStackableItems) {
-            Execution.delay(lootStackableItemsFromGround());
+            useCustomLootFromGround();
+        } else if (useLootAllNotedItems) {
+            useNotedLootFromGround();
+        } else if (useLootEverything) {
+            useLootInventoryPickup();
+        } else if (useLootAllStackableItems) {
+            lootStackableItemsFromGround();
         }
 
         if (useFamiliarForCombat) {
@@ -220,30 +213,32 @@ public class Combat {
             iritSticks();
         }
         if (useDwarfcannon) {
-            Execution.delay(dwarvenSiegeCannon());
+            dwarvenSiegeCannon();
         }
 
-        // if moving return
+        // If moving, delay and return
         if (player.isMoving()) {
-            return random.nextLong(600, 650);
+            Execution.delay(random.nextLong(600, 650));
+            return;
         }
 
         // Handle specific creature types
         if (lavaStrykewyrms) {
-            return lavaStrykewyrms();
-        }
-        if (iceStrykewyrms) {
-            return iceStrykewyrms();
-        }
-        if (camelWarriors && !player.hasTarget()) {
-            return camelWarriors(player);
+            lavaStrykewyrms();
+            return;
+        } else if (iceStrykewyrms) {
+            iceStrykewyrms();
+            return;
+        } else if (camelWarriors) {
+            camelWarriors(player);
+            return;
         }
 
-        //combat module
-
-        if (!player.hasTarget() || player.getTarget().getCurrentHealth() <= 0) {
-            Execution.delay(handleCombat(player));
-            return random.nextLong(300, 500);
+        // Combat module
+        if (!player.hasTarget()) {
+            handleCombat(player);
+            Execution.delay(random.nextLong(300, 500));
+            return;
         }
 
         if (player.hasTarget()) {
@@ -253,16 +248,20 @@ public class Combat {
                 if (target.getCurrentHealth() <= target.getMaximumHealth() * healthThreshold) {
                     Npc newTarget = findDifferentTarget(player, target.getId());
                     if (newTarget != null) {
-                        return attackMonster(player, newTarget);
+                        attackMonster(player, newTarget);
+                        return;
                     }
                 }
             }
         } else {
-            return random.nextLong(600, 650);
+            Execution.delay(random.nextLong(600, 650));
+            return;
         }
-        log("[Combat] returning");
-        return random.nextLong(600, 650);
+
+        Execution.delay(random.nextLong(600, 650));
     }
+
+
 
     private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
         List<String> targetNames = getTargetNames();
@@ -300,19 +299,19 @@ public class Combat {
         return newTarget;
     }
 
-    private static long attackMonster(LocalPlayer player, Npc monster) {
+    private static void attackMonster(LocalPlayer player, Npc monster) {
         monster.interact("Attack");
         log("[MultiTarget] Attacking " + monster.getName() + "...");
-        return random.nextLong(random.nextLong(700, 1000));
+        Execution.delay(random.nextLong(600, 650));
     }
 
 
 
-    public static long handleCombat(LocalPlayer player) {
+    public static void handleCombat(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
-            return random.nextLong(600, 650);
+            return;
         }
 
             Pattern monsterPattern = generateRegexPattern(targetNames);
@@ -329,12 +328,10 @@ public class Combat {
                 boolean attack = monster.interact("Attack");
                 if (attack) {
                     log("[Combat] Successfully attacked: " + monster.getName());
-                    return random.nextLong(600, 750);
                 }
             } else {
                 log("[Combat] No valid target found.");
             }
-        return random.nextLong(600, 650);
     }
 
 
@@ -361,7 +358,7 @@ public class Combat {
 
 
 
-    public static long printSiegeEngineRemainingTime() {
+    public static void printSiegeEngineRemainingTime() {
         ResultSet<Component> components = ComponentQuery.newQuery(291).spriteId(2).results();
 
         for (Component component : components) {
@@ -387,7 +384,6 @@ public class Combat {
                 }
             }
         }
-        return random.nextLong(600, 650);
     }
 
     public static boolean isTimeLessThanFiveMinutes(String text) {
@@ -408,11 +404,11 @@ public class Combat {
         return false;
     }
 
-    public static long dwarvenSiegeCannon() {
+    public static void dwarvenSiegeCannon() {
         EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
         if (!siegeEngine.isEmpty()) {
             if (Backpack.contains("Cannonball")) {
-                Execution.delay(printSiegeEngineRemainingTime());
+                printSiegeEngineRemainingTime();
             } else {
                 log("[Combat] No Cannonball found in Backpack.");
                 siegeEngine.first().interact("Pick up");
@@ -423,7 +419,6 @@ public class Combat {
         } else {
             log("[Combat] No Dwarven siege engine found.");
         }
-        return random.nextLong(600, 650);
     }
 
 
