@@ -1,6 +1,5 @@
 package net.botwithus.Combat;
 
-import net.botwithus.SnowsScript;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -19,75 +18,95 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.Combat.Food.eatFood;
+import static net.botwithus.Combat.POD.PODStep.*;
 import static net.botwithus.Combat.Potions.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
 public class POD {
-    private static int currentStep = 1;
     private static Coordinate targetCoordinate = null;
 
+    public enum PODStep {
+        TRAVEL_TO_POD,
+        INTERACT_WITH_KAGS,
+        INTERACT_WITH_FIRST_DOOR,
+        INTERACT_WITH_OTHER_DOOR,
+        MOVE_PLAYER_EAST,
+        COMBAT,
+        BANKING
+    }
+
+    public static PODStep getCurrentStep() {
+        return currentStep;
+    }
+
+    public static void setCurrentStep(PODStep step) {
+        currentStep = step;
+    }
+
+    private static PODStep currentStep = PODStep.TRAVEL_TO_POD;
 
     public static void handlePOD() {
-
         switch (currentStep) {
-            case 1:
+            case TRAVEL_TO_POD:
+                log("[Combat] Traveling to POD...");
                 if (travelToPOD()) {
-                    log("[Combat] Arrived at POD. Proceeding to interaction.");
-                    currentStep = 2;
-                } else {
-                    log("[Combat] Traveling to POD...");
+                    setCurrentStep(INTERACT_WITH_KAGS);
                 }
                 break;
-            case 2:
+            case INTERACT_WITH_KAGS:
                 if (interactWithKags()) {
                     log("[Combat] Interacted with Kags. Proceeding to the next step.");
-                    currentStep = 3;
+                    currentStep = INTERACT_WITH_FIRST_DOOR;
                 }
                 break;
-            case 3:
+            case INTERACT_WITH_FIRST_DOOR:
                 if (interactWithFirstDoor()) {
                     log("[Combat] Interacted with the first door. Proceeding to the next step.");
-                    currentStep = 4;
+                    currentStep = INTERACT_WITH_OTHER_DOOR;
                 }
                 break;
-            case 4:
+            case INTERACT_WITH_OTHER_DOOR:
                 if (interactWithOtherDoor()) {
                     log("[Combat] Interacted with the other door. Proceeding to the next step.");
-                    currentStep = 5;
+                    currentStep = MOVE_PLAYER_EAST;
                 }
                 break;
-            case 5:
+            case MOVE_PLAYER_EAST:
                 targetCoordinate = movePlayerEast();
                 if (targetCoordinate != null) {
                     log("[Combat] Moved player east. Proceeding to the next step.");
-                    currentStep = 6;
+                    currentStep = COMBAT;
                 }
                 break;
-            case 6:
+            case COMBAT:
                 if (shouldBank((LocalPlayer) player)) {
-                    currentStep = 7;
+                    currentStep = BANKING;
                 } else {
                     attackTarget(getLocalPlayer());
                 }
                 break;
-            case 7:
+            case BANKING:
                 if (BankingforPoD(getLocalPlayer())) {
-                    currentStep = 1;
+                    currentStep = TRAVEL_TO_POD;
                 }
                 break;
-
             default:
                 log("[Error] Invalid step. Please check the process flow.");
                 break;
         }
     }
 
+
     private static boolean travelToPOD() {
         log("[Combat] Traveling to POD...");
         NavPath path = NavPath.resolve(new Coordinate(3122, 2632, 0));
-        return Movement.traverse(path) == TraverseEvent.State.FINISHED;
+        boolean success = Movement.traverse(path) == TraverseEvent.State.FINISHED;
+        if (!success) {
+            log("[Combat] Failed to travel to POD.");
+        }
+        return success;
     }
 
     private static boolean interactWithKags() {
@@ -96,13 +115,19 @@ public class POD {
             Npc nearestKags = kags.nearest();
             log("[Combat] Interacting with Kags...");
             if (nearestKags != null && nearestKags.interact("Travel")) {
-                Execution.delayUntil((5000), () -> Interfaces.isOpen(1188));
-                if (Interfaces.isOpen(1188)) {
-                    dialog( 0, -1, 77856776);
-                    Execution.delay(RandomGenerator.nextInt(5000, 6000));
+                boolean dialogOpened = Execution.delayUntil(5000, () -> Interfaces.isOpen(1188));
+                if (dialogOpened) {
+                    dialog(0, -1, 77856776);
+                    Execution.delay(random.nextInt(5000, 6000));
                     return true;
+                } else {
+                    log("[Combat] Dialog with Kags did not open.");
                 }
+            } else {
+                log("[Combat] Failed to interact with Kags.");
             }
+        } else {
+            log("[Combat] Kags not found.");
         }
         return false;
     }
@@ -113,9 +138,13 @@ public class POD {
             SceneObject nearestDoor = door.nearest();
             log("[Combat] Interacting with the first door...");
             if (nearestDoor != null && nearestDoor.interact("Enter dungeon")) {
-                Execution.delay(RandomGenerator.nextInt(5000, 8000));
+                Execution.delay(random.nextInt(5000, 8000));
                 return true;
+            } else {
+                log("[Combat] Failed to interact with the first door.");
             }
+        } else {
+            log("[Combat] First door not found.");
         }
         return false;
     }
@@ -126,50 +155,51 @@ public class POD {
             SceneObject nearestOtherDoor = otherDoor.nearest();
             log("[Combat] Interacting with the other door...");
             if (nearestOtherDoor != null && nearestOtherDoor.interact("Pass through")) {
-                Execution.delay(RandomGenerator.nextInt(5000, 8000));
+                Execution.delay(random.nextInt(5000, 8000));
                 return true;
+            } else {
+                log("[Combat] Failed to interact with the other door.");
             }
+        } else {
+            log("[Combat] Other door not found.");
         }
         return false;
     }
 
     private static Coordinate movePlayerEast() {
-        if (getLocalPlayer() != null) {
+        LocalPlayer player = getLocalPlayer();
+        if (player != null) {
             log("[Combat] Moving player east...");
-            Coordinate targetCoordinate = getLocalPlayer().getCoordinate();
+            Coordinate targetCoordinate = player.getCoordinate();
             Coordinate targetPosition = new Coordinate(targetCoordinate.getX() + 7, targetCoordinate.getY(), targetCoordinate.getZ());
 
-            while (!getLocalPlayer().getCoordinate().equals(targetPosition)) {
+            while (!player.getCoordinate().equals(targetPosition)) {
                 Movement.walkTo(targetPosition.getX(), targetPosition.getY(), true);
-                Execution.delay(random.nextLong(900, 1100));
-                if (getLocalPlayer().getCoordinate().equals(targetPosition)) {
+                Execution.delay(random.nextInt(900, 1100));
+                if (player.getCoordinate().equals(targetPosition)) {
                     log("[Combat] Player has reached the target position.");
                     return targetPosition;
                 }
             }
+        } else {
+            log("[Combat] Local player is null.");
         }
         return null;
     }
 
-    private static void ensurePlayerWithinRadius(Coordinate targetCoordinate, int radius) {
-        if (getLocalPlayer() != null) {
-            Coordinate currentCoordinate = getLocalPlayer().getCoordinate();
-
-            double distance = Math.sqrt(Math.pow(currentCoordinate.getX() - targetCoordinate.getX(), 2) + Math.pow(currentCoordinate.getY() - targetCoordinate.getY(), 2));
-
-            if (distance > radius) {
-                Movement.walkTo(targetCoordinate.getX(), targetCoordinate.getY(), true);
-                Execution.delay(random.nextLong(600, 650));
-                log("[Combat] Moving player within radius.");
-            }
-        }
-    }
 
     private static boolean BankingforPoD(LocalPlayer player) {
+        log("[Banking] Starting banking process for PoD.");
+
+        // Check and use Soul Split if the condition is met
         if (VarManager.getVarbitValue(16779) == 1) {
+            log("[Banking] Using Soul Split.");
             ActionBar.useAbility("Soul Split");
         }
+
+        // Check for Max Guild Teleport ability
         if (ActionBar.containsAbility("Max guild Teleport")) {
+            log("[Banking] Using Max Guild Teleport.");
             ActionBar.useAbility("Max guild Teleport");
             Execution.delay(RandomGenerator.nextInt(5500, 7000));
 
@@ -177,40 +207,64 @@ public class POD {
             if (!results.isEmpty()) {
                 Npc banker = results.nearest();
                 if (banker != null) {
+                    log("[Banking] Interacting with Banker.");
                     banker.interact("Load Last Preset from");
                     Execution.delay(RandomGenerator.nextInt(6000, 8000));
+                    return true;
+                } else {
+                    log("[Banking] Banker not found.");
                 }
+            } else {
+                log("[Banking] No bankers found.");
+            }
+        } else if (ActionBar.containsAbility("War's Retreat Teleport")) { // Check for War's Retreat Teleport ability
+            log("[Banking] Using War's Retreat Teleport.");
+            ActionBar.useAbility("War's Retreat Teleport");
+            Execution.delay(RandomGenerator.nextInt(5500, 7000));
+
+            EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
+            if (!results.isEmpty()) {
+                SceneObject chest = results.nearest();
+                if (chest != null) {
+                    log("[Banking] Interacting with Bank chest.");
+                    chest.interact("Load Last Preset from");
+                    Execution.delay(RandomGenerator.nextInt(6000, 8000));
+                    return true;
+                } else {
+                    log("[Banking] Bank chest not found.");
+                }
+            } else {
+                log("[Banking] No bank chests found.");
             }
         } else {
-            if (ActionBar.containsAbility("War's Retreat Teleport")) {
-                ActionBar.useAbility("War's Retreat Teleport");
-                Execution.delay(RandomGenerator.nextInt(5500, 7000));
-
-                EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name("Bank chest").option("Use").results();
-                if (!results.isEmpty()) {
-                    SceneObject chest = results.nearest();
-                    if (chest != null) {
-                        chest.interact("Load Last Preset from");
-                        Execution.delay(RandomGenerator.nextInt(6000, 8000));
-                    }
-                }
-            }
+            log("[Banking] No suitable teleport abilities found.");
         }
-        return true;
+
+        log("[Banking] Banking process completed.");
+        return false;
     }
 
 
+
     public static boolean shouldBank(LocalPlayer player) {
+
         long overloadCheck = drinkOverloads(player);
         long prayerCheck = usePrayerOrRestorePots(player);
         long aggroCheck = useAggression(player);
         long weaponPoisonCheck = useWeaponPoison(player);
         long foodCheck = shouldEatFood ? eatFood(player) : 0;
 
-        return (useWeaponPoison && weaponPoisonCheck == 1L) ||
+        boolean needsBanking = (useWeaponPoison && weaponPoisonCheck == 1L) ||
                 (useOverloads && overloadCheck == 1L) ||
                 (usePrayerPots && prayerCheck == 1L) ||
                 (shouldEatFood && foodCheck == 1L) ||
                 (useAggroPots && aggroCheck == 1L);
+
+        if (needsBanking) {
+            log("[Banking Check] Banking is required.");
+        }
+
+        return needsBanking;
     }
+
 }

@@ -1,5 +1,6 @@
 package ImGui.Skills;
 
+import net.botwithus.Combat.POD;
 import net.botwithus.Runecrafting.Abyss;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Variables.GlobalState;
@@ -52,6 +53,8 @@ public class BottomChild {
                 botState = String.valueOf(getSlayerState());
             } else if (handleArchGlacor) {
                 botState = String.valueOf(getCurrentStep());
+            } else if (usePOD) {
+                botState = String.valueOf(POD.getCurrentStep());
             } else {
                 botState = String.valueOf(getBotState());
             }
