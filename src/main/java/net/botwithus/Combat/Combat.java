@@ -185,7 +185,7 @@ public class Combat {
             Execution.delay(useNotedLootFromGround());
         }
         if (useLootEverything) {
-            useLootInventoryPickup();
+            Execution.delay(useLootInventoryPickup());
         }
         if (useLootAllStackableItems) {
             Execution.delay(lootStackableItemsFromGround());

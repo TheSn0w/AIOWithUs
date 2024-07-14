@@ -69,26 +69,27 @@ public class LootManager {
     // =====================
 // SECTION 1: Loot Everything
 // =====================
-    public static void useLootInventoryPickup() {
+    public static long useLootInventoryPickup() {
         if (!walkToLoot && LootInventory.isOpen()) {
-            return;
+            return random.nextLong(300, 500);
         }
         LocalPlayer player = getLocalPlayer();
         List<GroundItem> groundItems = GroundItemQuery.newQuery().results().stream()
                 .filter(it -> it.getCoordinate().distanceTo(player.getCoordinate()) <= 25.0D)
                 .toList();
         if (groundItems.isEmpty()) {
-            return;
+            return random.nextLong(300, 500);
         }
 
         GroundItem groundItem = groundItems.stream().min(Comparator.comparingDouble(it -> it.getCoordinate().distanceTo(player.getCoordinate()))).orElse(null);
         if (groundItem != null) {
             if (Backpack.isFull() && (!Backpack.contains(groundItem.getName()) || !isStackable(groundItem.getConfigType()))) {
-                return;
+                return random.nextLong(300, 500);
             }
 
             double distance = groundItem.getCoordinate().distanceTo(player.getCoordinate());
             if (distance <= 25.0D) {
+                Execution.delay(random.nextLong(800, 1000));
                 if (groundItem.interact("Take")) {
                     log("[LootEverything] Taking " + groundItem.getName() + "...");
                 }
@@ -98,11 +99,12 @@ public class LootManager {
                     log("[Error] Loot Inventory did not open. Attempting to interact with ground item again.");
                     if (groundItem.interact("Take")) {
                         log("[LootEverything] Attempting to take " + groundItem.getName() + " again...");
-                        Execution.delay(RandomGenerator.nextInt(600, 650));
+                        return random.nextLong(300, 500);
                     }
                 }
             }
         }
+        return random.nextLong(300, 500);
     }
 
    public static void lootAllButton() {
@@ -115,9 +117,10 @@ public class LootManager {
                 return;
             }
         }
-        LootInventory.lootAll();
         Execution.delay(random.nextLong(800, 1000));
+        LootInventory.lootAll();
         log("[LootAll] Looted all items from the inventory.");
+        Execution.delay(random.nextLong(800, 1000));
     }
 }
 
