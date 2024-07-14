@@ -228,8 +228,6 @@ public class CombatManager {
             interactWithAbility("Undead Slayer");
             log("[Success] Activated Undead Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Undead Slayer.");
         }
     }
 
@@ -242,8 +240,6 @@ public class CombatManager {
             interactWithAbility("Dragon Slayer");
             log("[Success] Activated Dragon Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Dragon Slayer.");
         }
     }
 
@@ -256,8 +252,6 @@ public class CombatManager {
             interactWithAbility("Demon Slayer");
             log("[Success] Activated Demon Slayer.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Demon Slayer.");
         }
     }
 
@@ -374,8 +368,6 @@ public class CombatManager {
             ActionBar.useAbility("Reflect");
             log("[Success] Activated Reflect.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Reflect.");
         }
     }
     public static void useResonance() {
@@ -387,8 +379,6 @@ public class CombatManager {
             ActionBar.useAbility("Resonance");
             log("[Success] Activated Resonance.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Resonance.");
         }
     }
 
@@ -401,8 +391,6 @@ public class CombatManager {
             ActionBar.useAbility("Debilitate");
             log("[Success] Activated Debilitate.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Debilitate.");
         }
     }
 
@@ -415,8 +403,6 @@ public class CombatManager {
             ActionBar.useAbility("Devotion");
             log("[Success] Activated Devotion.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Devotion.");
         }
     }
 
@@ -429,8 +415,6 @@ public class CombatManager {
             ActionBar.useAbility("Barricade");
             log("[Success] Activated Barricade.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Barricade.");
         }
     }
 
@@ -443,8 +427,6 @@ public class CombatManager {
             ActionBar.useAbility("Anticipation");
             log("[Success] Activated Anticipation.");
             Execution.delay(random.nextLong(1900, 2000));
-        } else {
-            log("[[Caution] ] Failed to activate Anticipation.");
         }
     }
 }

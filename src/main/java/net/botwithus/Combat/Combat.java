@@ -177,6 +177,8 @@ public class Combat {
             }
         }
 
+        log("[Combat] Attacking target...");
+
         // if Loot Inventory is not open, interact with ground items
         if (useCustomLoot) {
             Execution.delay(useCustomLootFromGround());
@@ -190,6 +192,7 @@ public class Combat {
         if (useLootAllStackableItems) {
             Execution.delay(lootStackableItemsFromGround());
         }
+
         if (useFamiliarForCombat) {
             summonFamiliar();
         }
@@ -217,7 +220,7 @@ public class Combat {
             iritSticks();
         }
         if (useDwarfcannon) {
-            dwarvenSiegeCannon();
+            Execution.delay(dwarvenSiegeCannon());
         }
 
         // if moving return
@@ -375,7 +378,7 @@ public class Combat {
 
 
 
-    public static void printSiegeEngineRemainingTime() {
+    public static long printSiegeEngineRemainingTime() {
         ResultSet<Component> components = ComponentQuery.newQuery(291).spriteId(2).results();
 
         for (Component component : components) {
@@ -401,6 +404,7 @@ public class Combat {
                 }
             }
         }
+        return random.nextLong(600, 650);
     }
 
     public static boolean isTimeLessThanFiveMinutes(String text) {
@@ -421,11 +425,11 @@ public class Combat {
         return false;
     }
 
-    public static void dwarvenSiegeCannon() {
+    public static long dwarvenSiegeCannon() {
         EntityResultSet<SceneObject> siegeEngine = SceneObjectQuery.newQuery().name("Dwarven siege engine").option("Fire").results();
         if (!siegeEngine.isEmpty()) {
             if (Backpack.contains("Cannonball")) {
-                printSiegeEngineRemainingTime();
+                Execution.delay(printSiegeEngineRemainingTime());
             } else {
                 log("[Combat] No Cannonball found in Backpack.");
                 siegeEngine.first().interact("Pick up");
@@ -436,6 +440,7 @@ public class Combat {
         } else {
             log("[Combat] No Dwarven siege engine found.");
         }
+        return random.nextLong(600, 650);
     }
 
 

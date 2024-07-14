@@ -1,5 +1,6 @@
 package net.botwithus.Combat;
 
+import net.botwithus.Slayer.Main;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
@@ -28,36 +29,48 @@ import static net.botwithus.rs3.game.Client.getLocalPlayer;
 public class ArchGlacor {
 
     public static String teleportAbility;
-    private static int currentStep = 1;
+    private static GlacorState currentStep = GlacorState.BANKING;
+
+    public static void setGlacorState(GlacorState state) {
+        currentStep = state;
+    }
+
+    public enum GlacorState {
+        BANKING,
+        TRAVELING,
+        ATTACKING;
+    }
 
     public static long handleArchGlacor() {
 
         switch (currentStep) {
-            case 1:
+            case BANKING:
                 if (BankingforArch(getLocalPlayer())) {
-                    currentStep = 2;
+                    setGlacorState(GlacorState.TRAVELING);
                 }
                 break;
-            case 2:
+            case TRAVELING:
                 if (travelToArchGlacor(getLocalPlayer(), teleportAbility)) {
-                    currentStep = 3;
+                    setGlacorState(GlacorState.ATTACKING);
                 }
                 break;
-            case 3:
+            case ATTACKING:
                 if (!getTargetNames().contains("arch-glacor")) {
                     addTargetName("arch-glacor");
                 }
-                attackTarget(getLocalPlayer());
                 Component timerComponent = getTimerComponent();
                 if (shouldBank(getLocalPlayer()) || isTimerZero(timerComponent) || Backpack.isFull()) {
-                    currentStep = 1;
+                    setGlacorState(GlacorState.BANKING);
+                    break;
+                } else {
+                    Execution.delay(attackTarget(getLocalPlayer()));
                 }
-                break;
             default:
                 break;
         }
         return 0;
     }
+
 
 
     private static boolean BankingforArch(LocalPlayer player) {
