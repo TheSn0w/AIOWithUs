@@ -47,7 +47,6 @@ public class TaskScheduler {
         SnowsScript.setBotState(IDLE);
         LoginManager.setAutoLogin(false);
         Stopwatch.stop();
-        setActive(ScriptController.getActiveScript().getName(), false);
         MiniMenu.interact(14, 1, -1, 93913156);
     }
 

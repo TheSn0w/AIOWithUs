@@ -71,6 +71,7 @@ public class Banking {
             Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                     .name("Bank chest")
+                    .isReachable()
                     .option("Use")
                     .results();
             if (!results.isEmpty()) {

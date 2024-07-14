@@ -46,6 +46,7 @@ import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
+import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.script.ScriptController.getActiveScript;
 
@@ -120,28 +121,21 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 float textWidth1;
                 float padding;
 
-                /*buttonText = ScriptisOn ? "Stop Script" : "Start Script";
+                buttonText = ScriptisOn ? "Pause Script" : "Resume Script";
                 textWidth1 = ImGui.CalcTextSize(buttonText).getX();
                 padding = (childWidth - textWidth1) / 2;
                 ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding, 15);
                 ImGui.SetCursorPosX(0);
                 if (ImGui.Button(buttonText)) {
                     if (ScriptisOn) {
-                        setBotState(BotState.IDLE);
-                        totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
                         ScriptisOn = false;
-
-
-
-                        Stopwatch.stop();
+                        script.pause();
                     } else {
-                        setBotState(BotState.SKILLING);
-                        startTime = Instant.now();
                         ScriptisOn = true;
-
                         Stopwatch.start();
+                        script.resume();
                     }
-                }*/
+                }
 
                 ImGui.PopStyleVar(1);
                 buttonText = "Save Settings";

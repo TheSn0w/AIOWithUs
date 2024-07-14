@@ -263,7 +263,7 @@ public class Combat {
 
 
 
-    private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
+        private static Npc findDifferentTarget(LocalPlayer player, int currentTargetId) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
@@ -278,12 +278,14 @@ public class Combat {
                 .name(monsterPattern)
                 .health(100, 1_000_000)
                 .option("Attack")
+                .isReachable()
                 .results()
                 .stream()
                 .filter(npc -> npc.getId() != currentTargetId && npc.getCurrentHealth() > npc.getMaximumHealth() * healthThreshold)
                 .min(Comparator.comparingDouble(npc -> npc.distanceTo(player.getCoordinate())))
                 .orElse(null);
 
+        // If no reachable NPC is found, perform a second query without the isReachable filter
         if (newTarget == null) {
             newTarget = NpcQuery.newQuery()
                     .name(monsterPattern)
@@ -307,31 +309,43 @@ public class Combat {
 
 
 
-    public static void handleCombat(LocalPlayer player) {
+        public static void handleCombat(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
             return;
         }
 
-            Pattern monsterPattern = generateRegexPattern(targetNames);
-            Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
+        Pattern monsterPattern = generateRegexPattern(targetNames);
+        Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
+                .name(monsterPattern)
+                .isReachable()
+                .health(100, 1_000_000)
+                .option("Attack")
+                .results()
+                .stream()
+                .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
+
+        // If no reachable NPC is found, perform a second query without the isReachable filter
+        if (nearestMonsterOptional.isEmpty()) {
+            nearestMonsterOptional = NpcQuery.newQuery()
                     .name(monsterPattern)
                     .health(100, 1_000_000)
                     .option("Attack")
                     .results()
                     .stream()
                     .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
+        }
 
-            Npc monster = nearestMonsterOptional.orElse(null);
-            if (monster != null) {
-                boolean attack = monster.interact("Attack");
-                if (attack) {
-                    log("[Combat] Successfully attacked: " + monster.getName());
-                }
-            } else {
-                log("[Combat] No valid target found.");
+        Npc monster = nearestMonsterOptional.orElse(null);
+        if (monster != null) {
+            boolean attack = monster.interact("Attack");
+            if (attack) {
+                log("[Combat] Successfully attacked: " + monster.getName());
             }
+        } else {
+            log("[Combat] No valid target found.");
+        }
     }
 
 

@@ -24,6 +24,7 @@ import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.config.ScriptConfig;
+import net.botwithus.rs3.script.events.PropertyUpdateRequestEvent;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -78,6 +79,7 @@ public class SnowsScript extends LoopingScript {
         SKILLING,
         BANKING,
         BANKPIN,
+        PAUSED,
     }
 
 
@@ -119,10 +121,6 @@ public class SnowsScript extends LoopingScript {
 
     public void onLoop() {
         LocalPlayer player = getLocalPlayer();
-
-        if (player == null || Client.getGameState() != Client.GameState.LOGGED_IN) {
-            return;
-        }
 
         capturestuff();
 
@@ -196,6 +194,7 @@ public class SnowsScript extends LoopingScript {
     @Override
     public void onActivation() {
         setBotState(BotState.SKILLING);
+        ScriptisOn = true;
         resetSlayerPoints();
         subscribeToEvents();
         Stopwatch.start();
@@ -216,9 +215,6 @@ public class SnowsScript extends LoopingScript {
     public void onDeactivation() {
         saveConfiguration();
         unsubscribeAll();
-        setBotState(BotState.IDLE);
-        totalElapsedTime += Duration.between(startTime, Instant.now()).getSeconds();
-        Stopwatch.stop();
         super.onDeactivation();
     }
 
@@ -227,6 +223,7 @@ public class SnowsScript extends LoopingScript {
         EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
         EventBus.EVENT_BUS.subscribe(this, ServerTickedEvent.class, this::onTickEvent);
     }
+
 
 
     public static int tick = 0;
