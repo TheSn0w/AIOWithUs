@@ -1351,7 +1351,8 @@ public class NPCs {
     }
 
     public static long camelWarriors(LocalPlayer player) {
-        Coordinate camelWarriorCoord = new Coordinate(2834, 9823, 0);
+        Coordinate camelWarriorCoord = new Coordinate(3359, 2757, 0);
+
 
         // Search for the mirage NPCs
         Npc bloodMirage = NpcQuery.newQuery().name("Blood mirage").results().nearest();
@@ -1399,6 +1400,7 @@ public class NPCs {
                     Execution.delay(random.nextLong(1000, 2000));
                     if (doSlayer) {
                         ActivateSoulSplit();
+                        WarsRetreat.camelWarriors = true;
                         setSlayerState(Main.SlayerState.COMBAT);
                     }
                 } else {
@@ -1406,13 +1408,32 @@ public class NPCs {
                 }
                 return 0;
             } else {
-                log("No NPCs found, proceeding to Camel Warrior location.");
-                if (Movement.traverse(NavPath.resolve(camelWarriorCoord)) == TraverseEvent.State.FINISHED) { // TODO: Change to Camel Warrior location
-                    log("Traversed to Camel Warrior location.");
-                    if (doSlayer) {
-                        ActivateSoulSplit();
-                        handleMultitarget = false;
-                        setSlayerState(Main.SlayerState.COMBAT);
+                log("No Camel Warriors found, proceeding to Camel Warrior location.");
+                if (Movement.traverse(NavPath.resolve(camelWarriorCoord)) == TraverseEvent.State.FINISHED) {
+                    EntityResultSet<SceneObject> stone1 = SceneObjectQuery.newQuery().id(100267).option("Cross").results();
+                    if (!stone1.isEmpty()) {
+                        SceneObject nearestStone1 = stone1.nearest();
+                        if (nearestStone1 != null) {
+                            log("Stone 1 found, proceeding to Cross.");
+                            nearestStone1.interact("Cross");
+                            Execution.delay(random.nextLong(4000, 5000));
+                            EntityResultSet<SceneObject> stone2 = SceneObjectQuery.newQuery().id(100268).option("Cross").results();
+                            if (!stone2.isEmpty()) {
+                                SceneObject nearestStone2 = stone2.nearest();
+                                if (nearestStone2 != null) {
+                                    log("Stone 2 found, proceeding to Cross.");
+                                    nearestStone2.interact("Cross");
+                                    Execution.delay(random.nextLong(4000, 5000));
+                                    log("Traversed to Camel Warrior location.");
+                                    if (doSlayer) {
+                                        ActivateSoulSplit();
+                                        handleMultitarget = false;
+                                        WarsRetreat.camelWarriors = true;
+                                        setSlayerState(Main.SlayerState.COMBAT);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
