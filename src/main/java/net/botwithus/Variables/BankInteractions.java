@@ -59,16 +59,16 @@ public class BankInteractions {
     public static final Coordinate Anachronia = new Coordinate(5465, 2342, 0);
   /*  public static final Coordinate Edgeville = new Coordinate(3096, 3496, 0);*/
     public static final Coordinate KharidEt = new Coordinate(3356, 3197, 0);
-    public static final Coordinate VIP = new Coordinate(3182, 2742, 0);
     public static final Coordinate STORMGUARD = new Coordinate(2675, 3404, 0);
     public static final Coordinate MAXGUILD = new Coordinate(2276, 3311, 1);
+    public static final Coordinate Menophos = new Coordinate(3234, 2759, 0);
 
     public static final List<Coordinate> BANK_COORDINATES = new ArrayList<>(Arrays.asList(
             VarrockWest, VarrockEast,/* GrandExchange,*/ Canafis, AlKharid, Lumbridge,
             Draynor, FaladorEast, SmithingGuild, FaladorWest, Burthorpe, Taverly,
             Catherby, Seers, ArdougneSouth, ArdougneNorth, Yanille, Ooglog,
             CityOfUm, prifWest, PrifddinasCenter, PrifddinasEast, WarsRetreat,
-            Anachronia, /*Edgeville, */KharidEt, VIP, STORMGUARD
+            Anachronia, /*Edgeville, */KharidEt, STORMGUARD, Menophos
     ));
 
     public static List<String> BANK_TYPES = new ArrayList<>(Arrays.asList("Bank chest", "Bank booth", "Counter"));
@@ -139,7 +139,7 @@ public class BankInteractions {
         } else {
             log("[Banking] Player is not at the bank coordinate.");
         }
-        return 0; // You need to return a long value as per the method signature
+        return 0;
     }
 
     public static SceneObject findNearestBankBooth(LocalPlayer player) {
@@ -265,6 +265,17 @@ public class BankInteractions {
 
     public static void handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
         Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
+
+        SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").isReachable().results().nearest();
+        if (bankChest != null) {
+            if (bankChest.interact("Load Last Preset from")) {
+                log("[Banking] Loaded last preset from bank chest.");
+                return;
+            } else {
+                log("[Error] Failed to load last preset from bank chest.");
+            }
+        }
+
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
         String bankType = nearestBankBooth.getName();
 
@@ -373,6 +384,17 @@ public class BankInteractions {
 
 
     public static void handleNormalBanking(LocalPlayer player, SceneObject nearestBankBooth) {
+
+        SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").isReachable().results().nearest();
+        if (bankChest != null) {
+            if (bankChest.interact("Load Last Preset from")) {
+                log("[Banking] Loaded last preset from bank chest.");
+                return;
+            } else {
+                log("[Error] Failed to load last preset from bank chest.");
+            }
+        }
+
         List<String> bankTypes = Arrays.asList("Bank booth", "Bank chest", "Counter");
         String interactionOption = "Load Last Preset from";
 

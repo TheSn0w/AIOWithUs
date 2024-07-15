@@ -30,7 +30,7 @@ import static net.botwithus.inventory.equipment.Slot.NECK;
 public class Fishing {
 
     public static long handleFishing(LocalPlayer player, String fishingLocation, String fishingAction) {
-        if(useGote) {
+        if (useGote) {
             setLastSkillingLocation(player.getCoordinate());
             Execution.delay(random.nextLong(1500, 3000));
             usePorter();
@@ -52,20 +52,28 @@ public class Fishing {
         return random.nextLong(3500, 5000);
     }
 
-    static long handleFullBackpack(LocalPlayer player) {
-        EntityResultSet<SceneObject> DepositBox = SceneObjectQuery.newQuery().name("Deposit box").results();
+    public static long handleFullBackpack(LocalPlayer player) {
         if (nearestBank) {
-            if (DepositBox.nearest() != null) {
+            SceneObject depositBox = SceneObjectQuery.newQuery().name("Deposit box").results().nearest();
+            SceneObject bankChest = null;
+
+            if (depositBox == null) {
+                bankChest = SceneObjectQuery.newQuery().name("Bank chest").results().nearest();
+            }
+
+            if (depositBox != null) {
                 log("[Fishing] Depositing all fish...");
-                boolean success = false;
-                List<String> options = DepositBox.nearest().getOptions();
-                if (options.contains("Deposit all fish")) {
-                    success = DepositBox.nearest().interact("Deposit all fish");
-                } else if (options.contains("Deposit-All")) {
-                    success = DepositBox.nearest().interact("Deposit-All");
-                }
+                boolean success = depositBox.getOptions().contains("Deposit all fish") ? depositBox.interact("Deposit all fish") : depositBox.interact("Deposit-All");
                 if (success) {
-                    Execution.delayUntil(10000, () -> !Backpack.isFull());
+                    Execution.delayUntil(random.nextLong(20000, 30000), () -> !Backpack.isFull());
+                    if (!Backpack.isFull()) {
+                        setBotState(SnowsScript.BotState.SKILLING);
+                    }
+                    return random.nextLong(1500, 3000);
+                }
+            } else if (bankChest != null) {
+                if (bankChest.interact("Load Last Preset from")) {
+                    Execution.delayUntil(random.nextLong(20000, 30000), () -> !Backpack.isFull());
                     if (!Backpack.isFull()) {
                         setBotState(SnowsScript.BotState.SKILLING);
                     }
@@ -76,11 +84,14 @@ public class Fishing {
                 setBotState(SnowsScript.BotState.BANKING);
                 return random.nextLong(1500, 3000);
             }
+        } else {
+            log("[Fishing] Backpack is full. Dropping all fish...");
+            dropAllFish();
+            return random.nextLong(1500, 3000);
         }
-
-        dropAllFish();
-        return random.nextLong(1500, 3000);
+        return 0;
     }
+
 
     static void dropAllFish() {
         log("[Fishing] Backpack is full. Dropping all fish...");
