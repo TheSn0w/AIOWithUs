@@ -47,6 +47,7 @@ import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
 import static net.botwithus.SnowsScript.setBotState;
+import static net.botwithus.Variables.BankInteractions.useDepositBox;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.script.ScriptController.getActiveScript;
 
@@ -418,6 +419,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
+
                         createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");
@@ -446,6 +448,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Bank", () -> nearestBank = !nearestBank, nearestBank);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
+                        }
+                        createCenteredButton("Deposit Box", () -> useDepositBox = !useDepositBox, useDepositBox);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use nearby Deposit Box if found, must have Bank enabled too!!");
                         }
                         createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
                         if (ImGui.IsItemHovered()) {

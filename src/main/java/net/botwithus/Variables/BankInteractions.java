@@ -62,6 +62,7 @@ public class BankInteractions {
     public static final Coordinate STORMGUARD = new Coordinate(2675, 3404, 0);
     public static final Coordinate MAXGUILD = new Coordinate(2276, 3311, 1);
     public static final Coordinate Menophos = new Coordinate(3234, 2759, 0);
+    public static boolean useDepositBox = false;
 
     public static final List<Coordinate> BANK_COORDINATES = new ArrayList<>(Arrays.asList(
             VarrockWest, VarrockEast,/* GrandExchange,*/ Canafis, AlKharid, Lumbridge,
@@ -165,10 +166,8 @@ public class BankInteractions {
     }
 
     public static void interactWithBank(LocalPlayer player, SceneObject nearestBankBooth) {
-        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
-
-        if (oreBox != null || isMiningActive && useGote) {
-            handleOreBoxBanking(player, nearestBankBooth, oreBox);
+        if (isMiningActive) {
+            handleOreBoxBanking(player, nearestBankBooth);
         } else if (BankforFood) {
             handleBankforFood(player, nearestBankBooth);
         } else if (useGote && nearestBank) {
@@ -248,7 +247,7 @@ public class BankInteractions {
                 interactWithPorter();
                 Execution.delay(random.nextLong(1500, 2500));
                 if (varbitValue < getBankingThreshold()) {
-                    handleOreBoxBanking(player, nearestBankBooth, oreBox);
+                    handleOreBoxBanking(player, nearestBankBooth);
                 } else {
                     log("[Banking] Grace of the Elves is charged, Going back to skilling.");
                     if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
@@ -263,18 +262,10 @@ public class BankInteractions {
         }
     }
 
-    public static void handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth, Item oreBox) {
-        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
+    public static void handleOreBoxBanking(LocalPlayer player, SceneObject nearestBankBooth) {
+        Item oreBox = InventoryItemQuery.newQuery(93).category(4448).results().first();
 
-        SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").isReachable().results().nearest();
-        if (bankChest != null) {
-            if (bankChest.interact("Load Last Preset from")) {
-                log("[Banking] Loaded last preset from bank chest.");
-                return;
-            } else {
-                log("[Error] Failed to load last preset from bank chest.");
-            }
-        }
+        Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
 
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
         String bankType = nearestBankBooth.getName();

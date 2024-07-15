@@ -23,8 +23,10 @@ import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.BANKING;
+import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.setBotState;
 import static net.botwithus.SnowsScript.setLastSkillingLocation;
+import static net.botwithus.Variables.BankInteractions.useDepositBox;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.inventory.equipment.Slot.NECK;
 
@@ -81,6 +83,36 @@ public class Mining {
 
 
     private static void sendToBank(LocalPlayer player) {
+        if (useDepositBox) {
+            SceneObject depositBox = SceneObjectQuery.newQuery().name("Deposit box").results().nearest();
+            if (depositBox != null) {
+                if (depositBox.interact("Deposit-All")) {
+                    log("[Banking] Deposited all items in deposit box.");
+                    Execution.delayUntil(random.nextLong(20000, 30000), () -> !Backpack.isFull());
+                    if (!Backpack.isFull()) {
+                        return;
+                    }
+                } else {
+                    log("[Error] Failed to deposit all items in deposit box.");
+                }
+            } else {
+                log("[Banking] No deposit box found, proceeding to interact with the nearest bank ");
+            }
+        }
+
+        SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").results().nearest();
+        if (bankChest != null) {
+            if (bankChest.interact("Load Last Preset from")) {
+                Execution.delayUntil(random.nextLong(20000, 30000), () -> !Backpack.isFull());
+                log("[Banking] Loaded last preset from bank chest.");
+                return;
+            } else {
+                log("[Error] Failed to load last preset from bank chest.");
+            }
+        } else {
+            log("[Banking] No bank chest found, proceeding to interact with the nearest bank ");
+        }
+
         setLastSkillingLocation(player.getCoordinate());
         Execution.delay(random.nextLong(1500, 3000));
         setBotState(BANKING);
