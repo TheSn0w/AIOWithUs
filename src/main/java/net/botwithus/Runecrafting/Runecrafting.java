@@ -456,7 +456,7 @@ public class Runecrafting {
                 dialog(0, -1, 47185940);
                 log("[Runecrafting] Interacting with 'Haunt on the Hill'.");
 
-                Execution.delay(RandomGenerator.nextInt(3500, 5000));
+                Execution.delay(RandomGenerator.nextInt(5000, 6000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
 
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
@@ -471,7 +471,7 @@ public class Runecrafting {
                 Equipment.interact(Equipment.Slot.HANDS, "City of Um: Haunt on the Hill");
                 log("[Runecrafting] Interacted with 'City of Um: Haunt on the Hill'.");
 
-                Execution.delay(RandomGenerator.nextInt(3500, 5000));
+                Execution.delay(RandomGenerator.nextInt(5000, 6000));
                 Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
 
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
