@@ -195,7 +195,7 @@ public class Mining {
             if (nearestRock != null && Distance.between(player, nearestRock) <= 25.0D) {
                 if (nearestRock.interact("Mine")) {
                     log("[Mining] Interacted with: " + rockName);
-                    Execution.delayUntil(RandomGenerator.nextInt(1500, 3000), () -> player.getAnimationId() == -1);
+
                 }
             } else {
                 log("[Error] Rock is too far away to interact, move closer.");
