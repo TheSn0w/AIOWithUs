@@ -176,7 +176,6 @@ public class Combat {
                 return;
             }
         }
-        NpcQuery.newQuery().overheadText("your blacklsited").results().isEmpty();
 
         if (useCustomLoot) {
             useCustomLootFromGround();
