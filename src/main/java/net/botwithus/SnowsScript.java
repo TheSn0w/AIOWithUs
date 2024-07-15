@@ -204,6 +204,9 @@ public class SnowsScript extends LoopingScript {
 
 
 
+    Thread combatThread;
+    Thread lootManagerThread;
+
     @Override
     public void onActivation() {
         setBotState(BotState.SKILLING);
@@ -213,19 +216,24 @@ public class SnowsScript extends LoopingScript {
         Stopwatch.start();
 
         Combat combat = new Combat(this);
-        Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
-
+        combatThread = Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
 
         LootManager lootManager = new LootManager(this);
-        Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
+        lootManagerThread = Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
 
         super.initialize();
     }
 
-
-
     @Override
     public void onDeactivation() {
+        // Interrupt the threads if they are running
+        if (combatThread != null) {
+            combatThread.interrupt();
+        }
+        if (lootManagerThread != null) {
+            lootManagerThread.interrupt();
+        }
+
         saveConfiguration();
         unsubscribeAll();
         super.onDeactivation();

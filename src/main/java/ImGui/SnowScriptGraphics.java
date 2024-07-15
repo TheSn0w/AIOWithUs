@@ -135,6 +135,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         ScriptisOn = true;
                         Stopwatch.start();
                         script.resume();
+
                     }
                 }
 
