@@ -98,19 +98,19 @@ public class Mining {
             } else {
                 log("[Banking] No deposit box found, proceeding to interact with the nearest bank ");
             }
-        }
 
-        SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").results().nearest();
-        if (bankChest != null) {
-            if (bankChest.interact("Load Last Preset from")) {
-                Execution.delayUntil(random.nextLong(20000, 30000), () -> !Backpack.isFull());
-                log("[Banking] Loaded last preset from bank chest.");
-                return;
+            SceneObject bankChest = SceneObjectQuery.newQuery().name("Bank chest").results().nearest();
+            if (bankChest != null) {
+                if (bankChest.interact("Load Last Preset from")) {
+                    Execution.delayUntil(random.nextLong(20000, 30000), () -> !Backpack.isFull());
+                    log("[Banking] Loaded last preset from bank chest.");
+                    return;
+                } else {
+                    log("[Error] Failed to load last preset from bank chest.");
+                }
             } else {
-                log("[Error] Failed to load last preset from bank chest.");
+                log("[Banking] No bank chest found, proceeding to interact with the nearest bank ");
             }
-        } else {
-            log("[Banking] No bank chest found, proceeding to interact with the nearest bank ");
         }
 
         setLastSkillingLocation(player.getCoordinate());

@@ -449,9 +449,9 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will use Nearest Bank");
                         }
-                        createCenteredButton("Deposit Box", () -> useDepositBox = !useDepositBox, useDepositBox);
+                        createCenteredButton("Nearby Banking", () -> useDepositBox = !useDepositBox, useDepositBox);
                         if (ImGui.IsItemHovered()) {
-                            ImGui.SetTooltip("Will use nearby Deposit Box if found, must have Bank enabled too!!");
+                            ImGui.SetTooltip("Will use nearby Deposit Box OR Bank chest if found, must have Bank enabled too!!");
                         }
                         createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
                         if (ImGui.IsItemHovered()) {
