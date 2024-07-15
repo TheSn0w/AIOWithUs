@@ -225,13 +225,13 @@ public class Combat {
 
         // Handle specific creature types
         if (lavaStrykewyrms) {
-            lavaStrykewyrms();
+            Execution.delay(lavaStrykewyrms());
             return;
         } else if (iceStrykewyrms) {
-            iceStrykewyrms();
+            Execution.delay(iceStrykewyrms());
             return;
         } else if (camelWarriors) {
-            camelWarriors(player);
+            Execution.delay(camelWarriors(player));
             return;
         }
 
