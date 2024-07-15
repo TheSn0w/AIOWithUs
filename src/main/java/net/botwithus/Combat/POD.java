@@ -20,6 +20,7 @@ import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.Combat.Food.eatFood;
 import static net.botwithus.Combat.POD.PODStep.*;
 import static net.botwithus.Combat.Potions.*;
+import static net.botwithus.Combat.Prayers.*;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
@@ -69,8 +70,17 @@ public class POD {
                 break;
             case INTERACT_WITH_OTHER_DOOR:
                 if (interactWithOtherDoor()) {
-                    log("[Combat] Interacted with the other door. Proceeding to the next step.");
-                    currentStep = MOVE_PLAYER_EAST;
+                    if (SoulSplit && VarManager.getVarbitValue(16779) == 0) {
+                        activateSoulSplit((LocalPlayer) player);
+                    }
+                    if (usequickPrayers) {
+                        updateQuickPrayersActiveStatus();
+                        if (!quickPrayersActive) {
+                            activateQuickPrayers();
+                            log("[Combat] Interacted with the other door. Proceeding to the next step.");
+                            currentStep = MOVE_PLAYER_EAST;
+                        }
+                    }
                 }
                 break;
             case MOVE_PLAYER_EAST:

@@ -37,6 +37,8 @@ import static net.botwithus.Archaeology.Banking.BankforArcheology;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
+import static net.botwithus.Combat.Familiar.useFamiliarForCombat;
+import static net.botwithus.Combat.Familiar.useFamiliarScrolls;
 import static net.botwithus.Combat.ItemRemover.dropItems;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.LootManager.*;
@@ -735,6 +737,8 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("TasksToSkip", tasksToSkipSerialized);
         this.configuration.addProperty("showSlayerOptions", String.valueOf(showSlayerOptions));
         this.configuration.addProperty("slayerPointFarming", String.valueOf(slayerPointFarming));
+        this.configuration.addProperty("useFamiliarForCombat", String.valueOf(useFamiliarForCombat));
+        this.configuration.addProperty("useFamiliarScrolls", String.valueOf(useFamiliarScrolls));
 
         this.configuration.save();
     }
@@ -745,6 +749,8 @@ public class SnowsScript extends LoopingScript {
             if (tasksToSkipSerialized != null && !tasksToSkipSerialized.isEmpty()) {
                 tasksToSkip = new ArrayList<>(Arrays.asList(tasksToSkipSerialized.split(",")));
             }
+            useFamiliarScrolls = Boolean.parseBoolean(this.configuration.getProperty("useFamiliarScrolls"));
+            useFamiliarForCombat = Boolean.parseBoolean(this.configuration.getProperty("useFamiliarForCombat"));
             slayerPointFarming = Boolean.parseBoolean(this.configuration.getProperty("slayerPointFarming"));
             showSlayerOptions = Boolean.parseBoolean(this.configuration.getProperty("showSlayerOptions"));
             useLootAllStackableItems = Boolean.parseBoolean(this.configuration.getProperty("useLootAllStackableItems"));
