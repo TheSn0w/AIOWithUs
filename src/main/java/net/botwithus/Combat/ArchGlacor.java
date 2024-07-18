@@ -134,16 +134,15 @@ public class ArchGlacor {
     private static boolean travelToArchGlacor(LocalPlayer player, String teleportAbility) {
         String portalName = teleportAbility.equals("Max Guild Teleport") ? "Arch-Glacor portal" : "Portal (Arch-Glacor)";
         EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery().name(portalName).option("Enter").results();
-        if (!results.isEmpty()) {
-            SceneObject portal = results.nearest();
-            if (portal != null) {
-                portal.interact("Enter");
-                log("Interacted with portal: " + portalName);
-                Execution.delayUntil(random.nextLong(15000, 20000), () -> {
-                    EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
-                    return !Aqueduct.isEmpty() && Aqueduct.nearest() != null;
-                });
-            }
+        SceneObject portal = results.nearest();
+
+        if (portal != null) {
+            portal.interact("Enter");
+            log("Interacted with portal: " + portalName);
+            Execution.delayUntil(random.nextLong(15000, 20000), () -> {
+                EntityResultSet<SceneObject> tempAqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
+                return !tempAqueduct.isEmpty() && tempAqueduct.nearest() != null;
+            });
         }
 
         EntityResultSet<SceneObject> Aqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
@@ -157,7 +156,15 @@ public class ArchGlacor {
 
         if (Aqueduct.isEmpty() || Aqueduct.nearest() == null) {
             log("Failed to find Aqueduct Portal after " + attempts + " attempts");
-            return false;
+            // Interact with the portal again if Aqueduct is not found after 15 attempts
+            if (portal != null) {
+                portal.interact("Enter");
+                log("Interacted with portal again: " + portalName);
+                Execution.delayUntil(random.nextLong(15000, 20000), () -> {
+                    EntityResultSet<SceneObject> tempAqueduct = SceneObjectQuery.newQuery().name("Aqueduct Portal").option("Enter").results();
+                    return !tempAqueduct.isEmpty() && tempAqueduct.nearest() != null;
+                });
+            }
         }
 
         SceneObject nearestAqueduct = Aqueduct.nearest();

@@ -1,21 +1,26 @@
 package net.botwithus.Misc;
 
+import net.botwithus.api.game.hud.inventories.Backpack;
+import net.botwithus.inventory.backpack;
+import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.minimenu.actions.NPCAction;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
+import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Variables.Variables.player;
-import static net.botwithus.Variables.Variables.random;
+import static net.botwithus.Variables.Variables.*;
 
 public class Necro {
 
@@ -61,6 +66,7 @@ public class Necro {
             }
         } else {
             if (!Platform2.isEmpty() && VarManager.getVarValue(VarDomainType.PLAYER, 10937) == 0) {
+                drinkOverloads((LocalPlayer) player);
                 log("Starting Ritual");
                 Platform2.first().interact("Start ritual");
                 Execution.delay(random.nextLong(1500, 3000));
@@ -69,6 +75,7 @@ public class Necro {
             } else {
                 EntityResultSet<SceneObject> pedestal = SceneObjectQuery.newQuery().id(127316).option("Continue ritual").results();
                 if (!pedestal.isEmpty()) {
+                    drinkOverloads((LocalPlayer) player);
                     log("Continuing Ritual");
                     pedestal.first().interact("Continue ritual");
                     Execution.delayUntil(random.nextLong(8000, 10000), () -> !player.isMoving() && player.getAnimationId() != -1);
@@ -337,6 +344,29 @@ public class Necro {
                 .spotAnimation(7930)
                 .results()
                 .first();
+    }
+
+    public static void drinkOverloads(LocalPlayer player) {
+        Pattern overloadPattern = Pattern.compile("overload", Pattern.CASE_INSENSITIVE);
+        if (VarManager.getVarbitValue(48834) <= 1 && player.getAnimationId() != 18000 && Backpack.contains(overloadPattern)) {
+
+
+            net.botwithus.rs3.game.Item overloadPot = InventoryItemQuery.newQuery(93)
+                    .results()
+                    .stream()
+                    .filter(item -> item.getName() != null && overloadPattern.matcher(item.getName()).find())
+                    .findFirst()
+                    .orElse(null);
+
+            boolean success = backpack.interact(overloadPot.getName(), "Drink");
+            if (success) {
+                log("[Combat] Successfully drank " + overloadPot.getName());
+                Execution.delayUntil(5000, () -> VarManager.getVarbitValue(48834) != 0);
+                Execution.delay(random.nextLong(1250, 1500));
+            } else {
+                log("[Error] Failed to interact with overload potion.");
+            }
+        }
     }
 }
 

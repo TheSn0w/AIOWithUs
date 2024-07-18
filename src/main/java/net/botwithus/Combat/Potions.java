@@ -248,7 +248,7 @@ public class Potions {
     }
 
     private static long antifirePotion() {
-        if (useAntifirePotion && VarManager.getVarbitValue(497) <= 1) {
+        if (useAntifirePotion && VarManager.getVarbitValue(497) <= 1 || VarManager.getVarbitValue(498) <= 1) {
             Player localPlayer = Client.getLocalPlayer();
             if (localPlayer != null) {
                 ResultSet<Item> items = InventoryItemQuery.newQuery(93).results();

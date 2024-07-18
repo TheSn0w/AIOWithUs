@@ -1,6 +1,8 @@
 package ImGui;
 
 import net.botwithus.*;
+import net.botwithus.Combat.Combat;
+import net.botwithus.Combat.LootManager;
 import net.botwithus.Slayer.NPCs;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.game.Client;
@@ -24,6 +26,7 @@ import static ImGui.CentreButton.createCenteredButton;
 import static ImGui.Skills.ArchaeologyImGui.renderArchaeology;
 import static ImGui.Skills.BottomChild.renderBottom;
 import static ImGui.Skills.CombatImGui.renderCombat;
+import static ImGui.Skills.CombatImGui.resetSlayerPoints;
 import static ImGui.Skills.CookingImGui.renderCooking;
 import static ImGui.Skills.DivinationImGui.renderDivination;
 import static ImGui.Skills.FishingImGui.renderFishing;
@@ -82,6 +85,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
         }
     }
 
+    public static Thread combatThread;
+    public static Thread lootManagerThread;
+
+
 
 
     @Override
@@ -130,15 +137,35 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 if (ImGui.Button(buttonText)) {
                     if (ScriptisOn) {
                         ScriptisOn = false;
+                        Stopwatch.stop();
+
+                        if (combatThread != null) {
+                            combatThread.interrupt();
+                        }
+                        if (lootManagerThread != null) {
+                            lootManagerThread.interrupt();
+                        }
+                        script.unsubscribeAll();
+
                         script.pause();
                     } else {
                         ScriptisOn = true;
                         Stopwatch.start();
-                        script.resume();
+                        script.saveConfiguration();
 
+                        setBotState(SnowsScript.BotState.SKILLING);
+                        resetSlayerPoints();
+                        script.subscribeToEvents();
+
+                        Combat combat = new Combat(script);
+                        combatThread = Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
+
+                        LootManager lootManager = new LootManager(script);
+                        lootManagerThread = Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
+
+                        script.resume();
                     }
                 }
-
                 ImGui.PopStyleVar(1);
                 buttonText = "Save Settings";
                 textWidth1 = ImGui.CalcTextSize(buttonText).getX();
@@ -793,6 +820,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                 ImGui.Columns(1, "Column", false);
 
                 renderBottom();
+                ImGui.PopStyleColor(49);
+                ImGui.PopStyleVar(49);
 
                 ImGui.End();
             }

@@ -40,27 +40,37 @@ public class LootManager {
 
 
     public void manageLoot() {
-        while (snowsScript.isActive()) {
+        try {
+            while (isCombatActive && ScriptisOn) {
+                if (useCustomLoot) {
+                    useCustomLoot();
+                }
+                if (useLootAllNotedItems) {
+                    lootNotedItemsFromInventory();
+                }
+                if (useNotepaper) {
+                    useItemOnNotepaper();
+                }
+                if (useLootAllStackableItems) {
+                    lootStackableItemsFromInventory();
+                }
+                if (useLootEverything) {
+                    lootAllButton();
+                }
 
-            if (useCustomLoot) {
-                useCustomLoot();
+                try {
+                    Thread.sleep(random.nextLong(1100, 1650));
+                } catch (InterruptedException e) {
+                    break;
+                }
             }
-            if (useLootAllNotedItems) {
-                lootNotedItemsFromInventory();
-            }
-            if (useNotepaper) {
-                useItemOnNotepaper();
-            }
-            if (useLootAllStackableItems) {
-                lootStackableItemsFromInventory();
-            }
-            if (useLootEverything) {
-                lootAllButton();
-            }
-
-            Execution.delay(random.nextLong(1100, 1650));
+        } catch (Exception e) {
+            log("Error in manageLoot: " + e.getMessage());
+        } finally {
+            log("Loot management stopped.");
         }
     }
+
 
     // =====================
 // SECTION 1: Loot Everything
@@ -121,6 +131,11 @@ public class LootManager {
         if (!walkToLoot && LootInventory.isOpen()) {
             return;
         }
+        if (targetItemNames.isEmpty()) {
+            log("[Error] No items specified for looting.");
+            return;
+        }
+
         int totalSlots = 28;
         int usedSlots = totalSlots - Backpack.countFreeSlots();
 

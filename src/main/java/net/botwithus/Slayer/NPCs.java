@@ -1,16 +1,14 @@
 package net.botwithus.Slayer;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
-import net.botwithus.rs3.game.Area;
-import net.botwithus.rs3.game.Client;
-import net.botwithus.rs3.game.Coordinate;
-import net.botwithus.rs3.game.Distance;
+import net.botwithus.rs3.game.*;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
@@ -28,6 +26,7 @@ import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
+import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.*;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
@@ -304,7 +303,7 @@ public class NPCs {
 
     public static void crystalShapeshifters(LocalPlayer player) {
         Coordinate worldGateCoords = new Coordinate(2367, 3358, 0);
-        Coordinate crystalShapeshifterCoords = new Coordinate(4067, 6616, 0);
+        Coordinate crystalShapeshifterCoords = new Coordinate(4070, 6614, 0);
 
         Area area = createAreaAroundCoordinate(crystalShapeshifterCoords);
         Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
@@ -395,52 +394,72 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(soulDevourersCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Soul Devourers location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (Backpack.contains(40303)) {
-                    if (dungeonEntrance.isEmpty()) {
-                        log("Dungeon entrance not found.");
-                    } else {
-                        SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
-                        if (nearestDungeonEntrance != null) {
-                            log("Dungeon entrance found, proceeding to Enter.");
-                            nearestDungeonEntrance.interact("Enter");
-                            Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(checkpoint0));
-                            if (player.getCoordinate().equals(checkpoint0)) {
-                                if (Movement.traverse(NavPath.resolve(checkpoints1)) == TraverseEvent.State.FINISHED) {
-                                    EntityResultSet<SceneObject> rope = SceneObjectQuery.newQuery().name("Rope").option("Climb down").results();
-                                    if (!rope.isEmpty()) {
-                                        SceneObject nearestRope = rope.nearest();
-                                        if (nearestRope != null) {
-                                            log("Rope found, proceeding to Climb down.");
-                                            nearestRope.interact("Climb down");
-                                            Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(checkpoint1));
-                                            if (player.getCoordinate().equals(checkpoint1)) {
-                                                if (Movement.traverse(NavPath.resolve(checkpoints2)) == TraverseEvent.State.FINISHED) {
-                                                    log("Traversed to Checkpoints.");
-                                                    addTargetName("Salawa akh");
-                                                    handleMultitarget = true;
-                                                    ActivateMeleePrayer();
-                                                    setSlayerState(Main.SlayerState.COMBAT);
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
+                            }
+                        }
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (dungeonEntrance.isEmpty()) {
+                    log("Dungeon entrance not found.");
+                } else {
+                    SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
+                    if (nearestDungeonEntrance != null) {
+                        log("Dungeon entrance found, proceeding to Enter.");
+                        nearestDungeonEntrance.interact("Enter");
+                        Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(checkpoint0));
+                        if (player.getCoordinate().equals(checkpoint0)) {
+                            if (Movement.traverse(NavPath.resolve(checkpoints1)) == TraverseEvent.State.FINISHED) {
+                                EntityResultSet<SceneObject> rope = SceneObjectQuery.newQuery().name("Rope").option("Climb down").results();
+                                if (!rope.isEmpty()) {
+                                    SceneObject nearestRope = rope.nearest();
+                                    if (nearestRope != null) {
+                                        log("Rope found, proceeding to Climb down.");
+                                        nearestRope.interact("Climb down");
+                                        Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(checkpoint1));
+                                        if (player.getCoordinate().equals(checkpoint1)) {
+                                            if (Movement.traverse(NavPath.resolve(checkpoints2)) == TraverseEvent.State.FINISHED) {
+                                                log("Traversed to Checkpoints.");
+                                                addTargetName("Salawa akh");
+                                                handleMultitarget = true;
+                                                ActivateMeleePrayer();
+                                                setSlayerState(Main.SlayerState.COMBAT);
 
-                                                }
                                             }
-                                        } else {
-                                            log("Rope not found.");
                                         }
                                     } else {
                                         log("Rope not found.");
-
                                     }
-                                }
-                                Movement.traverse(NavPath.resolve(checkpoints2));
-                                log("Traversed to Checkpoints.");
-                            }
-                        } else {
-                            log("Dungeon entrance not found.");
-                        }
-                    }
+                                } else {
+                                    log("Rope not found.");
 
-                } else {
-                    log("We do not have any Feather of Ma'at.");
+                                }
+                            }
+                            Movement.traverse(NavPath.resolve(checkpoints2));
+                            log("Traversed to Checkpoints.");
+                        }
+                    } else {
+                        log("Dungeon entrance not found.");
+                    }
                 }
             }
         }
@@ -772,7 +791,33 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(dungeonEntranceCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Corrupted scorpion location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (!dungeonEntrance.isEmpty() && Backpack.contains(40303)) {
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
+                            }
+                        }
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (!dungeonEntrance.isEmpty()) {
                     SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
                     if (nearestDungeonEntrance != null) {
                         log("Dungeon entrance found, proceeding to Enter.");
@@ -785,16 +830,14 @@ public class NPCs {
                                 ActivateSoulSplit();
                                 handleMultitarget = true;
                                 setSlayerState(Main.SlayerState.COMBAT);
-
                             }
                         }
-                    } else {
-                        log("We dont have any Feather of Ma'at.");
                     }
                 }
             }
         }
     }
+
 
     private static void handleCorruptedScarab(LocalPlayer player) {
         Coordinate dungeonEntranceCoords = new Coordinate(3290, 2708, 0);
@@ -815,7 +858,33 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(dungeonEntranceCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Corrupted scarab location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (!dungeonEntrance.isEmpty() && Backpack.contains(40303)) {
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
+                            }
+                        }
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (!dungeonEntrance.isEmpty()) {
                     SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
                     if (nearestDungeonEntrance != null) {
                         log("Dungeon entrance found, proceeding to Enter.");
@@ -831,8 +900,6 @@ public class NPCs {
 
                             }
                         }
-                    } else {
-                        log("We dont have any Feather of Ma'at.");
                     }
                 }
             }
@@ -858,23 +925,44 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(dungeonEntranceCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Corrupted lizard location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (!dungeonEntrance.isEmpty() && Backpack.contains(40303)) {
-                    SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
-                    if (nearestDungeonEntrance != null) {
-                        log("Dungeon entrance found, proceeding to Enter.");
-                        nearestDungeonEntrance.interact("Enter");
-                        Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(delayedCoordinate));
-                        if (player.getCoordinate().equals(delayedCoordinate)) {
-                            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
-                                log("Traversed to Corrupted lizard location.");
-                                addTargetName("lizard");
-                                handleMultitarget = true;
-                                ActivateSoulSplit();
-                                setSlayerState(Main.SlayerState.COMBAT);
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
                             }
                         }
-                    } else {
-                        log("We dont have any Feather of Ma'at.");
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (!dungeonEntrance.isEmpty()) {
+                    log("Dungeon entrance found, proceeding to Enter.");
+                    dungeonEntrance.nearest().interact("Enter");
+                    Execution.delayUntil(random.nextLong(8000, 10000), () -> player.getCoordinate().equals(delayedCoordinate));
+                    if (player.getCoordinate().equals(delayedCoordinate)) {
+                        if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                            log("Traversed to Corrupted lizard location.");
+                            addTargetName("lizard");
+                            handleMultitarget = true;
+                            ActivateSoulSplit();
+                            setSlayerState(Main.SlayerState.COMBAT);
+                        }
                     }
                 }
             }
@@ -900,7 +988,33 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(dungeonEntranceCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Corrupted dust devil location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (!dungeonEntrance.isEmpty() && Backpack.contains(40303)) {
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
+                            }
+                        }
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (!dungeonEntrance.isEmpty()) {
                     SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
                     if (nearestDungeonEntrance != null) {
                         log("Dungeon entrance found, proceeding to Enter.");
@@ -929,8 +1043,6 @@ public class NPCs {
                             }
                         }
                     }
-                } else {
-                    log("We dont have any Feather of Ma'at.");
                 }
             }
         }
@@ -957,7 +1069,33 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(dungeonEntranceCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Corrupted kalphite marauder location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (!dungeonEntrance.isEmpty() && Backpack.contains(40303)) {
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
+                            }
+                        }
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (!dungeonEntrance.isEmpty()) {
                     SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
                     if (nearestDungeonEntrance != null) {
                         log("Dungeon entrance found, proceeding to Enter.");
@@ -986,8 +1124,6 @@ public class NPCs {
                             }
                         }
                     }
-                } else {
-                    log("We dont have any Feather of Ma'at.");
                 }
             }
         }
@@ -1011,7 +1147,33 @@ public class NPCs {
             if (Movement.traverse(NavPath.resolve(dungeonEntranceCoords)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to Corrupted worker location.");
                 EntityResultSet<SceneObject> dungeonEntrance = SceneObjectQuery.newQuery().name("Dungeon entrance").option("Enter").results();
-                if (!dungeonEntrance.isEmpty() && Backpack.contains(40303)) {
+                if (!Backpack.contains(40303)) {
+                    log("We do not have any Feather of Ma'at, Will try and purchase");
+                    EntityResultSet<Npc> guard = NpcQuery.newQuery().name("Menaphite guard").option("Talk to").results();
+                    if (!guard.isEmpty()) {
+                        Npc nearestGuard = guard.nearest();
+                        if (nearestGuard != null) {
+                            log("Menaphite guard found, proceeding to Talk to.");
+                            nearestGuard.interact("Trade");
+                            Execution.delayUntil(random.nextLong(8000, 10000), () -> Interfaces.isOpen(1265));
+                            if (Interfaces.isOpen(1265)) {
+                                log("Interface is open");
+                                if (InventoryItemQuery.newQuery(821).name("Feather of Ma'at").results().size() >= 250) {
+                                    log("We can purchase 250+ Feather of Ma'at");
+                                    component(7, 0, 82903060);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                    component(1, -1, 82903210);
+                                    Execution.delay(random.nextLong(1500, 2500));
+                                } else {
+                                    log("Cant purchase 250+ Feather of Ma'at");
+                                    shutdown();
+                                }
+                            }
+                        }
+                    }
+                }
+                log("We have Feather of Ma'at, proceeding to Dungeon entrance.");
+                if (!dungeonEntrance.isEmpty()) {
                     SceneObject nearestDungeonEntrance = dungeonEntrance.nearest();
                     if (nearestDungeonEntrance != null) {
                         log("Dungeon entrance found, proceeding to Enter.");
@@ -1041,8 +1203,6 @@ public class NPCs {
                             }
                         }
                     }
-                } else {
-                    log("We dont have any Feather of Ma'at.");
                 }
             }
         }
@@ -1313,7 +1473,6 @@ public class NPCs {
         npcDataMap.put("Feral dinosaur", new NpcData(90, new Coordinate(5520, 2515, 0)));
         npcDataMap.put("Brutish dinosaur", new NpcData(99, new Coordinate(5527, 2544, 0)));
         npcDataMap.put("Venomous dinosaur", new NpcData(105, new Coordinate(5432, 2529, 0)));
-        npcDataMap.put("Ripper dinosaur", new NpcData(114, new Coordinate(5679, 2188, 0)));
 
         String targetNpcName = null;
         NpcData targetNpcData = null;
@@ -1509,7 +1668,7 @@ public class NPCs {
     }
 
     public static void birds(LocalPlayer player) {
-    Coordinate birdCoord = new Coordinate(3233, 3297, 0);
+    Coordinate birdCoord = new Coordinate(2885, 3477, 0);
     Npc bird = NpcQuery.newQuery().name("Chicken").option("Attack").results().nearest();
 
     if (bird != null && player.getCoordinate().distanceTo(bird.getCoordinate()) <= 20) {
@@ -1555,13 +1714,12 @@ public class NPCs {
         Coordinate spiderCoord = new Coordinate(3181, 3180, 0);
         Npc spider = NpcQuery.newQuery().name("Giant spider").results().nearest();
 
-
-        if (spider != null) {
-            log("spider found, proceeding to attack.");
+        if (spider != null && player.getCoordinate().distanceTo(spider.getCoordinate()) <= 20) {
+            log("Spider found within 20 tiles, proceeding to attack.");
             addTargetName("Giant spider");
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
-            log("spider not found, proceeding to spider location.");
+            log("Spider not found or not within 20 tiles, proceeding to spider location.");
             Area area = createAreaAroundCoordinate(spiderCoord);
             Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
             if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {

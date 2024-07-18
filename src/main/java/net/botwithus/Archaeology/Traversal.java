@@ -9,6 +9,7 @@ import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.script.Execution;
 
 import java.util.List;
 
@@ -25,8 +26,7 @@ import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.SnowsScript.getBotState;
 import static net.botwithus.SnowsScript.setBotState;
-import static net.botwithus.Variables.Variables.dialog;
-import static net.botwithus.Variables.Variables.lastSkillingLocation;
+import static net.botwithus.Variables.Variables.*;
 
 public class Traversal {
 
@@ -34,31 +34,30 @@ public class Traversal {
 
         if (shouldTraverseToStormguard(selectedArchNames)) {
             traverseToStormguard(selectedArchNames);
-        }
+        } else
         if (shouldTraverseToHellfire(selectedArchNames)) {
             traverseToHellfireLift(selectedArchNames);
-        }
+        } else
         if (shouldTraverseToKharidEt(selectedArchNames)) {
             traverseToKharidEt(selectedArchNames);
-        }
+        } else
         if (shouldTraverseToWarforge(selectedArchNames)) {
             traverseToWarforge(selectedArchNames);
-        }
+        } else
         if (shouldTraverseToDaeminheimWarpedFloor(selectedArchNames)) {
             traverseToDaeminheimWarpedFloor(selectedArchNames);
-        }
+        } else
         if (shouldTraverseToDaeminheimUpstairs(selectedArchNames)) {
             traverseToDaeminheimUpstairs(selectedArchNames);
-        }
+        } else
         if (selectedArchNames.contains("Castle hall rubble") || (selectedArchNames.contains("Tunnelling equipment repository"))) {
-                Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
-                setBotState(SKILLING);
+            Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
+            setBotState(SKILLING);
         } else {
-            if (getBotState() != SKILLING) {
-                traverseToLastSkillingLocation();
-            }
+            traverseToLastSkillingLocation();
         }
     }
+
 
     public static void interactWithDialogOption(List<String> selectedArchNames) {
         if (Interfaces.isOpen(720)) {
@@ -96,11 +95,9 @@ public class Traversal {
     }
 
     public static void traverseToLastSkillingLocation() {
-        if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+        Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
+        Execution.delayUntil(random.nextLong(360000, 365000), () -> player.getCoordinate().equals(new Coordinate(lastSkillingLocation.getX(), lastSkillingLocation.getY(), 0)));
             log("[Archaeology] Finished traversing to last location.");
             setBotState(SKILLING);
-        } else {
-            log("[Error] Failed to traverse to last location.");
-        }
     }
 }

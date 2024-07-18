@@ -100,42 +100,45 @@ public class Abyss {
         ResultSet<Item> sword = InventoryItemQuery.newQuery(94).results();
         EntityResultSet<SceneObject> bankResults = SceneObjectQuery.newQuery().id(42377).option("Bank").results();
 
-        if (bankResults.isEmpty()) {
-            if (!sword.isEmpty()) {
-                Item wildernessSword = null;
-                for (Item item : sword) {
-                    Matcher matcher = SWORD_PATTERN.matcher(item.getName());
-                    if (matcher.matches()) {
-                        wildernessSword = item;
-                        break;
+        // Check if bank results are not empty at the start
+        if (!bankResults.isEmpty()) {
+            thisState = AbyssState.BANKING;
+            return;
+        }
+
+        if (!sword.isEmpty()) {
+            Item wildernessSword = null;
+            for (Item item : sword) {
+                Matcher matcher = SWORD_PATTERN.matcher(item.getName());
+                if (matcher.matches()) {
+                    wildernessSword = item;
+                    break;
+                }
+            }
+
+            if (wildernessSword != null) {
+                boolean success = false;
+                while (player.getAnimationId() == -1) {
+                    success = Equipment.interact(Equipment.Slot.WEAPON, "Edgeville");
+                    log("[Wilderness Sword] Interacting with Wilderness Sword.");
+                    Execution.delay(random.nextLong(750, 1500)); // Wait for 750-1500ms before trying again
+                    if (player.getAnimationId() != -1) {
+                        log("[Wilderness Sword] Player is teleporting.");
                     }
                 }
-
-                if (wildernessSword != null) {
-                    boolean success = false;
-                    while (player.getAnimationId() == -1) {
-                        success = Equipment.interact(Equipment.Slot.WEAPON, "Edgeville");
-                        log("[Wilderness Sword] Interacting with Wilderness Sword.");
-                        Execution.delay(random.nextLong(750, 1500)); // Wait for 750-1500ms before trying again
-                        if (player.getAnimationId() != -1) {
-                            log("[Wilderness Sword] Player is teleporting.");
-                        }
-                    }
-                    if (success) {
-                        Execution.delay(random.nextLong(1500, 2000));
-                        Execution.delayUntil(15000, () -> !player.isMoving() && player.getAnimationId() == -1);
-                        log("[Wilderness Sword] Teleporting to Edgeville.");
-                        Execution.delay(random.nextLong(1500, 2000));
-                        thisState = AbyssState.BANKING;
-                    }
-                } else {
-                    log("[Wilderness Sword] Wilderness Sword not found in inventory.");
+                if (success) {
+                    // Keep querying for bank results until they are not null
+                    do {
+                        Execution.delay(random.nextLong(1000, 2000)); // Wait for 1-2 seconds before querying again
+                        bankResults = SceneObjectQuery.newQuery().id(42377).option("Bank").results();
+                    } while (bankResults.isEmpty());
+                    thisState = AbyssState.BANKING;
                 }
             } else {
-                log("[Wilderness Sword] Inventory is empty.");
+                log("[Wilderness Sword] Wilderness Sword not found in inventory.");
             }
         } else {
-            thisState = AbyssState.BANKING;
+            log("[Wilderness Sword] Inventory is empty.");
         }
     }
 
@@ -144,26 +147,25 @@ public class Abyss {
         if (!bankResults.isEmpty()) {
             SceneObject bank = bankResults.nearest();
             if (bank != null) {
-                if (!player.isMoving() && ManageFamiliar) {
+                if (ManageFamiliar) {
                     checkFamiliar();
                 }
-                if (!player.isMoving()) {
+                do {
                     bank.interact("Load Last Preset from");
                     log("[Bank] Interacting with bank.");
                     Execution.delay(random.nextLong(600, 800));
-                    if (player.isMoving() || Distance.between(player.getCoordinate(), new Coordinate(3097, 3496, 0)) > 15.0D) {
-                        Execution.delayUntil(20000, () -> Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0)) || Interfaces.isOpen(759));
-                        if (Interfaces.isOpen(759)) {
-                            bankPin();
-                        }
-                        log("[Bank] Loaded last preset.");
-                        if (Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0))) {
-                            thisState = AbyssState.INTERACTWITHWALL;
-                        } else {
-                            log("[Backpack] Backpack does not contain Pure essence, logging off.");
-                            shutdown();
-                        }
-                    }
+                } while (!(player.isMoving() || Backpack.contains("Pure essence")));
+
+                Execution.delayUntil(20000, () -> Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0)) || Interfaces.isOpen(759));
+                if (Interfaces.isOpen(759)) {
+                    bankPin();
+                }
+                log("[Bank] Loaded last preset.");
+                if (Backpack.contains("Pure essence") && player.getCoordinate().equals(new Coordinate(3097, 3496, 0))) {
+                    thisState = AbyssState.INTERACTWITHWALL;
+                } else {
+                    log("[Backpack] Backpack does not contain Pure essence, logging off.");
+                    shutdown();
                 }
             }
         }
@@ -246,16 +248,22 @@ public class Abyss {
 
     private static void interactWithPortal() {
         String riftName = getRiftName();
-        EntityResultSet<SceneObject> riftResults = SceneObjectQuery.newQuery().name(riftName).option("Exit-through").results();
-        SceneObject rift = riftResults.nearest();
+        EntityResultSet<SceneObject> riftResults;
+        SceneObject rift = null;
 
-        if (rift == null) {
-            Execution.delay(random.nextLong(500, 1000));
-            interactWithPortal();
-        } else {
-            log("[Portal] Found nearest rift. Interacting...");
-            interactWithRift(rift, riftName);
+        while (rift == null) {
+            riftResults = SceneObjectQuery.newQuery().name(riftName).option("Exit-through").results();
+            rift = riftResults.nearest();
+            if (rift == null) {
+                log("[Portal] Rift not found. Retrying...");
+                Execution.delay(random.nextLong(500, 1000));
+            } else {
+                break; // Break the loop as soon as rift is not null
+            }
         }
+
+        log("[Portal] Found nearest rift. Interacting...");
+        interactWithRift(rift, riftName);
     }
 
     private static void interactWithRift(SceneObject rift, String riftName) {
@@ -488,27 +496,29 @@ public class Abyss {
         thisState = AbyssState.TELEPORTTOBANK;
     }
 
+    private static final Coordinate[] coordinates = {
+            new Coordinate(3101, 3534, 0),
+            new Coordinate(3100, 3534, 0),
+            new Coordinate(3100, 3536, 0),
+            new Coordinate(3099, 3536, 0),
+            new Coordinate(3099, 3535, 0),
+            new Coordinate(3099, 3533, 0)
+    };
+
 
 
     public static void castBladedDive() {
-        Coordinate[] coordinates = {
-                new Coordinate(3101, 3534, 0),
-                new Coordinate(3100, 3534, 0),
-                new Coordinate(3100, 3536, 0),
-                new Coordinate(3099, 3536, 0),
-                new Coordinate(3099, 3535, 0),
-                new Coordinate(3099, 3533, 0)
-        };
+        if (Math.random() > 0.90) { // 8% chance not to cast
+            log("[Caution] Decided not to use Bladed Dive this time.");
+            return;
+        }
 
         if (ActionBar.containsAbility("Bladed Dive")) {
-
             if (ActionBar.getCooldownPrecise("Bladed Dive") == 0) {
-
                 if (ActionBar.useAbility("Bladed Dive")) {
                     Execution.delay(RandomGenerator.nextInt(200, 400));
 
                     Coordinate selectedCoordinate = coordinates[random.nextInt(coordinates.length)];
-                    /*log("[Debug] Attempting to interact with tile at coordinates (" + selectedCoordinate.getX() + ", " + selectedCoordinate.getY() + ").");*/
                     MiniMenu.interact(SELECT_TILE.getType(), 0, selectedCoordinate.getX(), selectedCoordinate.getY());
                     log("[Success] Interaction with tile successful.");
                 } else {
@@ -524,27 +534,26 @@ public class Abyss {
 
     private static boolean Surge() {
         if (ActionBar.getCooldown("Surge") <= 0 && ActionBar.containsAbility("Surge")) {
-            if (Math.random() <= 0.96) {
+            if (Math.random() <= 0.90) { // 92% chance to cast
                 int delayBeforeCasting = RandomGenerator.nextInt(100, 1000);
                 Execution.delay(delayBeforeCasting);
+                log("[Success] Surge is not on cooldown. Casting Surge: " + ActionBar.useAbility("Surge"));
+                log("[Debug] Casting Surge at coordinates (" + player.getCoordinate().getX() + ", " + player.getCoordinate().getY() + ").");
+                return true;
+            } else {
+                log("[Caution] Decided not to use Surge this time.");
+                return false;
             }
-            log("[Success] Surge is not on cooldown. Casting Surge: " + ActionBar.useAbility("Surge"));
-            log("[Debug] Casting Surge at coordinates (" + player.getCoordinate().getX() + ", " + player.getCoordinate().getY() + ").");
-            return true;
         } else {
             log("[Caution] Surge is on cooldown, cannot cast || Ability not found in ActionBar.");
+            return false;
         }
-        return false;
     }
 
     public static void checkForOtherPlayersAndHopWorldAbyss() {
         if (hopDuetoPlayers) {
             if (thisState.equals(Abyss.AbyssState.BANKING) || thisState.equals(Abyss.AbyssState.INTERACTWITHMAGE) || thisState.equals(Abyss.AbyssState.INTERACTWITHPORTAL) || thisState.equals(Abyss.AbyssState.INTERACTWITHWALL) || thisState.equals(Abyss.AbyssState.INTERACTWITHALTER)) {
                 Player localPlayer = Client.getLocalPlayer();
-                if (localPlayer == null) {
-                    log("Local player not found.");
-                    return;
-                }
                 String localPlayerName = localPlayer.getName();
                 Coordinate localPlayerLocation = localPlayer.getCoordinate();
 

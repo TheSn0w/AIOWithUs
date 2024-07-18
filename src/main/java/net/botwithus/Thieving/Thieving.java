@@ -18,6 +18,7 @@ import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
+import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
@@ -147,7 +148,6 @@ public class Thieving {
                 }
             }
         }
-        long animationStartTime = 0;
 
 
         if (thievingLevel >= 42 && thievingLevel < 83) {
@@ -157,24 +157,6 @@ public class Thieving {
             }
             eatFood(player);
 
-
-            ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
-            ResultSet<Component> resultsMask = query.results();
-            boolean isCrystalMaskActive = !resultsMask.isEmpty();
-            if (!isCrystalMaskActive && ActionBar.containsAbility("Crystal Mask")) {
-                log("[Thieving] Activating Crystal Mask.");
-                if (ActionBar.useAbility("Crystal Mask")) {
-                    log("[Thieving] Crystal Mask activated successfully.");
-                    Execution.delay(RandomGenerator.nextInt(1000, 2000));
-                } else {
-                    log("[Error] Failed to activate Crystal Mask.");
-                }
-            }
-
-            if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
-                activateLightForm();
-            }
-
             EntityResultSet<Npc> results = NpcQuery.newQuery().name("Druid").option("Pickpocket").results();
             Coordinate druidLocation = new Coordinate(3311, 3304, 0);
             if (results.isEmpty()) {
@@ -182,36 +164,33 @@ public class Thieving {
                     return random.nextLong(3500, 5000);
                 }
             } else {
-                if (!player.isMoving() && player.getAnimationId() == -1) {
-                    long startTime = System.currentTimeMillis();
-                    long endTime = startTime + random.nextLong(4000, 5000);
-
-                    boolean success = false;
-                    while (System.currentTimeMillis() < endTime) {
-                        Execution.delay(100);
-                        int currentAnimation = player.getAnimationId();
-
-                        if (currentAnimation == -1) {
-                            success = true;
-                        } else {
-                            success = false;
-                            break;
-                        }
-                    }
-
-                    if (success) {
-                        Npc npc = results.nearest();
-                        if (npc != null) {
-                            log("[Thieving] Interacting with Druid.");
-                            npc.interact("Pickpocket");
-                        }
+                ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
+                ResultSet<Component> resultsMask = query.results();
+                boolean isCrystalMaskActive = !resultsMask.isEmpty();
+                if (!isCrystalMaskActive && ActionBar.containsAbility("Crystal Mask")) {
+                    log("[Thieving] Activating Crystal Mask.");
+                    if (ActionBar.useAbility("Crystal Mask")) {
+                        log("[Thieving] Crystal Mask activated successfully.");
+                        Execution.delay(RandomGenerator.nextInt(1000, 2000));
+                    } else {
+                        log("[Error] Failed to activate Crystal Mask.");
                     }
                 }
+
+                if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
+                    activateLightForm();
+                }
+
+                results.nearest().interact("Pickpocket");
+                log("[Thieving] Interacting with Druid.");
+                Execution.delayUntil(random.nextLong(120000, 150000), () -> player.getAnimationId() == 424);
+                if (player.getAnimationId() == 424) {
+                    log("[Thieving] We have been Stunned, delaying");
+                    Execution.delay(random.nextLong(6000, 7000));
+                }
+
             }
-
             eatFood(player);
-
-            return animationStartTime;
         }
 
         if (thievingLevel >= 83) {
@@ -221,22 +200,7 @@ public class Thieving {
             }
             eatFood(player);
 
-            ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
-            ResultSet<Component> resultsMask = query.results();
-            boolean isCrystalMaskActive = !resultsMask.isEmpty();
-            if (!isCrystalMaskActive && ActionBar.containsAbility("Crystal Mask")) {
-                log("[Thieving] Activating Crystal Mask.");
-                if (ActionBar.useAbility("Crystal Mask")) {
-                    log("[Thieving] Crystal Mask activated successfully.");
-                    Execution.delay(RandomGenerator.nextInt(1000, 2000));
-                } else {
-                    log("[Error] Failed to activate Crystal Mask.");
-                }
-            }
 
-            if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
-                activateLightForm();
-            }
 
             EntityResultSet<Npc> results = NpcQuery.newQuery().name("Crux Eqal Knight").option("Pickpocket").results();
             Coordinate druidLocation = new Coordinate(3320, 3290, 0);
@@ -246,35 +210,35 @@ public class Thieving {
                     return random.nextLong(1500, 2500);
                 }
             } else {
-                if (!player.isMoving() && player.getAnimationId() == -1) {
-                    long startTime = System.currentTimeMillis();
-                    long endTime = startTime + random.nextLong(4000, 5000);
-
-                    boolean success = false;
-                    while (System.currentTimeMillis() < endTime) {
-                        Execution.delay(100);
-                        int currentAnimation = player.getAnimationId();
-
-                        if (currentAnimation == -1) {
-                            success = true;
-                        } else {
-                            success = false;
-                            break;
-                        }
-                    }
-
-                    if (success) {
-                        Npc npc = results.nearest();
-                        if (npc != null) {
-                            log("[Thieving] Interacting with Druid.");
-                            npc.interact("Pickpocket");
-                        }
+                ComponentQuery query = ComponentQuery.newQuery(284).spriteId(25938);
+                ResultSet<Component> resultsMask = query.results();
+                boolean isCrystalMaskActive = !resultsMask.isEmpty();
+                if (!isCrystalMaskActive && ActionBar.containsAbility("Crystal Mask")) {
+                    log("[Thieving] Activating Crystal Mask.");
+                    if (ActionBar.useAbility("Crystal Mask")) {
+                        log("[Thieving] Crystal Mask activated successfully.");
+                        Execution.delay(RandomGenerator.nextInt(1000, 2000));
+                    } else {
+                        log("[Error] Failed to activate Crystal Mask.");
                     }
                 }
+
+                if (VarManager.getVarbitValue(29066) == 0 && ActionBar.containsAbility("Light Form")) {
+                    activateLightForm();
+                }
+
+                results.nearest().interact("Pickpocket");
+                log("[Thieving] Interacting with Knight.");
+                Execution.delayUntil(random.nextLong(120000, 150000), () -> player.getAnimationId() == 424);
+                if (player.getAnimationId() == 424) {
+                    log("[Thieving] We have been Stunned, delaying");
+                    Execution.delay(random.nextLong(6000, 7000));
+                }
+
             }
             eatFood(player);
         }
-        return animationStartTime;
+        return 0;
     }
 
 

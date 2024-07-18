@@ -55,7 +55,8 @@ public class Banking {
             Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
         if (backpack.isFull()) {
-            log("[Caution] Going to the bank.");
+            setLastSkillingLocation(player.getCoordinate());
+            log("[Caution] Going to the bank, setting skilling location as: " + player.getCoordinate());
             setBotState(BANKING);
         }
 
@@ -71,11 +72,14 @@ public class Banking {
             Coordinate bankChestCoordinate = new Coordinate(3362, 3397, 0);
             EntityResultSet<SceneObject> results = SceneObjectQuery.newQuery()
                     .name("Bank chest")
-                    .isReachable()
                     .option("Use")
                     .results();
             if (!results.isEmpty()) {
-                Execution.delay(handleBankInteraction(player, selectedArchNames));
+                double distanceToChest = player.distanceTo(results.nearest());
+                log("[Archaeology] Found bank chest " + results.nearest().getCoordinate() + " at a distance of " + distanceToChest + " tiles.");
+                if (distanceToChest < 25) {
+                    Execution.delay(handleBankInteraction(player, selectedArchNames));
+                }
             } else {
                 log("[Archaeology] Teleporting to bank.");
                 TraverseEvent.State traverseState = Movement.traverse(NavPath.resolve(bankChestCoordinate));
@@ -108,7 +112,7 @@ public class Banking {
                 if (Equipment.contains("Grace of the elves")) {
                     Bank.close();
                     String currentPorter = porterTypes[currentPorterType.get()];
-                    if(Backpack.contains(currentPorter)) {
+                    if (Backpack.contains(currentPorter)) {
                         log("[Archaeology] Found " + currentPorter + " in backpack, using it.");
                         Execution.delay(random.nextLong(500, 600));
                         useBankingPorter();
@@ -130,12 +134,13 @@ public class Banking {
             }
             log("[Archaeology] Finished banking, going back to work.");
             returnToLastLocation(player, selectedArchNames);
-            return 0;
         } else {
             log("[Error] Bank did not open.");
             return random.nextLong(900, 1500);
         }
+        return 0;
     }
+
     public static long handleBankInteractionforPorter() {
         openBank();
         if (!isBankOpen()) {

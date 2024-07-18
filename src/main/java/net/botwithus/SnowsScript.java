@@ -51,7 +51,7 @@ import static net.botwithus.Divination.Divination.checkAccountType;
 import static net.botwithus.Misc.Fletching.makeDinarrow;
 import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Misc.Necro.handleNecro;
-import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
+import static net.botwithus.Runecrafting.Abyss.*;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
@@ -202,47 +202,29 @@ public class SnowsScript extends LoopingScript {
         }
     }
 
-
-
-    Thread combatThread;
-    Thread lootManagerThread;
-
     @Override
     public void onActivation() {
-        setBotState(BotState.SKILLING);
-        ScriptisOn = true;
-        resetSlayerPoints();
-        subscribeToEvents();
-        Stopwatch.start();
-
-        Combat combat = new Combat(this);
-        combatThread = Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
-
-        LootManager lootManager = new LootManager(this);
-        lootManagerThread = Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
-
         super.initialize();
     }
 
+
+
     @Override
     public void onDeactivation() {
-        // Interrupt the threads if they are running
-        if (combatThread != null) {
-            combatThread.interrupt();
+        if (SnowScriptGraphics.combatThread != null) {
+            SnowScriptGraphics.combatThread.interrupt();
         }
-        if (lootManagerThread != null) {
-            lootManagerThread.interrupt();
+        if (SnowScriptGraphics.lootManagerThread != null) {
+            SnowScriptGraphics.lootManagerThread.interrupt();
         }
 
-        saveConfiguration();
         unsubscribeAll();
         super.onDeactivation();
     }
 
-    private void subscribeToEvents() {
+    public void subscribeToEvents() {
         EventBus.EVENT_BUS.subscribe(this, ChatMessageEvent.class, this::onChatMessageEvent);
         EventBus.EVENT_BUS.subscribe(this, InventoryUpdateEvent.class, this::onInventoryUpdate);
-        EventBus.EVENT_BUS.subscribe(this, ServerTickedEvent.class, this::onTickEvent);
         EventBus.EVENT_BUS.subscribe(this, PropertyUpdateRequestEvent.class, this::onPropertyUpdateRequest);
     }
 
@@ -747,6 +729,8 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("slayerPointFarming", String.valueOf(slayerPointFarming));
         this.configuration.addProperty("useFamiliarForCombat", String.valueOf(useFamiliarForCombat));
         this.configuration.addProperty("useFamiliarScrolls", String.valueOf(useFamiliarScrolls));
+        this.configuration.addProperty("craftNatureRunes", String.valueOf(craftNatureRunes));
+        this.configuration.addProperty("craftBloodRunes", String.valueOf(craftBloodRunes));
 
         this.configuration.save();
     }
@@ -757,6 +741,8 @@ public class SnowsScript extends LoopingScript {
             if (tasksToSkipSerialized != null && !tasksToSkipSerialized.isEmpty()) {
                 tasksToSkip = new ArrayList<>(Arrays.asList(tasksToSkipSerialized.split(",")));
             }
+            craftBloodRunes = Boolean.parseBoolean(this.configuration.getProperty("craftBloodRunes"));
+            craftNatureRunes = Boolean.parseBoolean(this.configuration.getProperty("craftNatureRunes"));
             useFamiliarScrolls = Boolean.parseBoolean(this.configuration.getProperty("useFamiliarScrolls"));
             useFamiliarForCombat = Boolean.parseBoolean(this.configuration.getProperty("useFamiliarForCombat"));
             slayerPointFarming = Boolean.parseBoolean(this.configuration.getProperty("slayerPointFarming"));

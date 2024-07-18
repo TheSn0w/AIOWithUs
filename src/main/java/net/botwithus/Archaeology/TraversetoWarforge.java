@@ -52,10 +52,9 @@ public class TraversetoWarforge {
                     Execution.delay(random.nextLong(2500, 3000));
                     if (Interfaces.isOpen(720)) {
                         interactWithDialogOption(selectedArchNames);
-                    } else {
-                        Execution.delay(random.nextLong(4500, 6000));
-                        traverseToLastSkillingLocation();
                     }
+                    Execution.delay(random.nextLong(5500, 6000));
+                    traverseToLastSkillingLocation();
                 } else {
                     log("[Error] Failed to interact with Fort Entrance.");
                 }
