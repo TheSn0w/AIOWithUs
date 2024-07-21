@@ -9,6 +9,7 @@ import net.botwithus.Fishing.Fishing;
 import net.botwithus.Herblore.Herblore;
 import net.botwithus.Misc.*;
 import net.botwithus.Runecrafting.Abyss;
+import net.botwithus.Runecrafting.Astral;
 import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Thieving.Thieving;
@@ -41,6 +42,7 @@ import static net.botwithus.Misc.Necro.interactWithEntities;
 import static net.botwithus.Misc.Smelter.*;
 import static net.botwithus.Misc.UrnMaker.craftUrns;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
+import static net.botwithus.Runecrafting.Astral.useAstralAltar;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.runSlayer;
@@ -70,6 +72,9 @@ public class Runnables {
             }
             if (isRunecraftingActive && useAbyssRunecrafting) {
                 Abyss.runAbyss();
+            }
+            if (isRunecraftingActive && useAstralAltar) {
+                Astral.runAstral(); ;
             }
         }
     }

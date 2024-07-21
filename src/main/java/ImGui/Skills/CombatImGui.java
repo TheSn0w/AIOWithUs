@@ -24,8 +24,7 @@ import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
 import static net.botwithus.Combat.Familiar.*;
 import static net.botwithus.Combat.ItemRemover.*;
-import static net.botwithus.Combat.LootManager.getCostThreshold;
-import static net.botwithus.Combat.LootManager.setCostThreshold;
+import static net.botwithus.Combat.LootManager.*;
 import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.Combat.Notepaper.*;
 import static net.botwithus.Combat.Potions.*;
@@ -47,9 +46,6 @@ public class CombatImGui {
     public static boolean showAllLoot = false;
     public static boolean lootBasedonCost = false;
     public static boolean showSlayerOptions = false;
-
-
-
 
 
     public static void renderCombat() {
@@ -118,7 +114,7 @@ public class CombatImGui {
             if (ImGui.Button(buttonText2)) {
                 showAllLoot = !showAllLoot;
             }
-            if(doSlayer) {
+            if (doSlayer) {
                 float windowWidth3 = 400;
                 String buttonText3 = "Show Slayer Options?";
                 float textWidth3 = ImGui.CalcTextSize(buttonText3).getX();
@@ -548,7 +544,7 @@ public class CombatImGui {
                             ImGui.NextColumn();
                             // Calculate items per hour
                             float itemsPerHour = elapsedSeconds > 0 ? (float) entry.getValue() / elapsedSeconds * 3600 : 0;
-                            ImGui.Text(String.valueOf((int)itemsPerHour)); // Items per hour
+                            ImGui.Text(String.valueOf((int) itemsPerHour)); // Items per hour
                             ImGui.NextColumn();
                             ImGui.Separator(); // Separator for each line
                         }
@@ -580,6 +576,7 @@ public class CombatImGui {
                     ImGui.SeparatorText("Task Options");
                     slayerPointFarming = ImGui.Checkbox("Farm Slayer Points", slayerPointFarming);
                     hopWorldsForSlayer = ImGui.Checkbox("Hop Worlds (BETA) - dont use with Farm slayer", hopWorldsForSlayer);
+                    updateSlayerMaster();
                     updateTasksToSkip();
 
                     ImGui.End();
@@ -900,6 +897,49 @@ public class CombatImGui {
                         }
                     }
                 }
+                if (isCombatActive && (useLootAllStackableItems || useLootAllNotedItems)) {
+                    ImGui.SeparatorText("Excluded Keywords Options");
+
+                    if (ImGui.Button("Add Excluded Keyword") && !getExcludedKeyword().isEmpty()) {
+                        addExcludedKeyword(getExcludedKeyword());
+                        setExcludedKeyword("");
+                    }
+
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip("Enter the name of the item to exclude from looting, or part of the name of items such as 'seed' to not loot any seeds");
+                    }
+
+                    ImGui.SameLine();
+                    ImGui.SetItemWidth(200.0F);
+
+                    setExcludedKeyword(ImGui.InputText("##ExcludedKeyword", getExcludedKeyword()));
+
+                    if (!getExcludedKeywords().isEmpty()) {
+                        if (ImGui.BeginTable("Excluded Keywords List", 2, ImGuiWindowFlag.None.getValue())) {
+                            ImGui.TableNextRow();
+
+                            ImGui.TableSetupColumn("Excluded Keyword", 0);
+                            ImGui.TableSetupColumn("Action", 1);
+                            ImGui.TableHeadersRow();
+
+                            for (String excludedKeyword : new ArrayList<>(getExcludedKeywords())) {
+                                ImGui.TableNextRow();
+                                ImGui.Separator();
+                                ImGui.TableNextColumn();
+                                ImGui.Text(excludedKeyword);
+                                ImGui.Separator();
+                                ImGui.TableNextColumn();
+                                if (ImGui.Button("Remove##" + excludedKeyword)) {
+                                    removeExcludedKeyword(excludedKeyword);
+                                }
+                                if (ImGui.IsItemHovered()) {
+                                    ImGui.SetTooltip("Click to remove this excluded keyword");
+                                }
+                            }
+                            ImGui.EndTable();
+                        }
+                    }
+                }
                 ImGui.End();
             }
         }
@@ -939,6 +979,7 @@ public class CombatImGui {
     }
 
     public static void updateTasksToSkip() {
+        ImGui.SeparatorText("Tasks to Skip");
         String[] tasks = {"Choose Skips", "Camel warrior", "creatures of the lost grove", "risen ghosts", "undead", "ganodermic creatures", "dark beasts", "crystal shapeshifters", "nodon dragonkin", "soul devourers", "dinosaurs", "mithril dragons", "demons", "abyssal demons", "ascension members", "kalphite", "elves", "shadow creatures", "vile blooms", "ice strykewyrms", "lava strykewyrms", "greater demons", "mutated jadinkos", "corrupted creatures", "iron dragons", "steel dragons", "adamant dragons", "black dragons", "dragons", "black demons", "kal'gerion demons", "gargoyles", "chaos giants", "strykewyrms", "airut"};
         NativeInteger selectedItemIndex = new NativeInteger(0);
 
@@ -992,6 +1033,22 @@ public class CombatImGui {
         }
     }
 
+    public static NativeInteger selectedSlayerMasterIndex = new NativeInteger(0);
+    public final static String[] slayerMasters = {"Choose Slayer Master", "Jacquelyn", "Mazchna (N/A)", "Kuradal (N/A)", "Laniakea", "Mandrith"};
+
+    private static void updateSlayerMaster() {
+        ImGui.SeparatorText("Slayer Master");
+        ImGui.SetItemWidth(260.0F);
+        if (ImGui.Combo("##SlayerMaster", selectedSlayerMasterIndex, slayerMasters)) {
+            int selectedIndex = selectedSlayerMasterIndex.get();
+            if (selectedIndex >= 0 && selectedIndex < slayerMasters.length) {
+                String selectedMaster = slayerMasters[selectedIndex];
+                log("Selected slayer master: " + selectedMaster);
+            }
+        }
+    }
+}
+
 
     /*private static void displayTasksToSkip() {
         if (!tasksToSkip.isEmpty()) {
@@ -1033,6 +1090,3 @@ public class CombatImGui {
             ImGui.EndTable();
         }
     }*/
-
-
-}

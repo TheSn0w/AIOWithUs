@@ -853,6 +853,17 @@ public class Runecrafting {
         }
     }
 
+   /* private static void hopworlds() {
+        if(LoginManager.isLoginInProgress()) {
+            return;
+        }
+        final WorldQuery worlds = WorldQuery.newQuery().ping(1, 50).mark();
+        for (World result : worlds.results()) {
+            script.println("World: " + result.getId() + " " + result.getActivity() + " " + result.getPopulation());
+        }
+        script.delay(5000);
+    }*/
+
 
     public static int[] membersWorlds = new int[]{
            1, 2, 4, 5, 6, 9, 10, 12, 14, 15,

@@ -17,41 +17,35 @@ import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
-import java.util.regex.Pattern;
-
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Slayer.Laniakea.slayerCape;
 import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.TaskScheduler.shutdown;
 import static net.botwithus.Variables.Variables.component;
 import static net.botwithus.Variables.Variables.random;
 import static net.botwithus.rs3.game.Client.getLocalPlayer;
 
-public class Laniakea {
+public class Mazcha {
 
-    public static Pattern slayerCape = Pattern.compile("slayer cape", Pattern.CASE_INSENSITIVE);
-
-
-    public static void TeleporttoLaniakea() {
-        Coordinate laniakeaCoordinateCape = new Coordinate(5667, 2138, 0);
-        Coordinate laniakeaCoordinate = new Coordinate(5458, 2354, 0);
+    public static void TeleporttoMazchna() {
+        Coordinate mandrithCoords = new Coordinate(3510, 3509, 0);
         if (getLocalPlayer() == null) return;
         if (!InventoryItemQuery.newQuery(93).name(slayerCape).results().isEmpty()) {
-            if (Movement.traverse(NavPath.resolve(laniakeaCoordinateCape)) == TraverseEvent.State.FINISHED) {
-                Execution.delay(getTaskLaniakea());
+            if (Movement.traverse(NavPath.resolve(mandrithCoords)) == TraverseEvent.State.FINISHED) {
+                Execution.delay(getTaskMazchna());
             }
         } else {
-            if (Movement.traverse(NavPath.resolve(laniakeaCoordinate)) == TraverseEvent.State.FINISHED) {
-                Execution.delay(getTaskLaniakea());
+            if (Movement.traverse(NavPath.resolve(mandrithCoords)) == TraverseEvent.State.FINISHED) {
+                Execution.delay(getTaskMazchna());
             }
         }
     }
 
+    private static long getTaskMazchna() {
+        Npc Mazchna = NpcQuery.newQuery().name("Mazchna").results().nearest();
 
-    private static long getTaskLaniakea() {
-        Npc laniakea = NpcQuery.newQuery().name("Laniakea").results().nearest();
-
-        if (laniakea != null) {
-            laniakea.interact("Get task");
+        if (Mazchna != null) {
+            Mazchna.interact("Get task");
 
             boolean taskInterfaceOpened = Execution.delayUntil(10000, () -> Interfaces.isOpen(1191));
 
@@ -63,27 +57,26 @@ public class Laniakea {
                 Execution.delay(RandomGenerator.nextInt(1500, 2500));
                 setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
             } else {
-                setSlayerState(Main.SlayerState.LANIAKEA);
+                setSlayerState(Main.SlayerState.MAZCHNA);
                 log("Failed to open the task interface.");
             }
         } else {
-            setSlayerState(Main.SlayerState.LANIAKEA);
-            log("Laniakea is not found.");
+            setSlayerState(Main.SlayerState.MAZCHNA);
+            log("Mazchna is not found.");
         }
         return random.nextLong(1000, 2000);
     }
 
-    public static long skipTaskLaniakea() {
-        EntityResultSet<Npc> laniakea = NpcQuery.newQuery().name("Laniakea").results();
+    public static long skipTaskMazchna() {
+        EntityResultSet<Npc> mandrith = NpcQuery.newQuery().name("Mazchna").results();
 
-        if (laniakea.isEmpty()) {
-            Coordinate laniakeaCoordinate = new Coordinate(5460, 2354, 0);
-            Coordinate laniakeaCoordinateCape = new Coordinate(5668, 2138, 0);
+        if (mandrith.isEmpty()) {
+            Coordinate mandrithCoords = new Coordinate(3510, 3509, 0);
 
-            Area area = createAreaAroundCoordinate(laniakeaCoordinate, 1); // Pass 1 as the radius
+            Area area = createAreaAroundCoordinate(mandrithCoords, 1); // Pass 1 as the radius
             Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
 
-            Area area1 = createAreaAroundCoordinate(laniakeaCoordinateCape, 1); // Pass 1 as the radius
+            Area area1 = createAreaAroundCoordinate(mandrithCoords, 1); // Pass 1 as the radius
             Coordinate randomWalkableCoordinate1 = getRandomWalkableCoordinateInArea(area1);
 
             if (!InventoryItemQuery.newQuery(93).name(slayerCape).results().isEmpty()) {
@@ -92,7 +85,7 @@ public class Laniakea {
                 }
             } else {
                 if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
-                    log("Teleporting to Laniakea.");
+                    log("Teleporting to Mazchna.");
                 }
             }
         }
@@ -100,9 +93,9 @@ public class Laniakea {
         if (VarManager.getVarbitValue(9071) >= 30) { // amount of slayer points remaining
 
             log("Skipping task.");
-            if (!laniakea.isEmpty()) {
-                log("Interacting with Laniakea.");
-                laniakea.nearest().interact("Rewards");
+            if (!mandrith.isEmpty()) {
+                log("Interacting with Mazchna.");
+                mandrith.nearest().interact("Rewards");
                 Execution.delayUntil(random.nextLong(3000, 5000), () -> Interfaces.isOpen(1308));
                 Execution.delay(random.nextLong(800, 1100));
                 if (!ComponentQuery.newQuery(1308).componentIndex(21).subComponentIndex(-1).results().isEmpty()) {
@@ -114,7 +107,7 @@ public class Laniakea {
                         component(1, -1, 85721639);
                         Execution.delay(random.nextLong(1500, 3000));
                         log("Getting new task.");
-                        setSlayerState(Main.SlayerState.LANIAKEA);
+                        setSlayerState(Main.SlayerState.MANDRITH);
                     }
                 }
             }
@@ -140,4 +133,3 @@ public class Laniakea {
         return randomCoordinate;
     }
 }
-

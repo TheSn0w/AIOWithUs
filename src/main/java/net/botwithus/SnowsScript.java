@@ -17,6 +17,7 @@ import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
 import net.botwithus.rs3.events.impl.ServerTickedEvent;
 import net.botwithus.rs3.game.*;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
+import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
@@ -52,6 +53,7 @@ import static net.botwithus.Misc.Fletching.makeDinarrow;
 import static net.botwithus.Misc.Harps.useHarps;
 import static net.botwithus.Misc.Necro.handleNecro;
 import static net.botwithus.Runecrafting.Abyss.*;
+import static net.botwithus.Runecrafting.Astral.useAstralAltar;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
@@ -135,6 +137,10 @@ public class SnowsScript extends LoopingScript {
     public void onLoop() {
         LocalPlayer player = getLocalPlayer();
 
+        if(LoginManager.isLoginInProgress()) {
+            return;
+        }
+
         capturestuff();
 
         if (isDropActive) {
@@ -213,10 +219,13 @@ public class SnowsScript extends LoopingScript {
     public void onDeactivation() {
         if (SnowScriptGraphics.combatThread != null) {
             SnowScriptGraphics.combatThread.interrupt();
+            log("[Thread] Stopped CombatAbilities thread");
         }
         if (SnowScriptGraphics.lootManagerThread != null) {
             SnowScriptGraphics.lootManagerThread.interrupt();
+            log("[Thread] Stopped LootManager thread");
         }
+        ScriptisOn = false;
 
         unsubscribeAll();
         super.onDeactivation();
@@ -231,7 +240,6 @@ public class SnowsScript extends LoopingScript {
 
 
     public static int tick = 0;
-
     private void onTickEvent(ServerTickedEvent event) {
         tick = event.getTicks();
     }
@@ -685,8 +693,6 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("handleOnlyChonicles", String.valueOf(handleOnlyChonicles));
         this.configuration.addProperty("lootNoted", String.valueOf(useLootAllNotedItems));
         this.configuration.addProperty("useWorldhop", String.valueOf(useWorldhop));
-        this.configuration.addProperty("minHopIntervalMinutes", String.valueOf(minHopIntervalMinutes));
-        this.configuration.addProperty("maxHopIntervalMinutes", String.valueOf(maxHopIntervalMinutes));
         this.configuration.addProperty("hopDuetoPlayers", String.valueOf(hopDuetoPlayers));
         this.configuration.addProperty("useWorldhop", String.valueOf(useWorldhop));
         String centerCoordStr = centerCoordinate.getX() + "," + centerCoordinate.getY() + "," + centerCoordinate.getZ();
@@ -731,15 +737,25 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("useFamiliarScrolls", String.valueOf(useFamiliarScrolls));
         this.configuration.addProperty("craftNatureRunes", String.valueOf(craftNatureRunes));
         this.configuration.addProperty("craftBloodRunes", String.valueOf(craftBloodRunes));
+        String excludedKeywordsSerialized = String.join(",", excludedKeywords);
+        this.configuration.addProperty("excludedKeywords", excludedKeywordsSerialized);
+        this.configuration.addProperty("useAstralAltar", String.valueOf(useAstralAltar));
 
         this.configuration.save();
     }
 
     public void loadConfiguration() {
         try {
+            useAstralAltar = Boolean.parseBoolean(this.configuration.getProperty("useAstralAltar"));
             String tasksToSkipSerialized = this.configuration.getProperty("TasksToSkip");
             if (tasksToSkipSerialized != null && !tasksToSkipSerialized.isEmpty()) {
                 tasksToSkip = new ArrayList<>(Arrays.asList(tasksToSkipSerialized.split(",")));
+            }
+            String excludedKeywordsSerialized = this.configuration.getProperty("excludedKeywords");
+            if (excludedKeywordsSerialized != null && !excludedKeywordsSerialized.isEmpty()) {
+                String[] loadedExcludedKeywords = excludedKeywordsSerialized.split(",");
+                excludedKeywords.clear();
+                excludedKeywords.addAll(Arrays.asList(loadedExcludedKeywords));
             }
             craftBloodRunes = Boolean.parseBoolean(this.configuration.getProperty("craftBloodRunes"));
             craftNatureRunes = Boolean.parseBoolean(this.configuration.getProperty("craftNatureRunes"));
@@ -856,8 +872,6 @@ public class SnowsScript extends LoopingScript {
             equipChargeThreshold = Integer.parseInt(this.configuration.getProperty("equipChargeThreshold"));
             handleMultitarget = Boolean.parseBoolean(this.configuration.getProperty("handleMultitarget"));
             useWorldhop = Boolean.parseBoolean(this.configuration.getProperty("useWorldhop"));
-            minHopIntervalMinutes = Integer.parseInt(this.configuration.getProperty("minHopIntervalMinutes"));
-            maxHopIntervalMinutes = Integer.parseInt(this.configuration.getProperty("maxHopIntervalMinutes"));
             useBankPin = Boolean.parseBoolean(this.configuration.getProperty("useBankPin"));
             String pin1Value = this.configuration.getProperty("pin1");
             if (pin1Value != null && !pin1Value.isEmpty()) {

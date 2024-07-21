@@ -2,10 +2,8 @@ package net.botwithus.Slayer;
 
 import net.botwithus.SnowsScript;
 import net.botwithus.rs3.game.hud.interfaces.Component;
-import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
-import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Slayer.Laniakea.skipTask;
 import static net.botwithus.Slayer.Main.SlayerState.*;
 import static net.botwithus.Slayer.Main.setSlayerState;
 import static net.botwithus.Slayer.NPCs.*;
@@ -98,6 +95,11 @@ public class HandleTask {
                     addTargetName(taskName);
                     setSlayerState(DEMONS);
                     break;
+                case "abyssal beasts (wilderness)":
+                    taskName = "Abyssal beast";
+                    addTargetName(taskName);
+                    setSlayerState(DEMONS);
+                    break;
                 case "ascension members":
                     taskName = "Rorarius";
                     addTargetName(taskName);
@@ -129,6 +131,14 @@ public class HandleTask {
                 case "lava strykewyrms":
                     taskName = "Lava strykewyrms";
                     setSlayerState(LAVASTRYKEWYRMS);
+                    break;
+                case "lava strykewyrms (wilderness)":
+                    taskName = "Lava strykewyrms";
+                    setSlayerState(LAVASTRYKEWYRMS);
+                    break;
+                case "ice strykewyrms (wilderness)":
+                    taskName = "Ice strykewyrms";
+                    setSlayerState(ICESTRYKEWYRMS);
                     break;
                 case "greater demons":
                     taskName = "Greater demon";
@@ -247,6 +257,46 @@ public class HandleTask {
                 case "zombies":
                     taskName = "Zombies";
                     setSlayerState(ZOMBIES);
+                    break;
+                case "abyssal beast (wilderness)":
+                    taskName = "Abyssal beast";
+                    setSlayerState(ABYSSALBEAST);
+                    break;
+                case "abyssal lords (wilderness)":
+                    taskName = "Abyssal lord";
+                    setSlayerState(ABYSSALLORDS);
+                    break;
+                case "abyssal savages (wilderness)":
+                    taskName = "Abyssal savage";
+                    setSlayerState(ABYSSALSAVAGES);
+                    break;
+                case "dark beasts (wilderness)":
+                    taskName = "Dark beast";
+                    setSlayerState(DARKBEASTSWILDERNESS);
+                    break;
+                case "gargoyles (wilderness)":
+                    taskName = "Gargoyle";
+                    setSlayerState(GARGOYLESWILDERNESS);
+                    break;
+                case "black demons (wilderness)":
+                    taskName = "Black demon";
+                    setSlayerState(BLACKDEMONSWILDERNESS);
+                    break;
+                case "hydrix dragons (wilderness)":
+                    taskName = "Hydrix dragon";
+                    setSlayerState(HYDRIXDRAGONS);
+                    break;
+                case "onyx dragons (wilderness)":
+                    taskName = "Onyx dragon";
+                    setSlayerState(ONYXDRAGONS);
+                    break;
+                case "revenants (wilderness)":
+                    taskName = "Revenant";
+                    setSlayerState(REVENANTS);
+                    break;
+                case "soulgazers (wilderness)":
+                    taskName = "Soulgazer";
+                    setSlayerState(SOULGAZERS);
                     break;
                 default:
                     log("Task not recognized: " + taskText); // Debug log

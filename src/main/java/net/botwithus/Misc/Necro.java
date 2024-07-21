@@ -2,7 +2,6 @@ package net.botwithus.Misc;
 
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
-import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.js5.types.vars.VarDomainType;
 import net.botwithus.rs3.game.minimenu.actions.NPCAction;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
@@ -25,7 +24,7 @@ import static net.botwithus.Variables.Variables.*;
 public class Necro {
 
     public static boolean handleNecro = false;
-    public static boolean enableDisturbances = true;
+    public static boolean enableDisturbances = false;
 
     public static long interactWithEntities() {
         if (enableDisturbances && VarManager.getVarValue(VarDomainType.PLAYER, 10937) >= 5) {

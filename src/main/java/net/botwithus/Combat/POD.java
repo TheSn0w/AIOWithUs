@@ -74,12 +74,10 @@ public class POD {
                         activateSoulSplit((LocalPlayer) player);
                     }
                     if (usequickPrayers) {
-                        updateQuickPrayersActiveStatus();
-                        if (!quickPrayersActive) {
-                            activateQuickPrayers();
-                            log("[Combat] Interacted with the other door. Proceeding to the next step.");
-                            currentStep = MOVE_PLAYER_EAST;
-                        }
+                        activateQuickPrayers();
+                        log("[Combat] Interacted with the other door. Proceeding to the next step.");
+                        Execution.delay(random.nextInt(1000, 1500));
+                        currentStep = MOVE_PLAYER_EAST;
                     }
                 }
                 break;

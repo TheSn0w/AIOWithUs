@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static net.botwithus.Combat.Combat.useDefensives;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.setSlayerState;
@@ -102,6 +103,7 @@ public class NPCs {
             Npc nearestMound = mounds.nearest();
             log("[Ice] Interacting with the nearest mound.");
             nearestMound.interact("Investigate");
+            Execution.delay(random.nextLong(1000, 2000));
             if (Distance.between(nearestMound.getCoordinate(), player.getCoordinate()) > 15.0D && ActionBar.containsAbility("Surge") && ActionBar.getCooldown("Surge") == 0) {
                 Execution.delay(random.nextLong(600, 700));
                 log("[Ice] Used Surge: " + ActionBar.useAbility("Surge"));
@@ -250,6 +252,7 @@ public class NPCs {
         } else {
             log("Dark beast not found, proceeding to Dungeon entrance.");
             if (Movement.traverse(NavPath.resolve(DungeonEntrance)) == TraverseEvent.State.FINISHED) {
+                Execution.delay(random.nextLong(3000, 5000));
                 while (!player.getCoordinate().equals(delayCoordinate1)) {
                     EntityResultSet<SceneObject> cave = SceneObjectQuery.newQuery().name("Cave").option("Enter").results();
                     if (!cave.isEmpty()) {
@@ -1876,6 +1879,264 @@ public class NPCs {
         log("Selected random walkable coordinate: " + randomCoordinate);
         return randomCoordinate;
     }
+
+    public static void abyssalBeast(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3104, 3812, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Abyssal beast").results().nearest();
+
+        if (NPC != null) {
+            log("Abyssal beast found, proceeding to attack.");
+            ActivateSoulSplit();
+            addTargetName("Abyssal beast");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Abyssal beast not found, proceeding to Abyssal beast location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Abyssal beast location.");
+                addTargetName("Abyssal beast");
+                handleMultitarget = false;
+                ActivateSoulSplit();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void abyssalLords(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3126, 3894, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Abyssal lord").results().nearest();
+
+        if (NPC != null) {
+            log("Abyssal lord found, proceeding to attack.");
+            ActivateMagicPrayer();
+            addTargetName("Abyssal");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Abyssal lord not found, proceeding to Abyssal lord location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Abyssal lord location.");
+                addTargetName("Abyssal lord");
+                handleMultitarget = false;
+                useDefensives = true;
+                ActivateMagicPrayer();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void hydrixDragons(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3031, 3890, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Hydrix dragon").results().nearest();
+
+        if (NPC != null) {
+            log("Hydrix dragon found, proceeding to attack.");
+            ActivateMagicPrayer();
+            addTargetName("Hydrix dragon");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Hydrix dragon not found, proceeding to Hydrix dragon location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Hydrix dragon location.");
+                addTargetName("Hydrix dragon");
+                handleMultitarget = false;
+                useDefensives = true;
+                ActivateMagicPrayer();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void onyxDragons(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3226, 3797, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Onyx dragon").results().nearest();
+
+        if (NPC != null) {
+            log("Onyx dragon found, proceeding to attack.");
+            ActivateMagicPrayer();
+            addTargetName("Onyx dragon");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Onyx dragon not found, proceeding to Onyx dragon location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Onyx dragon location.");
+                addTargetName("Onyx dragon");
+                handleMultitarget = false;
+                useDefensives = true;
+                ActivateMagicPrayer();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void abyssalSavages(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3215, 3910, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Abyssal Savage").results().nearest();
+
+        if (NPC != null) {
+            log("Abyssal Savage found, proceeding to attack.");
+            ActivateMagicPrayer();
+            addTargetName("Abyssal Savage");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Abyssal Savage not found, proceeding to Abyssal Savage location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Abyssal Savage location.");
+                addTargetName("Abyssal Savage");
+                handleMultitarget = false;
+                useDefensives = true;
+                ActivateMagicPrayer();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void darkBeastsWilderness(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(2983, 3799, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Dark beast").results().nearest();
+
+        if (NPC != null) {
+            log("Dark beast found, proceeding to attack.");
+            ActivateSoulSplit();
+            addTargetName("Dark beast");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Dark beast not found, proceeding to Dark beast location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Dark beast location.");
+                addTargetName("Dark beast");
+                handleMultitarget = true;
+                ActivateSoulSplit();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void gargoylesWilderness(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3226, 3733, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Gargoyle").results().nearest();
+
+        if (NPC != null) {
+            log("Gargoyle found, proceeding to attack.");
+            ActivateSoulSplit();
+            addTargetName("Gargoyle");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Gargoyle not found, proceeding to Gargoyle location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Gargoyle location.");
+                addTargetName("Gargoyle");
+                handleMultitarget = true;
+                ActivateSoulSplit();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void blackDemonsWilderness(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3309, 3823, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Black demon").results().nearest();
+
+        if (NPC != null) {
+            log("Black demon found, proceeding to attack.");
+            ActivateSoulSplit();
+            addTargetName("Black demon");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Black demon not found, proceeding to Black demon location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Black demon location.");
+                addTargetName("Black demon");
+                handleMultitarget = true;
+                ActivateSoulSplit();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void soulGazers(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3308, 3731, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Soulgazer").results().nearest();
+
+        if (NPC != null) {
+            log("Soulgazer found, proceeding to attack.");
+            ActivateMagicPrayer();
+            addTargetName("Soulgazer");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Soulgazer not found, proceeding to Soulgazer location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Soulgazer location.");
+                addTargetName("Soulgazer");
+                handleMultitarget = false;
+                useDefensives = true;
+                ActivateMagicPrayer();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+    public static void revenants(LocalPlayer player) {
+        Coordinate NPCCoord = new Coordinate(3112, 10151, 0);
+
+        Area area = createAreaAroundCoordinate(NPCCoord);
+        Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+        Npc NPC = NpcQuery.newQuery().name("Revenant demon").results().nearest();
+
+        if (NPC != null) {
+            log("Revenants found, proceeding to attack.");
+            ActivateSoulSplit();
+            addTargetName("Revenant");
+            setSlayerState(Main.SlayerState.COMBAT);
+        } else {
+            log("Revenant not found, proceeding to Revenant location.");
+            if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                log("Traversed to Revenant location.");
+                addTargetName("Revenant");
+                handleMultitarget = true;
+                ActivateSoulSplit();
+                setSlayerState(Main.SlayerState.COMBAT);
+            }
+        }
+    }
+
+
+
 
 
 

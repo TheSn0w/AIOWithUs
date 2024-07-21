@@ -18,9 +18,10 @@ import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.util.RandomGenerator;
 
 
+import static ImGui.Skills.CombatImGui.selectedSlayerMasterIndex;
+import static ImGui.Skills.CombatImGui.slayerMasters;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.setSlayerState;
-import static net.botwithus.Slayer.Main.useBankPin;
 import static net.botwithus.Slayer.Utilities.*;
 import static net.botwithus.Slayer.Utilities.DeHandleSoulSplit;
 import static net.botwithus.TaskScheduler.bankPin;
@@ -51,6 +52,7 @@ public class WarsRetreat {
             DeActivateRangedPrayer();
             DeActivateMeleePrayer();
             DeHandleSoulSplit();
+            clearTargetNames();
             lavaStrykewyrms = false;
             iceStrykewyrms = false;
             camelWarriors = false;
@@ -123,6 +125,7 @@ public class WarsRetreat {
     }
 
 
+
     private static long handleBank(LocalPlayer player) {
         if (player != null) {
             EntityResultSet<SceneObject> BankChest = SceneObjectQuery.newQuery().name("Bank chest").results();
@@ -135,17 +138,38 @@ public class WarsRetreat {
                     if (Interfaces.isOpen(759)) {
                         bankPin();
                     }
+
                     if (VarManager.getVarValue(VarDomainType.PLAYER, 183) == 0) {
+                        String selectedMaster = slayerMasters[selectedSlayerMasterIndex.get()];
                         if (slayerPointFarming) {
                             int varValue = VarManager.getVarValue(VarDomainType.PLAYER, 10077);
                             int lastDigit = varValue % 10;
                             if (lastDigit >= 0 && lastDigit <= 8) {
                                 setSlayerState(Main.SlayerState.JACQUELYN);
                             } else if (lastDigit == 9) {
-                                setSlayerState(Main.SlayerState.LANIAKEA);
+                                setSlayerState(Main.SlayerState.valueOf(selectedMaster.toUpperCase()));
                             }
                         } else {
-                            setSlayerState(Main.SlayerState.LANIAKEA);
+                            switch (selectedMaster) {
+                                case "Jacquelyn":
+                                    setSlayerState(Main.SlayerState.JACQUELYN);
+                                    break;
+                                case "Mazcha":
+                                    setSlayerState(Main.SlayerState.MAZCHNA);
+                                    break;
+                                case "Kuradal":
+                                    setSlayerState(Main.SlayerState.KURADAL);
+                                    break;
+                                case "Laniakea":
+                                    setSlayerState(Main.SlayerState.LANIAKEA);
+                                    break;
+                                case "Mandrith":
+                                    setSlayerState(Main.SlayerState.MANDRITH);
+                                    break;
+                                default:
+                                    log("Invalid slayer master selected.");
+                                    break;
+                            }
                         }
                     } else {
                         setSlayerState(Main.SlayerState.RETRIEVETASKINFO);
@@ -155,4 +179,6 @@ public class WarsRetreat {
         }
         return random.nextLong(1500, 3000);
     }
+
+
 }

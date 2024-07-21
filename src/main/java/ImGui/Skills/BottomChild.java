@@ -2,6 +2,7 @@ package ImGui.Skills;
 
 import net.botwithus.Combat.POD;
 import net.botwithus.Runecrafting.Abyss;
+import net.botwithus.Runecrafting.Astral;
 import net.botwithus.Runecrafting.SteamRunes;
 import net.botwithus.Variables.GlobalState;
 import net.botwithus.rs3.game.login.LoginManager;
@@ -16,6 +17,7 @@ import static net.botwithus.Combat.ArchGlacor.getCurrentStep;
 import static net.botwithus.Misc.CaveNightshade.getNightShadeState;
 import static net.botwithus.Misc.UrnMaker.getUrnState;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
+import static net.botwithus.Runecrafting.Astral.useAstralAltar;
 import static net.botwithus.Runecrafting.Runecrafting.getCurrentState;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
@@ -37,7 +39,7 @@ public class BottomChild {
             ImGui.SetCursorPosX(10);
 
             String botState;
-            if (isRunecraftingActive && !useSteamRunes && !useAbyssRunecrafting) {
+            if (isRunecraftingActive && !useSteamRunes && !useAbyssRunecrafting && !useAstralAltar) {
                 botState = String.valueOf(getCurrentState());
             } else if (useSteamRunes) {
                 botState = String.valueOf(SteamRunes.getCurrentState());
@@ -55,6 +57,8 @@ public class BottomChild {
                 botState = String.valueOf(getCurrentStep());
             } else if (usePOD) {
                 botState = String.valueOf(POD.getCurrentStep());
+            } else if (useAstralAltar) {
+                botState = String.valueOf(Astral.getCurrentState());
             } else {
                 botState = String.valueOf(getBotState());
             }

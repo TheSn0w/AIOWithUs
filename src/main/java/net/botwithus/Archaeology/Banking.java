@@ -44,11 +44,13 @@ public class Banking {
 
     public static long backpackIsFull(LocalPlayer player) {
         if (backpack.contains("Archaeological soil box")) {
-            boolean success = backpack.interact("Archaeological soil box", "Fill");
-            Execution.delay(random.nextLong(1500, 3000));
-            log("[Archaeology] Attempting to fill soil box.");
-            if (!Backpack.isFull() == success) {
-                log("[Success] Soil box filled.");
+            if (Backpack.containsItemByCategory(4603)) {
+                boolean success = backpack.interact("Archaeological soil box", "Fill");
+                Execution.delay(random.nextLong(2000, 3000));
+                log("[Archaeology] Attempting to fill soil box.");
+                if (!Backpack.isFull() == success) {
+                    log("[Success] Soil box filled.");
+                }
             } else {
                 log("[Caution] Soil box Full.");
             }

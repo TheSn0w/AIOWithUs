@@ -46,6 +46,7 @@ import static net.botwithus.Combat.Travel.useHintArrow;
 import static net.botwithus.Combat.Travel.useTraveltoLocation;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Abyss.useAbyssRunecrafting;
+import static net.botwithus.Runecrafting.Astral.useAstralAltar;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.doSlayer;
 import static net.botwithus.Slayer.Main.useBankPin;
@@ -141,8 +142,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
                         if (combatThread != null) {
                             combatThread.interrupt();
+                            log("[Thread] Stopped CombatAbilities thread");
                         }
                         if (lootManagerThread != null) {
+                            log("[Thread] Stopped LootManager thread");
                             lootManagerThread.interrupt();
                         }
                         script.unsubscribeAll();
@@ -159,9 +162,15 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
 
                         Combat combat = new Combat(script);
                         combatThread = Thread.ofVirtual().name("CombatAbilities").start(combat::manageCombatAbilities);
+                        if (combatThread.isAlive()) {
+                            log("[Thread] Started CombatAbilities thread");
+                        }
 
                         LootManager lootManager = new LootManager(script);
                         lootManagerThread = Thread.ofVirtual().name("LootManager").start(lootManager::manageLoot);
+                        if (lootManagerThread.isAlive()) {
+                            log("[Thread] Started LootManager thread");
+                        }
 
                         script.resume();
                     }
@@ -573,6 +582,10 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         createCenteredButton("Abyss Crafting", () -> useAbyssRunecrafting = !useAbyssRunecrafting, useAbyssRunecrafting);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will craft runes Via the Abyss, HIGH REQUIREMENTS");
+                        }
+                        createCenteredButton("Astral Altar", () -> useAstralAltar = !useAstralAltar, useAstralAltar);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.SetTooltip("Will use Astral Altar");
                         }
                         createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
                         if (ImGui.IsItemHovered()) {

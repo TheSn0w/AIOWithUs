@@ -56,104 +56,93 @@ public class Combat {
 
 
     public void manageCombatAbilities() {
-        try {
-            while (isCombatActive && ScriptisOn) {
-                LocalPlayer player = getLocalPlayer();
-                if (player == null) {
-                    return;
-                }
-                if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
-                    activateSoulSplit(player);
-                }
-                if (SoulSplit && VarManager.getVarbitValue(16779) == 1 && !player.inCombat()) {
-                    deactivateSoulSplit();
-                }
-                if (usequickPrayers) {
-                    updateQuickPrayersActiveStatus();
-                    if (!quickPrayersActive && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
-                        activateQuickPrayers();
-                    } else {
-                        if (quickPrayersActive && !player.inCombat()) {
-                            deactivateQuickPrayers();
-                        }
-                    }
-                }
-                managePotions(player);
-                manageScripturesAndScrimshaws(player);
-
-                if (player.hasTarget() && player.inCombat()) {
-
-                    // Backpack
-                    if (useVulnerabilityBomb) {
-                        vulnerabilityBomb();
-                    }
-                    // Backpack
-                    if (useElvenRitual) {
-                        activateElvenRitual();
-                    }
-                    // Backpack
-                    if (useExcalibur) {
-                        activateExcalibur();
-                    }
-                    if (useUndeadSlayer) {
-                        setup("Undead Slayer");
-                        activateUndeadSlayer();
-                    }
-                    if (useDragonSlayer) {
-                        setup("Dragon Slayer");
-                        activateDragonSlayer();
-                    }
-                    if (useDemonSlayer) {
-                        setup("Demon Slayer");
-                        activateDemonSlayer();
-                    }
-                    if (useDarkness) {
-                        setup("Darkness");
-                        manageDarkness();
-                    }
-                    if (useAnimateDead) {
-                        setup("Animate Dead");
-                        manageAnimateDead();
-                    }
-                    if (useConjureUndeadArmy) {
-                        setup("Conjure Undead Army");
-                        keepArmyUp();
-                    }
-                    if (useThreadsofFate) {
-                        setup("Threads of Fate");
-                        manageThreadsOfFate();
-                    }
-                    if (useInvokeDeath) {
-                        setup("Invoke Death");
-                        invokeDeath();
-                    }
-                    if (useVolleyofSouls) {
-                        setup("Volley of Souls");
-                        volleyOfSouls();
-                    }
-                    if (useEssenceofFinality) {
-                        setup("Essence of Finality");
-                        essenceOfFinality();
-                    }
-                    if (useWeaponSpecialAttack) {
-                        setup("Weapon Special Attack");
-                        DeathEssence();
-                    }
-                    if (useDefensives) {
-                        useDefensives();
-                    }
-
-                    try {
-                        Thread.sleep(random.nextLong(800, 1000));
-                    } catch (InterruptedException e) {
-                        break;
+        while (isCombatActive && ScriptisOn && snowsScript.isActive()) {
+            LocalPlayer player = getLocalPlayer();
+            if (player == null) {
+                return;
+            }
+            if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+                activateSoulSplit(player);
+            }
+            if (SoulSplit && VarManager.getVarbitValue(16779) == 1 && !player.inCombat()) {
+                deactivateSoulSplit();
+            }
+            if (usequickPrayers) {
+                updateQuickPrayersActiveStatus();
+                if (!quickPrayersActive && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+                    activateQuickPrayers();
+                } else {
+                    if (quickPrayersActive && !player.inCombat()) {
+                        deactivateQuickPrayers();
                     }
                 }
             }
-        } catch (Exception e) {
-            log("Error in manageCombatAbilities: " + e.getMessage());
-        } finally {
-            log("Combat abilities management stopped.");
+            managePotions(player);
+            manageScripturesAndScrimshaws(player);
+
+            if (player.hasTarget() && player.inCombat()) {
+
+                // Backpack
+                if (useVulnerabilityBomb) {
+                    vulnerabilityBomb();
+                }
+                // Backpack
+                if (useElvenRitual) {
+                    activateElvenRitual();
+                }
+                // Backpack
+                if (useExcalibur) {
+                    activateExcalibur();
+                }
+                if (useUndeadSlayer) {
+                    setup("Undead Slayer");
+                    activateUndeadSlayer();
+                }
+                if (useDragonSlayer) {
+                    setup("Dragon Slayer");
+                    activateDragonSlayer();
+                }
+                if (useDemonSlayer) {
+                    setup("Demon Slayer");
+                    activateDemonSlayer();
+                }
+                if (useDarkness) {
+                    setup("Darkness");
+                    manageDarkness();
+                }
+                if (useAnimateDead) {
+                    setup("Animate Dead");
+                    manageAnimateDead();
+                }
+                if (useConjureUndeadArmy) {
+                    setup("Conjure Undead Army");
+                    keepArmyUp();
+                }
+                if (useThreadsofFate) {
+                    setup("Threads of Fate");
+                    manageThreadsOfFate();
+                }
+                if (useInvokeDeath) {
+                    setup("Invoke Death");
+                    invokeDeath();
+                }
+                if (useVolleyofSouls) {
+                    setup("Volley of Souls");
+                    volleyOfSouls();
+                }
+                if (useEssenceofFinality) {
+                    setup("Essence of Finality");
+                    essenceOfFinality();
+                }
+                if (useWeaponSpecialAttack) {
+                    setup("Weapon Special Attack");
+                    DeathEssence();
+                }
+                if (useDefensives) {
+                    useDefensives();
+                }
+                Execution.delay(random.nextLong(800, 1000));
+            }
         }
     }
 
@@ -169,7 +158,7 @@ public class Combat {
     }
 
     public static void attackTarget(LocalPlayer player) {
-        if (player == null || useTraveltoLocation || useHintArrow) {
+        if (useTraveltoLocation || useHintArrow) {
             Execution.delay(random.nextLong(600, 650));
             return;
         }
@@ -185,11 +174,14 @@ public class Combat {
 
         if (useCustomLoot) {
             useCustomLootFromGround();
-        } else if (useLootAllNotedItems) {
+        }
+        if (useLootAllNotedItems) {
             useNotedLootFromGround();
-        } else if (useLootEverything) {
+        }
+        if (useLootEverything) {
             useLootInventoryPickup();
-        } else if (useLootAllStackableItems) {
+        }
+        if (useLootAllStackableItems) {
             lootStackableItemsFromGround();
         }
 

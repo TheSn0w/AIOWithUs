@@ -1,7 +1,6 @@
 package net.botwithus.Slayer;
 
 import net.botwithus.Runecrafting.PlayerInfo;
-import net.botwithus.Runecrafting.Runecrafting;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -23,21 +22,25 @@ import net.botwithus.rs3.util.RandomGenerator;
 
 import java.util.List;
 
-import static ImGui.Skills.CombatImGui.getTasksToSkip;
+import static ImGui.Skills.CombatImGui.*;
 import static net.botwithus.Combat.Combat.attackTarget;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Runecrafting.Runecrafting.*;
-import static net.botwithus.Runecrafting.Runecrafting.ScriptState.*;
 import static net.botwithus.Slayer.HandleTask.handleTask;
-import static net.botwithus.Slayer.HandleTask.tasksToSkip;
 import static net.botwithus.Slayer.Jacquelyn.TeleporttoJacquelyn;
+import static net.botwithus.Slayer.Jacquelyn.skipTaskJacquelyn;
+import static net.botwithus.Slayer.Kuradal.TeleporttoKuradal;
+import static net.botwithus.Slayer.Kuradal.skipTaskKuradal;
 import static net.botwithus.Slayer.Laniakea.TeleporttoLaniakea;
-import static net.botwithus.Slayer.Laniakea.skipTask;
+import static net.botwithus.Slayer.Laniakea.skipTaskLaniakea;
 import static net.botwithus.Slayer.Main.SlayerState.CANCELTASK;
 import static net.botwithus.Slayer.Main.SlayerState.COMBAT;
+import static net.botwithus.Slayer.Mandrith.TeleporttoMandrith;
+import static net.botwithus.Slayer.Mandrith.skipTaskMandrith;
+import static net.botwithus.Slayer.Mazcha.TeleporttoMazchna;
+import static net.botwithus.Slayer.Mazcha.skipTaskMazchna;
 import static net.botwithus.Slayer.NPCs.*;
 import static net.botwithus.Slayer.Utilities.*;
-import static net.botwithus.Slayer.Utilities.ActivateSoulSplit;
 import static net.botwithus.Slayer.WarsRetreat.bankingLogic;
 import static net.botwithus.Slayer.WarsRetreat.slayerPointFarming;
 import static net.botwithus.TaskScheduler.bankPin;
@@ -102,6 +105,22 @@ public class Main {
         SKELETONS,
         SPIDERS,
         ZOMBIES,
+        MAZCHNA,
+        KURADAL,
+        MANDRITH,
+        //WILDERNESS
+        ABYSSALBEAST,
+        ABYSSALLORDS,
+        ABYSSALSAVAGES,
+        DARKBEASTSWILDERNESS,
+        GARGOYLESWILDERNESS,
+        BLACKDEMONSWILDERNESS,
+        HYDRIXDRAGONS,
+        KALGERIONDEMONSWILDERNESS,
+        ONYXDRAGONS,
+        REVENANTS,
+        SOULGAZERS,
+
 
     }
 
@@ -187,13 +206,48 @@ public class Main {
                 log("Jacquelyn state.");
                 TeleporttoJacquelyn();
                 break;
+            case MAZCHNA:
+                log("Mazcha state.");
+                clearTargetNames();
+                TeleporttoMazchna();
+                break;
+            case KURADAL:
+                log("Kuradal state.");
+                clearTargetNames();
+                TeleporttoKuradal();
+                break;
+            case MANDRITH:
+                log("Mandrith state.");
+                clearTargetNames();
+                TeleporttoMandrith();
+                break;
             case RETRIEVETASKINFO:
                 log("Handle Task state.");
                 handleTask(player);
                 break;
             case CANCELTASK:
                 log("Cancel Task state.");
-                skipTask();
+                String selectedMaster = slayerMasters[selectedSlayerMasterIndex.get()];
+                switch (selectedMaster) {
+                    case "Jacquelyn":
+                        skipTaskJacquelyn();
+                        break;
+                    case "Mazcha":
+                        skipTaskMazchna();
+                        break;
+                    case "Kuradal":
+                        skipTaskKuradal();
+                        break;
+                    case "Laniakea":
+                        skipTaskLaniakea();
+                        break;
+                    case "Mandrith":
+                        skipTaskMandrith();
+                        break;
+                    default:
+                        log("Invalid slayer master selected.");
+                        break;
+                }
                 break;
             case CAMELWARRIORS:
                 log("Camel Warriors state.");
@@ -362,6 +416,46 @@ public class Main {
             case ZOMBIES:
                 log("Zombies state.");
                 zombies(player);
+                break;
+            case ABYSSALBEAST:
+                log("Abyssal Beast Wilderness state.");
+                abyssalBeast(player);
+                break;
+            case ABYSSALLORDS:
+                log("Abyssal Lords Wilderness state.");
+                abyssalLords(player);
+                break;
+            case ABYSSALSAVAGES:
+                log("Abyssal Savages Wilderness state.");
+                abyssalSavages(player);
+                break;
+            case DARKBEASTSWILDERNESS:
+                log("Dark Beasts Wilderness state.");
+                darkBeastsWilderness(player);
+                break;
+            case GARGOYLESWILDERNESS:
+                log("Gargoyles Wilderness state.");
+                gargoylesWilderness(player);
+                break;
+            case BLACKDEMONSWILDERNESS:
+                log("Greater Demons Wilderness state.");
+                blackDemonsWilderness(player);
+                break;
+            case HYDRIXDRAGONS:
+                log("Hydrix Dragons Wilderness state.");
+                hydrixDragons(player);
+                break;
+            case ONYXDRAGONS:
+                log("Onyx Dragons Wilderness state.");
+                onyxDragons(player);
+                break;
+            case REVENANTS:
+                log("Revenants Wilderness state.");
+                revenants(player);
+                break;
+            case SOULGAZERS:
+                log("Soul Gazers Wilderness state.");
+                soulGazers(player);
                 break;
             case DEATHSOFFICE:
                 log("Deaths Office state.");

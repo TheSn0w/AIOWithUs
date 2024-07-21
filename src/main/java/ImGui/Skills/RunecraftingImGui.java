@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 
 import static ImGui.Theme.setStyleColor;
 import static net.botwithus.Runecrafting.Abyss.*;
+import static net.botwithus.Runecrafting.Astral.Astralrunes;
+import static net.botwithus.Runecrafting.Astral.useAstralAltar;
 import static net.botwithus.Runecrafting.Runecrafting.*;
 import static net.botwithus.Runecrafting.SteamRunes.useSteamRunes;
 import static net.botwithus.Slayer.Main.useBankPin;
@@ -151,7 +153,7 @@ public class RunecraftingImGui {
                 }
                 ImGui.End();
             }
-            if (!useSteamRunes && !useAbyssRunecrafting) {
+            if (!useSteamRunes && !useAbyssRunecrafting && !useAstralAltar) {
 
 
                 ImGui.SetCursorPosX(spacing);
@@ -206,7 +208,7 @@ public class RunecraftingImGui {
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Will hop worlds if there are any players in the current world");
                 }
-                if (useWorldhop) {
+                /*if (useWorldhop) {
 
                     long timeRemaining = nextWorldHopTime - System.currentTimeMillis();
                     if (timeRemaining > 0) {
@@ -237,7 +239,26 @@ public class RunecraftingImGui {
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Set the maximum interval for hopping worlds. The script will select a random time between these two values for each hop.");
                     }
+                }*/
+            }
+            if (useAstralAltar) {
+                ImGui.SetCursorPosX(spacing);
+                ManageFamiliar = ImGui.Checkbox("Use Familiar?", ManageFamiliar);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Abyssal Titan or Abyssal lurker or Abyssal parasite");
                 }
+
+                ImGui.SameLine();
+
+                ImGui.SetCursorPosX(spacing * 2 + checkboxWidth);
+                Powerburst = ImGui.Checkbox("Use Powerburst", Powerburst);
+                if (ImGui.IsItemHovered()) {
+                    ImGui.SetTooltip("Will use Powerburst of Sorcery");
+                }
+
+                ImGui.SeparatorText("Statistics");
+                displayAstralRunesInfo();
+
             }
             if (useSteamRunes) {
                 ImGui.SetCursorPosX(spacing);
@@ -248,7 +269,7 @@ public class RunecraftingImGui {
 
                 displaySteamRunesInfo();
             }
-            if (!useAbyssRunecrafting) {
+            if (!useAbyssRunecrafting && !useAstralAltar) {
 
                 ImGui.SeparatorText("Statistics");
                 displayLoopCountAndRunesPerHour(determineSelectedRuneType());
@@ -326,6 +347,25 @@ public class RunecraftingImGui {
             ImGui.Text(String.format("Per Hour: %.2f", runesPerHour));
         }
     }
+
+    public static void displayAstralRunesInfo() {
+
+        Duration elapsedTime = Duration.between(startTime, Instant.now());
+        long elapsedSeconds = elapsedTime.getSeconds();
+        if (elapsedSeconds == 0) return;
+
+        ImGui.Text("Crafted Runes Info:");
+        for (Map.Entry<String, Integer> entry : Astralrunes.entrySet()) {
+            float runesPerHour = (float) entry.getValue() / elapsedSeconds * 3600;
+            ImGui.Text(entry.getKey() + ": " + entry.getValue() + " (" + String.format("%.2f", runesPerHour) + " per hour)");
+        }
+        int loopCount = getLoopCounter();
+        ImGui.Text("Number of Runs: " + loopCount);
+        float runsPerHour = calculatePerHour(elapsedTime, loopCount);
+        ImGui.Text(String.format("Runs Per Hour: %.2f", runsPerHour));
+    }
+
+
     public static void displayNatureRunesInfo() {
 
         Duration elapsedTime = Duration.between(startTime, Instant.now());

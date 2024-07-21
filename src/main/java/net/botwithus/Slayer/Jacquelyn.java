@@ -7,14 +7,19 @@ import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
+import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
+import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
+import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
 
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Slayer.Laniakea.slayerCape;
 import static net.botwithus.Slayer.Main.setSlayerState;
-import static net.botwithus.Variables.Variables.dialog;
-import static net.botwithus.Variables.Variables.random;
+import static net.botwithus.TaskScheduler.shutdown;
+import static net.botwithus.Variables.Variables.*;
+import static net.botwithus.Variables.Variables.component;
 
 public class Jacquelyn {
 
@@ -25,7 +30,7 @@ public class Jacquelyn {
         Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
 
         if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
-            getTask();
+            getTaskJacquelyn();
         }
     }
 
@@ -45,7 +50,7 @@ public class Jacquelyn {
     }
 
 
-    public static void getTask() {
+    public static void getTaskJacquelyn() {
         EntityResultSet<Npc> jaquelyn = NpcQuery.newQuery().name("Jacquelyn").option("Talk to").results();
         if (!jaquelyn.isEmpty()) {
             jaquelyn.nearest().interact("Get task");
@@ -62,7 +67,7 @@ public class Jacquelyn {
                     if (Interfaces.isOpen(1188)) {
                         Execution.delay(random.nextLong(800, 1000));
                         dialog(0, -1, 77856786);
-                        getTask();
+                        getTaskJacquelyn();
                     }
                 } else {
                     if (Interfaces.isOpen(1188)) {
@@ -73,5 +78,56 @@ public class Jacquelyn {
                 }
             }
         }
+    }
+
+    public static long skipTaskJacquelyn() {
+        EntityResultSet<Npc> jacquelyn = NpcQuery.newQuery().name("Jacquelyn").results();
+
+        if (jacquelyn.isEmpty()) {
+            Coordinate jacquelynCoords = new Coordinate(3221, 3224, 0);
+
+            Area area = createAreaAroundCoordinate(jacquelynCoords, 1); // Pass 1 as the radius
+            Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
+
+            Area area1 = createAreaAroundCoordinate(jacquelynCoords, 1); // Pass 1 as the radius
+            Coordinate randomWalkableCoordinate1 = getRandomWalkableCoordinateInArea(area1);
+
+            if (!InventoryItemQuery.newQuery(93).name(slayerCape).results().isEmpty()) {
+                if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate1)) == TraverseEvent.State.FINISHED) {
+                    log("Teleporting via Slayers Cape.");
+                }
+            } else {
+                if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
+                    log("Teleporting to Jacquelyn.");
+                }
+            }
+        }
+
+        if (VarManager.getVarbitValue(9071) >= 30) { // amount of slayer points remaining
+
+            log("Skipping task.");
+            if (!jacquelyn.isEmpty()) {
+                log("Interacting with Jacquelyn.");
+                jacquelyn.nearest().interact("Rewards");
+                Execution.delayUntil(random.nextLong(3000, 5000), () -> Interfaces.isOpen(1308));
+                Execution.delay(random.nextLong(800, 1100));
+                if (!ComponentQuery.newQuery(1308).componentIndex(21).subComponentIndex(-1).results().isEmpty()) {
+                    log("Interacting with Assignments");
+                    component(1, -1, 85721106);
+                    Execution.delay(random.nextLong(800, 1100));
+                    if (!ComponentQuery.newQuery(1308).componentIndex(555).subComponentIndex(-1).results().isEmpty()) {
+                        log("Cancelling task.");
+                        component(1, -1, 85721639);
+                        Execution.delay(random.nextLong(1500, 3000));
+                        log("Getting new task.");
+                        setSlayerState(Main.SlayerState.JACQUELYN);
+                    }
+                }
+            }
+        } else {
+            log("Not enough slayer points to skip task.");
+            shutdown();
+        }
+        return 0;
     }
 }
