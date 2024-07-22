@@ -121,7 +121,7 @@ public class Banking {
     };
 
     if (backpack.contains("Archaeological soil box")) {
-        log("Soil box capacity: " + soilBoxCapacity); // Log the capacity of the soil box
+        log("Soil box capacity: " + soilBoxCapacity);
         for (SoilType soilType : SoilType.values()) {
             int soilAmount = VarManager.getVarValue(VarDomainType.PLAYER, soilType.getSoilBoxId());
             log("Soil Type: " + soilType.name() + ", Current Amount: " + soilAmount);
