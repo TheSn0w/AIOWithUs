@@ -11,6 +11,7 @@ import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.login.LoginManager;
+import net.botwithus.rs3.game.login.World;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -18,6 +19,7 @@ import net.botwithus.rs3.game.queries.builders.characters.PlayerQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
+import net.botwithus.rs3.game.queries.builders.worlds.WorldQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
@@ -230,14 +232,8 @@ public class Runecrafting {
 
                 if (otherPlayersPresent) {
                     log("Other players found within distance. Initiating world hop.");
-                    int currentWorld = LoginManager.getWorld();
-                    int randomMembersWorldsIndex;
-                    do {
-                        randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
-                    } while (membersWorlds[randomMembersWorldsIndex] == currentWorld);
                     ScriptState previousState = currentState;
-                    HopWorlds(membersWorlds[randomMembersWorldsIndex]);
-                    log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
+                    hopworlds();
                     currentState = previousState;
                 }
             }
@@ -853,16 +849,17 @@ public class Runecrafting {
         }
     }
 
-   /* private static void hopworlds() {
+    public static void hopworlds() {
         if(LoginManager.isLoginInProgress()) {
             return;
         }
-        final WorldQuery worlds = WorldQuery.newQuery().ping(1, 50).mark();
-        for (World result : worlds.results()) {
-            script.println("World: " + result.getId() + " " + result.getActivity() + " " + result.getPopulation());
+        final WorldQuery worlds = WorldQuery.newQuery().members().ping(1, 75).mark();
+        World world = worlds.results().random();
+        if(world != null) {
+            LoginManager.hopWorld(world);
         }
-        script.delay(5000);
-    }*/
+        Execution.delay(random.nextLong(5000, 10000));
+    }
 
 
     public static int[] membersWorlds = new int[]{
