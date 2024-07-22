@@ -225,10 +225,12 @@ public class Combat {
         if (lavaStrykewyrms) {
             Execution.delay(lavaStrykewyrms());
             return;
-        } else if (iceStrykewyrms) {
+        }
+        if (iceStrykewyrms) {
             Execution.delay(iceStrykewyrms());
             return;
-        } else if (camelWarriors) {
+        }
+        if (camelWarriors) {
             Execution.delay(camelWarriors(player));
             return;
         }
