@@ -110,42 +110,39 @@ public class Banking {
             "testbit": -1
     }*/
 
-    public static long backpackIsFull(LocalPlayer player) {
-        int soilBoxUpgradeLevel = VarManager.getVarbitValue(47021);
-        int soilBoxCapacity = switch (soilBoxUpgradeLevel) {
-            case 0 -> 50;
-            case 1 -> 100;
-            case 2 -> 250;
-            case 3 -> 500;
-            default -> 0;
-        };
+   public static long backpackIsFull(LocalPlayer player) {
+    int soilBoxUpgradeLevel = VarManager.getVarbitValue(47021);
+    int soilBoxCapacity = switch (soilBoxUpgradeLevel) {
+        case 0 -> 50;
+        case 1 -> 100;
+        case 2 -> 250;
+        case 3 -> 500;
+        default -> 0;
+    };
 
-        if (backpack.contains("Archaeological soil box")) {
-            for (SoilType soilType : SoilType.values()) {
-                int soilAmount = VarManager.getVarValue(VarDomainType.PLAYER, soilType.getSoilBoxId());
-                log("Soil Type: " + soilType.name() + ", Amount: " + soilAmount);
-                if (soilAmount >= soilBoxCapacity) {
-                    log("[Caution] Soil box Full.");
-                    break;
-                } else {
-                    boolean success = backpack.interact("Archaeological soil box", "Fill");
-                    Execution.delay(random.nextLong(2000, 3000));
-                    log("[Archaeology] Attempting to fill soil box.");
-                    if (!Backpack.isFull() == success) {
-                        log("[Success] Soil box filled.");
-                    }
+    if (backpack.contains("Archaeological soil box")) {
+        log("Soil box capacity: " + soilBoxCapacity); // Log the capacity of the soil box
+        for (SoilType soilType : SoilType.values()) {
+            int soilAmount = VarManager.getVarValue(VarDomainType.PLAYER, soilType.getSoilBoxId());
+            log("Soil Type: " + soilType.name() + ", Current Amount: " + soilAmount);
+            if (Backpack.containsItemByCategory(4603) && soilAmount < soilBoxCapacity) {
+                boolean success = backpack.interact("Archaeological soil box", "Fill");
+                Execution.delay(random.nextLong(1200, 1600));
+                if (!Backpack.isFull() == success) {
+                    log("[Success] Soil box filled.");
                 }
             }
-            Execution.delay(RandomGenerator.nextInt(1500, 3000));
         }
-        if (backpack.isFull()) {
-            setLastSkillingLocation(player.getCoordinate());
-            log("[Caution] Going to the bank, setting skilling location as: " + player.getCoordinate());
-            setBotState(BANKING);
-        }
-
-        return random.nextLong(1500, 3000);
+        Execution.delay(RandomGenerator.nextInt(1500, 3000));
     }
+    if (backpack.isFull()) {
+        setLastSkillingLocation(player.getCoordinate());
+        log("[Caution] Going to the bank, setting skilling location as: " + player.getCoordinate());
+        setBotState(BANKING);
+    }
+
+    return random.nextLong(1500, 3000);
+}
 
     public static long BankforArcheology(LocalPlayer player, List<String> selectedArchNames) {
         setLastSkillingLocation(player.getCoordinate());
