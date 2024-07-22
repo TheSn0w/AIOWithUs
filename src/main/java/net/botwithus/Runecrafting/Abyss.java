@@ -509,26 +509,26 @@ public class Abyss {
 
     public static void castBladedDive() {
         if (Math.random() > 0.90) { // 8% chance not to cast
-            log("[Caution] Decided not to use Dive this time.");
+            log("[Caution] Decided not to use Bladed Dive this time.");
             return;
         }
 
-        if (ActionBar.containsAbility("Dive")) {
-            if (ActionBar.getCooldownPrecise("Dive") == 0) {
-                if (ActionBar.useAbility("Dive")) {
+        if (ActionBar.containsAbility("Bladed Dive")) {
+            if (ActionBar.getCooldownPrecise("Bladed Dive") == 0) {
+                if (ActionBar.useAbility("Bladed Dive")) {
                     Execution.delay(RandomGenerator.nextInt(200, 400));
 
                     Coordinate selectedCoordinate = coordinates[random.nextInt(coordinates.length)];
                     MiniMenu.interact(SELECT_TILE.getType(), 0, selectedCoordinate.getX(), selectedCoordinate.getY());
                     log("[Success] Interaction with tile successful.");
                 } else {
-                    log("[Error] Failed to activate Dive ability.");
+                    log("[Error] Failed to activate Bladed Dive ability.");
                 }
             } else {
-                log("[Caution] Dive ability is on cooldown.");
+                log("[Caution] Bladed Dive ability is on cooldown.");
             }
         } else {
-            log("[Error] Dive ability not found in ActionBar.");
+            log("[Error] Bladed Dive ability not found in ActionBar.");
         }
     }
 
