@@ -390,9 +390,11 @@ public class Astral {
             return false;
         }
 
-        if (ActionBar.containsAbility("Bladed Dive")) {
-            if (ActionBar.getCooldownPrecise("Bladed Dive") == 0) {
-                if (ActionBar.useAbility("Bladed Dive")) {
+        String abilityName = ActionBar.containsAbility("Bladed Dive") ? "Bladed Dive" : "Dive";
+
+        if (ActionBar.containsAbility(abilityName)) {
+            if (ActionBar.getCooldownPrecise(abilityName) == 0) {
+                if (ActionBar.useAbility(abilityName)) {
                     Execution.delay(RandomGenerator.nextInt(200, 400));
 
                     Coordinate selectedCoordinate = BDCoords.getRandomWalkableCoordinate();
@@ -400,13 +402,13 @@ public class Astral {
                     log("[Success] Interaction with tile successful.");
                     return true;
                 } else {
-                    log("[Error] Failed to activate Bladed Dive ability.");
+                    log("[Error] Failed to activate " + abilityName + " ability.");
                 }
             } else {
-                log("[Caution] Bladed Dive ability is on cooldown.");
+                log("[Caution] " + abilityName + " ability is on cooldown.");
             }
         } else {
-            log("[Error] Bladed Dive ability not found in ActionBar.");
+            log("[Error] " + abilityName + " ability not found in ActionBar.");
         }
         return false;
     }

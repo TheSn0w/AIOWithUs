@@ -395,38 +395,40 @@ public class SteamRunes {
 
 
 
+    public static final Coordinate[] coordinates = {
+            new Coordinate(3321, 3246, 0),
+            new Coordinate(3322, 3247, 0),
+            new Coordinate(3322, 3246, 0),
+            new Coordinate(3323, 3245, 0),
+            new Coordinate(3321, 3244, 0),
+            new Coordinate(3321, 3245, 0)
+    };
+
     public static void castBladedDive() {
-        Coordinate[] coordinates = {
-                new Coordinate(3321, 3246, 0),
-                new Coordinate(3322, 3247, 0),
-                new Coordinate(3322, 3246, 0),
-                new Coordinate(3323, 3245, 0),
-                new Coordinate(3321, 3244, 0),
-                new Coordinate(3321, 3245, 0)
-        };
+        String abilityName = ActionBar.containsAbility("Bladed Dive") ? "Bladed Dive" : "Dive";
 
-        if (ActionBar.containsAbility("Bladed Dive")) {
-            log("[Debug] Bladed Dive ability found.");
+        if (ActionBar.containsAbility(abilityName)) {
+            log("[Debug] " + abilityName + " ability found.");
 
-            if (ActionBar.getCooldownPrecise("Bladed Dive") == 0) {
-                log("[Debug] Bladed Dive ability is not on cooldown.");
+            if (ActionBar.getCooldownPrecise(abilityName) == 0) {
+                log("[Debug] " + abilityName + " ability is not on cooldown.");
 
-                if (ActionBar.useAbility("Bladed Dive")) {
-                    log("Bladed Dive ability activated at specific coordinates.");
+                if (ActionBar.useAbility(abilityName)) {
+                    log(abilityName + " ability activated at specific coordinates.");
                     Execution.delay(RandomGenerator.nextInt(200, 400));
 
                     Coordinate selectedCoordinate = coordinates[random.nextInt(coordinates.length)];
                     log("[Debug] Attempting to interact with tile at coordinates (" + selectedCoordinate.getX() + ", " + selectedCoordinate.getY() + ").");
                     MiniMenu.interact(SELECT_TILE.getType(), 0, selectedCoordinate.getX(), selectedCoordinate.getY());
-                    log("Bladed Dive ability activated. Interaction with tile successful.");
+                    log(abilityName + " ability activated. Interaction with tile successful.");
                 } else {
-                    log("[Error] Failed to activate Bladed Dive ability.");
+                    log("[Error] Failed to activate " + abilityName + " ability.");
                 }
             } else {
-                log("[Error] Bladed Dive ability is on cooldown.");
+                log("[Error] " + abilityName + " ability is on cooldown.");
             }
         } else {
-            log("[Error] Bladed Dive ability not found in ActionBar.");
+            log("[Error] " + abilityName + " ability not found in ActionBar.");
         }
     }
 }
