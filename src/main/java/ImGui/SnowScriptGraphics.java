@@ -155,8 +155,8 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         ScriptisOn = true;
                         Stopwatch.start();
                         script.saveConfiguration();
-
                         setBotState(SnowsScript.BotState.SKILLING);
+
                         resetSlayerPoints();
                         script.subscribeToEvents();
 

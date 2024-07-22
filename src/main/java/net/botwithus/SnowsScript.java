@@ -172,6 +172,7 @@ public class SnowsScript extends LoopingScript {
         }
     }
 
+
     private void capturestuff() {
         EntityResultSet<Npc> npcResults = NpcQuery.newQuery()
                 .name("Seren spirit", "Divine blessing", "Catalyst of alteration", "Fire spirit", "Forge phoenix")
