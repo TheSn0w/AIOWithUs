@@ -4,12 +4,16 @@ import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Item;
+import net.botwithus.rs3.game.hud.interfaces.Component;
+import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.vars.VarManager;
 import net.botwithus.rs3.script.Execution;
+
+import java.util.Optional;
 
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Variables.Variables.prayerPointsThreshold;
@@ -104,12 +108,21 @@ public class Familiar {
 
     private static void storeMaxScrolls() {
         log("[Familiar] Attempting to store scrolls in familiar.");
-        boolean success = ComponentQuery.newQuery(662).componentIndex(78).results().first().interact(1);
-        Execution.delay(random.nextLong(800, 1000));
-        if (success) {
-            log("[Success] Successfully stored scrolls in familiar.");
+        if (Interfaces.isOpen(662)) {
+            Optional<Component> componentOptional = ComponentQuery.newQuery(662).componentIndex(78).results().stream().findFirst();
+            if (componentOptional.isPresent()) {
+                boolean success = componentOptional.get().interact(1);
+                Execution.delay(random.nextLong(800, 1000));
+                if (success) {
+                    log("[Success] Successfully stored scrolls in familiar.");
+                } else {
+                    log("[Error] Failed to store scrolls in familiar.");
+                }
+            } else {
+                log("[Error] No component found to interact with.");
+            }
         } else {
-            log("[Error] Failed to store scrolls in familiar.");
+            log("[Error] Familiar interface not open.");
         }
     }
 }
