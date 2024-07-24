@@ -1,17 +1,18 @@
 package net.botwithus.Runecrafting;
 
+import net.botwithus.Combat.Direction;
 import net.botwithus.api.game.hud.inventories.Backpack;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
+import net.botwithus.rs3.game.Distance;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
 import net.botwithus.rs3.game.hud.interfaces.Component;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
 import net.botwithus.rs3.game.login.LoginManager;
-import net.botwithus.rs3.game.login.World;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -19,7 +20,6 @@ import net.botwithus.rs3.game.queries.builders.characters.PlayerQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
-import net.botwithus.rs3.game.queries.builders.worlds.WorldQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.queries.results.ResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
@@ -232,8 +232,14 @@ public class Runecrafting {
 
                 if (otherPlayersPresent) {
                     log("Other players found within distance. Initiating world hop.");
+                    int currentWorld = LoginManager.getWorld();
+                    int randomMembersWorldsIndex;
+                    do {
+                        randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                    } while (membersWorlds[randomMembersWorldsIndex] == currentWorld);
                     ScriptState previousState = currentState;
-                    hopworlds();
+                    HopWorlds(membersWorlds[randomMembersWorldsIndex]);
+                    log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
                     currentState = previousState;
                 }
             }
@@ -467,8 +473,6 @@ public class Runecrafting {
                 Equipment.interact(Equipment.Slot.HANDS, "City of Um: Haunt on the Hill");
                 log("[Runecrafting] Interacted with 'City of Um: Haunt on the Hill'.");
 
-                Execution.delay(RandomGenerator.nextInt(5000, 6000));
-                Execution.delayUntil(RandomGenerator.nextInt(5000, 10000), () -> player.getAnimationId() == -1);
 
                 lastMovedOrAnimatedTime = System.currentTimeMillis();
                 currentState = INTERACTINGWITHPORTAL;
@@ -480,36 +484,65 @@ public class Runecrafting {
         }
     }
 
-    private static void interactWithDarkPortal() {
+    public static void interactWithDarkPortal() {
         LocalPlayer player = Client.getLocalPlayer();
-        if (player != null) {
-            SceneObject Portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
+        if (player == null) {
+            log("[Runecrafting] Player not found.");
+            return;
+        }
 
-            if (Portal != null) {
-                while (!player.isMoving()) {
-                    Portal.interact("Enter");
-                    log("[Runecrafting] Attempting to interact with the Dark Portal.");
-                    Execution.delay(random.nextLong(600, 800));
-
-                    if (player.isMoving()) {
-                        break;
-                    }
-                }
-
-                if (Portal.distanceTo(player.getCoordinate()) >= 10) {
-                    boolean surgeUsed = Surge();
-                    if (surgeUsed) {
-                        Portal.interact("Enter");
-                        log("[Runecrafting] Attempting to interact with the Dark Portal after Surging.");
-                    }
-                }
-
-                lastMovedOrAnimatedTime = System.currentTimeMillis();
-                currentState = CRAFTING;
-            } else {
-                log("[Error] Dark portal not found.");
+        SceneObject portal = null;
+        while (portal == null) {
+            portal = SceneObjectQuery.newQuery().name("Dark portal").results().nearest();
+            if (portal == null) {
+                log("[Runecrafting] Dark portal not found, retrying...");
+                Execution.delay(random.nextInt(600, 800)); // delay to prevent excessive CPU usage
             }
         }
+
+        while (!player.isMoving()) {
+            if (!portal.interact("Enter")) {
+                log("[Runecrafting] Failed to interact with the Dark Portal.");
+                Execution.delay(random.nextInt(600, 800));
+                continue;
+            }
+
+            log("[Runecrafting] Attempting to interact with the Dark Portal.");
+            Execution.delay(random.nextInt(600, 800));
+
+            if (player.isMoving() && isFacingPortal(player, portal)) {
+                break;
+            }
+        }
+
+        while (!isFacingPortal(player, portal)) {
+            if (!player.isMoving()) {
+                portal.interact("Enter");
+                log("[Runecrafting] Adjusting position to face the portal.");
+                Execution.delay(random.nextInt(600, 800));
+            }
+        }
+
+        if (Distance.between(player.getCoordinate(), portal.getCoordinate()) > 10) {
+            if (Surge()) {
+                log("[Runecrafting] Surged towards the Dark Portal.");
+                Execution.delay(random.nextInt(300, 500));
+                if (!portal.interact("Enter")) {
+                    log("[Runecrafting] Failed to interact with the Dark Portal after Surging.");
+                } else {
+                    log("[Runecrafting] Attempting to interact with the Dark Portal after Surging.");
+                }
+            }
+        }
+
+        lastMovedOrAnimatedTime = System.currentTimeMillis();
+        currentState = CRAFTING;
+    }
+
+    private static boolean isFacingPortal(LocalPlayer player, SceneObject portal) {
+        Direction playerDirection = Direction.of(player);
+        Direction portalDirection = Direction.of(player.getCoordinate(), portal.getCoordinate());
+        return playerDirection == portalDirection;
     }
 
 
@@ -849,17 +882,16 @@ public class Runecrafting {
         }
     }
 
-    public static void hopworlds() {
+   /* private static void hopworlds() {
         if(LoginManager.isLoginInProgress()) {
             return;
         }
-        final WorldQuery worlds = WorldQuery.newQuery().members().ping(1, 75).mark();
-        World world = worlds.results().random();
-        if(world != null) {
-            LoginManager.hopWorld(world);
+        final WorldQuery worlds = WorldQuery.newQuery().ping(1, 50).mark();
+        for (World result : worlds.results()) {
+            script.println("World: " + result.getId() + " " + result.getActivity() + " " + result.getPopulation());
         }
-        Execution.delay(random.nextLong(5000, 10000));
-    }
+        script.delay(5000);
+    }*/
 
 
     public static int[] membersWorlds = new int[]{

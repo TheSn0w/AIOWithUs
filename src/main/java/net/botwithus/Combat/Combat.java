@@ -309,7 +309,7 @@ public class Combat {
 
 
 
-        public static void handleCombat(LocalPlayer player) {
+    public static void handleCombat(LocalPlayer player) {
         List<String> targetNames = getTargetNames();
         if (targetNames.isEmpty()) {
             log("[Error] No target names specified.");
@@ -317,34 +317,38 @@ public class Combat {
         }
 
         Pattern monsterPattern = generateRegexPattern(targetNames);
-        Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
-                .name(monsterPattern)
-                .isReachable()
-                .health(100, 1_000_000)
-                .option("Attack")
-                .results()
-                .stream()
-                .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
+        Npc monster = null;
+        int attempts = 0;
 
-        if (nearestMonsterOptional.isEmpty()) {
-            nearestMonsterOptional = NpcQuery.newQuery()
+        while (monster == null) {
+            if (attempts >= 60) { // Maximum number of attempts
+                log("[Combat] Maximum attempts reached. No valid target found.");
+                break;
+            }
+
+            Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
                     .name(monsterPattern)
+                    .isReachable()
                     .health(100, 1_000_000)
                     .option("Attack")
                     .results()
                     .stream()
                     .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
-        }
 
-        Npc monster = nearestMonsterOptional.orElse(null);
-        if (monster != null) {
-            boolean attack = monster.interact("Attack");
-            if (attack) {
-                log("[Combat] Successfully attacked: " + monster.getName());
-                Execution.delay(random.nextLong(750, 985));
+            monster = nearestMonsterOptional.orElse(null);
+
+            if (monster == null) {
+                log("[Combat] No valid target found. Retrying...");
+                Execution.delay(random.nextLong(750, 985)); // delay to prevent excessive CPU usage
+            } else {
+                boolean attack = monster.interact("Attack");
+                if (attack) {
+                    log("[Combat] Successfully attacked: " + monster.getName());
+                    Execution.delay(random.nextLong(750, 985));
+                }
             }
-        } else {
-            log("[Combat] No valid target found.");
+
+            attempts++;
         }
     }
 

@@ -65,7 +65,7 @@ public class Familiar {
                 boolean success = backpack.interact(restorePotion.getName(), "Drink");
                 if (success) {
                     log("[Familiar] Successfully drank " + restorePotion.getName());
-                    Execution.delayUntil(random.nextLong(1800, 2000), () -> player.getPrayerPoints() > prayerPointsThreshold);
+                    Execution.delay(random.nextLong(1800, 2000));
                     if (player.getSummoningPoints() > 1000) {
                         Backpack.interact(itemToSummon.getName(), "Summon");
                     } else {

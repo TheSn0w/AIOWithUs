@@ -208,7 +208,7 @@ public class RunecraftingImGui {
                 if (ImGui.IsItemHovered()) {
                     ImGui.SetTooltip("Will hop worlds if there are any players in the current world");
                 }
-                /*if (useWorldhop) {
+                if (useWorldhop) {
 
                     long timeRemaining = nextWorldHopTime - System.currentTimeMillis();
                     if (timeRemaining > 0) {
@@ -239,7 +239,7 @@ public class RunecraftingImGui {
                     if (ImGui.IsItemHovered()) {
                         ImGui.SetTooltip("Set the maximum interval for hopping worlds. The script will select a random time between these two values for each hop.");
                     }
-                }*/
+                }
             }
             if (useAstralAltar) {
                 ImGui.SetCursorPosX(spacing);

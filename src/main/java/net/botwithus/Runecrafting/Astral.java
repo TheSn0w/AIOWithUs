@@ -109,8 +109,8 @@ public class Astral {
                 log("[Runecrafting] Attempting to load last preset.");
                 Execution.delayUntil(5000, () -> Backpack.contains("Pure essence") && Rune.EARTH.getQuantity() >= 2 && Rune.LAW.getQuantity() >= 1 && Rune.ASTRAL.getQuantity() >= 2);
 
-                if (player.getCurrentHealth() < player.getMaximumHealth() && Equipment.contains("Augmented enhanced Excalibur") && ComponentQuery.newQuery(291).spriteId(14632).results().isEmpty()) {
-                    Equipment.interact(Equipment.Slot.WEAPON, "Activate");
+                if (player.getCurrentHealth() < 5000 && Equipment.contains("Augmented enhanced Excalibur") && ComponentQuery.newQuery(291).spriteId(14632).results().isEmpty()) {
+                    Equipment.interact(Equipment.Slot.SHIELD, "Activate");
                     Execution.delay(random.nextLong(2000, 3000));
                 }
 

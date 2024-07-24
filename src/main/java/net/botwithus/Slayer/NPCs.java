@@ -1674,7 +1674,7 @@ public class NPCs {
     Coordinate birdCoord = new Coordinate(2885, 3477, 0);
     Npc bird = NpcQuery.newQuery().name("Chicken").option("Attack").results().nearest();
 
-    if (bird != null && player.getCoordinate().distanceTo(bird.getCoordinate()) <= 20) {
+    if (bird != null && player.getCoordinate().distanceTo(bird.getCoordinate()) <= 10) {
         log("Chicken found within 20 tiles, proceeding to attack.");
         addTargetName("Chicken");
         setSlayerState(Main.SlayerState.COMBAT);
@@ -1717,7 +1717,7 @@ public class NPCs {
         Coordinate spiderCoord = new Coordinate(3181, 3180, 0);
         Npc spider = NpcQuery.newQuery().name("Giant spider").results().nearest();
 
-        if (spider != null && player.getCoordinate().distanceTo(spider.getCoordinate()) <= 20) {
+        if (spider != null && player.getCoordinate().distanceTo(spider.getCoordinate()) < 10) {
             log("Spider found within 20 tiles, proceeding to attack.");
             addTargetName("Giant spider");
             setSlayerState(Main.SlayerState.COMBAT);
@@ -1727,7 +1727,7 @@ public class NPCs {
             Coordinate randomWalkableCoordinate = getRandomWalkableCoordinateInArea(area);
             if (Movement.traverse(NavPath.resolve(randomWalkableCoordinate)) == TraverseEvent.State.FINISHED) {
                 log("Traversed to spider location.");
-                addTargetName("spider");
+                addTargetName("Giant spider");
                 handleMultitarget = true;
                 setSlayerState(Main.SlayerState.COMBAT);
             }
@@ -1891,7 +1891,7 @@ public class NPCs {
         if (NPC != null) {
             log("Abyssal beast found, proceeding to attack.");
             ActivateSoulSplit();
-            addTargetName("Abyssal beast");
+            addTargetName("beast");
             setSlayerState(Main.SlayerState.COMBAT);
         } else {
             log("Abyssal beast not found, proceeding to Abyssal beast location.");
