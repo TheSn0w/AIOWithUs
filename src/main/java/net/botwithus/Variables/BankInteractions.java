@@ -130,16 +130,22 @@ public class BankInteractions {
     }
 
     private static long docheck(LocalPlayer player, Coordinate nearestBank) {
-        if (player.getCoordinate().equals(nearestBank)) {
-            SceneObject bankObject = findNearestBankBooth(player);
-            if (bankObject != null) {
-                interactWithBank(player, bankObject);
-            } else {
-                log("[Banking] No suitable bank object found at the bank location.");
+        String[] bankTypes = {"Bank booth", "Bank chest", "Counter"};
+
+        SceneObject nearestBankBooth = null;
+        for (String bankType : bankTypes) {
+            nearestBankBooth = SceneObjectQuery.newQuery().name(bankType).results().nearestTo(player);
+            if (nearestBankBooth != null) {
+                break;
             }
-        } else {
-            log("[Banking] Player is not at the bank coordinate.");
         }
+
+        if (nearestBankBooth != null) {
+            interactWithBank(player, nearestBankBooth);
+        } else {
+            log("[Banking] No suitable bank object found near the player.");
+        }
+
         return 0;
     }
 
@@ -268,45 +274,45 @@ public class BankInteractions {
         Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
 
         List<String> interactionOptions = Arrays.asList("Bank", "Use");
-        String bankType = nearestBankBooth.getName();
+        List<String> bankTypes = Arrays.asList("Bank booth", "Bank chest", "Counter");
 
-        if (BANK_TYPES.contains(bankType)) {
+        if (nearestBankBooth != null && bankTypes.contains(nearestBankBooth.getName())) {
             for (String interactionOption : interactionOptions) {
-                log("[Banking] Trying interaction option: " + interactionOption + " on " + bankType);
+                log("[Banking] Trying interaction option: " + interactionOption + " on " + nearestBankBooth.getName());
 
-                for (int i = 0; i < 1; i++) {
-                    boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
-                    log("[Banking] Trying to interact with bank using " + interactionOption + " on " + bankType + ": " + interactionSuccess);
+                boolean interactionSuccess = nearestBankBooth.interact(interactionOption);
+                log("[Banking] Trying to interact with bank using " + interactionOption + " on " + nearestBankBooth.getName() + ": " + interactionSuccess);
 
-                    if (interactionSuccess) {
-                        Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
-                        if (Interfaces.isOpen(759)) {
-                            bankPin();
-                            Execution.delay(random.nextLong(1500, 3000));
-                        }
-                        if (Bank.isOpen()) {
-                            log("[Banking] Bank is open. Depositing items.");
-                            Bank.depositAllExcept(oreBoxesPattern);
-                            Execution.delay(random.nextLong(1500, 3000));
-
-                            Execution.delay(random.nextLong(1500, 3000));
-
-                            if (oreBox.getSlot() >= 0) {
-                                component(8, oreBox.getSlot(), 33882127);
-                                log("[Banking] Emptied: " + oreBox.getName());
-                                setBotState(SKILLING);
-                            }
-                            random.nextLong(1500, 3000);
-                            return;
-                        }
-                    } else {
-                        log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");
+                if (interactionSuccess) {
+                    Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
+                    if (Interfaces.isOpen(759)) {
+                        bankPin();
                         Execution.delay(random.nextLong(1500, 3000));
                     }
+                    if (Bank.isOpen()) {
+                        log("[Banking] Bank is open. Depositing items.");
+                        Bank.depositAllExcept(oreBoxesPattern);
+                        Execution.delay(random.nextLong(1500, 3000));
+
+                        if (oreBox.getSlot() >= 0) {
+                            component(8, oreBox.getSlot(), 33882127);
+                            log("[Banking] Emptied: " + oreBox.getName());
+                        }
+                        random.nextLong(1500, 3000);
+                        if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
+                            log("[Porter] Traversing to last skilling location.");
+                            Execution.delay(random.nextLong(1500, 3000));
+                            setBotState(SKILLING);
+                        }
+                        return;
+                    }
+                } else {
+                    log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");
+                    Execution.delay(random.nextLong(1500, 3000));
                 }
             }
         } else {
-            log("[Error] Bank type " + bankType + " not recognized.");
+            log("[Error] No suitable bank type found near the player.");
         }
 
         log("[Error] Failed to interact with the bank using all available options.");

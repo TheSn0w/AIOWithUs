@@ -95,9 +95,19 @@ public class Traversal {
     }
 
     public static void traverseToLastSkillingLocation() {
-        Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
-        Execution.delayUntil(random.nextLong(360000, 365000), () -> player.getCoordinate().equals(new Coordinate(lastSkillingLocation.getX(), lastSkillingLocation.getY(), 0)));
-            log("[Archaeology] Finished traversing to last location.");
-            setBotState(SKILLING);
+        switch (Movement.traverse(NavPath.resolve(lastSkillingLocation))) {
+            case FINISHED:
+                log("[Archaeology] Arrived at last skilling location.");
+                break;
+            case NO_PATH:
+                log("[Archaeology] No path to last skilling location.");
+                break;
+            case FAILED:
+                log("[Error] Failed to traverse to last location.");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + Movement.traverse(NavPath.resolve(lastSkillingLocation)));
+        }
+        setBotState(SKILLING);
     }
 }

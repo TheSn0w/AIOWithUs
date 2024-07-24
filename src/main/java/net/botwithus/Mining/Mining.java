@@ -32,53 +32,50 @@ import static net.botwithus.inventory.equipment.Slot.NECK;
 
 public class Mining {
 
-    private static long handleBackpack(LocalPlayer player) {
+    private static void handleBackpack(LocalPlayer player) {
         if (!Backpack.isFull()) {
-            return 0;
+            return;
         }
         if (Backpack.containsItemByCategory(4448)) {
-            Execution.delay(fillOreBox());
-            if (Backpack.isFull()) {
-                log("[Mining] Backpack is still full after filling ore box. Changing state to BANKING.");
-                return random.nextLong(1500, 3000);
+            boolean success = fillOreBox();
+            if (success) {
+                setBotState(SKILLING);
+            } else if (nearestBank) {
+                log("[Mining] Failed to fill the ore box. Backpack is still full. starting to mine again.");
+                sendToBank(player);
+            } else {
+                log("[Mining] Failed to fill the ore box. Backpack is full. Dropping all ores.");
+                dropAllOres();
             }
-            return random.nextLong(500, 1000);
+        } else {
+            if (nearestBank) {
+                log("[Mining] Backpack is full. Changing state to BANKING.");
+                sendToBank(player);
+            } else {
+                log("[Mining] Backpack is full. Dropping all ores.");
+                dropAllOres();
+            }
         }
-
-
-        if (nearestBank) {
-            sendToBank(player);
-            return random.nextLong(500, 1000);
-        }
-
-        log("[Mining] Backpack is full. Dropping all ores.");
-        dropAllOres();
-        return random.nextLong(1500, 3000);
     }
 
-    private static long fillOreBox() {
+    private static boolean fillOreBox() {
         Pattern oreBoxesPattern = Pattern.compile("(?i)Bronze ore box|Iron ore box|Steel ore box|Mithril ore box|Adamant ore box|Rune ore box|Orikalkum ore box|Necronium ore box|Bane ore box|Elder rune ore box");
 
         Item oreBox = InventoryItemQuery.newQuery().name(oreBoxesPattern).results().first();
 
         if (oreBox != null) {
-            int oreBoxSlot = oreBox.getSlot();
-
-            component(1, oreBoxSlot, 96534533);
-
-            Execution.delayUntil(random.nextInt(4500, 6000), () -> !Backpack.isFull());
+            Backpack.interact(oreBox.getName(), "Fill");
+            Execution.delay(random.nextLong(1500, 3000));
 
             if (!Backpack.isFull()) {
-                log("[Mining] Filled: " + oreBox.getName());
-                return random.nextLong(1500, 3000);
+                log("[Success] Filled: " + oreBox.getName());
+                setBotState(SKILLING);
+                return true;
             } else {
-                log("[Error] Failed to interact with the ore box.");
+                return false;
             }
-        } else {
-            log("[Error] Ore box not found in the backpack.");
         }
-
-        return 0;
+        return false;
     }
 
 
@@ -115,8 +112,8 @@ public class Mining {
 
         setLastSkillingLocation(player.getCoordinate());
         Execution.delay(random.nextLong(1500, 3000));
-        setBotState(BANKING);
         log("[Mining] Traversing to bank.");
+        setBotState(BANKING);
     }
 
     private static void dropAllOres() {
@@ -152,9 +149,9 @@ public class Mining {
             Execution.delay(random.nextLong(1500, 3000));
             usePorter();
         }
-        long backpackDelay = handleBackpack(player);
-        if (backpackDelay > 0) {
-            return backpackDelay;
+        if (Backpack.isFull()) {
+            handleBackpack(player);
+            return 0;
         }
 
         if (player.isMoving()) {
