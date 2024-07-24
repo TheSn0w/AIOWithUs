@@ -69,16 +69,17 @@ public class POD {
                 }
                 break;
             case INTERACT_WITH_OTHER_DOOR:
+                if (SoulSplit && VarManager.getVarbitValue(16779) == 0) {
+                    activateSoulSplit((LocalPlayer) player);
+                    Execution.delay(random.nextInt(1000, 1500));
+                }
+                if (usequickPrayers) {
+                    activateQuickPrayers();
+                    log("[Combat] Interacted with the other door. Proceeding to the next step.");
+                    Execution.delay(random.nextInt(1000, 1500));
+                }
                 if (interactWithOtherDoor()) {
-                    if (SoulSplit && VarManager.getVarbitValue(16779) == 0) {
-                        activateSoulSplit((LocalPlayer) player);
-                    }
-                    if (usequickPrayers) {
-                        activateQuickPrayers();
-                        log("[Combat] Interacted with the other door. Proceeding to the next step.");
-                        Execution.delay(random.nextInt(1000, 1500));
-                        currentStep = MOVE_PLAYER_EAST;
-                    }
+                    currentStep = MOVE_PLAYER_EAST;
                 }
                 break;
             case MOVE_PLAYER_EAST:

@@ -17,7 +17,7 @@ public class Prayers {
             boolean success = ActionBar.useAbility("Soul Split");
             if (success) {
                 log("[Combat] Activating Soul Split.");
-                Execution.delay(random.nextLong(600));
+                Execution.delay(random.nextLong(1000, 2000));
             } else {
                 log("[Error] Failed to activate Soul Split.");
             }

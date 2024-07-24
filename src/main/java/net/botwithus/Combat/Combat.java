@@ -61,20 +61,17 @@ public class Combat {
             if (player == null) {
                 return;
             }
-            if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+            if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && player.inCombat()) {
                 activateSoulSplit(player);
-            }
-            if (SoulSplit && VarManager.getVarbitValue(16779) == 1 && !player.inCombat()) {
+            } else if (!usePOD && SoulSplit && VarManager.getVarbitValue(16779) == 1 && !player.inCombat()) {
                 deactivateSoulSplit();
             }
             if (usequickPrayers) {
                 updateQuickPrayersActiveStatus();
-                if (!quickPrayersActive && (player.inCombat() || player.hasTarget() || player.getStanceId() == 2687)) {
+                if (!quickPrayersActive && player.inCombat()) {
                     activateQuickPrayers();
-                } else {
-                    if (quickPrayersActive && !player.inCombat()) {
-                        deactivateQuickPrayers();
-                    }
+                } else if (!usePOD && quickPrayersActive && !player.inCombat()){
+                    deactivateQuickPrayers();
                 }
             }
             managePotions(player);

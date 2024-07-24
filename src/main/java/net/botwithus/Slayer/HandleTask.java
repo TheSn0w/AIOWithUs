@@ -95,11 +95,6 @@ public class HandleTask {
                     addTargetName(taskName);
                     setSlayerState(DEMONS);
                     break;
-                case "abyssal beasts (wilderness)":
-                    taskName = "Abyssal beast";
-                    addTargetName(taskName);
-                    setSlayerState(DEMONS);
-                    break;
                 case "ascension members":
                     taskName = "Rorarius";
                     addTargetName(taskName);
