@@ -26,7 +26,9 @@ import java.util.regex.Pattern;
 import static net.botwithus.Archaeology.Porters.getQuantityFromOption;
 import static net.botwithus.Combat.Banking.handleBankforFood;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Slayer.Main.useBankPin;
 import static net.botwithus.SnowsScript.*;
+import static net.botwithus.SnowsScript.BotState.BANKPIN;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
 import static net.botwithus.TaskScheduler.bankPin;
 import static net.botwithus.Variables.Variables.*;
@@ -285,7 +287,7 @@ public class BankInteractions {
 
                 if (interactionSuccess) {
                     Execution.delayUntil(random.nextLong(10000, 15000), Bank::isOpen);
-                    if (Interfaces.isOpen(759)) {
+                    if (Interfaces.isOpen(759) && useBankPin) {
                         bankPin();
                         Execution.delay(random.nextLong(1500, 3000));
                     }
@@ -297,10 +299,13 @@ public class BankInteractions {
                         if (oreBox.getSlot() >= 0) {
                             component(8, oreBox.getSlot(), 33882127);
                             log("[Banking] Emptied: " + oreBox.getName());
+                            Execution.delay(random.nextLong(1500, 3000));
                         }
-                        random.nextLong(1500, 3000);
+
+                        log("[Banking] Moving back to Mining Spot.");
+
                         if (Movement.traverse(NavPath.resolve(lastSkillingLocation)) == TraverseEvent.State.FINISHED) {
-                            log("[Porter] Traversing to last skilling location.");
+                            log("[Porter] Traversed to last skilling location.");
                             Execution.delay(random.nextLong(1500, 3000));
                             setBotState(SKILLING);
                         }
