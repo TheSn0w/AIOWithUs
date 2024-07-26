@@ -6,6 +6,7 @@ import net.botwithus.inventory.backpack;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.actionbar.ActionBar;
+import net.botwithus.rs3.game.login.LoginManager;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
 import net.botwithus.rs3.game.movement.TraverseEvent;
@@ -27,7 +28,9 @@ import static net.botwithus.Archaeology.Banking.backpackIsFull;
 import static net.botwithus.Archaeology.Buffs.*;
 import static net.botwithus.Archaeology.Porters.useGrace;
 import static net.botwithus.Archaeology.Porters.usePorter;
+import static net.botwithus.Archaeology.WorldHop.HopWorldsArch;
 import static net.botwithus.CustomLogger.log;
+import static net.botwithus.Runecrafting.Runecrafting.membersWorlds;
 import static net.botwithus.SnowsScript.*;
 import static net.botwithus.SnowsScript.BotState.BANKING;
 import static net.botwithus.SnowsScript.BotState.SKILLING;
@@ -38,6 +41,7 @@ public class Archeology {
     final Map<String, Supplier<Long>> methodMap;
     static Map<String, Coordinate> coordinateMap = Map.of();
     public static boolean dropSoil = false;
+    public static boolean hopWorldsforCaches = false;
 
 
     public Archeology(SnowsScript script) {
@@ -69,8 +73,12 @@ public class Archeology {
         String closestName = null;
         double closestDistance = Double.MAX_VALUE;
 
+
         for (String name : selectedArchNames) {
             if (name != null && !name.isEmpty()) {
+                if (name.contains("Material cache")) { // Check if name contains "Material cache"
+                    MaterialCache = true; // If it does, set MaterialCache to true
+                }
                 SceneObject nearestObject = SceneObjectQuery.newQuery()
                         .name(name)
                         .results()
@@ -100,6 +108,7 @@ public class Archeology {
             }
         }
     }
+
     static void dropAllSoil() {
         log("[Archaeology] Backpack is full. Dropping all soil...");
 
@@ -236,7 +245,7 @@ public class Archeology {
         useBuffs();
 
         if (player.isMoving() || player.getAnimationId() != -1) {
-            return random.nextLong(1500, 5000);
+            return random.nextLong(1500, 3000);
         }
 
         for (String excavationName : selectedArchNames) {
@@ -248,6 +257,16 @@ public class Archeology {
                     .nearest();
 
             CoordinateSceneObject coordinateSceneObject = new CoordinateSceneObject(nearestSceneObject);
+
+            if ((nearestSceneObject == null || blacklistedSceneObjects.contains(coordinateSceneObject)) && hopWorldsforCaches) {
+                int currentWorld = LoginManager.getWorld();
+                int randomMembersWorldsIndex;
+                do {
+                    randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
+                } while (membersWorlds[randomMembersWorldsIndex] == currentWorld);
+                HopWorldsArch(membersWorlds[randomMembersWorldsIndex]);
+                log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
+            }
 
 
             if (nearestSceneObject != null && !blacklistedSceneObjects.contains(coordinateSceneObject)) {

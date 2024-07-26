@@ -38,6 +38,7 @@ import static ImGui.Skills.ThievingImGui.renderThieving;
 import static ImGui.Skills.WoodcuttingImGui.renderWoodcutting;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Archeology.dropSoil;
+import static net.botwithus.Archaeology.Archeology.hopWorldsforCaches;
 import static net.botwithus.Archaeology.WorldHop.hopWorldsforArchaeology;
 import static net.botwithus.Combat.ItemRemover.isDropActive;
 import static net.botwithus.Combat.LootManager.useLootAllNotedItems;
@@ -344,6 +345,7 @@ public class SnowScriptGraphics extends ScriptGraphicsContext {
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will hop worlds when player is within 8 tiles of you");
                         }
+                        createCenteredButton("Hop worlds for caches", () -> hopWorldsforCaches = !hopWorldsforCaches, hopWorldsforCaches);
                         createCenteredButton("Bank Pin", () -> useBankPin = !useBankPin, useBankPin);
                         if (ImGui.IsItemHovered()) {
                             ImGui.SetTooltip("Will enter Bank Pin if it comes up, enter the pin and you can close settings");

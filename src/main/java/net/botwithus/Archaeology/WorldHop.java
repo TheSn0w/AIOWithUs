@@ -19,10 +19,10 @@ import net.botwithus.rs3.util.RandomGenerator;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.botwithus.Archaeology.Archeology.MaterialCaches;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.SnowsScript.getBotState;
-import static net.botwithus.Variables.Variables.component;
-import static net.botwithus.Variables.Variables.random;
+import static net.botwithus.Variables.Variables.*;
 
 public class WorldHop {
     public static boolean hopWorldsforArchaeology = false;
@@ -61,13 +61,18 @@ public class WorldHop {
                     do {
                         randomMembersWorldsIndex = RandomGenerator.nextInt(membersWorlds.length);
                     } while (membersWorlds[randomMembersWorldsIndex] == currentWorld);
-                    HopWorlds(membersWorlds[randomMembersWorldsIndex]);
+                    HopWorldsArch(membersWorlds[randomMembersWorldsIndex]);
                     log("Hopped to world: " + membersWorlds[randomMembersWorldsIndex]);
                 }
             }
         }
     }
-    private static void HopWorlds(int world) {
+
+
+
+
+
+    public static void HopWorldsArch(int world) {
         LocalPlayer player = Client.getLocalPlayer();
         if (Interfaces.isOpen(1431)) {
             log("[Runecrafting] Interacting with Settings Icon.");
@@ -104,7 +109,7 @@ public class WorldHop {
                 }
             } else {
                 log("[Runecrafting] Failed to open hopper. Retrying...");
-                HopWorlds(world);
+                HopWorldsArch(world);
             }
         } else {
             log("[Runecrafting] Interface 1431 is not open.");

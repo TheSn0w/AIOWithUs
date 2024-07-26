@@ -5,6 +5,7 @@ import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.api.game.hud.inventories.Equipment;
 import net.botwithus.inventory.backpack;
 import net.botwithus.inventory.equipment;
+import net.botwithus.rs3.game.Area;
 import net.botwithus.rs3.game.Coordinate;
 import net.botwithus.rs3.game.Item;
 import net.botwithus.rs3.game.hud.interfaces.Interfaces;
@@ -155,11 +156,19 @@ public class Banking {
                     .name("Bank chest")
                     .option("Use")
                     .results();
+
             if (!results.isEmpty()) {
-                double distanceToChest = player.distanceTo(results.nearest());
-                log("[Archaeology] Found bank chest " + results.nearest().getCoordinate() + " at a distance of " + distanceToChest + " tiles.");
-                if (distanceToChest < 25) {
-                    Execution.delay(handleBankInteraction(player, selectedArchNames));
+                log("[Archaeology] Found Nearby Bank chest.");
+                SceneObject bankChest = results.nearest();
+                Coordinate nearbyBankChest = bankChest.getCoordinate();
+
+                Area areaAroundBankChest = new Area.Rectangular(nearbyBankChest, 2, 2);
+                Coordinate randomCoordinate = areaAroundBankChest.getRandomWalkableCoordinate();
+
+                log("[Archaeology] Traversing to Nearby Bank chest.");
+
+                if (Movement.traverse(NavPath.resolve(randomCoordinate)) == TraverseEvent.State.FINISHED) {
+                    handleBankInteraction(player, selectedArchNames);
                 }
             } else {
                 log("[Archaeology] Teleporting to bank.");

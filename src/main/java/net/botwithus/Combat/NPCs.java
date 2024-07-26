@@ -19,7 +19,6 @@ public class NPCs {
 
         if (currentTime - lastScanTime >= SCAN_DELAY_MS) {
             List<Npc> npcs = NpcQuery.newQuery()
-                    .isReachable()
                     .health(100, 1_000_000)
                     .option("Attack")
                     .results()
@@ -39,7 +38,6 @@ public class NPCs {
                 npcTableData.add(row);
             }
 
-            // Update the time of the last scan
             lastScanTime = currentTime;
         }
     }

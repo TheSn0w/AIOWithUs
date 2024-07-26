@@ -123,14 +123,15 @@ public class Divination {
 
     public static long interactWithChronicle(EntityResultSet<Npc> chronicles) {
         Npc nearestChronicle = chronicles.nearest();
+        //TODO undo this
 
-        Execution.delay(random.nextLong(600, 1000));
+        /*Execution.delay(random.nextLong(600, 1000));*/
 
         log("[Divination] Interacted with Chronicle: " + nearestChronicle.interact("Capture"));
 
         Execution.delayUntil(random.nextLong(10000, 15000), () -> !nearestChronicle.validate());
 
-        Execution.delay(random.nextLong(600, 1000));
+        /*Execution.delay(random.nextLong(600, 1000));*/
 
         return 0;
     }

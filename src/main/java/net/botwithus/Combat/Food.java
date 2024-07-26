@@ -50,7 +50,6 @@ public class Food {
         Item food = foodItems.isEmpty() ? null : foodItems.first();
 
         if (food == null) {
-            // Check if there are any ground items that, when picked up, would have the "Eat" option in the backpack
             ResultSet<GroundItem> groundFoodItems = GroundItemQuery.newQuery().results();
             GroundItem groundFood = groundFoodItems.stream()
                     .filter(item -> {

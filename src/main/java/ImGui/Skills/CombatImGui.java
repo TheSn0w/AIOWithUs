@@ -500,16 +500,16 @@ public class CombatImGui {
 
                             String npcIdentifier = npcName + "##" + i;
 
-                            // Check if the npcName is already in the CombatList
                             if (!CombatList.contains(npcName)) {
                                 ImGui.Selectable(npcIdentifier, false, 0);
                                 if (ImGui.IsItemClicked(ImGui.MouseButton.LEFT_BUTTON)) {
-                                    CombatList.add(npcName); // Add the npcName to the CombatList
+                                    CombatList.add(npcName);
                                     addTargetName(npcName);
                                     ScriptConsole.println("Added " + npcName + " to combat list.");
                                 }
+                            } else {
+                                ImGui.Text(npcName + " (already in Saved Enemy list)");
                             }
-
                             ImGui.NextColumn();
                         }
                         ImGui.Columns(1, "Column", false);

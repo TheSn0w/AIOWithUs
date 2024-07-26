@@ -16,7 +16,6 @@ import net.botwithus.rs3.script.Execution;
 import java.util.Optional;
 
 import static net.botwithus.CustomLogger.log;
-import static net.botwithus.Variables.Variables.prayerPointsThreshold;
 import static net.botwithus.Variables.Variables.random;
 
 public class Familiar {
@@ -30,15 +29,9 @@ public class Familiar {
         }
         LocalPlayer player = Client.getLocalPlayer();
         if (VarManager.getVarbitValue(6055) <= 1) {
-            ResultSet<Item> pouch = InventoryItemQuery.newQuery(93).results();
+            ResultSet<Item> pouch = InventoryItemQuery.newQuery(93).option("Summon").results();
 
-            Item itemToSummon = pouch.stream()
-                    .filter(item -> item.getName() != null &&
-                            (item.getName().toLowerCase().contains("pouch") ||
-                                    item.getName().toLowerCase().contains("contract")) &&
-                            !item.getName().toLowerCase().contains("rune"))
-                    .findFirst()
-                    .orElse(null);
+            Item itemToSummon = pouch.first();
 
             if (itemToSummon == null) {
                 log("[Familiar] No pouch found in inventory.");
@@ -46,6 +39,7 @@ public class Familiar {
             }
 
             if (player.getSummoningPoints() > 1000) {
+                log("[Familiar] Attempting to summon: " + itemToSummon.getName());
                 Backpack.interact(itemToSummon.getName(), "Summon");
                 Execution.delay(random.nextLong(800, 1000));
             } else {

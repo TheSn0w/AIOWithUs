@@ -299,6 +299,12 @@ public class Combat {
     }
 
     private static void attackMonster(LocalPlayer player, Npc monster) {
+        if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && player.inCombat()) {
+            activateSoulSplit(player);
+        }
+        if (usequickPrayers && !quickPrayersActive) {
+            activateQuickPrayers();
+        }
         monster.interact("Attack");
         log("[MultiTarget] Attacking " + monster.getName() + "...");
         Execution.delay(random.nextLong(600, 650));
@@ -315,17 +321,15 @@ public class Combat {
 
         Pattern monsterPattern = generateRegexPattern(targetNames);
         Npc monster = null;
-        int attempts = 0;
 
-        while (monster == null) {
-            if (attempts >= 60) { // Maximum number of attempts
-                log("[Combat] Maximum attempts reached. No valid target found.");
-                break;
+        while (true) { // Infinite loop
+            // Check if the script is still running
+            if (!ScriptisOn) {
+                break; // Break the loop if the script is not running
             }
 
             Optional<Npc> nearestMonsterOptional = NpcQuery.newQuery()
                     .name(monsterPattern)
-                    .isReachable()
                     .health(100, 1_000_000)
                     .option("Attack")
                     .results()
@@ -334,18 +338,36 @@ public class Combat {
 
             monster = nearestMonsterOptional.orElse(null);
 
-            if (monster == null) {
-                log("[Combat] No valid target found. Retrying...");
-                Execution.delay(random.nextLong(750, 985)); // delay to prevent excessive CPU usage
-            } else {
-                boolean attack = monster.interact("Attack");
-                if (attack) {
-                    log("[Combat] Successfully attacked: " + monster.getName());
-                    Execution.delay(random.nextLong(750, 985));
-                }
+            while (monster == null) {
+                log("[Combat] No valid target found. Waiting for respawn...");
+                Execution.delay(5000);
+
+                // Re-query for the monster
+                nearestMonsterOptional = NpcQuery.newQuery()
+                        .name(monsterPattern)
+                        .health(100, 1_000_000)
+                        .option("Attack")
+                        .results()
+                        .stream()
+                        .min(Comparator.comparingDouble(npc -> npc.getCoordinate().distanceTo(player.getCoordinate())));
+
+                monster = nearestMonsterOptional.orElse(null);
             }
 
-            attempts++;
+            if (monster != null) {
+                boolean attack = monster.interact("Attack");
+                if (attack) {
+                    if (SoulSplit && VarManager.getVarbitValue(16779) == 0 && player.inCombat()) {
+                        activateSoulSplit(player);
+                    }
+                    if (usequickPrayers && !quickPrayersActive) {
+                        activateQuickPrayers();
+                    }
+                    log("[Combat] Successfully attacked: " + monster.getName());
+                    Execution.delay(random.nextLong(750, 985));
+                    break; // Break the loop when a monster is found and attacked
+                }
+            }
         }
     }
 

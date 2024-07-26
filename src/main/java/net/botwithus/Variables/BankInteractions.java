@@ -293,14 +293,20 @@ public class BankInteractions {
                     }
                     if (Bank.isOpen()) {
                         log("[Banking] Bank is open. Depositing items.");
+                        Execution.delay(random.nextLong(1500, 3000));
                         Bank.depositAllExcept(oreBoxesPattern);
                         Execution.delay(random.nextLong(1500, 3000));
 
-                        if (oreBox.getSlot() >= 0) {
-                            component(8, oreBox.getSlot(), 33882127);
-                            log("[Banking] Emptied: " + oreBox.getName());
-                            Execution.delay(random.nextLong(1500, 3000));
+                        if (oreBox != null) {
+                            log("[Banking] Ore Box found in the Backpack. Emptying it.");
+                            if (oreBox.getSlot() >= 0) {
+                                component(8, oreBox.getSlot(), 33882127);
+                                log("[Banking] Emptied: " + oreBox.getName());
+                                Execution.delay(random.nextLong(3000, 5000));
+                            }
                         }
+
+                        Bank.close();
 
                         log("[Banking] Moving back to Mining Spot.");
 
@@ -309,7 +315,6 @@ public class BankInteractions {
                             Execution.delay(random.nextLong(1500, 3000));
                             setBotState(SKILLING);
                         }
-                        return;
                     }
                 } else {
                     log("[Error] Failed to interact with bank using " + interactionOption + " option. Retrying, with Use option.");

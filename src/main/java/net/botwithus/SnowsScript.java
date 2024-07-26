@@ -35,6 +35,7 @@ import static ImGui.PredefinedStrings.CombatList;
 import static ImGui.Skills.CombatImGui.*;
 import static ImGui.Theme.*;
 import static net.botwithus.Archaeology.Banking.BankforArcheology;
+import static net.botwithus.Archaeology.SceneObjects.updateSceneObjectTableData;
 import static net.botwithus.Combat.Banking.bankToWars;
 import static net.botwithus.Combat.Combat.*;
 import static net.botwithus.Combat.CombatManager.*;
@@ -148,6 +149,7 @@ public class SnowsScript extends LoopingScript {
         }
 
         updateNpcTableData(player);
+        updateSceneObjectTableData();
 
 
         switch (botState) {

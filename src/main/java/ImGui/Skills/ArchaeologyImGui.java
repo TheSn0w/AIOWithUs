@@ -3,23 +3,30 @@ package ImGui.Skills;
 import net.botwithus.rs3.imgui.ImGui;
 import ImGui.*;
 import net.botwithus.rs3.imgui.ImGuiWindowFlag;
+import net.botwithus.rs3.script.ScriptConsole;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static ImGui.PredefinedStrings.CombatList;
 import static ImGui.PredefinedStrings.predefinedCacheNames;
+import static net.botwithus.Archaeology.SceneObjects.getSceneObjectTableData;
+import static net.botwithus.Archaeology.SceneObjects.updateSceneObjectTableData;
+import static net.botwithus.Combat.NPCs.getNpcTableData;
 import static net.botwithus.CustomLogger.log;
 import static net.botwithus.Slayer.Main.useBankPin;
 import static net.botwithus.SnowsScript.startTime;
 import static net.botwithus.TaskScheduler.*;
 import static net.botwithus.TaskScheduler.pin4;
 import static net.botwithus.Variables.Variables.*;
-import static net.botwithus.Variables.Variables.materialTypes;
 
 public class ArchaeologyImGui {
+
+    public static boolean shownearbyCaches = false;
 
     public static void renderArchaeology() {
         if (isArcheologyActive) {
@@ -64,7 +71,55 @@ public class ArchaeologyImGui {
                 }
                 ImGui.End();
             }
+            float windowWidth1 = 400;
+            String buttonText1 = "Show Nearby Caches?";
+            float textWidth1 = ImGui.CalcTextSize(buttonText1).getX();
+            float padding1 = (windowWidth1 - textWidth1) / 2;
+            ImGui.PushStyleColor(ImGuiCol.Border, 0, 0, 0, 0);
+            ImGui.PushStyleColor(ImGuiCol.BorderShadow, 0, 0, 0, 0);
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, padding1, 2.0f);
+            ImGui.SetCursorPosX(padding1);
+            ImGui.SetCursorPosX(0);
+            if (ImGui.Button(buttonText1)) {
+                shownearbyCaches = !shownearbyCaches;
+            }
+            ImGui.PopStyleVar(1);
+            ImGui.PopStyleColor(2);
             ImGui.SeparatorText("Archaeology Options");
+
+            if (shownearbyCaches) {
+                if (ImGui.Begin("Nearby Caches", ImGuiWindowFlag.NoNav.getValue() | ImGuiWindowFlag.NoResize.getValue())) {
+                    ImGui.SetWindowSize((float) 610, (float) 225);
+                    ImGui.SeparatorText("Options");
+                    List<List<String>> tableData = getSceneObjectTableData();
+
+                    ImGui.SetItemWidth(600);
+
+                    if (ImGui.ListBoxHeader("", 569, 0)) {
+                        ImGui.Columns(1, "SceneObject names", true);
+                        for (int i = 0; i < tableData.size(); i++) {
+                            List<String> row = tableData.get(i);
+                            String cacheName = row.get(0);
+
+                            String sceneObjectIdentifier = cacheName + "##" + i;
+
+
+                            if (!getSelectedNames().contains(cacheName)) {
+                                ImGui.Selectable(sceneObjectIdentifier, false, 0);
+                                if (ImGui.IsItemClicked(ImGui.MouseButton.LEFT_BUTTON)) {
+                                    addName(cacheName);
+                                    ScriptConsole.println("Added " + cacheName + " to selected names.");
+                                }
+                            }
+
+                            ImGui.NextColumn();
+                        }
+                        ImGui.Columns(1, "Column", false);
+                        ImGui.ListBoxFooter();
+                    }
+                }
+                ImGui.End();
+            }
 
             ImGui.SetItemWidth(200.0F);
             filterText = ImGui.InputText("##FilterAndName", filterText);
