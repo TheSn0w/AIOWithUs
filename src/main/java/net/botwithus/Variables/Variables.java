@@ -1,7 +1,5 @@
 package net.botwithus.Variables;
 
-import net.botwithus.Herblore.Herblore;
-import net.botwithus.Herblore.SharedState;
 import net.botwithus.TaskScheduler;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -17,7 +15,6 @@ import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
 import static ImGui.PredefinedStrings.predefinedNames;
-import static ImGui.PredefinedStrings.recipeNamesList;
 import static net.botwithus.CustomLogger.log;
 
 public class Variables {
@@ -334,15 +331,6 @@ public class Variables {
 // SECTION 7: Herblore
 // =====================
     public static boolean isHerbloreActive = false;
-    public static boolean makeBombs = false;
-    //TODO
-    public static final String[] recipeNames = recipeNamesList.toArray(new String[0]);
-    public static final NativeInteger currentRecipeIndex = new NativeInteger(0);
-    public static String selectedCategory = "";
-    public static NativeInteger currentCategoryIndex = new NativeInteger(0);
-    public static Herblore.HerbloreRecipe getSelectedRecipe() {
-        return SharedState.selectedRecipe;
-    }
 
 
 

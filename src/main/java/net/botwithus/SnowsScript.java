@@ -1,15 +1,10 @@
 package net.botwithus;
 
 import ImGui.SnowScriptGraphics;
-import ImGui.Stopwatch;
-import net.botwithus.Combat.Combat;
-import net.botwithus.Combat.LootManager;
 import net.botwithus.Cooking.Cooking;
 import net.botwithus.Divination.Divination;
-import net.botwithus.Variables.GlobalState;
 import net.botwithus.Variables.Runnables;
 import net.botwithus.Variables.Variables;
-import net.botwithus.api.game.hud.inventories.LootInventory;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.EventBus;
 import net.botwithus.rs3.events.impl.ChatMessageEvent;
@@ -22,12 +17,12 @@ import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.results.EntityResultSet;
 import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
+import net.botwithus.rs3.game.skills.Skills;
 import net.botwithus.rs3.script.Execution;
 import net.botwithus.rs3.script.LoopingScript;
 import net.botwithus.rs3.script.config.ScriptConfig;
 import net.botwithus.rs3.script.events.PropertyUpdateRequestEvent;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -77,6 +72,11 @@ public class SnowsScript extends LoopingScript {
         return botState;
     }
 
+    public static int startingHerbloreXP;
+    public static int startingThievingXP;
+    public static int startingThievingLevel;
+
+
 
 
     public enum BotState {
@@ -95,6 +95,14 @@ public class SnowsScript extends LoopingScript {
         startTime = Instant.now();
         runStartTime = System.currentTimeMillis();
         loadConfiguration();
+
+
+        startingHerbloreXP = Skills.HERBLORE.getSkill().getExperience();
+        if (Variables.isThievingActive) {
+            startingThievingXP = Skills.THIEVING.getSkill().getExperience();
+            startingThievingLevel = Skills.THIEVING.getSkill().getActualLevel();
+        }
+
 
         skillingTasks.put(() -> Variables.isHerbloreActive, Runnables::handleHerblore);
         skillingTasks.put(() -> Variables.isRunecraftingActive, Runnables::handleRunecrafting);
@@ -251,6 +259,8 @@ public class SnowsScript extends LoopingScript {
     public static Map<String, Integer> divineCharges = new HashMap<>();
     public static Map<String, Integer> Gems = new HashMap<>();
     public static Map<String, Integer> steamRunes = new HashMap<>();
+    public static HashMap<String, Integer> inventoryMap = new HashMap<>();
+
 
 
     private void onInventoryUpdate(InventoryUpdateEvent event) {
@@ -259,6 +269,13 @@ public class SnowsScript extends LoopingScript {
         }
         if (event.getInventoryId() != 93) {
             return;
+        }
+        if (isHerbloreActive && Interfaces.isOpen(1251)) {
+            String itemName = event.getNewItem().getName();
+            if (itemName != null) {
+                int count = inventoryMap.getOrDefault(itemName, 0);
+                inventoryMap.put(itemName, count + 1);
+            }
         }
         if (isdivinechargeActive) {
             String itemName = event.getNewItem().getName();
@@ -378,6 +395,7 @@ public class SnowsScript extends LoopingScript {
     public static Map<String, Integer> necroItemsAdded = new HashMap<>();
     public static Map<String, Integer> materialsGained = new HashMap<>();
     Queue<String> lastTwoMessages = new LinkedList<>();
+    public static Map<String, Integer> extraPotionsMade = new HashMap<>();
 
 
 
@@ -390,6 +408,14 @@ public class SnowsScript extends LoopingScript {
             return;
         }
         String message = event.getMessage();
+
+        if (isHerbloreActive) {
+            if (message.contains("You mix such a potent potion")) {
+                String category = "Extra Potions";
+                int count = extraPotionsMade.getOrDefault(category, 0);
+                extraPotionsMade.put(category, count + 1);
+            }
+        }
         if (isDissasemblerActive) {
             if (message.contains("Materials gained:")) {
                 String[] parts = message.split(": ");
@@ -659,7 +685,6 @@ public class SnowsScript extends LoopingScript {
         this.configuration.addProperty("materialManual", String.valueOf(materialManual));
         this.configuration.addProperty("archaeologistsTea", String.valueOf(archaeologistsTea));
         this.configuration.addProperty("isHerbloreActive", String.valueOf(isHerbloreActive));
-        this.configuration.addProperty("makeBombs", String.valueOf(makeBombs));
         this.configuration.addProperty("useGraceoftheElves", String.valueOf(useGraceoftheElves));
         this.configuration.addProperty("useGote", String.valueOf(useGote));
         this.configuration.addProperty("harvestChronicles", String.valueOf(harvestChronicles));
@@ -819,7 +844,6 @@ public class SnowsScript extends LoopingScript {
             isCombatActive = Boolean.parseBoolean(this.configuration.getProperty("Combat"));
             useLootEverything = Boolean.parseBoolean(this.configuration.getProperty("interactWithLootAll"));
             useCustomLoot = Boolean.parseBoolean(this.configuration.getProperty("useLoot"));
-            makeBombs = Boolean.parseBoolean(this.configuration.getProperty("makeBombs"));
             isHerbloreActive = Boolean.parseBoolean(this.configuration.getProperty("isHerbloreActive"));
             usePOD = Boolean.parseBoolean(this.configuration.getProperty("usePOD"));
             SoulSplit = Boolean.parseBoolean(this.configuration.getProperty("SoulSplit"));

@@ -45,8 +45,6 @@ public class BottomChild {
                 botState = String.valueOf(SteamRunes.getCurrentState());
             } else if (pickCaveNightshade) {
                 botState = String.valueOf(getNightShadeState());
-            } else if (isHerbloreActive) {
-                botState = String.valueOf(getSelectedRecipe());
             } else if (isMakeUrnsActive) {
                 botState = String.valueOf(getUrnState());
             } else if (useAbyssRunecrafting) {

@@ -95,18 +95,20 @@ public class Traversal {
     }
 
     public static void traverseToLastSkillingLocation() {
-        switch (Movement.traverse(NavPath.resolve(lastSkillingLocation))) {
+        TraverseEvent.State result = Movement.traverse(NavPath.resolve(lastSkillingLocation));
+        switch (result) {
             case FINISHED:
                 log("[Archaeology] Arrived at last skilling location.");
                 break;
             case NO_PATH:
-                log("[Archaeology] No path to last skilling location.");
+                log("[Archaeology] No path to last skilling location. Attempting to walk...");
+                Movement.walkTo(lastSkillingLocation.getX(), lastSkillingLocation.getY(), true);
                 break;
             case FAILED:
                 log("[Error] Failed to traverse to last location.");
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + Movement.traverse(NavPath.resolve(lastSkillingLocation)));
+                throw new IllegalStateException("Unexpected value: " + result);
         }
         setBotState(SKILLING);
     }

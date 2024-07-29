@@ -245,61 +245,8 @@ public class PredefinedStrings {
         secondaryItemName.put(1444, "Water talisman");
     }
 
-    public static final Map<String, List<String>> categorizedRecipes = new HashMap<>();
-    static {
-        categorizedRecipes.put("Extremes", List.of("Extreme Attack", "Extreme Strength", "Extreme Defence"/*, "Extreme Magic", "Extreme Ranging", "Extreme Necromancy"*/));
-        /*categorizedRecipes.get("Extremes").addAll(List.of("Extreme Hunter", "Extreme Divination", "Extreme Runecrafting", "Extreme Invention", "Extreme Cooking"));*/
 
-      /*  categorizedRecipes.put("Super", List.of("Super Attack", "Super Strength", "Super Defence", "Super Magic", "Super Ranged", "Super Necromancy"));*/
-        categorizedRecipes.put("Combination", List.of("Supreme Overloads", "Overloads", "Elder Overloads", "Overload Salve"));
-        // Add more categories as needed
-    }
 
-    public static final List<String> recipeNamesList = new ArrayList<>();
-    static {
-        recipeNamesList.add("Choose a recipe");
-        recipeNamesList.add("Supreme Overloads");
-        recipeNamesList.add("Overloads");
-        recipeNamesList.add("Extreme Attack");
-        recipeNamesList.add("Extreme Strength");
-        recipeNamesList.add("Extreme Defence");
-  /*      recipeNamesList.add("Extreme Magic");
-        recipeNamesList.add("Extreme Ranging");
-        recipeNamesList.add("Extreme Necromancy");
-        recipeNamesList.add("Super Attack");
-        recipeNamesList.add("Super Strength");
-        recipeNamesList.add("Super Defence");
-        recipeNamesList.add("Super Magic");
-        recipeNamesList.add("Super Ranged");
-        recipeNamesList.add("Super Necromancy");
-        recipeNamesList.addAll(List.of("Extreme Hunter", "Extreme Divination", "Extreme Runecrafting", "Extreme Invention", "Extreme Cooking"));*/
 
-    }
-    public static Herblore.HerbloreRecipe stringToHerbloreRecipe(String recipeName) {
-        return switch (recipeName) {
-            case "Overload Salve" -> Herblore.HerbloreRecipe.OVERLOAD_SALVE;
-            case "Elder Overloads" -> Herblore.HerbloreRecipe.ELDER_OVERLOADS;
-            case "Supreme Overloads" -> Herblore.HerbloreRecipe.SUPREME_OVERLOADS;
-            case "Overloads" -> Herblore.HerbloreRecipe.OVERLOADS;
-            case "Extreme Attack" -> Herblore.HerbloreRecipe.EXTREME_ATTACK;
-            case "Extreme Strength" -> Herblore.HerbloreRecipe.EXTREME_STRENGTH;
-            case "Extreme Defence" -> Herblore.HerbloreRecipe.EXTREME_DEFENCE;
-        /*    case "Extreme Magic" -> Herblore.HerbloreRecipe.EXTREME_MAGIC;
-            case "Extreme Ranging" -> Herblore.HerbloreRecipe.EXTREME_RANGING;
-            case "Extreme Necromancy" -> Herblore.HerbloreRecipe.EXTREME_NECROMANCY;
-            case "Super Attack" -> Herblore.HerbloreRecipe.SUPER_ATTACK;
-            case "Super Strength" -> Herblore.HerbloreRecipe.SUPER_STRENGTH;
-            case "Super Defence" -> Herblore.HerbloreRecipe.SUPER_DEFENCE;
-             case "Super Magic" -> Herblore.HerbloreRecipe.SUPER_MAGIC;
-            case "Super Ranged" -> Herblore.HerbloreRecipe.SUPER_RANGED;
-            case "Super Necromancy" -> Herblore.HerbloreRecipe.SUPER_NECROMANCY;
-            case "Extreme Hunter" -> Herblore.HerbloreRecipe.EXTREME_HUNTER;
-            case "Extreme Divination" -> Herblore.HerbloreRecipe.EXTREME_DIVINATION;
-            case "Extreme Runecrafting" -> Herblore.HerbloreRecipe.EXTREME_RUNECRAFTING;
-            case "Extreme Invention" -> Herblore.HerbloreRecipe.EXTREME_INVENTION;
-            case "Extreme Cooking" -> Herblore.HerbloreRecipe.EXTREME_COOKING;*/
-            default -> throw new IllegalArgumentException("Unknown recipe: " + recipeName);
-        };
-    }
 
 }
