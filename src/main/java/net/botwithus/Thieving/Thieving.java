@@ -29,6 +29,10 @@ import static net.botwithus.Variables.Variables.random;
 
 public class Thieving {
     public static final Coordinate BakerystallLocation = new Coordinate(3209, 3266, 0);
+    public static final Coordinate CruxDruidsLocation = new Coordinate(2895, 3435, 0);
+    public static final Coordinate CruxKnightsLocation = new Coordinate(2895, 3435, 0);
+    public static final Coordinate PompousMerchantLocation = new Coordinate(2895, 3435, 0);
+    public static final Coordinate BankLocation = new Coordinate(3208, 3264, 0);
 
 
 
@@ -63,7 +67,7 @@ public class Thieving {
     private static long handlePompousMerchant() {
         EntityResultSet<Npc> results = NpcQuery.newQuery().name("Pompous merchant").option("Talk to").results();
         if (results.isEmpty()) {
-            if (Movement.traverse(NavPath.resolve(new Coordinate(2895, 3435, 0))) == TraverseEvent.State.FINISHED) {
+            if (Movement.traverse(NavPath.resolve(PompousMerchantLocation)) == TraverseEvent.State.FINISHED) {
                 return random.nextLong(3500, 5000);
             }
         } else {
@@ -115,8 +119,40 @@ public class Thieving {
     }
 
     private static long handleCruxDruids() {
+        if (Backpack.isFull()) {
+            EntityResultSet<SceneObject> bankChest = SceneObjectQuery.newQuery().name("Bank chest").results();
+            boolean bankInteractionSuccess = bankChest.nearest().interact("Load Last Preset from");
+            if (bankInteractionSuccess) {
+                log("[Thieving] Interacted with Bank chest.");
+                Execution.delayUntil(30000, Backpack::isEmpty);
+                return random.nextLong(878, 1878);
+            } else {
+                log("[Error] BankChest interaction failed.");
+            }
+        } else {
+            if (player.getCoordinate().equals(BakerystallLocation)) {
+                EntityResultSet<SceneObject> bakeryStall = SceneObjectQuery.newQuery().id(66692).hidden(false).option("Steal from").results();
+                if (bakeryStall.isEmpty()) {
+                    log("[Error] Bakery Stall not found.");
+                    return random.nextLong(3500, 5000);
+                } else {
+                    SceneObject stall = bakeryStall.nearest();
+                    if (stall.getCoordinate().equals(new Coordinate(3208, 3264, 0)) && player.getAnimationId() == -1) {
+                        log("[Thieving] Interacted with Bakery Stall: " + stall.interact("Steal from"));
+                        return random.nextLong(1269, 1878);
+                    }
+                }
+            } else {
+                log("[Thieving] Moving to Bakery Stall Location.");
+                if (Movement.traverse(NavPath.resolve(BakerystallLocation)) == TraverseEvent.State.FINISHED) {
+                    log("[Thieving] Arrived at Bakery Stall Location.");
+                    return 0;
+                }
+            }
+        }
         return 0;
     }
+
     private static long handleCruxKnights() {
         return 0;
     }
